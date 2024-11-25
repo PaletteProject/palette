@@ -41,6 +41,10 @@ jobs:
       - name: Build project
         run: npm run build
 
+        # Check that the code runs in Node (will catch missing .js file extensions)
+      - name: Validate Node
+        run: node backend/src/validateNode.js
+
       - name: Run ESLint
         run: npm run lint
 
@@ -96,7 +100,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-# Ensure the project builds
+      # Ensure the project builds
       - name: Build project
         run: npm run build
 

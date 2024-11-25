@@ -7,7 +7,7 @@ import {
   assignmentParamValidator,
   courseParamValidator,
   idAndCourseParamValidator,
-} from "../validators/paramValidators";
+} from "../validators/paramValidators.js";
 
 import {
   getAllCourses,
