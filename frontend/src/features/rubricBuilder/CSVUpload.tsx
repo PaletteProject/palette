@@ -1,71 +1,126 @@
-import React from "react";
-import Papa from "papaparse";
-import { CSVRow } from "@local_types";
+import React, { useState } from "react";
+import { importCsv } from "@utils";
+import { Dialog } from "@components";
+
+import { Criteria, Rubric } from "palette-types";
+import { v4 as uuid } from "uuid";
 
 interface CSVUploadProps {
-  onDataChange: (data: CSVRow[]) => void;
-  closeImportCard: () => void; // callback to close the import card
+  rubric: Rubric | undefined;
+  setRubric: React.Dispatch<React.SetStateAction<Rubric | undefined>>;
 }
 
-export const CSVUpload: React.FC<CSVUploadProps> = ({
-  onDataChange,
-  closeImportCard,
-}: CSVUploadProps) => {
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+export const CSVUpload: React.FC<CSVUploadProps> = ({ setRubric }) => {
+  const [showVersionModal, setShowVersionModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const closeErrorDialog = () => setErrorMessage(null);
+
+  const handleFileChange = (
+    file: File,
+    version: "versionOne" | "versionTwo",
+  ) => {
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
-
-    if (fileExtension === "csv") {
-      parseCSV(file);
-    } else {
+    if (fileExtension !== "csv") {
       alert("Unsupported file format. Please upload a CSV file.");
+      return;
     }
+
+    importCsv(
+      file,
+      version,
+      (newCriteria) => {
+        updateRubric(newCriteria);
+      },
+      (error) => {
+        setErrorMessage(error);
+      },
+    );
   };
 
-  const parseCSV = (file: File) => {
-    Papa.parse(file, {
-      header: false, // keeps the output an array to sync with parsing xlsx files
-      complete: (results) => {
-        console.log("Parsed CSV data:", results.data);
+  const updateRubric = (newCriteria: Criteria[]) => {
+    setRubric((prevRubric) =>
+      prevRubric
+        ? {
+            ...prevRubric,
+            criteria: [...prevRubric.criteria, ...newCriteria],
+            pointsPossible:
+              prevRubric.pointsPossible +
+              newCriteria.reduce((sum, criterion) => sum + criterion.points, 0),
+          }
+        : {
+            id: parseInt(uuid(), 16),
+            title: "Imported Rubric",
+            criteria: newCriteria,
+            pointsPossible: newCriteria.reduce(
+              (sum, criterion) => sum + criterion.points,
+              0,
+            ),
+            key: `rubric-${uuid()}`,
+          },
+    );
+  };
 
-        // Validate each row to ensure it matches CSVRow type
-        const parsedData = results.data.filter((row): row is CSVRow => {
-          return (
-            Array.isArray(row) &&
-            typeof row[0] === "string" &&
-            row
-              .slice(1)
-              .every(
-                (cell) => typeof cell === "string" || typeof cell === "number",
-              )
-          );
-        });
-        console.log("Validated CSV data:", results.data);
-        onDataChange(parsedData); // Pass validated data to parent
-      },
-    });
-    closeImportCard();
+  const handleVersionSelection = (version: "versionOne" | "versionTwo") => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = ".csv";
+    fileInput.onchange = (event: Event) => {
+      const target = event.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (file) {
+        handleFileChange(file, version);
+      }
+    };
+    fileInput.click();
+    setShowVersionModal(false);
   };
 
   return (
-    <div className={"flex justify-center items-center gap-10"}>
-      <input
-        type="file"
-        accept=".csv"
-        data-testid={"file-upload"}
-        onChange={handleFileChange}
-        className="mt-4 mb-4 border border-gray-600 rounded-lg p-3 text-gray-300 hover:bg-gray-800 transition duration-300 cursor-pointer focus:outline-none"
-      />
-
-      {/* Cancel Button */}
+    <div className="flex flex-col items-center gap-4">
       <button
-        onClick={closeImportCard}
-        className=" mt-4 bg-red-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+        onClick={() => setShowVersionModal(true)}
+        className="bg-blue-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
-        Cancel
+        Import CSV
       </button>
+      <Dialog
+        isOpen={showVersionModal}
+        onClose={() => setShowVersionModal(false)}
+        title="Select Import Version"
+      >
+        <div className="flex flex-col gap-4">
+          <button
+            onClick={() => handleVersionSelection("versionOne")}
+            className="bg-green-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            Version 1 (Legacy)
+          </button>
+          <button
+            onClick={() => handleVersionSelection("versionTwo")}
+            className="bg-yellow-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          >
+            Version 2 (New)
+          </button>
+        </div>
+      </Dialog>
+      {errorMessage && (
+        <Dialog
+          isOpen={!!errorMessage}
+          onClose={closeErrorDialog}
+          title="Error"
+        >
+          <p>{errorMessage}</p>
+          <button
+            onClick={closeErrorDialog}
+            className="bg-red-600 text-white font-bold rounded-lg py-2 px-4 mt-4 transition duration-300 hover:bg-red-700 focus:outline-none"
+          >
+            OK
+          </button>
+        </Dialog>
+      )}
     </div>
   );
 };
+
+export default CSVUpload;
