@@ -10,6 +10,7 @@ import { fallbackErrorHandler } from "./middleware/fallbackErrorHandler.js";
 import { wildcardRouter } from "./routes/wildcardRouter.js";
 import courseRouter from "./routes/courseRouter.js";
 import userRouter from "./routes/userRouter.js";
+import templateRouter from "./routes/templateRouter.js";
 
 // Get the directory name
 const __filename = fileURLToPath(import.meta.url);
@@ -42,6 +43,7 @@ app.get("/health", (_req: Request, res: Response) => {
 // API routes
 app.use("/api/courses", courseRouter);
 app.use("/api/user", userRouter);
+app.use("/api/templates", templateRouter);
 app.get("*", wildcardRouter);
 
 // field validation error handling middleware
