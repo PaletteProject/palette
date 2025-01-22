@@ -1,12 +1,6 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Settings } from "palette-types";
-import {
-  Footer,
-  Header,
-  LoadingDots,
-  ModalChoiceDialog,
-  SaveButton,
-} from "@components";
+import { LoadingDots, ModalChoiceDialog, SaveButton } from "@components";
 import { useFetch } from "@hooks";
 
 export function SettingsMain(): ReactElement {
@@ -190,11 +184,9 @@ export function SettingsMain(): ReactElement {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-700 text-white flex flex-col">
-      <Header />
       <main className="flex-1 flex justify-center items-center p-6">
         {renderContent()}
       </main>
-      <Footer />
       <ModalChoiceDialog
         show={modal.isOpen}
         title={modal.title}

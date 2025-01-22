@@ -3,25 +3,21 @@
  */
 
 import { ReactElement, useCallback, useEffect, useState } from "react";
-
-import { Dialog, Footer, Header, ModalChoiceDialog, PopUp } from "@components";
-
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-
+  Dialog,
+  ModalChoiceDialog,
+  PopUp,
+  EditTemplateModal,
+} from "@components";
 import { createRubric } from "@utils";
 import { Criteria, Rubric, Template } from "palette-types";
-import { AnimatePresence, motion } from "framer-motion";
-import { useCourse } from "../../context";
+import { useCourse } from "../../context/index.ts";
 import { useAssignment } from "../../context/AssignmentProvider.tsx";
 import TemplateUpload from "../rubricBuilder/TemplateUpload.tsx";
-import TemplateCard from "./TemplateCards";
+import TemplateCard from "./TemplateCards.tsx";
 import { useFetch } from "@hooks";
 
-export default function RubricBuilder(): ReactElement {
+export default function TemplatesPage(): ReactElement {
   /**
    * Rubric Builder State
    */
@@ -93,28 +89,6 @@ export default function RubricBuilder(): ReactElement {
       return;
     }
   }, [activeCourse, activeAssignment]);
-
-  /**
-   * Fires when a drag event ends, resorting the rubric criteria.
-   * @param event - drag end event
-   */
-  const handleDragEnd = (event: DragEndEvent) => {
-    if (!rubric) return;
-    if (event.over) {
-      const oldIndex = rubric.criteria.findIndex(
-        (criterion) => criterion.key === event.active.id
-      );
-      const newIndex = rubric.criteria.findIndex(
-        (criterion) => criterion.key === event.over!.id // assert not null for type safety
-      );
-
-      const updatedCriteria = [...rubric.criteria];
-      const [movedCriterion] = updatedCriteria.splice(oldIndex, 1);
-      updatedCriteria.splice(newIndex, 0, movedCriterion);
-
-      setRubric({ ...rubric, criteria: updatedCriteria });
-    }
-  };
 
   const handleImportTemplate = (template: Template) => {
     console.log("import template");
@@ -192,26 +166,15 @@ export default function RubricBuilder(): ReactElement {
   const renderUserTemplates = () => {
     if (!templates) return;
     return (
-      <SortableContext
-        items={templates.map((template) => template.key)}
-        strategy={verticalListSortingStrategy}
-      >
-        <AnimatePresence>
+      <div className="mt-0 p-10 gap-6 w-full">
+        <p className="text-white text-2xl font-bold mb-4">Templates</p>
+        <p className="text-white font-bold mb-4">
+          View and edit existing templates and create new templates here!
+        </p>
+
+        <div className="flex flex-col max-h-[500px] bg-red-500 rounded-lg overflow-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
           {templates.map((template, index) => (
-            <motion.div
-              key={template.key}
-              initial={{
-                opacity: 0,
-                y: 50,
-              }} // Starting state (entry animation)
-              animate={{
-                opacity: 1,
-                y: 0,
-              }} // Animate to this state when in the DOM
-              exit={{ opacity: 0, x: 50 }} // Ending state (exit animation)
-              transition={{ duration: 0.3 }} // Controls the duration of the animations
-              className="my-1"
-            >
+            <div key={template.key} className="m-2">
               <TemplateCard
                 index={index}
                 activeTemplateIndex={activeTemplateIndex}
@@ -220,10 +183,10 @@ export default function RubricBuilder(): ReactElement {
                 removeTemplate={handleRemoveTemplate}
                 setActiveTemplateIndex={setActiveTemplateIndex}
               />
-            </motion.div>
+            </div>
           ))}
-        </AnimatePresence>
-      </SortableContext>
+        </div>
+      </div>
     );
   };
 
@@ -232,39 +195,32 @@ export default function RubricBuilder(): ReactElement {
    */
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
-      <div className="min-h-screen justify-between flex flex-col w-screen bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
-        {/* Sticky Header with Gradient */}
-        <Header />
-        <div className="mt-0 p-10 gap-6">{renderUserTemplates()}</div>
-        {/* ModalChoiceDialog */}
-        <ModalChoiceDialog
-          show={modal.isOpen}
-          onHide={closeModal}
-          title={modal.title}
-          message={modal.message}
-          choices={modal.choices}
+    <div className="min-h-screen h-auto flex flex-col w-full bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
+      {renderUserTemplates()}
+
+      <ModalChoiceDialog
+        show={modal.isOpen}
+        onHide={closeModal}
+        title={modal.title}
+        message={modal.message}
+        choices={modal.choices}
+      />
+      <PopUp
+        show={popUp.isOpen}
+        onHide={closePopUp}
+        title={popUp.title}
+        message={popUp.message}
+      />
+      <Dialog
+        isOpen={templateInputActive}
+        onClose={() => setTemplateInputActive(false)}
+        title={"Import Template:"}
+      >
+        <TemplateUpload
+          closeImportCard={() => setTemplateInputActive(false)}
+          onTemplateSelected={handleImportTemplate}
         />
-        <PopUp
-          show={popUp.isOpen}
-          onHide={closePopUp}
-          title={popUp.title}
-          message={popUp.message}
-        />
-        {/* Template Import Dialog */}
-        <Dialog
-          isOpen={templateInputActive}
-          onClose={() => setTemplateInputActive(false)}
-          title={"Import Template:"}
-        >
-          <TemplateUpload
-            closeImportCard={() => setTemplateInputActive(false)}
-            onTemplateSelected={handleImportTemplate}
-          />
-        </Dialog>
-        {/* Sticky Footer with Gradient */}
-        <Footer />
-      </div>
-    </DndContext>
+      </Dialog>
+    </div>
   );
 }

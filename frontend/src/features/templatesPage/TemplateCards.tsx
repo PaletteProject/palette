@@ -16,6 +16,7 @@ import { Criteria, Template } from "palette-types";
 import { createCriterion } from "@utils";
 import { createTemplate } from "../../utils/templateFactory.ts";
 import { AnimatePresence, motion } from "framer-motion";
+import { EditTemplateModal } from "@components";
 
 export default function TemplateCard({
   index,
@@ -38,6 +39,7 @@ export default function TemplateCard({
   const [currentTemplate, setCurrentTemplate] = useState<Template>(
     createTemplate() || null
   );
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   /**
    * Whenever ratings change, recalculate criterion's max points
@@ -65,10 +67,6 @@ export default function TemplateCard({
 
   const handleExpandTemplate = () => {
     setActiveTemplateIndex(index);
-  };
-
-  const handleCollapseTemplate = () => {
-    setActiveTemplateIndex(-1);
   };
 
   // update rubric state with new list of criteria
@@ -106,6 +104,11 @@ export default function TemplateCard({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+  };
+
+  const handleDoubleClick = (event: ReactMouseEvent) => {
+    event.preventDefault();
+    setIsEditModalOpen(true);
   };
 
   const renderCriteriaCards = () => {
@@ -149,13 +152,13 @@ export default function TemplateCard({
   const renderCondensedView = () => {
     return (
       <div
-        ref={setNodeRef} // Set the ref here for the sortable functionality
-        style={style} // Apply the sortable style
-        {...attributes} // Spread the attributes
-        {...listeners} // Spread the listeners
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
         className={`hover:bg-gray-500 hover:cursor-pointer max-h-12 flex justify-between items-center border border-gray-700 shadow-xl p-6 rounded-lg w-full bg-gray-700
         }`}
-        onDoubleClick={handleExpandTemplate}
+        onDoubleClick={handleDoubleClick}
       >
         <div className="text-gray-300">
           <strong>{template.title}</strong> - Max Points: {maxPoints}
@@ -195,14 +198,6 @@ export default function TemplateCard({
           <h2 className="text-2xl font-extrabold bg-green-600 text-black py-2 px-4 rounded-lg">
             {maxPoints} {maxPoints === 1 ? "Point" : "Points"}
           </h2>
-
-          <button
-            className="transition-all ease-in-out duration-300 bg-yellow-600 text-white font-bold rounded-lg py-2 px-4 hover:bg-yellow-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-            onClick={handleCollapseTemplate}
-            type={"button"}
-          >
-            Collapse
-          </button>
         </div>
 
         <div className="mt-6 flex flex-col gap-3 h-[35vh] max-h-[50vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
@@ -236,6 +231,15 @@ export default function TemplateCard({
       {activeTemplateIndex === index
         ? renderDetailedView()
         : renderCondensedView()}
+      {isEditModalOpen && (
+        <EditTemplateModal
+          template={template}
+          onClose={() => setIsEditModalOpen(false)}
+          title={template.title}
+          children={renderDetailedView()}
+          isOpen={isEditModalOpen}
+        />
+      )}
     </>
   );
 }

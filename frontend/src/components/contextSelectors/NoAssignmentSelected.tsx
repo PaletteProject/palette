@@ -10,7 +10,7 @@ export function NoAssignmentSelected() {
   const [assignmentMenuOpen, setAssignmentMenuOpen] = useState(false);
 
   return (
-    <div className="text-5xl font-semibold self-center justify-self-center">
+    <div className="text-5xl font-semibold self-center justify-self-center mt-10">
       <p>
         Select an{" "}
         <button

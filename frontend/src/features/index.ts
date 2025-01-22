@@ -25,8 +25,4 @@ export * from "./home/Home";
 // settings exports
 export * from "./settings/SettingsMain";
 
-// user exports
-export * from "./user/UserClusters";
-export * from "./user/UserRubrics";
-
 export * from "./errorPages/NotFoundPage";
