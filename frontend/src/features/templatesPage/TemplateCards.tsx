@@ -3,6 +3,7 @@ import {
   ReactElement,
   useEffect,
   useState,
+  useCallback,
 } from "react";
 import CriteriaInput from "../rubricBuilder/CriteriaInput.tsx";
 
@@ -16,7 +17,7 @@ import { Criteria, Template } from "palette-types";
 import { createCriterion } from "@utils";
 import { createTemplate } from "../../utils/templateFactory.ts";
 import { AnimatePresence, motion } from "framer-motion";
-import { EditTemplateModal } from "@components";
+import { EditTemplateModal, ModalChoiceDialog } from "@components";
 
 export default function TemplateCard({
   index,
@@ -36,10 +37,19 @@ export default function TemplateCard({
   const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
-  const [currentTemplate, setCurrentTemplate] = useState<Template>(
-    createTemplate() || null
-  );
+  const [currentTemplate, setCurrentTemplate] = useState<Template>(template);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [modal, setModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    choices: [] as { label: string; action: () => void }[],
+  });
+
+  const closeModal = useCallback(
+    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
+    []
+  );
 
   /**
    * Whenever ratings change, recalculate criterion's max points
@@ -72,18 +82,39 @@ export default function TemplateCard({
   // update rubric state with new list of criteria
   const handleAddCriteria = (event: ReactMouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!template) return;
-    const newCriteria = [...template.criteria, createCriterion()];
-    setCurrentTemplate({ ...template, criteria: newCriteria });
-    handleTemplateUpdate(index, { ...template, criteria: newCriteria });
+    if (!currentTemplate) return;
+    const newCriteria = [...currentTemplate.criteria, createCriterion()];
+    setCurrentTemplate({ ...currentTemplate, criteria: newCriteria });
+    handleTemplateUpdate(index, { ...currentTemplate, criteria: newCriteria });
     setActiveCriterionIndex(newCriteria.length - 1);
   };
 
-  const handleRemoveCriterion = (index: number) => {
-    if (!template) return;
-    const newCriteria = [...template.criteria];
-    newCriteria.splice(index, 1); // remove the target criterion from the array
-    handleTemplateUpdate(index, { ...template, criteria: newCriteria });
+  const handleRemoveCriterion = (index: number, criterion: Criteria) => {
+    if (!currentTemplate) return; // do nothing if there is no active rubric
+    console.log("removing criterion", criterion);
+    const deleteCriterion = () => {
+      const newCriteria = [...template.criteria];
+      newCriteria.splice(index, 1); // remove the target criterion from the array
+      handleTemplateUpdate(index, { ...template, criteria: newCriteria });
+      //set template to be the new template
+      setCurrentTemplate({ ...template, criteria: newCriteria });
+      console.log("new template", currentTemplate);
+    };
+
+    setModal({
+      isOpen: true,
+      title: "Confirm Criterion Removal",
+      message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
+      choices: [
+        {
+          label: "Destroy it!",
+          action: () => {
+            deleteCriterion();
+            closeModal();
+          },
+        },
+      ],
+    });
   };
 
   // update criterion at given index
@@ -112,14 +143,14 @@ export default function TemplateCard({
   };
 
   const renderCriteriaCards = () => {
-    if (!template) return;
+    if (!currentTemplate) return;
     return (
       <SortableContext
-        items={template.criteria.map((criterion) => criterion.key)}
+        items={currentTemplate.criteria.map((criterion) => criterion.key)}
         strategy={verticalListSortingStrategy}
       >
         <AnimatePresence>
-          {template.criteria.map((criterion, index) => (
+          {currentTemplate.criteria.map((criterion, index) => (
             <motion.div
               key={criterion.key}
               initial={{
@@ -238,6 +269,15 @@ export default function TemplateCard({
           title={template.title}
           children={renderDetailedView()}
           isOpen={isEditModalOpen}
+        />
+      )}
+      {modal.isOpen && (
+        <ModalChoiceDialog
+          show={modal.isOpen}
+          onHide={closeModal}
+          title={modal.title}
+          message={modal.message}
+          choices={modal.choices}
         />
       )}
     </>
