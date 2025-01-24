@@ -1,6 +1,6 @@
 [
   {
-    "title": "sss",
+    "title": "Template 1",
     "criteria": [
       {
         "ratings": [
@@ -8,24 +8,24 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "897d207c-97e4-4b2e-83ec-81c5c6d5db36"
+            "key": "a262be86-e1c5-46f2-a200-4d7cad2d49b5"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "b1a0b0eb-2714-4483-a51c-5112e14cd04c"
+            "key": "6b6102ac-4d1d-43a6-8668-0caff1610f27"
           }
         ],
-        "description": "cccc",
+        "description": "",
         "longDescription": "",
         "points": 5,
-        "template": "2bb299af-6266-48c1-a112-50903a3df8ee",
-        "templateTitle": "sss",
-        "key": "94967735-a1c6-4de3-9ffa-2bb6b1df1123"
+        "template": "8bee33f2-d276-4d93-89b0-c74af4d1926c",
+        "templateTitle": "Template 4",
+        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
       }
     ],
-    "key": "2bb299af-6266-48c1-a112-50903a3df8ee"
+    "key": "11111111-d276-4d93-89b0-c74af4d1926c"
   },
   {
     "title": "Template 2",
@@ -48,12 +48,12 @@
         "description": "",
         "longDescription": "",
         "points": 5,
-        "template": "d0da5f86-8bfa-446f-ae99-43ff15264d25",
-        "templateTitle": "Template 2",
+        "template": "8bee33f2-d276-4d93-89b0-c74af4d1926c",
+        "templateTitle": "Template 4",
         "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
       }
     ],
-    "key": "d0da5f86-8bfa-446f-ae99-43ff15264d25"
+    "key": "22222222-d276-4d93-89b0-c74af4d1926c"
   },
   {
     "title": "Template 3",
@@ -76,12 +76,12 @@
         "description": "",
         "longDescription": "",
         "points": 5,
-        "template": "b097cb61-0f23-406d-aebd-785da5999f2a",
-        "templateTitle": "Template 3",
-        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
+        "template": "8bee33f2-d276-4d93-89b0-c74af4d1926c",
+        "templateTitle": "Template 4",
+        "key": "33333333-e46b-4f16-890d-0ece29fc2b87"
       }
     ],
-    "key": "b097cb61-0f23-406d-aebd-785da5999f2a"
+    "key": "00e48hf2-d276-4d93-89b0-c74af4d1926c"
   },
   {
     "title": "Template 4",
@@ -106,7 +106,7 @@
         "points": 5,
         "template": "8bee33f2-d276-4d93-89b0-c74af4d1926c",
         "templateTitle": "Template 4",
-        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
+        "key": "44444444-e46b-4f16-890d-0ece29fc2b87"
       }
     ],
     "key": "8bee33f2-d276-4d93-89b0-c74af4d1926c"
@@ -134,231 +134,7 @@
         "points": 5,
         "template": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4",
         "templateTitle": "Template 5",
-        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
-      }
-    ],
-    "key": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4"
-  },
-  {
-    "title": "Template 5",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "a262be86-e1c5-46f2-a200-4d7cad2d49b5"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "6b6102ac-4d1d-43a6-8668-0caff1610f27"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4",
-        "templateTitle": "Template 5",
-        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
-      }
-    ],
-    "key": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4"
-  },
-  {
-    "title": "Template 5",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "a262be86-e1c5-46f2-a200-4d7cad2d49b5"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "6b6102ac-4d1d-43a6-8668-0caff1610f27"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4",
-        "templateTitle": "Template 5",
-        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
-      }
-    ],
-    "key": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4"
-  },
-  {
-    "title": "Template 5",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "a262be86-e1c5-46f2-a200-4d7cad2d49b5"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "6b6102ac-4d1d-43a6-8668-0caff1610f27"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4",
-        "templateTitle": "Template 5",
-        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
-      }
-    ],
-    "key": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4"
-  },
-  {
-    "title": "Template 5",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "a262be86-e1c5-46f2-a200-4d7cad2d49b5"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "6b6102ac-4d1d-43a6-8668-0caff1610f27"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4",
-        "templateTitle": "Template 5",
-        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
-      }
-    ],
-    "key": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4"
-  },
-  {
-    "title": "Template 5",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "a262be86-e1c5-46f2-a200-4d7cad2d49b5"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "6b6102ac-4d1d-43a6-8668-0caff1610f27"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4",
-        "templateTitle": "Template 5",
-        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
-      }
-    ],
-    "key": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4"
-  },
-  {
-    "title": "Template 5",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "a262be86-e1c5-46f2-a200-4d7cad2d49b5"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "6b6102ac-4d1d-43a6-8668-0caff1610f27"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4",
-        "templateTitle": "Template 5",
-        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
-      }
-    ],
-    "key": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4"
-  },
-  {
-    "title": "Template 5",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "a262be86-e1c5-46f2-a200-4d7cad2d49b5"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "6b6102ac-4d1d-43a6-8668-0caff1610f27"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4",
-        "templateTitle": "Template 5",
-        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
-      }
-    ],
-    "key": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4"
-  },
-  {
-    "title": "Template 5",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "a262be86-e1c5-46f2-a200-4d7cad2d49b5"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "6b6102ac-4d1d-43a6-8668-0caff1610f27"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4",
-        "templateTitle": "Template 5",
-        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
+        "key": "55555555-e46b-4f16-890d-0ece29fc2b87"
       }
     ],
     "key": "0fe425b5-cb9a-467d-89e8-5db70c73e8b4"

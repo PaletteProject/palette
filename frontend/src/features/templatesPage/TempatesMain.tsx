@@ -11,11 +11,11 @@ import {
 } from "@components";
 import { createRubric } from "@utils";
 import { Criteria, Rubric, Template } from "palette-types";
-import { useCourse } from "../../context/index.ts";
-import { useAssignment } from "../../context/AssignmentProvider.tsx";
 import TemplateUpload from "../rubricBuilder/TemplateUpload.tsx";
 import TemplateCard from "./TemplateCards.tsx";
 import { useFetch } from "@hooks";
+import { createTemplate } from "src/utils/templateFactory.ts";
+import { TemplateService } from "../../../../backend/src/TemplatesAPI/templateRequests.ts";
 
 export default function TemplatesPage(): ReactElement {
   /**
@@ -30,6 +30,11 @@ export default function TemplatesPage(): ReactElement {
 
   const [templateInputActive, setTemplateInputActive] = useState(false);
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [newTemplate, setNewTemplate] = useState<Template>(createTemplate());
+  const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
+    null
+  );
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // declared before, so it's initialized for the modal initial state. memoized for performance
   const closeModal = useCallback(
@@ -59,16 +64,10 @@ export default function TemplatesPage(): ReactElement {
     method: "GET",
   });
 
-  /**
-   * Active Course and Assignment State (Context)
-   */
-  const { activeCourse } = useCourse();
-  const { activeAssignment } = useAssignment();
+  const { fetchData } = useFetch(`/templates/byKey/${deletingTemplate?.key}`, {
+    method: "DELETE",
+  });
 
-  /**
-   * Effect hook to see if the active assignment has an existing rubric. Apply loading status while waiting to
-   * determine which view to render.
-   */
   useEffect(() => {
     (async () => {
       const response = await getAllTemplates();
@@ -78,23 +77,30 @@ export default function TemplatesPage(): ReactElement {
     })().catch((error) => {
       console.error("Failed to fetch templates:", error);
     });
+  }, []);
 
-    if (!activeCourse) {
-      console.warn("Select a course before trying to fetch rubric");
-      return;
+  useEffect(() => {
+    if (deletingTemplate) {
+      const deleteTemplate = async () => {
+        const response = await fetchData();
+        console.log("delete response", response);
+        if (response.success) {
+          const newTemplates = templates.filter(
+            (t) => t.key !== deletingTemplate.key
+          );
+          setTemplates(newTemplates);
+          setDeletingTemplate(null);
+        }
+      };
+      deleteTemplate();
     }
-
-    if (!activeAssignment) {
-      console.warn("Select a assignment before trying to fetch rubric");
-      return;
-    }
-  }, [activeCourse, activeAssignment]);
+  }, [deletingTemplate]);
 
   const handleImportTemplate = (template: Template) => {
     console.log("import template");
-    if (!rubric) return;
+    if (!template) return;
 
-    const currentCriteria = rubric.criteria;
+    const currentCriteria = template.criteria;
     const newCriteria = template.criteria;
 
     if (newCriteria.length === 0) {
@@ -144,16 +150,32 @@ export default function TemplatesPage(): ReactElement {
     );
   };
 
-  /**
-   * Effect to load a default rubric if canvas api is bypassed
-   */
-  useEffect(() => {}, [rubric]);
+  const handleCreateTemplate = () => {
+    setNewTemplate(createTemplate());
+    setIsEditModalOpen(true);
+  };
 
-  const handleRemoveTemplate = (index: number) => {
-    if (!rubric) return;
-    const newTemplates = [...templates];
-    newTemplates.splice(index, 1);
-    setTemplates(newTemplates);
+  const renderDetailedView = () => {
+    return <div>Detailed View</div>;
+  };
+
+  const handleRemoveTemplate = async (index: number) => {
+    if (!templates) return;
+
+    setModal({
+      isOpen: true,
+      title: "Confirm Template Removal",
+      message: `Are you sure you want to remove ${templates[index].title}? This action is (currently) not reversible.`,
+      choices: [
+        {
+          label: "Destroy it!",
+          action: () => {
+            setDeletingTemplate(templates[index]);
+            closeModal();
+          },
+        },
+      ],
+    });
   };
 
   const handleUpdateTemplate = (index: number, template: Template) => {
@@ -167,12 +189,11 @@ export default function TemplatesPage(): ReactElement {
     if (!templates) return;
     return (
       <div className="mt-0 p-10 gap-6 w-full">
-        <p className="text-white text-2xl font-bold mb-4">Templates</p>
-        <p className="text-white font-bold mb-4">
-          View and edit existing templates and create new templates here!
+        <p className="text-white text-2xl font-bold mb-4 text-center">
+          View, Edit, and Create templates here!
         </p>
 
-        <div className="flex flex-col max-h-[500px] bg-red-500 rounded-lg overflow-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
+        <div className="flex flex-col max-h-[500px] bg-red-500 border-2 border-black rounded-lg overflow-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
           {templates.map((template, index) => (
             <div key={template.key} className="m-2">
               <TemplateCard
@@ -190,13 +211,35 @@ export default function TemplatesPage(): ReactElement {
     );
   };
 
+  const renderNoTemplates = () => {
+    return (
+      <div className="mt-0 p-10 gap-6 w-full">
+        <p className="text-white text-2xl font-bold mb-4 text-center">
+          View, Edit, and Create templates here!
+        </p>
+        <p className="text-gray-300 text-2xl font-bold mb-4">
+          No templates found. Create a template to get started!
+        </p>
+      </div>
+    );
+  };
+
   /**
    * Helper function to consolidate conditional rendering in the JSX.
    */
 
   return (
     <div className="min-h-screen h-auto flex flex-col w-full bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
-      {renderUserTemplates()}
+      {templates.length > 0 ? renderUserTemplates() : renderNoTemplates()}
+
+      <div className="mx-10 rounded-lg flex flex-row">
+        <button
+          onClick={handleCreateTemplate}
+          className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Create Template
+        </button>
+      </div>
 
       <ModalChoiceDialog
         show={modal.isOpen}
@@ -210,6 +253,13 @@ export default function TemplatesPage(): ReactElement {
         onHide={closePopUp}
         title={popUp.title}
         message={popUp.message}
+      />
+      <EditTemplateModal
+        template={newTemplate}
+        onClose={() => setIsEditModalOpen(false)}
+        title={newTemplate.title}
+        children={renderDetailedView()}
+        isOpen={isEditModalOpen}
       />
       <Dialog
         isOpen={templateInputActive}

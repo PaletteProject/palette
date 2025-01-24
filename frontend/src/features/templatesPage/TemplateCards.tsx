@@ -15,7 +15,6 @@ import {
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Template } from "palette-types";
 import { createCriterion } from "@utils";
-import { createTemplate } from "../../utils/templateFactory.ts";
 import { AnimatePresence, motion } from "framer-motion";
 import { EditTemplateModal, ModalChoiceDialog } from "@components";
 
@@ -61,23 +60,6 @@ export default function TemplateCard({
     }, 0);
     setMaxPoints(maxPoints);
   }, [currentTemplate]);
-
-  /**
-   * Criteria change functionality.
-   */
-
-  const handleRemoveTemplateButton = (
-    event: ReactMouseEvent,
-    index: number
-  ) => {
-    event.preventDefault();
-    event.stopPropagation();
-    removeTemplate(index);
-  };
-
-  const handleExpandTemplate = () => {
-    setActiveTemplateIndex(index);
-  };
 
   // update rubric state with new list of criteria
   const handleAddCriteria = (event: ReactMouseEvent<HTMLButtonElement>) => {
@@ -196,20 +178,11 @@ export default function TemplateCard({
         </div>
         <div className={"flex gap-3"}>
           <button
-            onPointerDown={(
-              event: ReactMouseEvent // Change to onPointerDown
-            ) => handleRemoveTemplateButton(event, index)}
+            onPointerDown={() => removeTemplate(index)}
             type={"button"}
             className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
           >
             Remove
-          </button>
-          <button
-            onPointerDown={handleExpandTemplate}
-            type={"button"}
-            className="transition-all ease-in-out duration-300 bg-emerald-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-emerald-700 focus:outline-none border-2 border-transparent"
-          >
-            Edit
           </button>
         </div>
       </div>
