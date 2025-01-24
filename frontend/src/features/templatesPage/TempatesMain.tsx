@@ -8,6 +8,7 @@ import {
   ModalChoiceDialog,
   PopUp,
   EditTemplateModal,
+  Navbar,
 } from "@components";
 import { createRubric } from "@utils";
 import { Criteria, Rubric, Template } from "palette-types";
@@ -17,7 +18,7 @@ import { useFetch } from "@hooks";
 import { createTemplate } from "src/utils/templateFactory.ts";
 import { TemplateService } from "../../../../backend/src/TemplatesAPI/templateRequests.ts";
 
-export default function TemplatesPage(): ReactElement {
+export default function TemplatesMain(): ReactElement {
   /**
    * Rubric Builder State
    */
@@ -230,6 +231,7 @@ export default function TemplatesPage(): ReactElement {
 
   return (
     <div className="min-h-screen h-auto flex flex-col w-full bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
+      <Navbar />
       {templates.length > 0 ? renderUserTemplates() : renderNoTemplates()}
 
       <div className="mx-10 rounded-lg flex flex-row">

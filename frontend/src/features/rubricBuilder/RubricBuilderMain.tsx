@@ -24,6 +24,7 @@ import {
   NoCourseSelected,
   PopUp,
   SaveButton,
+  Navbar,
 } from "@components";
 
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
@@ -674,8 +675,18 @@ export function RubricBuilderMain(): ReactElement {
   const renderContent = () => {
     if (loading) return <LoadingDots />;
     if (isCanvasBypassed) return renderRubricBuilderForm();
-    if (!activeCourse) return <NoCourseSelected />;
-    if (!activeAssignment) return <NoAssignmentSelected />;
+    if (!activeCourse)
+      return (
+        <div className="h-[calc(100vh-5rem)] flex items-center justify-center">
+          <NoCourseSelected />
+        </div>
+      );
+    if (!activeAssignment)
+      return (
+        <div className="h-[calc(100vh-5rem)] flex items-center justify-center">
+          <NoAssignmentSelected />
+        </div>
+      );
 
     return renderRubricBuilderForm();
   };
@@ -696,7 +707,8 @@ export function RubricBuilderMain(): ReactElement {
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <div className="min-h-screen justify-center flex flex-col w-full bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
+      <div className="min-h-screen h-auto flex flex-col w-full bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
+        <Navbar />
         <div className="mt-20 flex items-center justify-center">
           {renderContent()}
         </div>

@@ -18,7 +18,8 @@ import {
   SettingsMain,
 } from "@features";
 import { AssignmentProvider, CourseProvider } from "@context"; // Defined a "root" div in index.html that we pull in here and then call the React render method.
-import { Footer, Header } from "@components";
+import { Footer, Header, Navbar } from "@components";
+import TemplatesMain from "./features/templatesPage/TempatesMain.tsx";
 
 // Defined a "root" div in index.html that we pull in here and then call the React render method.
 createRoot(document.getElementById("root")!).render(
@@ -28,10 +29,9 @@ createRoot(document.getElementById("root")!).render(
       {/* Router and Routes are the mechanism for client-side routing */}
       <AssignmentProvider>
         <Router>
-          <Header />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/templates" element={<UserTemplates />} />
+            <Route path="/templates" element={<TemplatesMain />} />
             <Route path="/rubric-builder" element={<RubricBuilderMain />} />
             <Route path="/grading" element={<GradingMain />} />
             <Route path="/settings" element={<SettingsMain />} />

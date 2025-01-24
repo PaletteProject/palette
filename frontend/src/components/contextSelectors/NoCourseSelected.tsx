@@ -9,7 +9,7 @@ export function NoCourseSelected() {
   const [courseMenuOpen, setCourseMenuOpen] = useState(false);
 
   return (
-    <div className="text-5xl font-semibold self-center justify-self-center">
+    <div className="text-5xl font-semibold justify-self-center">
       <p>
         Select a{" "}
         <button
