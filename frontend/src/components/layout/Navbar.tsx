@@ -77,10 +77,14 @@ export function Navbar() {
 
         <div className={"flex items-center gap-10"}>
           <div className={"hidden md:flex justify-around gap-4"}>
-            <ActiveCourseSelection setDialogOpen={setCourseDialogOpen} />
-            <ActiveAssignmentSelection
-              setDialogOpen={setAssignmentDialogOpen}
-            />
+            {currentPath !== "/templates" && (
+              <>
+                <ActiveCourseSelection setDialogOpen={setCourseDialogOpen} />
+                <ActiveAssignmentSelection
+                  setDialogOpen={setAssignmentDialogOpen}
+                />
+              </>
+            )}
           </div>
           <button
             className={`self-center px-5 py-1 h-12 bg-gray-500 text-white rounded-full font-semibold hover:bg-gray-600 transition duration-300 transform hover:scale-105`}
