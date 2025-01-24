@@ -1,33 +1,5 @@
 [
   {
-    "title": "Template 1",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "a262be86-e1c5-46f2-a200-4d7cad2d49b5"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "6b6102ac-4d1d-43a6-8668-0caff1610f27"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "8bee33f2-d276-4d93-89b0-c74af4d1926c",
-        "templateTitle": "Template 4",
-        "key": "cc503283-e46b-4f16-890d-0ece29fc2b87"
-      }
-    ],
-    "key": "11111111-d276-4d93-89b0-c74af4d1926c"
-  },
-  {
     "title": "Template 2",
     "criteria": [
       {

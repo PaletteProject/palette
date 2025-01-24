@@ -76,21 +76,21 @@ export default function TemplateCard({
     event.preventDefault();
     if (!currentTemplate) return;
     const newCriteria = [...currentTemplate.criteria, createCriterion()];
-    setCurrentTemplate({ ...currentTemplate, criteria: newCriteria });
-    handleTemplateUpdate(index, { ...currentTemplate, criteria: newCriteria });
+    const updatedTemplate = { ...currentTemplate, criteria: newCriteria };
+    console.log("updatedTemplate", updatedTemplate);
+    setCurrentTemplate(updatedTemplate);
+    handleTemplateUpdate(index, updatedTemplate);
     setActiveCriterionIndex(newCriteria.length - 1);
   };
 
   const handleRemoveCriterion = (index: number, criterion: Criteria) => {
-    if (!currentTemplate) return; // do nothing if there is no active rubric
-    console.log("removing criterion", criterion);
+    if (!currentTemplate) return;
     const deleteCriterion = () => {
-      const newCriteria = [...template.criteria];
-      newCriteria.splice(index, 1); // remove the target criterion from the array
-      handleTemplateUpdate(index, { ...template, criteria: newCriteria });
-      //set template to be the new template
-      setCurrentTemplate({ ...template, criteria: newCriteria });
-      console.log("new template", currentTemplate);
+      const newCriteria = [...currentTemplate.criteria];
+      newCriteria.splice(index, 1);
+      const updatedTemplate = { ...currentTemplate, criteria: newCriteria };
+      setCurrentTemplate(updatedTemplate);
+      handleTemplateUpdate(index, updatedTemplate);
     };
 
     setModal({
@@ -111,11 +111,12 @@ export default function TemplateCard({
 
   // update criterion at given index
   const handleUpdateCriterion = (index: number, criterion: Criteria) => {
-    if (!template) return;
-    const newCriteria = [...template.criteria];
-    newCriteria[index] = criterion; // update the criterion with changes;
-    setCurrentTemplate({ ...template, criteria: newCriteria }); // update rubric to have new criteria
-    handleTemplateUpdate(index, { ...template, criteria: newCriteria }); // update rubric to have new criteria
+    if (!currentTemplate) return;
+    const newCriteria = [...currentTemplate.criteria];
+    newCriteria[index] = criterion;
+    const updatedTemplate = { ...currentTemplate, criteria: newCriteria };
+    setCurrentTemplate(updatedTemplate);
+    handleTemplateUpdate(index, updatedTemplate);
   };
 
   // Use the useSortable hook to handle criteria ordering
