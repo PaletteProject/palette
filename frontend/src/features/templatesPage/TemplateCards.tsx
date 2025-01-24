@@ -156,6 +156,7 @@ export default function TemplateCard({
                 handleCriteriaUpdate={handleUpdateCriterion}
                 removeCriterion={handleRemoveCriterion}
                 setActiveCriterionIndex={setActiveCriterionIndex}
+                addingFromTemplateUI={true}
               />
             </motion.div>
           ))}

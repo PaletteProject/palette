@@ -581,6 +581,7 @@ export function RubricBuilderMain(): ReactElement {
                 handleCriteriaUpdate={handleUpdateCriterion}
                 removeCriterion={handleRemoveCriterion}
                 setActiveCriterionIndex={setActiveCriterionIndex}
+                addingFromTemplateUI={false}
               />
             </motion.div>
           ))}
