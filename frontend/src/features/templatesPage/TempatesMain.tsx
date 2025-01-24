@@ -2,7 +2,7 @@
  * Rubric Builder view.
  */
 
-import { ReactElement, useCallback, useEffect, useState } from "react";
+import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Dialog,
   ModalChoiceDialog,
@@ -36,6 +36,7 @@ export default function TemplatesMain(): ReactElement {
     null
   );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [maxPoints, setMaxPoints] = useState<number>(0);
 
   // declared before, so it's initialized for the modal initial state. memoized for performance
   const closeModal = useCallback(

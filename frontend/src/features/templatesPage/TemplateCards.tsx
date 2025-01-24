@@ -35,7 +35,6 @@ export default function TemplateCard({
   setActiveTemplateIndex: (index: number) => void;
   isNewTemplate: boolean;
 }): ReactElement {
-  const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   const [currentTemplate, setCurrentTemplate] = useState<Template>(template);
@@ -46,6 +45,7 @@ export default function TemplateCard({
     message: "",
     choices: [] as { label: string; action: () => void }[],
   });
+  const [localMaxPoints, setLocalMaxPoints] = useState(0);
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
@@ -56,12 +56,20 @@ export default function TemplateCard({
    * Whenever ratings change, recalculate criterion's max points
    */
   useEffect(() => {
-    if (!template) return;
-    const maxPoints = template.criteria.reduce((acc, criterion) => {
-      return acc + criterion.ratings.length;
-    }, 0);
-    setMaxPoints(maxPoints);
-  }, [currentTemplate]);
+    if (!currentTemplate) return;
+    const calculatedMaxPoints = currentTemplate.criteria.reduce(
+      (acc, criterion) => {
+        return (
+          acc +
+          criterion.ratings.reduce((sum, rating) => sum + rating.points, 0)
+        );
+      },
+      0
+    );
+    console.log("Recalculating max points:", calculatedMaxPoints); // Debug log
+    setLocalMaxPoints(calculatedMaxPoints);
+    handleTemplateUpdate(index, currentTemplate);
+  }, [currentTemplate, index, handleTemplateUpdate]);
 
   // update rubric state with new list of criteria
   const handleAddCriteria = (event: ReactMouseEvent<HTMLButtonElement>) => {
@@ -106,7 +114,7 @@ export default function TemplateCard({
     if (!template) return;
     const newCriteria = [...template.criteria];
     newCriteria[index] = criterion; // update the criterion with changes;
-
+    setCurrentTemplate({ ...template, criteria: newCriteria }); // update rubric to have new criteria
     handleTemplateUpdate(index, { ...template, criteria: newCriteria }); // update rubric to have new criteria
   };
 
@@ -177,7 +185,7 @@ export default function TemplateCard({
         onDoubleClick={handleDoubleClick}
       >
         <div className="text-gray-300">
-          <strong>{template.title}</strong> - Max Points: {maxPoints}
+          <strong>{template.title}</strong> - Max Points: {localMaxPoints}
         </div>
         <div className={"flex gap-3"}>
           <button
@@ -217,7 +225,7 @@ export default function TemplateCard({
         )}
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-extrabold bg-green-600 text-black py-2 px-4 rounded-lg">
-            {maxPoints} {maxPoints === 1 ? "Point" : "Points"}
+            {localMaxPoints} {localMaxPoints === 1 ? "Point" : "Points"}
           </h2>
         </div>
 
