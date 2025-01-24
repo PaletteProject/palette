@@ -66,9 +66,7 @@ export default function TemplateCard({
       },
       0
     );
-    console.log("Recalculating max points:", calculatedMaxPoints); // Debug log
     setLocalMaxPoints(calculatedMaxPoints);
-    handleTemplateUpdate(index, currentTemplate);
   }, [currentTemplate, index, handleTemplateUpdate]);
 
   // update rubric state with new list of criteria
@@ -77,7 +75,6 @@ export default function TemplateCard({
     if (!currentTemplate) return;
     const newCriteria = [...currentTemplate.criteria, createCriterion()];
     const updatedTemplate = { ...currentTemplate, criteria: newCriteria };
-    console.log("updatedTemplate", updatedTemplate);
     setCurrentTemplate(updatedTemplate);
     handleTemplateUpdate(index, updatedTemplate);
     setActiveCriterionIndex(newCriteria.length - 1);
