@@ -9,6 +9,7 @@ import {
   PopUp,
   EditTemplateModal,
   Navbar,
+  MainPageTemplate,
 } from "@components";
 import { createRubric } from "@utils";
 import { Criteria, Rubric, Template } from "palette-types";
@@ -16,7 +17,6 @@ import TemplateUpload from "../rubricBuilder/TemplateUpload.tsx";
 import TemplateCard from "./TemplateCards.tsx";
 import { useFetch } from "@hooks";
 import { createTemplate } from "src/utils/templateFactory.ts";
-import { TemplateService } from "../../../../backend/src/TemplatesAPI/templateRequests.ts";
 
 export default function TemplatesMain(): ReactElement {
   /**
@@ -156,8 +156,20 @@ export default function TemplatesMain(): ReactElement {
     setIsEditModalOpen(true);
   };
 
-  const renderDetailedView = () => {
-    return <div>Detailed View</div>;
+  const renderNewTemplate = () => {
+    if (!newTemplate) return;
+    console.log("newTemplate", newTemplate);
+    return (
+      <TemplateCard
+        index={0}
+        activeTemplateIndex={0}
+        template={newTemplate}
+        handleTemplateUpdate={handleUpdateTemplate}
+        removeTemplate={handleRemoveTemplate}
+        setActiveTemplateIndex={setActiveTemplateIndex}
+        isNewTemplate={true}
+      />
+    );
   };
 
   const handleRemoveTemplate = async (index: number) => {
@@ -204,6 +216,7 @@ export default function TemplatesMain(): ReactElement {
                 handleTemplateUpdate={handleUpdateTemplate}
                 removeTemplate={handleRemoveTemplate}
                 setActiveTemplateIndex={setActiveTemplateIndex}
+                isNewTemplate={false}
               />
             </div>
           ))}
@@ -225,54 +238,58 @@ export default function TemplatesMain(): ReactElement {
     );
   };
 
+  const renderContent = () => {
+    return (
+      <div>
+        <Navbar />
+        {templates.length > 0 ? renderUserTemplates() : renderNoTemplates()}
+
+        <div className="mx-10 rounded-lg flex flex-row">
+          <button
+            onClick={handleCreateTemplate}
+            className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Create Template
+          </button>
+        </div>
+
+        <ModalChoiceDialog
+          show={modal.isOpen}
+          onHide={closeModal}
+          title={modal.title}
+          message={modal.message}
+          choices={modal.choices}
+        />
+        <PopUp
+          show={popUp.isOpen}
+          onHide={closePopUp}
+          title={popUp.title}
+          message={popUp.message}
+        />
+        <EditTemplateModal
+          template={newTemplate}
+          onClose={() => setIsEditModalOpen(false)}
+          title={newTemplate.title}
+          children={renderNewTemplate()}
+          isOpen={isEditModalOpen}
+        />
+        <Dialog
+          isOpen={templateInputActive}
+          onClose={() => setTemplateInputActive(false)}
+          title={"Import Template:"}
+        >
+          <TemplateUpload
+            closeImportCard={() => setTemplateInputActive(false)}
+            onTemplateSelected={handleImportTemplate}
+          />
+        </Dialog>
+      </div>
+    );
+  };
+
   /**
    * Helper function to consolidate conditional rendering in the JSX.
    */
 
-  return (
-    <div className="min-h-screen h-auto flex flex-col w-full bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
-      <Navbar />
-      {templates.length > 0 ? renderUserTemplates() : renderNoTemplates()}
-
-      <div className="mx-10 rounded-lg flex flex-row">
-        <button
-          onClick={handleCreateTemplate}
-          className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Create Template
-        </button>
-      </div>
-
-      <ModalChoiceDialog
-        show={modal.isOpen}
-        onHide={closeModal}
-        title={modal.title}
-        message={modal.message}
-        choices={modal.choices}
-      />
-      <PopUp
-        show={popUp.isOpen}
-        onHide={closePopUp}
-        title={popUp.title}
-        message={popUp.message}
-      />
-      <EditTemplateModal
-        template={newTemplate}
-        onClose={() => setIsEditModalOpen(false)}
-        title={newTemplate.title}
-        children={renderDetailedView()}
-        isOpen={isEditModalOpen}
-      />
-      <Dialog
-        isOpen={templateInputActive}
-        onClose={() => setTemplateInputActive(false)}
-        title={"Import Template:"}
-      >
-        <TemplateUpload
-          closeImportCard={() => setTemplateInputActive(false)}
-          onTemplateSelected={handleImportTemplate}
-        />
-      </Dialog>
-    </div>
-  );
+  return <MainPageTemplate children={renderContent()} />;
 }

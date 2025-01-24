@@ -25,6 +25,7 @@ export default function TemplateCard({
   handleTemplateUpdate,
   removeTemplate,
   setActiveTemplateIndex,
+  isNewTemplate,
 }: {
   index: number;
   activeTemplateIndex: number;
@@ -32,6 +33,7 @@ export default function TemplateCard({
   handleTemplateUpdate: (index: number, template: Template) => void;
   removeTemplate: (index: number) => void;
   setActiveTemplateIndex: (index: number) => void;
+  isNewTemplate: boolean;
 }): ReactElement {
   const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
@@ -195,9 +197,23 @@ export default function TemplateCard({
         className="h-full grid p-10 w-full max-w-3xl my-6 gap-6 bg-gray-800 shadow-lg rounded-lg"
         onSubmit={(event) => event.preventDefault()}
       >
-        <h1 className="font-extrabold text-5xl mb-2 text-center">
-          {template.title}
-        </h1>
+        {isNewTemplate ? (
+          <input
+            type="text"
+            value={currentTemplate.title}
+            onChange={(e) => {
+              const newTemplate = { ...currentTemplate, title: e.target.value };
+              setCurrentTemplate(newTemplate);
+              handleTemplateUpdate(index, newTemplate);
+            }}
+            className=" text-xl mb-2 text-center bg-gray-700 rounded-lg p-2 border-b-2 border-gray-600 focus:border-blue-500 outline-none"
+            placeholder="Enter template title..."
+          />
+        ) : (
+          <h1 className="font-extrabold text-5xl mb-2 text-center">
+            {template.title}
+          </h1>
+        )}
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-extrabold bg-green-600 text-black py-2 px-4 rounded-lg">
             {maxPoints} {maxPoints === 1 ? "Point" : "Points"}
