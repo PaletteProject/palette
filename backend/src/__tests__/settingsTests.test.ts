@@ -38,7 +38,7 @@ describe("getUserSettings", () => {
 
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       "./settings.json",
-      JSON.stringify(defaultSettings, null, 2)
+      JSON.stringify(defaultSettings, null, 2),
     );
   });
 
@@ -73,7 +73,7 @@ describe("updateUserSettings", () => {
 
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       "./settings.json",
-      JSON.stringify(defaultSettings, null, 2)
+      JSON.stringify(defaultSettings, null, 2),
     );
   });
 
@@ -90,7 +90,7 @@ describe("updateUserSettings", () => {
 
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       "./settings.json",
-      JSON.stringify(newSettings, null, 2)
+      JSON.stringify(newSettings, null, 2),
     );
   });
 
