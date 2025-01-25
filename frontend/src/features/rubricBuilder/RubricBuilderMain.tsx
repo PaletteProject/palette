@@ -46,11 +46,18 @@ import { useAssignment, useCourse } from "@context";
 
 export function RubricBuilderMain(): ReactElement {
   /**
+   * Get initial rubric from local storage or create a new one if none exists
+   */
+  const getInitialRubric = () => {
+    const rubric = localStorage.getItem("rubric");
+    return rubric ? (JSON.parse(rubric) as Rubric) : createRubric();
+  };
+  /**
    * Rubric Builder State
    */
 
   // active rubric being edited
-  const [rubric, setRubric] = useState<Rubric | undefined>(undefined);
+  const [rubric, setRubric] = useState<Rubric>(getInitialRubric());
   // csv import modal
   const [fileInputActive, setFileInputActive] = useState(false);
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
@@ -599,6 +606,8 @@ export function RubricBuilderMain(): ReactElement {
     if (isCanvasBypassed && !rubric) {
       setRubric(createRubric());
     }
+    if (!rubric) return;
+    localStorage.setItem("rubric", JSON.stringify(rubric));
   }, [isCanvasBypassed, rubric]);
   /**
    * Helper function to wrap the builder JSX.
