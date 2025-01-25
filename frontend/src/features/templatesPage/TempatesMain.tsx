@@ -70,6 +70,11 @@ export default function TemplatesMain(): ReactElement {
     method: "DELETE",
   });
 
+  const { fetchData: postTemplate } = useFetch("/templates", {
+    method: "POST",
+    body: JSON.stringify(newTemplate), // use latest rubric data
+  });
+
   useEffect(() => {
     (async () => {
       const response = await getAllTemplates();
@@ -97,6 +102,12 @@ export default function TemplatesMain(): ReactElement {
       deleteTemplate();
     }
   }, [deletingTemplate]);
+
+  const handleSubmitTemplate = async (index: number) => {
+    const response = await postTemplate();
+    setIsEditModalOpen(false);
+    setActiveTemplateIndex(-1);
+  };
 
   const handleImportTemplate = (template: Template) => {
     console.log("import template");
@@ -158,8 +169,7 @@ export default function TemplatesMain(): ReactElement {
   };
 
   const renderNewTemplate = () => {
-    if (!newTemplate) return;
-    console.log("newTemplate", newTemplate);
+    if (!isEditModalOpen) return;
     return (
       <TemplateCard
         index={0}
@@ -169,6 +179,8 @@ export default function TemplatesMain(): ReactElement {
         removeTemplate={handleRemoveTemplate}
         setActiveTemplateIndex={setActiveTemplateIndex}
         isNewTemplate={true}
+        handleSubmitTemplate={handleSubmitTemplate}
+        existingTemplates={templates}
       />
     );
   };
@@ -193,10 +205,8 @@ export default function TemplatesMain(): ReactElement {
   };
 
   const handleUpdateTemplate = (index: number, template: Template) => {
-    if (!rubric) return;
-    const newTemplates = [...templates];
-    newTemplates[index] = template;
-    setTemplates(newTemplates);
+    if (!template) return;
+    setNewTemplate(template);
   };
 
   const renderUserTemplates = () => {
@@ -218,6 +228,8 @@ export default function TemplatesMain(): ReactElement {
                 removeTemplate={handleRemoveTemplate}
                 setActiveTemplateIndex={setActiveTemplateIndex}
                 isNewTemplate={false}
+                handleSubmitTemplate={handleSubmitTemplate}
+                existingTemplates={templates}
               />
             </div>
           ))}

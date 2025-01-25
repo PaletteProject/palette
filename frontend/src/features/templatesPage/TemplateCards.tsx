@@ -17,6 +17,7 @@ import { Criteria, Template } from "palette-types";
 import { createCriterion } from "@utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { EditTemplateModal, ModalChoiceDialog } from "@components";
+import { useFetch } from "@hooks";
 
 export default function TemplateCard({
   index,
@@ -26,6 +27,8 @@ export default function TemplateCard({
   removeTemplate,
   setActiveTemplateIndex,
   isNewTemplate,
+  handleSubmitTemplate,
+  existingTemplates,
 }: {
   index: number;
   activeTemplateIndex: number;
@@ -34,6 +37,8 @@ export default function TemplateCard({
   removeTemplate: (index: number) => void;
   setActiveTemplateIndex: (index: number) => void;
   isNewTemplate: boolean;
+  handleSubmitTemplate: (index: number) => void;
+  existingTemplates: Template[];
 }): ReactElement {
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
@@ -78,6 +83,7 @@ export default function TemplateCard({
     setCurrentTemplate(updatedTemplate);
     handleTemplateUpdate(index, updatedTemplate);
     setActiveCriterionIndex(newCriteria.length - 1);
+    handleTemplateUpdate(index, updatedTemplate);
   };
 
   const handleRemoveCriterion = (index: number, criterion: Criteria) => {
@@ -130,6 +136,66 @@ export default function TemplateCard({
   const handleDoubleClick = (event: ReactMouseEvent) => {
     event.preventDefault();
     setIsEditModalOpen(true);
+  };
+
+  const submitTemplate = async (event: ReactMouseEvent) => {
+    event.preventDefault();
+
+    if (!currentTemplate.title.trim()) {
+      setModal({
+        isOpen: true,
+        title: "Invalid Template",
+        message: "Please enter a title for your template before saving.",
+        choices: [
+          {
+            label: "OK",
+            action: closeModal,
+          },
+        ],
+      });
+      return;
+    }
+
+    if (currentTemplate.criteria.length === 0) {
+      setModal({
+        isOpen: true,
+        title: "Invalid Template",
+        message: "Please add at least one criterion before saving.",
+        choices: [
+          {
+            label: "OK",
+            action: closeModal,
+          },
+        ],
+      });
+      return;
+    }
+
+    const isDuplicateName = existingTemplates.some(
+      (t) =>
+        t.title.toLowerCase() === currentTemplate.title.toLowerCase() &&
+        t.key !== currentTemplate.key
+    );
+
+    if (isDuplicateName) {
+      setModal({
+        isOpen: true,
+        title: "Duplicate Template Name",
+        message:
+          "A template with this name already exists. Please choose a different name.",
+        choices: [
+          {
+            label: "OK",
+            action: closeModal,
+          },
+        ],
+      });
+      return;
+    }
+
+    console.log("template saved");
+    setActiveTemplateIndex(-1);
+    handleSubmitTemplate(index);
   };
 
   const renderCriteriaCards = () => {
@@ -208,6 +274,7 @@ export default function TemplateCard({
           <input
             type="text"
             value={currentTemplate.title}
+            required={true}
             onChange={(e) => {
               const newTemplate = { ...currentTemplate, title: e.target.value };
               setCurrentTemplate(newTemplate);
@@ -243,7 +310,7 @@ export default function TemplateCard({
           <button
             className="transition-all ease-in-out duration-300 bg-green-600 text-white font-bold rounded-lg py-2 px-4
                      hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
-            // onClick={(event) => void handleSubmitRubric(event)}
+            onClick={(event) => void submitTemplate(event)}
             type={"button"}
           >
             Save Template
