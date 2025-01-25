@@ -1,4 +1,4 @@
-version: '3.8'
+
 services:
   app:
     build:
@@ -9,6 +9,7 @@ services:
       - "3000:3000" # map the backend port
     volumes:
       - .:/app # mounts project files for live changes without needing to rebuild container
+      - /app/node_modules # isolate container's node_modules directory from the host
     environment:
       - DATABASE_URL=postgres://postgres:password@db:5432/palette-db
       - NODE_ENV=development
