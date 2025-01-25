@@ -52,5 +52,7 @@ app.use(fallbackErrorHandler);
 
 // Start the server and listen on port defined in .env file
 app.listen(PORT, () => {
-  console.log(`Server is up on port: ${PORT}`);
+  console.log(
+    "\nPalette started!\n\nAccess the application at http://localhost:5173",
+  );
 });
