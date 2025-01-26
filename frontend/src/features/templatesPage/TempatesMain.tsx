@@ -75,6 +75,11 @@ export default function TemplatesMain(): ReactElement {
     body: JSON.stringify(newTemplate), // use latest rubric data
   });
 
+  const { fetchData: updateTemplate } = useFetch(`/templates`, {
+    method: "PUT",
+    body: JSON.stringify(newTemplate),
+  });
+
   useEffect(() => {
     (async () => {
       const response = await getAllTemplates();
@@ -104,9 +109,33 @@ export default function TemplatesMain(): ReactElement {
   }, [deletingTemplate]);
 
   const handleSubmitTemplate = async (index: number) => {
-    const response = await postTemplate();
-    setIsEditModalOpen(false);
-    setActiveTemplateIndex(-1);
+    try {
+      // First close the modal and reset active index
+      setIsEditModalOpen(false);
+      setActiveTemplateIndex(-1);
+
+      const response = await (index === templates.length
+        ? postTemplate()
+        : updateTemplate());
+      console.log("Template submission response:", response); // Debug log
+
+      if (response.success) {
+        // Fetch updated templates list
+        const templatesResponse = await getAllTemplates();
+        if (templatesResponse.success) {
+          setTemplates(templatesResponse.data as Template[]);
+        } else {
+          console.error(
+            "Failed to fetch updated templates:",
+            templatesResponse
+          );
+        }
+      } else {
+        console.error("Template submission failed:", response);
+      }
+    } catch (error) {
+      console.error("Error submitting template:", error);
+    }
   };
 
   const handleImportTemplate = (template: Template) => {
@@ -164,16 +193,18 @@ export default function TemplatesMain(): ReactElement {
   };
 
   const handleCreateTemplate = () => {
-    setNewTemplate(createTemplate());
+    const newTemplate = createTemplate();
+    setNewTemplate(newTemplate);
     setIsEditModalOpen(true);
   };
 
   const renderNewTemplate = () => {
     if (!isEditModalOpen) return;
+    console.log("template length!!", templates.length);
     return (
       <TemplateCard
-        index={0}
-        activeTemplateIndex={0}
+        index={templates.length}
+        activeTemplateIndex={templates.length}
         template={newTemplate}
         handleTemplateUpdate={handleUpdateTemplate}
         removeTemplate={handleRemoveTemplate}

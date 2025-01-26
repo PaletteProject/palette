@@ -17,7 +17,6 @@ import { Criteria, Template } from "palette-types";
 import { createCriterion } from "@utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { EditTemplateModal, ModalChoiceDialog } from "@components";
-import { useFetch } from "@hooks";
 
 export default function TemplateCard({
   index,
@@ -193,7 +192,6 @@ export default function TemplateCard({
       return;
     }
 
-    console.log("template saved");
     setActiveTemplateIndex(-1);
     handleSubmitTemplate(index);
   };
