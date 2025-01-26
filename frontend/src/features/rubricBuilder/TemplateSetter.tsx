@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { Criteria } from "palette-types";
 import { useFetch } from "@hooks";
+import { PopUp } from "@components";
 
 interface TemplateSetterProps {
   closeTemplateCard: () => void; // callback to close the template setter card
@@ -21,14 +22,11 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
 }: TemplateSetterProps) => {
   const [template, setTemplate] = useState<Template>(createTemplate() || null);
   const [templates, setTemplates] = useState<Template[]>([]);
-  const [anchorElTemplate, setAnchorElTemplate] = useState<null | HTMLElement>(
-    null
-  );
   const [criterionAdded, setCriterionAdded] = useState(false);
   const [updatingExistingTemplate, setUpdatingExistingTemplate] =
     useState(false);
   const [selectedTemplateTitle, setSelectedTemplateTitle] = useState("");
-
+  const [templatesOpen, setTemplatesOpen] = useState(false);
   const { fetchData: postTemplate } = useFetch("/templates", {
     method: "POST",
     body: JSON.stringify(template), // use latest rubric data
@@ -84,21 +82,9 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
       setTemplate(newTemplate);
       setCriterionAdded(true);
     }
-    setUpdatingExistingTemplate(false);
 
     // write to the json file here. needs criteria info.
     handleSetTemplateTitle(event);
-  };
-
-  const handleOpenTemplates = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    setAnchorElTemplate(event.currentTarget);
-    console.log("before copy: open all");
-    console.log(template);
-  };
-
-  const handleCloseTemplates = () => {
-    setAnchorElTemplate(null);
   };
 
   // set the template name field of the current criterion and add it to the template.
@@ -144,30 +130,49 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
   ) => {
     event.preventDefault();
 
-    const textAreaTemplateTitle = event.currentTarget.textContent;
+    let textAreaTemplateTitle = event.currentTarget.textContent || "";
+
+    // Remove specific substring if present (e.g., " - (Already contains criterion)")
+    textAreaTemplateTitle = textAreaTemplateTitle.replace(
+      " - (Already contains this criterion)",
+      ""
+    );
+
     console.log("textAreaTemplateTitle", textAreaTemplateTitle);
-    criterion.templateTitle = textAreaTemplateTitle || "";
-    setSelectedTemplateTitle(textAreaTemplateTitle || "");
-    console.log("selectedTemplateTitle", selectedTemplateTitle);
 
-    if (textAreaTemplateTitle != null) {
-      // if this template exist in the database, set the template to the existing template
-      console.log("all templates", templates);
-      for (const existingTemplate of templates) {
-        if (existingTemplate.title === textAreaTemplateTitle) {
-          setTemplate(existingTemplate);
-          template.title = textAreaTemplateTitle;
-          template.criteria = existingTemplate.criteria;
-          console.log("template", template);
+    const existingTemplate = templates.find(
+      (t) => t.title.trim() === textAreaTemplateTitle.trim()
+    );
 
-          setUpdatingExistingTemplate(true);
-          handleFinalizeTemplate();
+    console.log("existingTemplate", existingTemplate);
+    if (existingTemplate) {
+      // Check if criterion already exists in template
+      const criterionExists = existingTemplate.criteria.some(
+        (c) => c.key === criterion.key
+      );
+      if (criterionExists) {
+        console.log("criterion already exists in template");
+        criterion.templateTitle = "";
+        criterion.template = "";
+        setSelectedTemplateTitle("");
+      } else {
+        console.log("criterion does not exist in template");
+        criterion.templateTitle = existingTemplate.title;
+        criterion.template = existingTemplate.key;
+        setSelectedTemplateTitle(existingTemplate.title);
+        console.log("existingTemplate", existingTemplate);
 
-          break;
-        }
+        setTemplate({
+          ...existingTemplate,
+          criteria: [...existingTemplate.criteria, criterion],
+        });
+        setUpdatingExistingTemplate(true);
       }
     }
-    handleCloseTemplates();
+  };
+
+  const handleOpenTemplates = () => {
+    setTemplatesOpen(!templatesOpen);
   };
 
   return (
@@ -179,10 +184,10 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
         >
           <FontAwesomeIcon icon={faBars} />
         </button>
-        {selectedTemplateTitle ? (
+        {criterion.templateTitle && criterion.templateTitle !== "" ? (
           <>
             <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
-              {selectedTemplateTitle}
+              {criterion.templateTitle}
             </p>
             <button
               onClick={() => void handleSave()}
@@ -198,34 +203,37 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
             </p>
           </div>
         )}
-
-        <Menu
-          sx={{ mt: "45px" }}
-          id="user-menu"
-          anchorEl={anchorElTemplate}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          keepMounted
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          open={Boolean(anchorElTemplate)}
-          onClose={handleCloseTemplates}
-        >
-          {templates.length === 0 ? (
-            <MenuItem disabled>No templates available</MenuItem>
-          ) : (
-            templates.map((t, tKey) => (
-              <MenuItem key={tKey} onClick={handleSelectedExistingTemplate}>
-                {t.title}
-              </MenuItem>
-            ))
-          )}
-        </Menu>
       </div>
+
+      <input
+        placeholder="Enter Template Name"
+        onChange={handleTemplateTitleChange}
+        className="w-full mt-4 border border-gray-600 rounded-lg p-3 text-gray-300 hover:bg-gray-800 transition duration-300 cursor-pointer focus:outline-none"
+      />
+
+      {templatesOpen && (
+        <div className="mt-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 h-48">
+          {templates.length === 0 ? (
+            <div>No templates available</div>
+          ) : (
+            templates.map((t, tKey) => {
+              const criterionExists = t.criteria.some(
+                (c) => c.key === criterion.key
+              );
+              return (
+                <div
+                  key={tKey}
+                  onClick={handleSelectedExistingTemplate}
+                  className={`${criterionExists ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-600"}`}
+                >
+                  {t.title}{" "}
+                  {criterionExists && " - (Already contains this criterion)"}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
     </div>
   );
 };
