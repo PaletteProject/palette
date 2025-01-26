@@ -22,7 +22,7 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
   const [template, setTemplate] = useState<Template>(createTemplate() || null);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [anchorElTemplate, setAnchorElTemplate] = useState<null | HTMLElement>(
-    null,
+    null
   );
   const [criterionAdded, setCriterionAdded] = useState(false);
   const [updatingExistingTemplate, setUpdatingExistingTemplate] =
@@ -53,7 +53,7 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
     })().catch((error) => {
       console.error("Failed to fetch templates:", error);
     });
-  }, [template, criterionAdded, selectedTemplateTitle]);
+  }, [template, criterionAdded]);
 
   const handleTemplateTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (criterionAdded) {
@@ -140,7 +140,7 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
   };
 
   const handleSelectedExistingTemplate = (
-    event: React.MouseEvent<HTMLElement>,
+    event: React.MouseEvent<HTMLElement>
   ) => {
     event.preventDefault();
 
@@ -173,22 +173,31 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
   return (
     <div className="border border-gray-700 p-6 rounded-lg shadow-xl bg-gray-700">
       <div className={"flex justify-between items-center"}>
-        <input
-          placeholder={
-            criterion.templateTitle === ""
-              ? "Enter Template Name"
-              : `${criterion.templateTitle}`
-          }
-          onChange={handleTemplateTitleChange}
-          className="mt-4 mb-4 border border-gray-600 rounded-lg p-3 text-gray-300 hover:bg-gray-800 transition duration-300 cursor-pointer focus:outline-none"
-        />
-
         <button
           className="px-1 py-4 text-2xl font-bond text-gray-950 hover:opacity-80 transition duration-300 transform hover:scale-105"
           onClick={handleOpenTemplates}
         >
           <FontAwesomeIcon icon={faBars} />
         </button>
+        {selectedTemplateTitle ? (
+          <>
+            <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
+              {selectedTemplateTitle}
+            </p>
+            <button
+              onClick={() => void handleSave()}
+              className="h-10 mt-4 bg-green-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              Save
+            </button>
+          </>
+        ) : (
+          <div className="flex-grow flex justify-center">
+            <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
+              No template selected
+            </p>
+          </div>
+        )}
 
         <Menu
           sx={{ mt: "45px" }}
@@ -206,19 +215,16 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
           open={Boolean(anchorElTemplate)}
           onClose={handleCloseTemplates}
         >
-          {templates.map((t, tKey) => (
-            <MenuItem key={tKey} onClick={handleSelectedExistingTemplate}>
-              {t.title}
-            </MenuItem>
-          ))}
+          {templates.length === 0 ? (
+            <MenuItem disabled>No templates available</MenuItem>
+          ) : (
+            templates.map((t, tKey) => (
+              <MenuItem key={tKey} onClick={handleSelectedExistingTemplate}>
+                {t.title}
+              </MenuItem>
+            ))
+          )}
         </Menu>
-
-        <button
-          onClick={() => void handleSave()}
-          className="h-10 mt-4 bg-green-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-        >
-          Save
-        </button>
       </div>
     </div>
   );
