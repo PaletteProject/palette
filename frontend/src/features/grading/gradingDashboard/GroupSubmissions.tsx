@@ -1,4 +1,4 @@
-import { Submission } from "palette-types";
+import { Rubric, Submission } from "palette-types";
 import { IndividualSubmission, ProgressBar } from "@features";
 import { Dialog } from "@components";
 import { ProjectGradingView } from "../projectGrading/ProjectGradingView.tsx";
@@ -9,15 +9,27 @@ export function GroupSubmissions({
   progress,
   isExpanded,
   submissions,
+  rubric,
 }: {
   groupName: string;
   progress: number;
   isExpanded: boolean;
   submissions: Submission[];
+  rubric: Rubric;
 }) {
-  // grading popup state
+  // grading popup state (submissions are already filtered by group)
   const [isGradingViewOpen, setGradingViewOpen] = useState<boolean>(false);
-  const [activeIndex, setActiveIndex] = useState<number>(0);
+
+  const toggleGradingView = () => {
+    if (!rubric) {
+      alert(
+        "Assignment does not have a rubric for grading. Create a rubric and try again!",
+      );
+      return;
+    }
+
+    setGradingViewOpen(true);
+  };
 
   const renderGroupHeader = () => {
     return (
@@ -32,7 +44,7 @@ export function GroupSubmissions({
           className={
             "bg-white rounded-xl px-2 py-1 relative top-1 hover:bg-blue-400 flex col-start-3 justify-center"
           }
-          onClick={() => setGradingViewOpen(true)}
+          onClick={toggleGradingView}
           title={"Grade this Group"}
         >
           <p className={"text-black text-2xl font-bold "}>Grade</p>
@@ -69,6 +81,7 @@ export function GroupSubmissions({
         <ProjectGradingView
           groupName={"test grading view"}
           submissions={submissions}
+          rubric={rubric}
         />
       </Dialog>
     </div>

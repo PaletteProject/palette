@@ -2,14 +2,16 @@
  * Primary project grading view. Opens as a modal over the grading dashboard.
  */
 
-import { Submission } from "palette-types";
+import { Criteria, Rubric, Submission } from "palette-types";
 
 export function ProjectGradingView({
   groupName,
   submissions,
+  rubric,
 }: {
   groupName: string;
   submissions: Submission[];
+  rubric: Rubric;
 }) {
   const renderGradingPopup = () => {
     return (
@@ -20,6 +22,12 @@ export function ProjectGradingView({
             <div key={submission.id}>
               <p>{submission.id}</p>
               <p>{submission.user.asurite}</p>
+            </div>
+          ))}
+
+          {rubric.criteria.map((criteria: Criteria) => (
+            <div key={criteria.key}>
+              <p>{criteria.description}</p>
             </div>
           ))}
         </div>

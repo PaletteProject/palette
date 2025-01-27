@@ -62,6 +62,7 @@ export function SubmissionsDashboard({
               progress={calculateGradingProgress()}
               isExpanded={isExpandedView}
               submissions={groupSubmissions}
+              rubric={rubric!}
             />
           );
         })}
