@@ -12,6 +12,8 @@ export function SubmissionsDashboard({
   // layout control
   const [isExpandedView, setExpandedView] = useState<boolean>(false);
 
+  // active group for project grading
+
   return (
     <div>
       <h1 className={"text-5xl font-bold p-4"}>Submission Dashboard</h1>

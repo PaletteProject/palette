@@ -1,5 +1,6 @@
 import { Submission } from "palette-types";
 import { IndividualSubmission, ProgressBar } from "@features";
+import { ProjectGradingView } from "../projectGrading/ProjectGradingView.tsx";
 
 export function GroupSubmissions({
   groupName,
@@ -48,12 +49,19 @@ export function GroupSubmissions({
     );
   };
 
+  const renderTestGradingView = () => {
+    return (
+      <ProjectGradingView groupName={groupName} submissions={submissions} />
+    );
+  };
+
   return (
     <div
       className={`max-w-md flex flex-col gap-4 m-2 p-6 border border-gray-400 border-opacity-35 shadow-xl rounded-2xl overflow-hidden`}
     >
       {renderGroupHeader()}
       {isExpanded && renderSubmissions()}
+      {renderTestGradingView()}
     </div>
   );
 }
