@@ -25,6 +25,7 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
   const [creatingNewTemplate, setCreatingNewTemplate] = useState(false);
   const [selectedTemplateTitle, setSelectedTemplateTitle] = useState("");
   const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [isValidTitle, setIsValidTitle] = useState(false);
 
   const { fetchData: postTemplate } = useFetch("/templates", {
     method: "POST",
@@ -70,9 +71,15 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
 
   const handleTemplateTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const textAreaTitle = event.target.value;
-    setSelectedTemplateTitle(textAreaTitle);
-    // write to the json file here. needs criteria info.
-    handleSetTemplateTitle(event);
+    // Validate that the title contains at least one letter and isn't just whitespace
+    const isValid = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s]{1,}$/.test(
+      textAreaTitle.trim()
+    );
+    setIsValidTitle(isValid);
+    setSelectedTemplateTitle(isValid ? textAreaTitle.trim() : "");
+    if (isValid) {
+      handleSetTemplateTitle(event);
+    }
   };
 
   // set the template name field of the current criterion and add it to the template.
@@ -127,11 +134,17 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
         criterion.templateTitle = "";
         criterion.template = "";
         setSelectedTemplateTitle("");
+        setIsValidTitle(false);
       } else {
         criterion.templateTitle = existingTemplate.title;
         criterion.template = existingTemplate.key;
         setSelectedTemplateTitle(existingTemplate.title);
-
+        const isValid = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s!.,?-]{1,}$/.test(
+          existingTemplate.title.trim()
+        );
+        setIsValidTitle(isValid);
+        setSelectedTemplateTitle(isValid ? existingTemplate.title.trim() : "");
+        setIsValidTitle(true);
         setTemplate({
           ...existingTemplate,
           criteria: [...existingTemplate.criteria, criterion],
@@ -153,23 +166,37 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
         >
           <FontAwesomeIcon icon={faBars} />
         </button>
-        {selectedTemplateTitle && selectedTemplateTitle !== "" ? (
-          <>
-            <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
-              {selectedTemplateTitle}
-            </p>
+        {selectedTemplateTitle &&
+        selectedTemplateTitle !== "" &&
+        isValidTitle ? (
+          <div className="flex-grow flex items-center justify-between gap-4 mt-4">
+            <div className="flex-grow flex flex-col items-center justify-center">
+              <p className="text-xl font-semibold text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
+                {selectedTemplateTitle.length > 30
+                  ? `${selectedTemplateTitle.slice(0, 30)}...`
+                  : selectedTemplateTitle}
+              </p>
+              <p className="text-sm font-semibold mt-2 text-green-500">
+                Template Name Valid
+              </p>
+            </div>
             <button
               onClick={() => void handleSave()}
-              className="h-10 mt-4 bg-green-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="h-10 bg-green-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               Save
             </button>
-          </>
+          </div>
         ) : (
-          <div className="flex-grow flex justify-center">
-            <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
-              No template selected
-            </p>
+          <div className="flex-grow flex flex-col items-center justify-center mt-4">
+            <div>
+              <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full text-center">
+                No Template Selected
+              </p>
+              <p className="text-sm font-semibold mt-2 text-red-500">
+                Please enter a valid template name with at least one letter.
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -183,7 +210,9 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
       {templatesOpen && (
         <div className="mt-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 h-48">
           {templates.length === 0 ? (
-            <div>No templates available</div>
+            <div className="text-center text-gray-300">
+              No Existing Templates Available
+            </div>
           ) : (
             templates.map((t, tKey) => {
               const criterionExists = t.criteria.some(
@@ -192,7 +221,9 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
               return (
                 <div
                   key={tKey}
-                  onClick={handleSelectedExistingTemplate}
+                  onClick={(event) =>
+                    void handleSelectedExistingTemplate(event)
+                  }
                   className={`${criterionExists ? "opacity-50 cursor-not-allowed text-center border border-gray-600 rounded-lg p-2" : "hover:bg-gray-600 text-center border border-gray-600 rounded-lg p-2"}`}
                 >
                   {t.title}{" "}
