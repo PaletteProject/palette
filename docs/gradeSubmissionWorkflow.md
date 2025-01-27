@@ -9,8 +9,8 @@ The following workflow results in successfully grading a submission from Palette
 ## Preconditions:
 
 - An assignment must have an associated rubric.
-  - The RubricAssessment specifically targets the `criterion_id` and `rating_id` fields.
-  - Without a valid rubric association, the assessment will get thrown away by Canvas.
+    - The RubricAssessment specifically targets the `criterion_id` and `rating_id` fields.
+    - Without a valid rubric association, the assessment will get thrown away by Canvas.
 
 ## Get Rubric
 
@@ -53,3 +53,15 @@ and feedback for one specific submission. It's formatted as:
 
 Once a submission is graded within Palette, tha application will create a Canvas Rubric Assessment to apply the
 scoring and any comments or feedback.
+
+It must map to the rubric assessment data structure as described [in the Canvas docs](https://canvas.instructure.
+com/doc/api/rubrics.html#method.rubric_assessments.create)
+
+With the rubric_association_id known, the final rubric assessment (defined in CanvasAddRubricAssessmentRequest.ts) can
+be
+exported to Canvas with:
+
+```
+POST /api/v1/courses/:course_id/rubric_associations/:rubric_association_id/rubric_assessments
+```
+
