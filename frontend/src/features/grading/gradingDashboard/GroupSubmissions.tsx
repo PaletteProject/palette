@@ -1,6 +1,8 @@
 import { Submission } from "palette-types";
 import { IndividualSubmission, ProgressBar } from "@features";
+import { Dialog } from "@components";
 import { ProjectGradingView } from "../projectGrading/ProjectGradingView.tsx";
+import { useState } from "react";
 
 export function GroupSubmissions({
   groupName,
@@ -13,6 +15,10 @@ export function GroupSubmissions({
   isExpanded: boolean;
   submissions: Submission[];
 }) {
+  // grading popup state
+  const [isGradingViewOpen, setGradingViewOpen] = useState<boolean>(false);
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+
   const renderGroupHeader = () => {
     return (
       <div
@@ -26,7 +32,7 @@ export function GroupSubmissions({
           className={
             "bg-white rounded-xl px-2 py-1 relative top-1 hover:bg-blue-400 flex col-start-3 justify-center"
           }
-          onClick={() => alert(`Grading submissions from ${groupName}!`)}
+          onClick={() => setGradingViewOpen(true)}
           title={"Grade this Group"}
         >
           <p className={"text-black text-2xl font-bold "}>Grade</p>
@@ -49,19 +55,22 @@ export function GroupSubmissions({
     );
   };
 
-  const renderTestGradingView = () => {
-    return (
-      <ProjectGradingView groupName={groupName} submissions={submissions} />
-    );
-  };
-
   return (
     <div
       className={`max-w-md flex flex-col gap-4 m-2 p-6 border border-gray-400 border-opacity-35 shadow-xl rounded-2xl overflow-hidden`}
     >
       {renderGroupHeader()}
       {isExpanded && renderSubmissions()}
-      {renderTestGradingView()}
+      <Dialog
+        isOpen={isGradingViewOpen}
+        onClose={() => setGradingViewOpen(false)}
+        title={"Potential Grading View"}
+      >
+        <ProjectGradingView
+          groupName={"test grading view"}
+          submissions={submissions}
+        />
+      </Dialog>
     </div>
   );
 }
