@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState, useRef } from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { Template } from "../../../../palette-types/src/types/Template";
@@ -22,11 +22,12 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
 }: TemplateSetterProps) => {
   const [template, setTemplate] = useState<Template>(createTemplate() || null);
   const [templates, setTemplates] = useState<Template[]>([]);
-  const [criterionAdded, setCriterionAdded] = useState(false);
   const [updatingExistingTemplate, setUpdatingExistingTemplate] =
     useState(false);
+  const [creatingNewTemplate, setCreatingNewTemplate] = useState(false);
   const [selectedTemplateTitle, setSelectedTemplateTitle] = useState("");
   const [templatesOpen, setTemplatesOpen] = useState(false);
+
   const { fetchData: postTemplate } = useFetch("/templates", {
     method: "POST",
     body: JSON.stringify(template), // use latest rubric data
@@ -51,38 +52,33 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
     })().catch((error) => {
       console.error("Failed to fetch templates:", error);
     });
-  }, [template, criterionAdded]);
+  }, []);
+
+  useEffect(() => {
+    console.log("useEffect template");
+    console.log("template", template);
+    if (creatingNewTemplate) {
+      (async () => {
+        const postResponse = await postTemplate();
+        if (postResponse.success) {
+          console.log("template created");
+          closeTemplateCard();
+        }
+      })().catch((error) => {
+        console.error("Failed to fetch templates:", error);
+      });
+    }
+  }, [template]);
+
+  useEffect(() => {
+    console.log("Criterion Template Title updated");
+    console.log(selectedTemplateTitle);
+  }, [selectedTemplateTitle]);
 
   const handleTemplateTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    if (criterionAdded) {
-      const updatedTemplate = {
-        ...template,
-        criteria: template.criteria.filter((c) => c.key !== criterion.key),
-      };
-
-      // Add the latest version of the criterion
-      updatedTemplate.title = event.target.value;
-      criterion.templateTitle = updatedTemplate.title;
-      criterion.template = updatedTemplate.key;
-
-      updatedTemplate.criteria.push(criterion);
-      setTemplate(updatedTemplate);
-
-      console.log("updatedTemplate criterion added", updatedTemplate.title);
-      setSelectedTemplateTitle(updatedTemplate.title);
-      setTemplate(updatedTemplate);
-    } else {
-      const newTemplate = { ...template };
-      newTemplate.title = event.target.value;
-      console.log("newTemplateTitle", newTemplate.title);
-      criterion.template = newTemplate.key;
-      criterion.templateTitle = newTemplate.title;
-      setSelectedTemplateTitle(newTemplate.title);
-      newTemplate.criteria.push(criterion);
-      setTemplate(newTemplate);
-      setCriterionAdded(true);
-    }
-
+    let textAreaTitle = event.target.value;
+    console.log("textAreaTitle", textAreaTitle);
+    setSelectedTemplateTitle(textAreaTitle);
     // write to the json file here. needs criteria info.
     handleSetTemplateTitle(event);
   };
@@ -91,45 +87,35 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
   // send the template up to the criterion input so that it can detect changes and update the
   // criterion within the template.
   const handleSave = async () => {
+    console.log("template handleSave", template);
     if (updatingExistingTemplate) {
       console.log("updating existing template");
       const response = await putTemplate();
       if (response.success) {
         console.log("template updated");
+        console.log("template", template);
+        closeTemplateCard();
       }
     } else {
-      handleFinalizeTemplate();
-
-      criterion.templateTitle = selectedTemplateTitle;
-      setTemplate(template);
-      console.log("creating new template", template);
-      const response = await postTemplate();
-      if (response.success) {
-        console.log("template created");
-      }
+      // Create the finalized template directly instead of relying on state
+      const newCriterion = { ...criterion };
+      newCriterion.template = template.key;
+      newCriterion.templateTitle = criterion.templateTitle;
+      const finalizedTemplate = {
+        ...template,
+        criteria: [...template.criteria, newCriterion],
+        title: selectedTemplateTitle,
+      };
+      setCreatingNewTemplate(true);
+      setTemplate(finalizedTemplate);
     }
-    closeTemplateCard();
-  };
-
-  const handleFinalizeTemplate = () => {
-    console.log("finalizing template");
-    const newCriterion = { ...criterion };
-    newCriterion.template = template.key;
-    newCriterion.templateTitle = criterion.templateTitle;
-    const newTemplate = {
-      ...template,
-      criteria: [...template.criteria, newCriterion],
-    };
-    console.log("newTemplate", newTemplate);
-    setTemplate(newTemplate);
-    setCriterionAdded(true); //should trigger a re-render
   };
 
   const handleSelectedExistingTemplate = (
     event: React.MouseEvent<HTMLElement>
   ) => {
     event.preventDefault();
-
+    setUpdatingExistingTemplate(true);
     let textAreaTemplateTitle = event.currentTarget.textContent || "";
 
     // Remove specific substring if present (e.g., " - (Already contains criterion)")
@@ -166,7 +152,6 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
           ...existingTemplate,
           criteria: [...existingTemplate.criteria, criterion],
         });
-        setUpdatingExistingTemplate(true);
       }
     }
   };
@@ -184,10 +169,10 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
         >
           <FontAwesomeIcon icon={faBars} />
         </button>
-        {criterion.templateTitle && criterion.templateTitle !== "" ? (
+        {selectedTemplateTitle && selectedTemplateTitle !== "" ? (
           <>
             <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
-              {criterion.templateTitle}
+              {selectedTemplateTitle}
             </p>
             <button
               onClick={() => void handleSave()}
