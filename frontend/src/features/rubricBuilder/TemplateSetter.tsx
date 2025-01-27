@@ -209,7 +209,7 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
                 <div
                   key={tKey}
                   onClick={handleSelectedExistingTemplate}
-                  className={`${criterionExists ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-600"}`}
+                  className={`${criterionExists ? "opacity-50 cursor-not-allowed text-center border border-gray-600 rounded-lg p-2" : "hover:bg-gray-600 text-center border border-gray-600 rounded-lg p-2"}`}
                 >
                   {t.title}{" "}
                   {criterionExists && " - (Already contains this criterion)"}
