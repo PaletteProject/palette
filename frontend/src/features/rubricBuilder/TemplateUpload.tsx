@@ -47,16 +47,18 @@ const TemplateUpload: React.FC<TemplateUploadProps> = ({
   };
 
   return (
-    <div className={"flex justify-center items-center gap-10"}>
-      <ul>
-        {templates.map((t, tKey) => (
-          <li key={tKey} onClick={(event) => void handleImportTemplate(event)}>
-            <br />
-            <button>{t.title}</button>
-            <br />
-          </li>
-        ))}
-      </ul>
+    <div className="mt-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 h-60">
+      {templates.map((t, tKey) => {
+        return (
+          <div
+            key={tKey}
+            onClick={(event) => void handleImportTemplate(event)}
+            className="text-center border border-gray-600 rounded-lg p-2 hover:bg-gray-600"
+          >
+            {t.title}
+          </div>
+        );
+      })}
     </div>
   );
 };

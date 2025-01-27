@@ -1,13 +1,11 @@
-import { ChangeEvent, useEffect, useState, useRef } from "react";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
+import { ChangeEvent, useEffect, useState } from "react";
+
 import { Template } from "../../../../palette-types/src/types/Template";
 import { createTemplate } from "../../utils/templateFactory";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { Criteria } from "palette-types";
 import { useFetch } from "@hooks";
-import { PopUp } from "@components";
 
 interface TemplateSetterProps {
   closeTemplateCard: () => void; // callback to close the template setter card
@@ -70,14 +68,8 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
     }
   }, [template]);
 
-  useEffect(() => {
-    console.log("Criterion Template Title updated");
-    console.log(selectedTemplateTitle);
-  }, [selectedTemplateTitle]);
-
   const handleTemplateTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    let textAreaTitle = event.target.value;
-    console.log("textAreaTitle", textAreaTitle);
+    const textAreaTitle = event.target.value;
     setSelectedTemplateTitle(textAreaTitle);
     // write to the json file here. needs criteria info.
     handleSetTemplateTitle(event);
@@ -87,13 +79,9 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
   // send the template up to the criterion input so that it can detect changes and update the
   // criterion within the template.
   const handleSave = async () => {
-    console.log("template handleSave", template);
     if (updatingExistingTemplate) {
-      console.log("updating existing template");
       const response = await putTemplate();
       if (response.success) {
-        console.log("template updated");
-        console.log("template", template);
         closeTemplateCard();
       }
     } else {
@@ -130,23 +118,19 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
       (t) => t.title.trim() === textAreaTemplateTitle.trim()
     );
 
-    console.log("existingTemplate", existingTemplate);
     if (existingTemplate) {
       // Check if criterion already exists in template
       const criterionExists = existingTemplate.criteria.some(
         (c) => c.key === criterion.key
       );
       if (criterionExists) {
-        console.log("criterion already exists in template");
         criterion.templateTitle = "";
         criterion.template = "";
         setSelectedTemplateTitle("");
       } else {
-        console.log("criterion does not exist in template");
         criterion.templateTitle = existingTemplate.title;
         criterion.template = existingTemplate.key;
         setSelectedTemplateTitle(existingTemplate.title);
-        console.log("existingTemplate", existingTemplate);
 
         setTemplate({
           ...existingTemplate,
