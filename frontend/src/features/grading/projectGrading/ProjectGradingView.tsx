@@ -3,26 +3,34 @@
  */
 
 import { Criteria, Rubric, Submission } from "palette-types";
+import { createPortal } from "react-dom";
 
 export function ProjectGradingView({
   groupName,
   submissions,
   rubric,
+  isOpen,
 }: {
   groupName: string;
   submissions: Submission[];
   rubric: Rubric;
+  isOpen: boolean;
 }) {
+  if (!isOpen) {
+    return null;
+  }
+
   const renderGradingPopup = () => {
-    return (
-      <div>
+    return createPortal(
+      <div
+        className={
+          "scroll-auto fixed z-80 inset-0 bg-black bg-opacity-75 flex justify-center items-center text-white"
+        }
+      >
         <p>{groupName}</p>
         <div>
           {submissions.map((submission: Submission) => (
-            <div key={submission.id}>
-              <p>{submission.id}</p>
-              <p>{submission.user.asurite}</p>
-            </div>
+            <p key={submission.id}>{submission.user.asurite}</p>
           ))}
 
           {rubric.criteria.map((criteria: Criteria) => (
@@ -31,7 +39,8 @@ export function ProjectGradingView({
             </div>
           ))}
         </div>
-      </div>
+      </div>,
+      document.getElementById("portal-root") as HTMLElement,
     );
   };
 

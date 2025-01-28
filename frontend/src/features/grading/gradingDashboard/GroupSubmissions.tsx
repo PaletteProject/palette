@@ -1,6 +1,5 @@
 import { Rubric, Submission } from "palette-types";
 import { IndividualSubmission, ProgressBar } from "@features";
-import { Dialog } from "@components";
 import { ProjectGradingView } from "../projectGrading/ProjectGradingView.tsx";
 import { useState } from "react";
 
@@ -73,17 +72,12 @@ export function GroupSubmissions({
     >
       {renderGroupHeader()}
       {isExpanded && renderSubmissions()}
-      <Dialog
+      <ProjectGradingView
         isOpen={isGradingViewOpen}
-        onClose={() => setGradingViewOpen(false)}
-        title={"Potential Grading View"}
-      >
-        <ProjectGradingView
-          groupName={"test grading view"}
-          submissions={submissions}
-          rubric={rubric}
-        />
-      </Dialog>
+        groupName={"Group 99"}
+        submissions={submissions}
+        rubric={rubric}
+      />
     </div>
   );
 }
