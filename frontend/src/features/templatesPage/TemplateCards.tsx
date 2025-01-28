@@ -53,7 +53,7 @@ export default function TemplateCard({
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
 
   /**
@@ -68,7 +68,7 @@ export default function TemplateCard({
           criterion.ratings.reduce((sum, rating) => sum + rating.points, 0)
         );
       },
-      0
+      0,
     );
     setLocalMaxPoints(calculatedMaxPoints);
   }, [currentTemplate, index, handleTemplateUpdate]);
@@ -137,7 +137,7 @@ export default function TemplateCard({
     setIsEditModalOpen(true);
   };
 
-  const submitTemplate = async (event: ReactMouseEvent) => {
+  const submitTemplate = (event: ReactMouseEvent) => {
     event.preventDefault();
 
     if (!currentTemplate.title.trim()) {
@@ -173,7 +173,7 @@ export default function TemplateCard({
     const isDuplicateName = existingTemplates.some(
       (t) =>
         t.title.toLowerCase() === currentTemplate.title.toLowerCase() &&
-        t.key !== currentTemplate.key
+        t.key !== currentTemplate.key,
     );
 
     if (isDuplicateName) {
@@ -278,8 +278,8 @@ export default function TemplateCard({
               setCurrentTemplate(newTemplate);
               handleTemplateUpdate(index, newTemplate);
             }}
-            className=" text-xl mb-2 text-center bg-gray-700 rounded-lg p-2 border-b-2 border-gray-600 focus:border-blue-500 outline-none"
-            placeholder="Enter template title..."
+            className=" rounded p-3 mb-4 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-xl truncate whitespace-nowrap"
+            placeholder="Template title"
           />
         ) : (
           <h1 className="font-extrabold text-5xl mb-2 text-center">
@@ -325,9 +325,7 @@ export default function TemplateCard({
         : renderCondensedView()}
       {isEditModalOpen && (
         <EditTemplateModal
-          template={template}
           onClose={() => setIsEditModalOpen(false)}
-          title={template.title}
           children={renderDetailedView()}
           isOpen={isEditModalOpen}
         />

@@ -2,46 +2,34 @@
  * Rubric Builder view.
  */
 
-import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
+import { ReactElement, useCallback, useEffect, useState } from "react";
 import {
-  Dialog,
   ModalChoiceDialog,
   PopUp,
   EditTemplateModal,
   Navbar,
   MainPageTemplate,
 } from "@components";
-import { createRubric } from "@utils";
-import { Criteria, Rubric, Template } from "palette-types";
-import TemplateUpload from "../rubricBuilder/TemplateUpload.tsx";
+import { Template } from "palette-types";
 import TemplateCard from "./TemplateCards.tsx";
 import { useFetch } from "@hooks";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
 export default function TemplatesMain(): ReactElement {
-  /**
-   * Rubric Builder State
-   */
-
-  // active rubric being edited
-  const [rubric, setRubric] = useState<Rubric | undefined>(undefined);
-
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeTemplateIndex, setActiveTemplateIndex] = useState(-1);
 
-  const [templateInputActive, setTemplateInputActive] = useState(false);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [newTemplate, setNewTemplate] = useState<Template>(createTemplate());
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
-    null
+    null,
   );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [maxPoints, setMaxPoints] = useState<number>(0);
 
   // declared before, so it's initialized for the modal initial state. memoized for performance
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
   // object containing related modal state
   const [modal, setModal] = useState({
@@ -53,7 +41,7 @@ export default function TemplatesMain(): ReactElement {
 
   const closePopUp = useCallback(
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
-    []
+    [],
   );
 
   const [popUp, setPopUp] = useState({
@@ -93,103 +81,53 @@ export default function TemplatesMain(): ReactElement {
 
   useEffect(() => {
     if (deletingTemplate) {
-      const deleteTemplate = async () => {
-        const response = await fetchData();
-        console.log("delete response", response);
-        if (response.success) {
-          const newTemplates = templates.filter(
-            (t) => t.key !== deletingTemplate.key
-          );
-          setTemplates(newTemplates);
-          setDeletingTemplate(null);
+      void (async () => {
+        try {
+          const response = await fetchData();
+          console.log("delete response", response);
+          if (response.success) {
+            const newTemplates = templates.filter(
+              (t) => t.key !== deletingTemplate.key,
+            );
+            setTemplates(newTemplates);
+            setDeletingTemplate(null);
+          }
+        } catch (error) {
+          console.error("Error deleting template:", error);
         }
-      };
-      deleteTemplate();
+      })();
     }
   }, [deletingTemplate]);
 
-  const handleSubmitTemplate = async (index: number) => {
-    try {
-      // First close the modal and reset active index
-      setIsEditModalOpen(false);
-      setActiveTemplateIndex(-1);
+  const handleSubmitTemplate = (index: number) => {
+    void (async () => {
+      try {
+        // First close the modal and reset active index
+        setIsEditModalOpen(false);
+        setActiveTemplateIndex(-1);
 
-      const response = await (index === templates.length
-        ? postTemplate()
-        : updateTemplate());
-      console.log("Template submission response:", response); // Debug log
+        const response = await (index === templates.length
+          ? postTemplate()
+          : updateTemplate());
+        console.log("Template submission response:", response);
 
-      if (response.success) {
-        // Fetch updated templates list
-        const templatesResponse = await getAllTemplates();
-        if (templatesResponse.success) {
-          setTemplates(templatesResponse.data as Template[]);
+        if (response.success) {
+          const templatesResponse = await getAllTemplates();
+          if (templatesResponse.success) {
+            setTemplates(templatesResponse.data as Template[]);
+          } else {
+            console.error(
+              "Failed to fetch updated templates:",
+              templatesResponse,
+            );
+          }
         } else {
-          console.error(
-            "Failed to fetch updated templates:",
-            templatesResponse
-          );
+          console.error("Template submission failed:", response);
         }
-      } else {
-        console.error("Template submission failed:", response);
+      } catch (error) {
+        console.error("Error submitting template:", error);
       }
-    } catch (error) {
-      console.error("Error submitting template:", error);
-    }
-  };
-
-  const handleImportTemplate = (template: Template) => {
-    console.log("import template");
-    if (!template) return;
-
-    const currentCriteria = template.criteria;
-    const newCriteria = template.criteria;
-
-    if (newCriteria.length === 0) {
-      setPopUp({
-        isOpen: true,
-        title: "Oops!",
-        message: `This template has no criteria`,
-      });
-
-      return;
-    }
-
-    // Split into unique and duplicate criteria
-    const { unique, duplicates } = newCriteria.reduce(
-      (acc, newCriterion) => {
-        const isDuplicate = currentCriteria.some(
-          (existingCriterion) =>
-            existingCriterion.key.trim().toLowerCase() ===
-            newCriterion.key.trim().toLowerCase()
-        );
-
-        if (isDuplicate) {
-          acc.duplicates.push(newCriterion);
-        } else {
-          acc.unique.push(newCriterion);
-        }
-
-        return acc;
-      },
-      { unique: [] as Criteria[], duplicates: [] as Criteria[] }
-    );
-
-    // Log information about duplicates if any were found
-    if (duplicates.length > 0) {
-      console.log(
-        `Found ${duplicates.length} duplicate criteria that were skipped:`,
-        duplicates.map((c) => c.description)
-      );
-    }
-
-    setRubric(
-      (prevRubric) =>
-        ({
-          ...(prevRubric ?? createRubric()),
-          criteria: [...(prevRubric?.criteria ?? []), ...unique],
-        }) as Rubric
-    );
+    })();
   };
 
   const handleCreateTemplate = () => {
@@ -216,7 +154,7 @@ export default function TemplatesMain(): ReactElement {
     );
   };
 
-  const handleRemoveTemplate = async (index: number) => {
+  const handleRemoveTemplate = (index: number) => {
     if (!templates) return;
 
     setModal({
@@ -248,7 +186,7 @@ export default function TemplatesMain(): ReactElement {
           View, Edit, and Create templates here!
         </p>
 
-        <div className="flex flex-col max-h-[500px] bg-red-500 border-2 border-black rounded-lg overflow-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
+        <div className="flex flex-col max-h-[500px] bg-gray-600 border-2 border-black rounded-lg overflow-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
           {templates.map((template, index) => (
             <div key={template.key} className="m-2">
               <TemplateCard
@@ -311,22 +249,10 @@ export default function TemplatesMain(): ReactElement {
           message={popUp.message}
         />
         <EditTemplateModal
-          template={newTemplate}
           onClose={() => setIsEditModalOpen(false)}
-          title={newTemplate.title}
           children={renderNewTemplate()}
           isOpen={isEditModalOpen}
         />
-        <Dialog
-          isOpen={templateInputActive}
-          onClose={() => setTemplateInputActive(false)}
-          title={"Import Template:"}
-        >
-          <TemplateUpload
-            closeImportCard={() => setTemplateInputActive(false)}
-            onTemplateSelected={handleImportTemplate}
-          />
-        </Dialog>
       </div>
     );
   };

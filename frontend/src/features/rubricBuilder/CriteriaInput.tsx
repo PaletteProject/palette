@@ -36,7 +36,7 @@ export default function CriteriaInput({
   const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
   const [templateSetterActive, setTemplateSetterActive] = useState(false); // file input display is open or not
   const [criteriaDescription, setCriteriaDescription] = useState(
-    criterion.description || ""
+    criterion.description || "",
   );
 
   const [templateTitle, setTemplateTitle] = useState(criterion.template || "");
@@ -89,7 +89,7 @@ export default function CriteriaInput({
 
   const handleRemoveCriteriaButton = (
     event: ReactMouseEvent,
-    index: number
+    index: number,
   ) => {
     event.preventDefault();
     event.stopPropagation();
@@ -99,7 +99,7 @@ export default function CriteriaInput({
   // Update criterion when ratings change.
   const handleRatingChange = (ratingIndex: number, updatedRating: Rating) => {
     const updatedRatings = ratings.map((rating, index) =>
-      index === ratingIndex ? updatedRating : rating
+      index === ratingIndex ? updatedRating : rating,
     );
     setRatings(updatedRatings);
     criterion.ratings = updatedRatings;
@@ -137,7 +137,7 @@ export default function CriteriaInput({
 
   const handleAddRating = (
     event: ReactMouseEvent<HTMLButtonElement>,
-    index: number
+    index: number,
   ) => {
     event.preventDefault();
 
@@ -154,7 +154,7 @@ export default function CriteriaInput({
   };
 
   const handleTemplateSetterPress = (
-    event: ReactMouseEvent<HTMLButtonElement>
+    event: ReactMouseEvent<HTMLButtonElement>,
   ) => {
     event.preventDefault();
     if (!templateSetterActive) {
@@ -207,7 +207,7 @@ export default function CriteriaInput({
         <div className={"flex gap-3"}>
           <button
             onPointerDown={(
-              event: ReactMouseEvent // Change to onPointerDown
+              event: ReactMouseEvent, // Change to onPointerDown
             ) => handleRemoveCriteriaButton(event, index)}
             type={"button"}
             className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"

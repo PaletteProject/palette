@@ -8,7 +8,6 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import UserTemplates from "./features/templatesPage/TempatesMain.tsx";
 
 import {
   GradingMain,
@@ -18,7 +17,7 @@ import {
   SettingsMain,
 } from "@features";
 import { AssignmentProvider, CourseProvider } from "@context"; // Defined a "root" div in index.html that we pull in here and then call the React render method.
-import { Footer, Header, Navbar } from "@components";
+import { Footer } from "@components";
 import TemplatesMain from "./features/templatesPage/TempatesMain.tsx";
 
 // Defined a "root" div in index.html that we pull in here and then call the React render method.
@@ -42,5 +41,5 @@ createRoot(document.getElementById("root")!).render(
         </Router>
       </AssignmentProvider>
     </CourseProvider>
-  </StrictMode>
+  </StrictMode>,
 );

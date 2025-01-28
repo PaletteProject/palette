@@ -2,21 +2,16 @@
 
 import { ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Template } from "palette-types";
 
 interface EditTemplateModalProps {
-  template: Template;
   isOpen: boolean;
   onClose: () => void;
-  title: string;
   children: ReactNode;
 }
 
 export function EditTemplateModal({
-  template,
   isOpen,
   onClose,
-  title,
   children,
 }: EditTemplateModalProps) {
   if (!isOpen) {
@@ -35,6 +30,6 @@ export function EditTemplateModal({
         </button>
       </div>
     </div>,
-    document.getElementById("modal-portal") as HTMLElement // use the dialog portal root!
+    document.getElementById("modal-portal") as HTMLElement, // use the dialog portal root!
   );
 }
