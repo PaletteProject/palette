@@ -53,7 +53,7 @@ export default function TemplateCard({
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   /**
@@ -68,7 +68,7 @@ export default function TemplateCard({
           criterion.ratings.reduce((sum, rating) => sum + rating.points, 0)
         );
       },
-      0,
+      0
     );
     setLocalMaxPoints(calculatedMaxPoints);
   }, [currentTemplate, index, handleTemplateUpdate]);
@@ -173,7 +173,7 @@ export default function TemplateCard({
     const isDuplicateName = existingTemplates.some(
       (t) =>
         t.title.toLowerCase() === currentTemplate.title.toLowerCase() &&
-        t.key !== currentTemplate.key,
+        t.key !== currentTemplate.key
     );
 
     if (isDuplicateName) {

@@ -17,7 +17,7 @@ dist-ssr
 
 # sensitive files
 settings.json
-
+templates.json
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
