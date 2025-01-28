@@ -31,35 +31,60 @@ export function ProjectGradingView({
           <h1 className="text-4xl text-white font-semibold mb-3">
             {groupName}
           </h1>
-          {renderGroupMembers()}
-          {renderCriteria()}
+          {renderGradingTable()}
         </div>
       </div>,
       document.getElementById("portal-root") as HTMLElement,
     );
   };
 
-  const renderGroupMembers = () => {
+  const renderGradingTable = () => {
     return (
-      <div>
-        {submissions.map((submission: Submission) => (
-          <div key={submission.id} className={"mb-4"}>
-            <h2>{`${submission.user.name} (${submission.user.asurite})`}</h2>
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  const renderCriteria = () => {
-    return (
-      <div>
-        {rubric.criteria.map((criterion: Criteria) => (
-          <div key={criterion.key}>
-            <h2>{criterion.description}</h2>
-          </div>
-        ))}
-      </div>
+      <table className="w-full table-auto border-collapse border border-gray-500 text-left">
+        <thead>
+          <tr>
+            <th className="border border-gray-500 px-4 py-2">Group Member</th>
+            {rubric.criteria.map((criterion: Criteria) => (
+              <th
+                key={criterion.key}
+                className="border border-gray-500 px-4 py-2"
+              >
+                {criterion.description}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {submissions.map((submission: Submission) => (
+            <tr key={submission.id}>
+              <td className="border border-gray-500 px-4 py-2">
+                {`${submission.user.name} (${submission.user.asurite})`}
+              </td>
+              {rubric.criteria.map((criterion: Criteria) => (
+                <td
+                  key={`${submission.id}-${criterion.key}`}
+                  className="border border-gray-500 px-4 py-2 text-center"
+                >
+                  {/* Input field for grading */}
+                  <select
+                    className="w-full bg-gray-800 text-white text-center rounded px-2 py-1"
+                    defaultValue=""
+                  >
+                    <option value="" disabled>
+                      Select a rating
+                    </option>
+                    {criterion.ratings.map((rating) => (
+                      <option value={rating.points} key={rating.key}>
+                        {`${rating.description} - ${rating.points} Points`}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     );
   };
 
