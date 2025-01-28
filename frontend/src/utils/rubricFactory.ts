@@ -65,6 +65,8 @@ export function createCriterion(
   points: number = 0,
   ratings: Rating[] = populateDefaultRatings(),
   id?: number,
+  template: string = "",
+  templateTitle: string = "",
 ): Criteria {
   return {
     ratings,
@@ -72,6 +74,8 @@ export function createCriterion(
     longDescription,
     points,
     id,
+    template,
+    templateTitle,
     key: uuid(),
     updatePoints() {
       this.points = Number(calcMaxPoints(this.ratings));
