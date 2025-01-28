@@ -6,7 +6,7 @@ import fs from "fs";
 
 const templatesPath = "./templates.json";
 let templates: Template[] | null = null;
-const defaultTemplates: Template[] = [];
+export const defaultTemplates: Template[] = [];
 
 export const TemplateService = {
   // POST REQUESTS (Templates Setter/Page Functions)
