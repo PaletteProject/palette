@@ -72,7 +72,7 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
     const textAreaTitle = event.target.value;
     // Validate that the title contains at least one letter and isn't just whitespace
     const isValid = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s]{1,}$/.test(
-      textAreaTitle.trim()
+      textAreaTitle.trim(),
     );
     setIsValidTitle(isValid);
     setSelectedTemplateTitle(isValid ? textAreaTitle.trim() : "");
@@ -106,7 +106,7 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
   };
 
   const handleSelectedExistingTemplate = (
-    event: React.MouseEvent<HTMLElement>
+    event: React.MouseEvent<HTMLElement>,
   ) => {
     event.preventDefault();
     setUpdatingExistingTemplate(true);
@@ -115,19 +115,19 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
     // Remove specific substring if present (e.g., " - (Already contains criterion)")
     textAreaTemplateTitle = textAreaTemplateTitle.replace(
       " - (Already contains this criterion)",
-      ""
+      "",
     );
 
     console.log("textAreaTemplateTitle", textAreaTemplateTitle);
 
     const existingTemplate = templates.find(
-      (t) => t.title.trim() === textAreaTemplateTitle.trim()
+      (t) => t.title.trim() === textAreaTemplateTitle.trim(),
     );
 
     if (existingTemplate) {
       // Check if criterion already exists in template
       const criterionExists = existingTemplate.criteria.some(
-        (c) => c.key === criterion.key
+        (c) => c.key === criterion.key,
       );
       if (criterionExists) {
         criterion.templateTitle = "";
@@ -139,7 +139,7 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
         criterion.template = existingTemplate.key;
         setSelectedTemplateTitle(existingTemplate.title);
         const isValid = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s!.,?-]{1,}$/.test(
-          existingTemplate.title.trim()
+          existingTemplate.title.trim(),
         );
         setIsValidTitle(isValid);
         setSelectedTemplateTitle(isValid ? existingTemplate.title.trim() : "");
@@ -215,7 +215,7 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
           ) : (
             templates.map((t, tKey) => {
               const criterionExists = t.criteria.some(
-                (c) => c.key === criterion.key
+                (c) => c.key === criterion.key,
               );
               return (
                 <div

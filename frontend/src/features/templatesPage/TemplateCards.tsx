@@ -22,21 +22,21 @@ export default function TemplateCard({
   index,
   activeTemplateIndex,
   template,
-  handleTemplateUpdate,
+  updateTemplateHandler,
   removeTemplate,
-  setActiveTemplateIndex,
+  activeTemplateIndexHandler,
   isNewTemplate,
-  handleSubmitTemplate,
+  submitTemplateHandler,
   existingTemplates,
 }: {
   index: number;
   activeTemplateIndex: number;
   template: Template;
-  handleTemplateUpdate: (index: number, template: Template) => void;
+  updateTemplateHandler: (index: number, template: Template) => void;
   removeTemplate: (index: number) => void;
-  setActiveTemplateIndex: (index: number) => void;
+  activeTemplateIndexHandler: (index: number) => void;
   isNewTemplate: boolean;
-  handleSubmitTemplate: (index: number) => void;
+  submitTemplateHandler: () => void;
   existingTemplates: Template[];
 }): ReactElement {
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
@@ -53,7 +53,7 @@ export default function TemplateCard({
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
 
   /**
@@ -68,10 +68,10 @@ export default function TemplateCard({
           criterion.ratings.reduce((sum, rating) => sum + rating.points, 0)
         );
       },
-      0
+      0,
     );
     setLocalMaxPoints(calculatedMaxPoints);
-  }, [currentTemplate, index, handleTemplateUpdate]);
+  }, [currentTemplate, index, updateTemplateHandler]);
 
   // update rubric state with new list of criteria
   const handleAddCriteria = (event: ReactMouseEvent<HTMLButtonElement>) => {
@@ -80,9 +80,9 @@ export default function TemplateCard({
     const newCriteria = [...currentTemplate.criteria, createCriterion()];
     const updatedTemplate = { ...currentTemplate, criteria: newCriteria };
     setCurrentTemplate(updatedTemplate);
-    handleTemplateUpdate(index, updatedTemplate);
+    updateTemplateHandler(index, updatedTemplate);
     setActiveCriterionIndex(newCriteria.length - 1);
-    handleTemplateUpdate(index, updatedTemplate);
+    updateTemplateHandler(index, updatedTemplate);
   };
 
   const handleRemoveCriterion = (index: number, criterion: Criteria) => {
@@ -92,7 +92,7 @@ export default function TemplateCard({
       newCriteria.splice(index, 1);
       const updatedTemplate = { ...currentTemplate, criteria: newCriteria };
       setCurrentTemplate(updatedTemplate);
-      handleTemplateUpdate(index, updatedTemplate);
+      updateTemplateHandler(index, updatedTemplate);
     };
 
     setModal({
@@ -118,7 +118,7 @@ export default function TemplateCard({
     newCriteria[index] = criterion;
     const updatedTemplate = { ...currentTemplate, criteria: newCriteria };
     setCurrentTemplate(updatedTemplate);
-    handleTemplateUpdate(index, updatedTemplate);
+    updateTemplateHandler(index, updatedTemplate);
   };
 
   // Use the useSortable hook to handle criteria ordering
@@ -173,7 +173,7 @@ export default function TemplateCard({
     const isDuplicateName = existingTemplates.some(
       (t) =>
         t.title.toLowerCase() === currentTemplate.title.toLowerCase() &&
-        t.key !== currentTemplate.key
+        t.key !== currentTemplate.key,
     );
 
     if (isDuplicateName) {
@@ -192,8 +192,9 @@ export default function TemplateCard({
       return;
     }
 
-    setActiveTemplateIndex(-1);
-    handleSubmitTemplate(index);
+    activeTemplateIndexHandler(-1);
+    setIsEditModalOpen(false);
+    submitTemplateHandler();
   };
 
   const renderCriteriaCards = () => {
@@ -276,7 +277,7 @@ export default function TemplateCard({
             onChange={(e) => {
               const newTemplate = { ...currentTemplate, title: e.target.value };
               setCurrentTemplate(newTemplate);
-              handleTemplateUpdate(index, newTemplate);
+              updateTemplateHandler(index, newTemplate);
             }}
             className=" rounded p-3 mb-4 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-xl truncate whitespace-nowrap"
             placeholder="Template title"

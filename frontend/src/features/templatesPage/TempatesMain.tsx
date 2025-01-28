@@ -63,11 +63,6 @@ export default function TemplatesMain(): ReactElement {
     body: JSON.stringify(newTemplate), // use latest rubric data
   });
 
-  const { fetchData: updateTemplate } = useFetch(`/templates`, {
-    method: "PUT",
-    body: JSON.stringify(newTemplate),
-  });
-
   useEffect(() => {
     (async () => {
       const response = await getAllTemplates();
@@ -99,16 +94,12 @@ export default function TemplatesMain(): ReactElement {
     }
   }, [deletingTemplate]);
 
-  const handleSubmitTemplate = (index: number) => {
+  const handleSubmitTemplate = () => {
     void (async () => {
       try {
-        // First close the modal and reset active index
         setIsEditModalOpen(false);
-        setActiveTemplateIndex(-1);
 
-        const response = await (index === templates.length
-          ? postTemplate()
-          : updateTemplate());
+        const response = await postTemplate();
         console.log("Template submission response:", response);
 
         if (response.success) {
@@ -144,11 +135,11 @@ export default function TemplatesMain(): ReactElement {
         index={templates.length}
         activeTemplateIndex={templates.length}
         template={newTemplate}
-        handleTemplateUpdate={handleUpdateTemplate}
+        updateTemplateHandler={handleUpdateTemplate}
         removeTemplate={handleRemoveTemplate}
-        setActiveTemplateIndex={setActiveTemplateIndex}
+        activeTemplateIndexHandler={setActiveTemplateIndex}
         isNewTemplate={true}
-        handleSubmitTemplate={handleSubmitTemplate}
+        submitTemplateHandler={handleSubmitTemplate}
         existingTemplates={templates}
       />
     );
@@ -193,11 +184,11 @@ export default function TemplatesMain(): ReactElement {
                 index={index}
                 activeTemplateIndex={activeTemplateIndex}
                 template={template}
-                handleTemplateUpdate={handleUpdateTemplate}
+                updateTemplateHandler={handleUpdateTemplate}
                 removeTemplate={handleRemoveTemplate}
-                setActiveTemplateIndex={setActiveTemplateIndex}
+                activeTemplateIndexHandler={setActiveTemplateIndex}
                 isNewTemplate={false}
-                handleSubmitTemplate={handleSubmitTemplate}
+                submitTemplateHandler={handleSubmitTemplate}
                 existingTemplates={templates}
               />
             </div>
