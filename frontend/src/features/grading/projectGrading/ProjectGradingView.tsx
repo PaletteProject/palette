@@ -4,6 +4,7 @@
 
 import { Criteria, Rubric, Submission } from "palette-types";
 import { createPortal } from "react-dom";
+import { useState } from "react";
 
 export function ProjectGradingView({
   groupName,
@@ -19,6 +20,35 @@ export function ProjectGradingView({
   if (!isOpen) {
     return null;
   }
+
+  // ratings state to track and update background colors
+  const [ratings, setRatings] = useState<{ [key: string]: number | "" }>({});
+
+  const handleRatingChange = (
+    submissionId: number,
+    criterionKey: string,
+    value: string,
+  ) => {
+    setRatings((prev) => ({
+      ...prev,
+      [`${submissionId}-${criterionKey}`]: value === "" ? "" : parseInt(value),
+    }));
+  };
+
+  /**
+   * Dynamically calculates the drop-down background color.
+   */
+  const getBackgroundColor = (
+    value: number | "",
+    criterion: Criteria,
+  ): string => {
+    if (value === "") return "bg-gray-800"; // Default background color
+    const highest = criterion.ratings[0]?.points; // First element (highest score)
+    const lowest = criterion.ratings[criterion.ratings.length - 1]?.points; // Last element (lowest score)
+    if (value === highest) return "bg-green-500"; // Green for the highest score
+    if (value === lowest) return "bg-red-500"; // Red for the lowest score
+    return "bg-yellow-500"; // Yellow for anything in between
+  };
 
   const renderGradingPopup = () => {
     return createPortal(
@@ -67,8 +97,18 @@ export function ProjectGradingView({
                 >
                   {/* Input field for grading */}
                   <select
-                    className="w-full bg-gray-800 text-white text-center rounded px-2 py-1"
-                    defaultValue=""
+                    className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
+                      ratings[`${submission.id}-${criterion.key}`] ?? "",
+                      criterion,
+                    )}`}
+                    value={ratings[`${submission.id}-${criterion.key}`] ?? ""}
+                    onChange={(e) =>
+                      handleRatingChange(
+                        submission.id,
+                        criterion.key,
+                        e.target.value,
+                      )
+                    }
                   >
                     <option value="" disabled>
                       Select a rating
