@@ -238,6 +238,58 @@ courseRouter.get(
 courseRouter.get("/", getAllCourses);
 
 /**
+ * @swagger
+ * /courses/{course_id}/rubrics/{rubric_id}/{assignment_id}:
+ *   put:
+ *     summary: Update a rubric by its ID
+ *     description: Update a specific rubric associated with a course and assignment.
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *       - in: path
+ *         name: rubric_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the rubric.
+ *       - in: path
+ *         name: assignment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the assignment.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Updated Rubric"
+ *               criteria:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     title:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *     responses:
+ *       200:
+ *         description: The rubric has been successfully updated.
+ *       400:
+ *         description: Invalid input or missing fields.
+ *       404:
+ *         description: Rubric not found.
+ */
+/**
  * @route PUT /courses/:course_id/rubrics/:id
  * @description Update a rubric by its ID in a specific course.
  */
@@ -250,6 +302,31 @@ courseRouter.put(
   updateRubric,
 );
 
+/**
+ * @swagger
+ * /courses/{course_id}/rubrics/{rubric_id}:
+ *   delete:
+ *     summary: Delete a rubric by its ID
+ *     description: Remove a rubric from a course by its ID.
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *       - in: path
+ *         name: rubric_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the rubric to be deleted.
+ *     responses:
+ *       200:
+ *         description: The rubric has been deleted successfully.
+ *       404:
+ *         description: Rubric not found.
+ */
 /**
  * @route DELETE /courses/:course_id/rubrics/:id
  * @description Delete a rubric by its ID in a specific course.
