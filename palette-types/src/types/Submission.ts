@@ -1,4 +1,4 @@
-import { Criteria } from "./Criteria";
+import {Criteria} from "./Criteria";
 
 /**
  * Defines the Submission type for use within the Palette application.
@@ -21,9 +21,9 @@ export interface Submission {
     comment: string;
   }[];
   rubricAssessment: Criteria[];
-  // used to track if a student has submitted an assignment or not. (workflow_state on Canvas Submission response)
   graded: boolean;
   gradedBy: number; // grader ID
+  workflowState: "submitted" | "unsubmitted" | "graded" | "pending_review"; // submission status provided by Canvas
   late?: boolean;
   missing?: boolean;
   attachments?: {

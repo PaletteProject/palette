@@ -54,7 +54,7 @@ export function ProjectGradingView({
     return createPortal(
       <div
         className={
-          "scroll-auto fixed z-80 inset-0 bg-black bg-opacity-75 flex justify-center items-center text-white"
+          "scroll-auto fixed z-80 inset-0 bg-black bg-opacity-85 flex justify-center items-center text-white"
         }
       >
         <div className="bg-gray-700 p-6 rounded-xl shadow-lg relative w-1/2">
@@ -69,6 +69,7 @@ export function ProjectGradingView({
   };
 
   const renderGradingTable = () => {
+    console.log(submissions);
     return (
       <table className="w-full table-auto border-collapse border border-gray-500 text-left">
         <thead>
@@ -85,44 +86,50 @@ export function ProjectGradingView({
           </tr>
         </thead>
         <tbody>
-          {submissions.map((submission: Submission) => (
-            <tr key={submission.id}>
-              <td className="border border-gray-500 px-4 py-2">
-                {`${submission.user.name} (${submission.user.asurite})`}
-              </td>
-              {rubric.criteria.map((criterion: Criteria) => (
-                <td
-                  key={`${submission.id}-${criterion.key}`}
-                  className="border border-gray-500 px-4 py-2 text-center"
-                >
-                  {/* Input field for grading */}
-                  <select
-                    className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
-                      ratings[`${submission.id}-${criterion.key}`] ?? "",
-                      criterion,
-                    )}`}
-                    value={ratings[`${submission.id}-${criterion.key}`] ?? ""}
-                    onChange={(e) =>
-                      handleRatingChange(
-                        submission.id,
-                        criterion.key,
-                        e.target.value,
-                      )
-                    }
-                  >
-                    <option value="" disabled>
-                      Select a rating
-                    </option>
-                    {criterion.ratings.map((rating) => (
-                      <option value={rating.points} key={rating.key}>
-                        {`${rating.description} - ${rating.points} Points`}
-                      </option>
-                    ))}
-                  </select>
+          {submissions
+            .filter(
+              (submission) =>
+                submission.workflowState === "submitted" ||
+                submission.workflowState === "graded",
+            )
+            .map((submission: Submission) => (
+              <tr key={submission.id}>
+                <td className="border border-gray-500 px-4 py-2">
+                  {`${submission.user.name} (${submission.user.asurite})`}
                 </td>
-              ))}
-            </tr>
-          ))}
+                {rubric.criteria.map((criterion: Criteria) => (
+                  <td
+                    key={`${submission.id}-${criterion.key}`}
+                    className="border border-gray-500 px-4 py-2 text-center"
+                  >
+                    {/* Input field for grading */}
+                    <select
+                      className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
+                        ratings[`${submission.id}-${criterion.key}`] ?? "",
+                        criterion,
+                      )}`}
+                      value={ratings[`${submission.id}-${criterion.key}`] ?? ""}
+                      onChange={(e) =>
+                        handleRatingChange(
+                          submission.id,
+                          criterion.key,
+                          e.target.value,
+                        )
+                      }
+                    >
+                      <option value="" disabled>
+                        Select a rating
+                      </option>
+                      {criterion.ratings.map((rating) => (
+                        <option value={rating.points} key={rating.key}>
+                          {`${rating.description} - ${rating.points} Points`}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                ))}
+              </tr>
+            ))}
         </tbody>
       </table>
     );
