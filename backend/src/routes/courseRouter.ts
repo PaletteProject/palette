@@ -399,7 +399,7 @@ courseRouter.get("/:course_id/assignments", getAssignments);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
+ *               type: objec
  *               properties:
  *                 id:
  *                   type: string
