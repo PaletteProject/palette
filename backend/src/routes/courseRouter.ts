@@ -25,9 +25,39 @@ import { getSubmissions } from "../controllers/submissionController.js";
 
 const courseRouter = express.Router();
 
+
 /**
- * Submission Routes
+ * @swagger
+ * /courses/{course_id}/assignments/{assignment_id}/submissions:
+ *   get:
+ *     summary: Get submissions for a specific assignment
+ *     description: Retrieve all submissions for a specific assignment in a course.
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *       - in: path
+ *         name: assignment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the assignment.
+ *     responses:
+ *       200:
+ *         description: A list of submissions.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *       400:
+ *         description: Validation error.
  */
+
 courseRouter.get(
   "/:course_id/assignments/:assignment_id/submissions",
   courseParamValidator,
@@ -36,6 +66,50 @@ courseRouter.get(
   getSubmissions,
 );
 
+/**
+ * @swagger
+ * /courses/{course_id}/rubrics/{assignment_id}:
+ *   post:
+ *     summary: Create a new rubric
+ *     description: Create a new rubric in a specific course for a given assignment.
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *       - in: path
+ *         name: assignment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the assignment.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Example Rubric
+ *               criteria:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     title:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *     responses:
+ *       201:
+ *         description: Rubric created successfully.
+ *       400:
+ *         description: Validation error.
+ */
 /**
  * @route POST /courses/:courseID/rubrics
  * @description Create a new rubric in a specific course.
@@ -50,6 +124,44 @@ courseRouter.post(
 );
 
 /**
+ * @swagger
+ * /courses/{course_id}/rubrics/{rubric_id}:
+ *   get:
+ *     summary: Get a rubric by ID
+ *     description: Retrieve a specific rubric by its ID in a course.
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *       - in: path
+ *         name: rubric_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the rubric.
+ *     responses:
+ *       200:
+ *         description: A rubric object.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 criteria:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       404:
+ *         description: Rubric not found.
+ */
+/**
  * @route GET /courses/:course_id/rubrics/:id
  * @description Get a rubric by its ID in a specific course.
  */
@@ -60,6 +172,30 @@ courseRouter.get(
   getRubric,
 );
 
+
+/**
+ * @swagger
+ * /courses/{course_id}/rubrics:
+ *   get:
+ *     summary: Get all rubrics in a course
+ *     description: Retrieve all rubrics associated with a specific course.
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *     responses:
+ *       200:
+ *         description: A list of rubrics.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
 /**
  * @route GET /courses/:course_id/rubrics
  * @description Get all rubrics in a specific course.
@@ -72,6 +208,29 @@ courseRouter.get(
   getAllRubrics,
 );
 
+/**
+ * @swagger
+ * /courses:
+ *   get:
+ *     summary: Retrieve all courses
+ *     description: Get all courses for the authenticated user.
+ *     responses:
+ *       200:
+ *         description: A list of courses.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     example: 101
+ *                   name:
+ *                     type: string
+ *                     example: Example Course
+ */
 /**
  * @route GET /courses
  * @description Get all courses for the current user
@@ -103,11 +262,75 @@ courseRouter.delete(
 );
 
 /**
+ * @swagger
+ * /courses/{course_id}/assignments:
+ *   get:
+ *     summary: Retrieve all assignments in a course
+ *     description: Get all assignments for a given course.
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *     responses:
+ *       200:
+ *         description: A list of assignments.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     example: 202
+ *                   name:
+ *                     type: string
+ *                     example: Assignment 1
+ */
+/**
  * @route GET /courses/:courseID/assignments
  * @description Get all assignments for a course
  */
 courseRouter.get("/:course_id/assignments", getAssignments);
 
+/**
+ * @swagger
+ * /courses/{course_id}/assignments/{assignment_id}:
+ *   get:
+ *     summary: Get an assignment by ID
+ *     description: Retrieve a specific assignment by its ID within a course.
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *       - in: path
+ *         name: assignment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the assignment.
+ *     responses:
+ *       200:
+ *         description: Assignment details.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *       404:
+ *         description: Assignment not found.
+ */
 /**
  * @route GET /courses/:courseId/assignments/:assignmentId
  */
