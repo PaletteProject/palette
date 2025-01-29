@@ -28,17 +28,25 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
 }: ActionButtonProps): ReactElement => {
   const DEFAULT_TITLE = "Save";
 
-  let COLOR;
+  let BACKGROUND_COLOR;
+  let HOVER_COLOR;
+  let FOCUS_RING_COLOR;
 
   switch (color) {
     case "GREEN":
-      COLOR = "bg-green-600";
+      BACKGROUND_COLOR = "bg-green-600";
+      HOVER_COLOR = "hover:bg-green-700";
+      FOCUS_RING_COLOR = "focus:ring-green-500";
       break;
     case "RED":
-      COLOR = "bg-red-600";
+      BACKGROUND_COLOR = "bg-red-600";
+      HOVER_COLOR = "hover:bg-red-700";
+      FOCUS_RING_COLOR = "focus:ring-red-500";
       break;
     default:
-      COLOR = "bg-blue-600";
+      BACKGROUND_COLOR = "bg-blue-600";
+      HOVER_COLOR = "hover:bg-blue-700";
+      FOCUS_RING_COLOR = "focus:ring-blue-500";
   }
 
   /**
@@ -57,7 +65,7 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
 
   return (
     <button
-      className={`transition-all ease-in-out duration-300 ${COLOR} text-white font-bold rounded-lg py-2 px-4 hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500`}
+      className={`transition-all ease-in-out duration-300 ${BACKGROUND_COLOR} text-white font-bold rounded-lg py-2 px-4 ${HOVER_COLOR} hover:scale-105 focus:outline-none focus:ring-2 ${FOCUS_RING_COLOR}`}
       onClick={handleClick}
       type={"button"}
       title={title}
