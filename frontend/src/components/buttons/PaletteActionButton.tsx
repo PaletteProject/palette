@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 
-type SaveButtonProps = {
+type ActionButtonProps = {
   /**
    * The function to call when the button is clicked.
    * It can either take a `React.MouseEvent` as a parameter or no parameters.
@@ -12,19 +12,35 @@ type SaveButtonProps = {
    * The title of the item being saved (e.g., rubric, settings, etc.).
    */
   title: string;
+  color: "GREEN" | "RED";
 };
 
 /**
  * A button component that triggers the provided `onClick` function when clicked.
  *
- * @param {SaveButtonProps} props - The properties for the SaveButton component.
+ * @param {ActionButtonProps} props - The properties for the SaveButton component.
  * @returns {ReactElement} The rendered SaveButton component.
  */
-export const SaveButton: React.FC<SaveButtonProps> = ({
+export const PaletteActionButton: React.FC<ActionButtonProps> = ({
   onClick,
   title,
-}: SaveButtonProps): ReactElement => {
+  color,
+}: ActionButtonProps): ReactElement => {
   const DEFAULT_TITLE = "Save";
+
+  let COLOR;
+
+  switch (color) {
+    case "GREEN":
+      COLOR = "bg-green-600";
+      break;
+    case "RED":
+      COLOR = "bg-red-600";
+      break;
+    default:
+      COLOR = "bg-blue-600";
+  }
+
   /**
    * Handles the button click event and calls the provided `onClick` function.
    *
@@ -41,13 +57,12 @@ export const SaveButton: React.FC<SaveButtonProps> = ({
 
   return (
     <button
-      className="transition-all ease-in-out duration-300 bg-green-600 text-white font-bold rounded-lg py-2 px-4
-                     hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
+      className={`transition-all ease-in-out duration-300 ${COLOR} text-white font-bold rounded-lg py-2 px-4 hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500`}
       onClick={handleClick}
       type={"button"}
       title={title}
     >
-      {title ? `Save ${title}` : DEFAULT_TITLE}
+      {title ? `${title}` : DEFAULT_TITLE}
     </button>
   );
 };

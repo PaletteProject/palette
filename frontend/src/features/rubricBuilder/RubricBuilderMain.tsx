@@ -24,8 +24,8 @@ import {
   ModalChoiceDialog,
   NoAssignmentSelected,
   NoCourseSelected,
+  PaletteActionButton,
   PopUp,
-  SaveButton,
 } from "@components";
 
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
@@ -672,7 +672,7 @@ export function RubricBuilderMain(): ReactElement {
             Add Criteria
           </button>
 
-          <SaveButton
+          <PaletteActionButton
             title={"Rubric"}
             onClick={(event) => void handleSubmitRubric(event)}
           />

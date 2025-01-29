@@ -5,6 +5,7 @@
 import { Criteria, Rubric, Submission } from "palette-types";
 import { createPortal } from "react-dom";
 import { useState } from "react";
+import { PaletteActionButton } from "@components";
 
 export function ProjectGradingView({
   groupName,
@@ -57,11 +58,21 @@ export function ProjectGradingView({
           "scroll-auto fixed z-80 inset-0 bg-black bg-opacity-85 flex justify-center items-center text-white"
         }
       >
-        <div className="bg-gray-700 p-6 rounded-xl shadow-lg relative w-1/2">
+        <div className="bg-gray-700 p-6 rounded-xl shadow-lg relative w-1/2 grid gap-4">
           <h1 className="text-4xl text-white font-semibold mb-3">
             {groupName}
           </h1>
           {renderGradingTable()}
+          <PaletteActionButton
+            title={"Close"}
+            onClick={() => alert("Placeholder: Saving Rubric")}
+            color={"RED"}
+          />
+          <PaletteActionButton
+            title={"Save Rubric"}
+            onClick={() => alert("Placeholder: Saving Rubric")}
+            color={"GREEN"}
+          />
         </div>
       </div>,
       document.getElementById("portal-root") as HTMLElement,
@@ -86,6 +97,7 @@ export function ProjectGradingView({
           </tr>
         </thead>
         <tbody>
+          {/*Only show submissions that have been submitted and/or graded. */}
           {submissions
             .filter(
               (submission) =>
