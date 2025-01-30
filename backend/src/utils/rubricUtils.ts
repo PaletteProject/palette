@@ -70,7 +70,7 @@ export const toPaletteFormat = (rubric: CanvasRubric): Rubric => {
           // id: criterion.id,
           description: criterion.description,
           longDescription: criterion.long_description,
-          points: criterion.points,
+          pointsPossible: criterion.points,
           key: uuid(),
           updatePoints: () => {
             throw new Error("Not implemented");

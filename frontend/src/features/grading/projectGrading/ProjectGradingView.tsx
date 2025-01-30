@@ -75,9 +75,10 @@ export function ProjectGradingView({
         );
 
         if (selectedRating) {
-          rubricAssessment[criterion.key] = {
+          rubricAssessment[criterion.id!] = {
+            // criterion from canvas API will always have an ID
             points: selectedRating.points,
-            rating_id: selectedRating.key, // arbitrary rating id?
+            rating_id: selectedRating.id!, // rating ID from Canvas API
             comments: "", // placeholder for comments
           };
         }
