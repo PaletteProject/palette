@@ -29,6 +29,14 @@ export default function TemplatesMain(): ReactElement {
   // Add new state for search
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Add new state for view mode
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+
+  // Add new state for quick edit mode
+  const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
+    null
+  );
+
   // declared before, so it's initialized for the modal initial state. memoized for performance
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
@@ -144,6 +152,13 @@ export default function TemplatesMain(): ReactElement {
         isNewTemplate={true}
         submitTemplateHandler={handleSubmitTemplate}
         existingTemplates={templates}
+        viewMode={viewMode}
+        templateFocused={focusedTemplateKey === newTemplate.key}
+        onTemplateFocusedToggle={() =>
+          setFocusedTemplateKey(
+            focusedTemplateKey === newTemplate.key ? null : newTemplate.key
+          )
+        }
       />
     );
   };
@@ -193,11 +208,37 @@ export default function TemplatesMain(): ReactElement {
 
     return (
       <div className="mt-0 p-10 gap-6 w-full">
-        <p className="text-white text-2xl font-bold mb-4 text-center">
-          View, Edit, and Create templates here!
-        </p>
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-white text-2xl font-bold text-center">
+            View, Edit, and Create templates here!
+          </p>
 
-        {/* Add search input */}
+          {/* View Toggle Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setViewMode("list")}
+              className={`px-4 py-2 rounded-lg ${
+                viewMode === "list"
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-700 text-gray-300"
+              }`}
+            >
+              <i className="fas fa-list mr-2" /> List
+            </button>
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`px-4 py-2 rounded-lg ${
+                viewMode === "grid"
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-700 text-gray-300"
+              }`}
+            >
+              <i className="fas fa-grid-2 mr-2" /> Grid
+            </button>
+          </div>
+        </div>
+
+        {/* Search input (existing code) */}
         <div className="mb-4">
           <input
             type="text"
@@ -208,10 +249,24 @@ export default function TemplatesMain(): ReactElement {
           />
         </div>
 
-        <div className="flex flex-col max-h-[500px] bg-gray-600 border-2 border-black rounded-lg overflow-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
+        {/* Templates Container */}
+        <div
+          className={`
+          ${
+            viewMode === "grid"
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              : "flex flex-col"
+          }
+          max-h-[500px] bg-gray-600 border-2 border-black rounded-lg overflow-auto 
+          scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-4
+        `}
+        >
           {filtered.length > 0 ? (
             filtered.map((template, index) => (
-              <div key={template.key} className="m-2">
+              <div
+                key={template.key}
+                className={viewMode === "grid" ? "" : "mb-4"}
+              >
                 <TemplateCard
                   index={index}
                   activeTemplateIndex={activeTemplateIndex}
@@ -222,6 +277,13 @@ export default function TemplatesMain(): ReactElement {
                   isNewTemplate={false}
                   submitTemplateHandler={handleSubmitTemplate}
                   existingTemplates={templates}
+                  viewMode={viewMode}
+                  templateFocused={focusedTemplateKey === template.key}
+                  onTemplateFocusedToggle={() =>
+                    setFocusedTemplateKey(
+                      focusedTemplateKey === template.key ? null : template.key
+                    )
+                  }
                 />
               </div>
             ))

@@ -5,4 +5,8 @@ export interface Template {
   title: string;
   key: string; // unique key for React DOM (with uuid)
   criteria: Criteria[];
+  description: string;
+  createdAt: Date;
+  lastUsed: Date;
+  usageCount: number;
 }
