@@ -58,7 +58,7 @@ export default function TemplateCard({
     choices: [] as { label: string; action: () => void }[],
   });
   const [localMaxPoints, setLocalMaxPoints] = useState(0);
-  const [isFocused, setIsFocused] = useState(false);
+  const [isFocused, setIsFocused] = useState(templateFocused);
 
   const cardClassName =
     viewMode === "grid"
@@ -211,6 +211,11 @@ export default function TemplateCard({
     submitTemplateHandler();
   };
 
+  const handleCloseModal = () => {
+    setCurrentTemplate(template); // Reset to original template
+    setIsEditModalOpen(false);
+  };
+
   const renderCriteriaCards = () => {
     if (!currentTemplate) return;
     return (
@@ -261,6 +266,7 @@ export default function TemplateCard({
           ${templateFocused ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800" : ""}
           ${viewMode === "grid" && templateFocused ? "shadow-2xl shadow-gray-900/50" : ""}
         }`}
+        title="Double click to edit"
         onDoubleClick={handleDoubleClick}
       >
         <div className="text-gray-300">
@@ -280,7 +286,7 @@ export default function TemplateCard({
                 ? "Hide template metadata"
                 : "Show template metadata"
             }
-            className="text-gray-300 hover:text-white focus:outline-none text-xl font-bold"
+            className="text-gray-300 hover:text-white focus:outline-none text-xl font-bold bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center"
           >
             {templateFocused ? "-" : "+"}
           </button>
@@ -404,7 +410,7 @@ export default function TemplateCard({
         : renderCondensedView()}
       {isEditModalOpen && (
         <EditTemplateModal
-          onClose={() => setIsEditModalOpen(false)}
+          onClose={handleCloseModal}
           children={renderDetailedView()}
           isOpen={isEditModalOpen}
         />
@@ -418,7 +424,7 @@ export default function TemplateCard({
           choices={modal.choices}
         />
       )}
-      {templateFocused && renderTemplateMetadata()}
+      {isFocused && renderTemplateMetadata()}
     </>
   );
 }
