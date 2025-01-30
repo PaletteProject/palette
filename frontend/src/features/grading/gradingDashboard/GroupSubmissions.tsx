@@ -19,6 +19,10 @@ export function GroupSubmissions({
   // grading popup state (submissions are already filtered by group)
   const [isGradingViewOpen, setGradingViewOpen] = useState<boolean>(false);
 
+  const handleGradingViewClose = () => {
+    setGradingViewOpen(false);
+  };
+
   const toggleGradingView = () => {
     if (!rubric) {
       alert(
@@ -77,6 +81,7 @@ export function GroupSubmissions({
         groupName={"Group 99"}
         submissions={submissions}
         rubric={rubric}
+        onClose={handleGradingViewClose}
       />
     </div>
   );

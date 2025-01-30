@@ -12,11 +12,13 @@ export function ProjectGradingView({
   submissions,
   rubric,
   isOpen,
+  onClose,
 }: {
   groupName: string;
   submissions: Submission[];
   rubric: Rubric;
   isOpen: boolean;
+  onClose: () => void;
 }) {
   if (!isOpen) {
     return null;
@@ -60,20 +62,20 @@ export function ProjectGradingView({
         }
       >
         <div className="bg-gray-700 p-6 rounded-xl shadow-lg relative w-1/2 grid gap-4">
-          <h1 className="text-4xl text-white font-semibold mb-3">
-            {groupName}
-          </h1>
+          <h1 className="text-4xl text-white font-semibold">{groupName}</h1>
           {renderGradingTable()}
-          <PaletteActionButton
-            title={"Close"}
-            onClick={() => alert("Placeholder: Saving Rubric")}
-            color={"RED"}
-          />
-          <PaletteActionButton
-            title={"Save Rubric"}
-            onClick={() => alert("Placeholder: Saving Rubric")}
-            color={"GREEN"}
-          />
+          <div className={"flex gap-4 justify-end"}>
+            <PaletteActionButton
+              title={"Close"}
+              onClick={onClose}
+              color={"RED"}
+            />
+            <PaletteActionButton
+              title={"Submit Grades"}
+              onClick={() => alert("Placeholder: Sending Graded Submissions")}
+              color={"GREEN"}
+            />
+          </div>
         </div>
       </div>,
       document.getElementById("portal-root") as HTMLElement,
