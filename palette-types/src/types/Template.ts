@@ -1,4 +1,5 @@
 import { Criteria } from "./Criteria";
+import { Tag } from "./Teg";
 
 export interface Template {
   id?: number; // OPTIONAL: new rubrics will not have one assigned by Canvas
@@ -7,6 +8,7 @@ export interface Template {
   criteria: Criteria[];
   description: string;
   createdAt: Date;
-  lastUsed: Date;
+  lastUsed: Date | string;
   usageCount: number;
+  tags: Tag[];
 }

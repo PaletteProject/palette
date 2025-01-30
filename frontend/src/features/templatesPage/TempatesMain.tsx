@@ -15,6 +15,13 @@ import TemplateCard from "./TemplateCards.tsx";
 import { useFetch } from "@hooks";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
+// Add new types and interfaces
+type Tag = {
+  id: string;
+  name: string;
+  color: string;
+};
+
 export default function TemplatesMain(): ReactElement {
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeTemplateIndex, setActiveTemplateIndex] = useState(-1);
@@ -49,6 +56,29 @@ export default function TemplatesMain(): ReactElement {
 
   // Add new state for bulk actions visibility
   const [showBulkActions, setShowBulkActions] = useState(false);
+
+  // Add new states for tags
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+  const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([]);
+
+  // Add state for tag creation modal
+  const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+  const [newTag, setNewTag] = useState<Partial<Tag>>({
+    name: "",
+    color: "#3B82F6", // default blue color
+  });
+
+  // Predefined colors for tags
+  const tagColors = [
+    "#3B82F6", // blue
+    "#EF4444", // red
+    "#10B981", // green
+    "#F59E0B", // yellow
+    "#8B5CF6", // purple
+    "#EC4899", // pink
+    "#6366F1", // indigo
+    "#14B8A6", // teal
+  ];
 
   // declared before, so it's initialized for the modal initial state. memoized for performance
   const closeModal = useCallback(
@@ -150,8 +180,16 @@ export default function TemplatesMain(): ReactElement {
 
   const handleCreateTemplate = () => {
     const newTemplate = createTemplate();
+    const currentDate = new Date(); // Create actual Date object
+    newTemplate.createdAt = currentDate;
+    newTemplate.lastUsed = "Never";
     setNewTemplate(newTemplate);
     setIsEditModalOpen(true);
+  };
+
+  const handleDuplicateTemplate = (template: Template) => {
+    const duplicatedTemplate = { ...template, key: crypto.randomUUID() };
+    setTemplates([...templates, duplicatedTemplate]);
   };
 
   const renderNewTemplate = () => {
@@ -176,6 +214,7 @@ export default function TemplatesMain(): ReactElement {
           )
         }
         isSelected={selectedTemplates.includes(newTemplate.key)}
+        duplicateTemplate={handleDuplicateTemplate}
       />
     );
   };
@@ -227,23 +266,34 @@ export default function TemplatesMain(): ReactElement {
     });
   };
 
-  // Modify the filteredTemplates function to include sorting
+  // Modified filteredTemplates to include tag filtering
   const filteredTemplates = useCallback(() => {
     let filtered = templates;
 
+    // Text search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = templates.filter(
+      filtered = filtered.filter(
         (template) =>
           template.title.toLowerCase().includes(query) ||
           template.criteria.some((criterion) =>
             criterion.templateTitle?.toLowerCase().includes(query)
-          )
+          ) ||
+          template.tags.some((tag) => tag.name.toLowerCase().includes(query))
+      );
+    }
+
+    // Tag filter
+    if (selectedTagFilters.length > 0) {
+      filtered = filtered.filter((template) =>
+        selectedTagFilters.every((tagId) =>
+          template.tags.some((tag) => tag.id === tagId)
+        )
       );
     }
 
     return getSortedTemplates(filtered);
-  }, [templates, searchQuery, sortConfig]); // Add sortConfig to dependencies
+  }, [templates, searchQuery, sortConfig, selectedTagFilters]);
 
   const handleSelectTemplate = (templateKey: string) => {
     setSelectedTemplates((prev) =>
@@ -426,6 +476,152 @@ export default function TemplatesMain(): ReactElement {
     );
   };
 
+  // Add tag management functions
+  const handleCreateTag = () => {
+    if (!newTag.name) return;
+
+    const tag: Tag = {
+      id: crypto.randomUUID(),
+      name: newTag.name,
+      color: newTag.color || tagColors[0],
+    };
+
+    setAvailableTags((prev) => [...prev, tag]);
+    setNewTag({ name: "", color: "#3B82F6" });
+    setIsTagModalOpen(false);
+  };
+
+  const handleAddTagToTemplate = (templateKey: string, tagId: string) => {
+    setTemplates((prev) =>
+      prev.map((template) => {
+        if (template.key === templateKey) {
+          const tag = availableTags.find((t) => t.id === tagId);
+          if (tag && !template.tags.some((t) => t.id === tagId)) {
+            return {
+              ...template,
+              tags: [...template.tags, tag],
+            };
+          }
+        }
+        return template;
+      })
+    );
+  };
+
+  const handleRemoveTagFromTemplate = (templateKey: string, tagId: string) => {
+    setTemplates((prev) =>
+      prev.map((template) => {
+        if (template.key === templateKey) {
+          return {
+            ...template,
+            tags: template.tags.filter((tag) => tag.id !== tagId),
+          };
+        }
+        return template;
+      })
+    );
+  };
+
+  // Add tag filter component
+  const renderTagFilters = () => {
+    return (
+      <div className="mb-4 flex flex-wrap gap-2 items-center">
+        <span className="text-white">Filter by tags:</span>
+        {availableTags.map((tag) => (
+          <button
+            key={tag.id}
+            onClick={() =>
+              setSelectedTagFilters((prev) =>
+                prev.includes(tag.id)
+                  ? prev.filter((id) => id !== tag.id)
+                  : [...prev, tag.id]
+              )
+            }
+            className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
+              ${
+                selectedTagFilters.includes(tag.id)
+                  ? "ring-2 ring-white"
+                  : "opacity-70 hover:opacity-100"
+              }`}
+            style={{ backgroundColor: tag.color }}
+          >
+            {tag.name}
+            <span className="text-xs">
+              (
+              {
+                templates.filter((t) =>
+                  t.tags.some((tTag) => tTag.id === tag.id)
+                ).length
+              }
+              )
+            </span>
+          </button>
+        ))}
+        <button
+          onClick={() => setIsTagModalOpen(true)}
+          className="px-3 py-1 rounded-full text-sm bg-gray-700 text-white hover:bg-gray-600"
+        >
+          + New Tag
+        </button>
+      </div>
+    );
+  };
+
+  // Add tag modal component
+  const renderTagModal = () => {
+    return (
+      <PopUp
+        show={isTagModalOpen}
+        onHide={() => setIsTagModalOpen(false)}
+        title="Create New Tag"
+      >
+        <div className="p-4">
+          <div className="mb-4">
+            <label className="block text-white mb-2">Tag Name</label>
+            <input
+              type="text"
+              value={newTag.name}
+              onChange={(e) =>
+                setNewTag((prev) => ({ ...prev, name: e.target.value }))
+              }
+              className="w-full px-3 py-2 bg-gray-700 text-white rounded"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-white mb-2">Tag Color</label>
+            <div className="flex gap-2 flex-wrap">
+              {tagColors.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => setNewTag((prev) => ({ ...prev, color }))}
+                  className={`w-8 h-8 rounded-full ${
+                    newTag.color === color ? "ring-2 ring-white" : ""
+                  }`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setIsTagModalOpen(false)}
+              className="px-4 py-2 bg-gray-600 text-white rounded"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCreateTag}
+              className="px-4 py-2 bg-blue-500 text-white rounded"
+              disabled={!newTag.name}
+            >
+              Create Tag
+            </button>
+          </div>
+        </div>
+      </PopUp>
+    );
+  };
+
   // Modify renderUserTemplates to use filtered templates
   const renderUserTemplates = () => {
     if (!templates) return;
@@ -451,6 +647,10 @@ export default function TemplatesMain(): ReactElement {
             className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
           />
         </div>
+
+        {/* Add tag filters */}
+        {renderTagFilters()}
+        {renderTagModal()}
 
         {/* Conditionally render bulk actions -- Select all button and delete/export buttons */}
         {showBulkActions && renderBulkActions()}
@@ -502,6 +702,7 @@ export default function TemplatesMain(): ReactElement {
                       )
                     }
                     isSelected={selectedTemplates.includes(template.key)}
+                    duplicateTemplate={handleDuplicateTemplate}
                   />
                 </div>
               </div>

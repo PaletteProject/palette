@@ -23,6 +23,7 @@ export default function CriteriaInput({
   removeCriterion,
   setActiveCriterionIndex,
   addingFromTemplateUI,
+  templateViewMode,
 }: {
   index: number;
   activeCriterionIndex: number;
@@ -31,12 +32,13 @@ export default function CriteriaInput({
   removeCriterion: (index: number, criterion: Criteria) => void;
   setActiveCriterionIndex: (index: number) => void;
   addingFromTemplateUI: boolean;
+  templateViewMode: boolean;
 }): ReactElement {
   const [ratings, setRatings] = useState<Rating[]>(criterion.ratings);
   const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
   const [templateSetterActive, setTemplateSetterActive] = useState(false); // file input display is open or not
   const [criteriaDescription, setCriteriaDescription] = useState(
-    criterion.description || "",
+    criterion.description || ""
   );
 
   const [templateTitle, setTemplateTitle] = useState(criterion.template || "");
@@ -89,7 +91,7 @@ export default function CriteriaInput({
 
   const handleRemoveCriteriaButton = (
     event: ReactMouseEvent,
-    index: number,
+    index: number
   ) => {
     event.preventDefault();
     event.stopPropagation();
@@ -99,7 +101,7 @@ export default function CriteriaInput({
   // Update criterion when ratings change.
   const handleRatingChange = (ratingIndex: number, updatedRating: Rating) => {
     const updatedRatings = ratings.map((rating, index) =>
-      index === ratingIndex ? updatedRating : rating,
+      index === ratingIndex ? updatedRating : rating
     );
     setRatings(updatedRatings);
     criterion.ratings = updatedRatings;
@@ -137,7 +139,7 @@ export default function CriteriaInput({
 
   const handleAddRating = (
     event: ReactMouseEvent<HTMLButtonElement>,
-    index: number,
+    index: number
   ) => {
     event.preventDefault();
 
@@ -154,7 +156,7 @@ export default function CriteriaInput({
   };
 
   const handleTemplateSetterPress = (
-    event: ReactMouseEvent<HTMLButtonElement>,
+    event: ReactMouseEvent<HTMLButtonElement>
   ) => {
     event.preventDefault();
     if (!templateSetterActive) {
@@ -205,22 +207,26 @@ export default function CriteriaInput({
           <strong>{criteriaDescription}</strong> - Max Points: {maxPoints}
         </div>
         <div className={"flex gap-3"}>
-          <button
-            onPointerDown={(
-              event: ReactMouseEvent, // Change to onPointerDown
-            ) => handleRemoveCriteriaButton(event, index)}
-            type={"button"}
-            className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
-          >
-            Remove
-          </button>
-          <button
-            onPointerDown={handleExpandCriterion}
-            type={"button"}
-            className="transition-all ease-in-out duration-300 bg-emerald-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-emerald-700 focus:outline-none border-2 border-transparent"
-          >
-            Edit
-          </button>
+          {!templateViewMode && (
+            <>
+              <button
+                onPointerDown={(
+                  event: ReactMouseEvent // Change to onPointerDown
+                ) => handleRemoveCriteriaButton(event, index)}
+                type={"button"}
+                className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
+              >
+                Remove
+              </button>
+              <button
+                onPointerDown={handleExpandCriterion}
+                type={"button"}
+                className="transition-all ease-in-out duration-300 bg-emerald-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-emerald-700 focus:outline-none border-2 border-transparent"
+              >
+                Edit
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
@@ -256,14 +262,20 @@ export default function CriteriaInput({
         }}
       >
         {/* Card style and main grid layout for content*/}
-
-        <input
-          type="text"
-          placeholder={`Criteria ${index + 1} Description...`}
-          className="rounded-lg p-3 text-gray-300 border border-gray-600 bg-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-800"
-          value={criteriaDescription}
-          onChange={handleDescriptionChange}
-        />
+        {!templateViewMode ? (
+          <input
+            type="text"
+            placeholder={`Criteria ${index + 1} Description...`}
+            className="rounded-lg p-3 text-gray-300 border border-gray-600 bg-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-800"
+            value={criteriaDescription}
+            onChange={handleDescriptionChange}
+          />
+        ) : (
+          <div className="rounded-lg p-3 text-gray-300">
+            <h3 className="font-semibold">{criterion.template}</h3>
+            <p>{criteriaDescription}</p>
+          </div>
+        )}
 
         <motion.div
           layout
@@ -274,26 +286,27 @@ export default function CriteriaInput({
 
         <div className={"flex gap-3 items-end justify-between"}>
           <div className="flex gap-3">
-            <button
-              onPointerDown={(event: ReactMouseEvent<HTMLButtonElement>) =>
-                handleRemoveCriteriaButton(event, index)
-              }
-              className={
-                "transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-4" +
-                " py-2 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:outline-none"
-              }
-              type={"button"}
-            >
-              Remove
-            </button>
+            {!templateViewMode && (
+              <button
+                onPointerDown={(event: ReactMouseEvent<HTMLButtonElement>) =>
+                  handleRemoveCriteriaButton(event, index)
+                }
+                className={
+                  "transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-4" +
+                  " py-2 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:outline-none"
+                }
+                type={"button"}
+              >
+                Remove
+              </button>
+            )}
             <button
               className={
                 "transition-all ease-in-out duration-300 bg-amber-600 text-white font-bold rounded-lg px-4" +
                 " py-2 hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none"
               }
               onPointerDown={() => {
-                setActiveCriterionIndex(-1); // setting the index to -1 will ensure the current criteria will
-                // condense and another one won't open
+                setActiveCriterionIndex(-1);
               }}
               type={"button"}
             >
@@ -311,20 +324,22 @@ export default function CriteriaInput({
                 +
               </button>
             )}
-            <button
-              className={
-                ratings.length < 4
-                  ? addButtonActiveStyle
-                  : addButtonInactiveStyle
-              }
-              onClick={(event: ReactMouseEvent<HTMLButtonElement>) =>
-                handleAddRating(event, index)
-              }
-              type={"button"}
-              disabled={ratings.length >= 4}
-            >
-              Add Rating
-            </button>
+            {!templateViewMode && (
+              <button
+                className={
+                  ratings.length < 4
+                    ? addButtonActiveStyle
+                    : addButtonInactiveStyle
+                }
+                onClick={(event: ReactMouseEvent<HTMLButtonElement>) =>
+                  handleAddRating(event, index)
+                }
+                type={"button"}
+                disabled={ratings.length >= 4}
+              >
+                Add Rating
+              </button>
+            )}
 
             <Dialog
               isOpen={templateSetterActive}

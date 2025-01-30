@@ -32,6 +32,7 @@ interface TemplateCardProps {
   templateFocused: boolean;
   onTemplateFocusedToggle: (templateKey?: string) => void;
   isSelected: boolean;
+  duplicateTemplate: (template: Template) => void;
 }
 
 export default function TemplateCard({
@@ -48,6 +49,7 @@ export default function TemplateCard({
   templateFocused,
   onTemplateFocusedToggle,
   isSelected,
+  duplicateTemplate,
 }: TemplateCardProps): ReactElement {
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
@@ -61,6 +63,7 @@ export default function TemplateCard({
   });
   const [localMaxPoints, setLocalMaxPoints] = useState(0);
   const [isFocused, setIsFocused] = useState(templateFocused);
+  const [isViewMode, setIsViewMode] = useState(false);
 
   const cardClassName =
     viewMode === "grid"
@@ -148,9 +151,10 @@ export default function TemplateCard({
     transition,
   };
 
-  const handleDoubleClick = (event: ReactMouseEvent) => {
+  const handleCondensedViewClick = (event: ReactMouseEvent) => {
     event.preventDefault();
-    setIsEditModalOpen(true);
+    setIsFocused(!isFocused);
+    onTemplateFocusedToggle(isFocused ? undefined : template.key);
   };
 
   const submitTemplate = (event: ReactMouseEvent) => {
@@ -218,6 +222,43 @@ export default function TemplateCard({
     setIsEditModalOpen(false);
   };
 
+  const handleDuplicateTemplate = () => {
+    const baseName = template.title.replace(/\s*\(\d+\)$/, ""); // Remove existing numbers in parentheses
+    let counter = 1;
+    let newTitle = `${baseName} (${counter})`;
+
+    // Find an available number for the copy
+    while (
+      existingTemplates.some(
+        (t) => t.title.toLowerCase() === newTitle.toLowerCase()
+      )
+    ) {
+      counter++;
+      newTitle = `${baseName} (${counter})`;
+    }
+
+    const duplicatedTemplate: Template = {
+      ...template,
+      key: crypto.randomUUID(), // Generate new unique key
+      title: newTitle,
+      createdAt: new Date(),
+      lastUsed: new Date(),
+      usageCount: 0,
+    };
+
+    duplicateTemplate(duplicatedTemplate);
+  };
+
+  const handleViewModeToggle = () => {
+    setIsEditModalOpen(true);
+    setIsViewMode(!isViewMode);
+  };
+
+  const handleEditModeToggle = () => {
+    setIsEditModalOpen(true);
+    setIsViewMode(false);
+  };
+
   const renderCriteriaCards = () => {
     if (!currentTemplate) return;
     return (
@@ -249,6 +290,7 @@ export default function TemplateCard({
                 removeCriterion={handleRemoveCriterion}
                 setActiveCriterionIndex={setActiveCriterionIndex}
                 addingFromTemplateUI={true}
+                templateViewMode={isViewMode}
               />
             </motion.div>
           ))}
@@ -267,31 +309,13 @@ export default function TemplateCard({
         className={`hover:bg-gray-500 hover:cursor-pointer max-h-12 flex justify-between items-center border border-gray-700 shadow-xl p-6 rounded-lg w-full bg-gray-700
           ${templateFocused ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800" : ""}
           ${viewMode === "grid" && templateFocused ? "shadow-2xl shadow-gray-900/50" : ""}
+          ${isNewTemplate ? "ring-2 ring-green-500 ring-offset-2 ring-offset-gray-800 animate-[fadeOut_2s_ease-out_forwards]" : ""}
         }`}
-        title="Double click to edit"
-        onDoubleClick={handleDoubleClick}
+        title="Click to toggle expansion"
+        onClick={handleCondensedViewClick}
       >
         <div className="text-gray-300">
-          <strong>{template.title}</strong> - Max Points: {localMaxPoints}
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsFocused(!templateFocused);
-              onTemplateFocusedToggle(
-                templateFocused ? undefined : template.key
-              );
-            }}
-            title={
-              templateFocused
-                ? "Hide template metadata"
-                : "Show template metadata"
-            }
-            className="text-gray-300 hover:text-white focus:outline-none text-xl font-bold bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center"
-          >
-            {templateFocused ? "-" : "+"}
-          </button>
+          <strong>{template.title}</strong> - Points: {localMaxPoints}
         </div>
       </div>
     );
@@ -303,7 +327,7 @@ export default function TemplateCard({
         className="h-full grid p-10 w-full max-w-3xl my-6 gap-6 bg-gray-800 shadow-lg rounded-lg"
         onSubmit={(event) => event.preventDefault()}
       >
-        {isNewTemplate ? (
+        {isNewTemplate || !isViewMode ? (
           <input
             type="text"
             value={currentTemplate.title}
@@ -331,24 +355,26 @@ export default function TemplateCard({
           {renderCriteriaCards()}
         </div>
 
-        <div className="grid gap-4 mt-6">
-          <button
-            className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
-                     hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onClick={handleAddCriteria}
-            type={"button"}
-          >
-            Add Criteria
-          </button>
-          <button
-            className="transition-all ease-in-out duration-300 bg-green-600 text-white font-bold rounded-lg py-2 px-4
-                     hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
-            onClick={(event) => void submitTemplate(event)}
-            type={"button"}
-          >
-            Save Template
-          </button>
-        </div>
+        {!isViewMode && (
+          <div className="grid gap-4 mt-6">
+            <button
+              className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
+                       hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onClick={handleAddCriteria}
+              type={"button"}
+            >
+              Add Criteria
+            </button>
+            <button
+              className="transition-all ease-in-out duration-300 bg-green-600 text-white font-bold rounded-lg py-2 px-4
+                       hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
+              onClick={(event) => void submitTemplate(event)}
+              type={"button"}
+            >
+              Save Template
+            </button>
+          </div>
+        )}
       </form>
     );
   };
@@ -367,11 +393,26 @@ export default function TemplateCard({
 
           {/* Template Statistics */}
           <div className="text-sm text-gray-400 mt-4">
-            <p>Created: {new Date(template.createdAt).toLocaleDateString()}</p>
+            <p>
+              Created:{" "}
+              {new Date(template.createdAt).toLocaleString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
             <p>
               Last Used:{" "}
               {template.lastUsed
-                ? new Date(template.lastUsed).toLocaleDateString()
+                ? new Date(template.lastUsed).toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
                 : "Never"}
             </p>
             <p>Times Used: {template.usageCount || 0}</p>
@@ -379,10 +420,22 @@ export default function TemplateCard({
 
           <div className="flex gap-2 mt-4">
             <button
-              onClick={() => setIsEditModalOpen(true)}
+              onClick={handleViewModeToggle}
+              className="transition-all ease-in-out duration-300 text-blue-400 hover:text-blue-500 focus:outline-none"
+            >
+              View
+            </button>
+            <button
+              onClick={handleEditModeToggle}
               className="transition-all ease-in-out duration-300 text-blue-400 hover:text-blue-500 focus:outline-none"
             >
               Edit
+            </button>
+            <button
+              onClick={handleDuplicateTemplate}
+              className="transition-all ease-in-out duration-300 text-green-400 hover:text-green-500 focus:outline-none"
+            >
+              Copy
             </button>
             <button
               onPointerDown={() => removeTemplate(index)}

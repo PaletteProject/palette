@@ -1,5 +1,6 @@
 import fs from "fs";
 import { Template } from "palette-types";
+import { Tag } from "palette-types/src/types/Teg";
 import {
   TemplateService,
   defaultTemplates,
@@ -15,6 +16,11 @@ jest.mock("fs");
 
 const template: Template = {
   title: "Template 1",
+  description: "",
+  createdAt: new Date(),
+  lastUsed: new Date(),
+  usageCount: 0,
+  tags: [],
   criteria: [
     {
       ratings: [
@@ -75,7 +81,7 @@ describe("Get Templates", () => {
 
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       "./templates.json",
-      JSON.stringify(defaultTemplates, null, 2),
+      JSON.stringify(defaultTemplates, null, 2)
     );
   });
 });
