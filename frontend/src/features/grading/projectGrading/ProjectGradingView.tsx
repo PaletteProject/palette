@@ -22,6 +22,7 @@ export function ProjectGradingView({
     return null;
   }
 
+  // todo: add onClose handler similar to dialog
   // ratings state to track and update background colors
   const [ratings, setRatings] = useState<{ [key: string]: number | "" }>({});
 

@@ -663,18 +663,16 @@ export function RubricBuilderMain(): ReactElement {
         </div>
 
         <div className="grid gap-4 mt-6">
-          <button
-            className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
-                     hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <PaletteActionButton
+            title={"Add Criteria"}
             onClick={handleAddCriteria}
-            type={"button"}
-          >
-            Add Criteria
-          </button>
+            color={"BLUE"}
+          />
 
           <PaletteActionButton
-            title={"Rubric"}
+            title={"Save Rubric"}
             onClick={(event) => void handleSubmitRubric(event)}
+            color={"GREEN"}
           />
         </div>
       </form>

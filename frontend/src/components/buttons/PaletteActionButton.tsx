@@ -12,7 +12,7 @@ type ActionButtonProps = {
    * The title of the item being saved (e.g., rubric, settings, etc.).
    */
   title: string;
-  color: "GREEN" | "RED";
+  color: "GREEN" | "RED" | "BLUE";
 };
 
 /**
@@ -43,7 +43,7 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
       HOVER_COLOR = "hover:bg-red-700";
       FOCUS_RING_COLOR = "focus:ring-red-500";
       break;
-    default:
+    case "BLUE":
       BACKGROUND_COLOR = "bg-blue-600";
       HOVER_COLOR = "hover:bg-blue-700";
       FOCUS_RING_COLOR = "focus:ring-blue-500";
