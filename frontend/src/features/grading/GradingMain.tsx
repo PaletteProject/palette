@@ -94,12 +94,14 @@ export function GradingMain(): ReactElement {
     }
 
     return (
-      <div className={"grid h-full"}>
+      <>
         <Navbar />
-        {loading && <LoadingDots />}
-        {!activeCourse && <NoCourseSelected />}
-        {activeCourse && !activeAssignment && <NoAssignmentSelected />}
-      </div>
+        <div className={"grid h-full pt-[522px]"}>
+          {loading && <LoadingDots />}
+          {!activeCourse && <NoCourseSelected />}
+          {activeCourse && !activeAssignment && <NoAssignmentSelected />}
+        </div>
+      </>
     );
   };
 

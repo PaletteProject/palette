@@ -71,7 +71,7 @@ export function Navbar() {
   }
 
   return (
-    <div className="flex-shrink-0 bg-gradient-to-r from-red-500 via-green-500 to-purple-500 min-h-12 h-16 sticky top-0">
+    <nav className="fixed top-0 left-0 right-0 bg-gradient-to-r from-red-500 via-green-500 to-purple-500 min-h-12 h-16 z-50">
       <div className="flex items-center h-16 mx-4 justify-between">
         {renderNavButtons()}
 
@@ -128,7 +128,7 @@ export function Navbar() {
           <AssignmentSelectionMenu onSelect={setAssignmentDialogOpen} />
         </Dialog>
       </div>
-    </div>
+    </nav>
   );
 }
 

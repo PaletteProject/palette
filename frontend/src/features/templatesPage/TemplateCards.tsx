@@ -31,6 +31,7 @@ interface TemplateCardProps {
   viewMode: "list" | "grid";
   templateFocused: boolean;
   onTemplateFocusedToggle: (templateKey?: string) => void;
+  isSelected: boolean;
 }
 
 export default function TemplateCard({
@@ -46,6 +47,7 @@ export default function TemplateCard({
   viewMode,
   templateFocused,
   onTemplateFocusedToggle,
+  isSelected,
 }: TemplateCardProps): ReactElement {
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
@@ -354,9 +356,8 @@ export default function TemplateCard({
   const renderTemplateMetadata = () => {
     return (
       <div
-        className={`bg-gradient-to-br from-gray-700 to-gray-600 p-4 border-4 border-gray-700 my-4 rounded-lg ${cardClassName} ${
-          viewMode === "grid" ? "max-h-52" : ""
-        } ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800`}
+        className={`bg-gradient-to-br from-gray-700 to-gray-600 p-4 border-4 border-gray-700 mt-4 rounded-lg w-full
+          ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800`}
       >
         <div className="flex-1">
           <p className="text-gray-300 mt-2 line-clamp-2">
@@ -405,15 +406,13 @@ export default function TemplateCard({
 
   return (
     <>
-      {activeTemplateIndex === index
-        ? renderDetailedView()
-        : renderCondensedView()}
-      {isEditModalOpen && (
-        <EditTemplateModal
-          onClose={handleCloseModal}
-          children={renderDetailedView()}
-          isOpen={isEditModalOpen}
-        />
+      {activeTemplateIndex === index ? (
+        renderDetailedView()
+      ) : (
+        <div className="flex flex-col w-full">
+          {renderCondensedView()}
+          {isFocused && renderTemplateMetadata()}
+        </div>
       )}
       {modal.isOpen && (
         <ModalChoiceDialog
@@ -424,7 +423,13 @@ export default function TemplateCard({
           choices={modal.choices}
         />
       )}
-      {isFocused && renderTemplateMetadata()}
+      {isEditModalOpen && (
+        <EditTemplateModal
+          onClose={handleCloseModal}
+          children={renderDetailedView()}
+          isOpen={isEditModalOpen}
+        />
+      )}
     </>
   );
 }
