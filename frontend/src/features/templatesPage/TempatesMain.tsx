@@ -22,14 +22,17 @@ export default function TemplatesMain(): ReactElement {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [newTemplate, setNewTemplate] = useState<Template>(createTemplate());
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
-    null,
+    null
   );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Add new state for search
+  const [searchQuery, setSearchQuery] = useState("");
 
   // declared before, so it's initialized for the modal initial state. memoized for performance
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
   // object containing related modal state
   const [modal, setModal] = useState({
@@ -41,7 +44,7 @@ export default function TemplatesMain(): ReactElement {
 
   const closePopUp = useCallback(
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
-    [],
+    []
   );
 
   const [popUp, setPopUp] = useState({
@@ -82,7 +85,7 @@ export default function TemplatesMain(): ReactElement {
           console.log("delete response", response);
           if (response.success) {
             const newTemplates = templates.filter(
-              (t) => t.key !== deletingTemplate.key,
+              (t) => t.key !== deletingTemplate.key
             );
             setTemplates(newTemplates);
             setDeletingTemplate(null);
@@ -109,7 +112,7 @@ export default function TemplatesMain(): ReactElement {
           } else {
             console.error(
               "Failed to fetch updated templates:",
-              templatesResponse,
+              templatesResponse
             );
           }
         } else {
@@ -169,30 +172,64 @@ export default function TemplatesMain(): ReactElement {
     setNewTemplate(template);
   };
 
+  // Add a function to filter templates based on search
+  const filteredTemplates = useCallback(() => {
+    if (!searchQuery.trim()) return templates;
+
+    const query = searchQuery.toLowerCase();
+    return templates.filter(
+      (template) =>
+        template.title.toLowerCase().includes(query) ||
+        template.criteria.some((criterion) =>
+          criterion.templateTitle?.toLowerCase().includes(query)
+        )
+    );
+  }, [templates, searchQuery]);
+
+  // Modify renderUserTemplates to use filtered templates
   const renderUserTemplates = () => {
     if (!templates) return;
+    const filtered = filteredTemplates();
+
     return (
       <div className="mt-0 p-10 gap-6 w-full">
         <p className="text-white text-2xl font-bold mb-4 text-center">
           View, Edit, and Create templates here!
         </p>
 
+        {/* Add search input */}
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search templates..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
+          />
+        </div>
+
         <div className="flex flex-col max-h-[500px] bg-gray-600 border-2 border-black rounded-lg overflow-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
-          {templates.map((template, index) => (
-            <div key={template.key} className="m-2">
-              <TemplateCard
-                index={index}
-                activeTemplateIndex={activeTemplateIndex}
-                template={template}
-                updateTemplateHandler={handleUpdateTemplate}
-                removeTemplate={handleRemoveTemplate}
-                activeTemplateIndexHandler={setActiveTemplateIndex}
-                isNewTemplate={false}
-                submitTemplateHandler={handleSubmitTemplate}
-                existingTemplates={templates}
-              />
-            </div>
-          ))}
+          {filtered.length > 0 ? (
+            filtered.map((template, index) => (
+              <div key={template.key} className="m-2">
+                <TemplateCard
+                  index={index}
+                  activeTemplateIndex={activeTemplateIndex}
+                  template={template}
+                  updateTemplateHandler={handleUpdateTemplate}
+                  removeTemplate={handleRemoveTemplate}
+                  activeTemplateIndexHandler={setActiveTemplateIndex}
+                  isNewTemplate={false}
+                  submitTemplateHandler={handleSubmitTemplate}
+                  existingTemplates={templates}
+                />
+              </div>
+            ))
+          ) : (
+            <p className="text-white text-center p-4">
+              No templates found matching your search.
+            </p>
+          )}
         </div>
       </div>
     );
