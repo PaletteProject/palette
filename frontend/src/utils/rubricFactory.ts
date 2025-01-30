@@ -72,13 +72,13 @@ export function createCriterion(
     ratings,
     description,
     longDescription,
-    points,
+    pointsPossible: points,
     id,
     template,
     templateTitle,
     key: uuid(),
     updatePoints() {
-      this.points = Number(calcMaxPoints(this.ratings));
+      this.pointsPossible = Number(calcMaxPoints(this.ratings));
     },
   };
 }

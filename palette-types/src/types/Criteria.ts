@@ -8,7 +8,8 @@ export interface Criteria {
   id?: number;
   description: string;
   longDescription: string;
-  points: number;
+  pointsPossible: number;
+  pointsGraded?: number;
   ratings: Rating[];
   template?: string; // placeholder
   templateTitle?: string;

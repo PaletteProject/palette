@@ -361,7 +361,9 @@ export function RubricBuilderMain(): ReactElement {
     return (
       rubric.criteria.reduce(
         (sum, criterion) =>
-          isNaN(criterion.points) ? sum : sum + criterion.points,
+          isNaN(criterion.pointsPossible)
+            ? sum
+            : sum + criterion.pointsPossible,
         0, // init sum to 0
       ) ?? 0 // fallback value if criterion is undefined
     );

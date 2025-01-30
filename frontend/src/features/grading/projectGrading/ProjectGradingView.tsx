@@ -4,7 +4,7 @@
 
 import { Criteria, Rubric, Submission } from "palette-types";
 import { createPortal } from "react-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PaletteActionButton } from "@components";
 
 export function ProjectGradingView({
@@ -18,16 +18,34 @@ export function ProjectGradingView({
   submissions: Submission[];
   rubric: Rubric;
   isOpen: boolean;
-  onClose: () => void;
+  onClose: () => void; // event handler defined in GroupSubmissions.tsx
 }) {
   if (!isOpen) {
     return null;
   }
 
-  // todo: add onClose handler similar to dialog
   // ratings state to track and update background colors
   const [ratings, setRatings] = useState<{ [key: string]: number | "" }>({});
 
+  /**
+   * Initialize ratings when grading modal opens. Maps criterion directly from rubric.
+   */
+  useEffect(() => {
+    if (isOpen) {
+      const initialRatings: { [key: string]: number | "" } = {};
+      submissions.forEach((submission) => {
+        rubric.criteria.forEach((criterion) => {
+          initialRatings[`${submission.id}-${criterion.key}`] = ""; // start with an empty rating (will eventually
+          // change to grab current rating if it exists)
+        });
+      });
+      setRatings(initialRatings);
+    }
+  }, [isOpen, submissions, rubric]);
+
+  /**
+   * Update ratings state on changes.
+   */
   const handleRatingChange = (
     submissionId: number,
     criterionKey: string,
@@ -37,6 +55,46 @@ export function ProjectGradingView({
       ...prev,
       [`${submissionId}-${criterionKey}`]: value === "" ? "" : parseInt(value),
     }));
+  };
+
+  const handleSubmitGrades = () => {
+    const gradedSubmissions = submissions.map((submission) => {
+      // build rubric assessment object in Canvas format directly (reduces transformations needed later)
+      const rubricAssessment: {
+        [key: string]: {
+          points: number;
+          rating_id: string;
+          comments: string;
+        };
+      } = {};
+
+      rubric.criteria.forEach((criterion) => {
+        const selectedPoints = ratings[`${submission.id}-${criterion.key}`];
+        const selectedRating = criterion.ratings.find(
+          (rating) => rating.points === selectedPoints,
+        );
+
+        if (selectedRating) {
+          rubricAssessment[criterion.key] = {
+            points: selectedRating.points,
+            rating_id: selectedRating.key, // arbitrary rating id?
+            comments: "", // placeholder for comments
+          };
+        }
+      });
+
+      return {
+        submission_id: submission.id,
+        user: submission.user,
+        rubricAssessment: rubricAssessment,
+      };
+    });
+
+    console.log("Submitting graded submissions");
+    console.log(gradedSubmissions);
+    alert("GRADES SUBMITTED SUCCESSFULLY");
+
+    onClose();
   };
 
   /**
@@ -72,7 +130,7 @@ export function ProjectGradingView({
             />
             <PaletteActionButton
               title={"Submit Grades"}
-              onClick={() => alert("Placeholder: Sending Graded Submissions")}
+              onClick={handleSubmitGrades}
               color={"GREEN"}
             />
           </div>
@@ -83,7 +141,6 @@ export function ProjectGradingView({
   };
 
   const renderGradingTable = () => {
-    console.log(submissions);
     return (
       <table className="w-full table-auto border-collapse border border-gray-500 text-left">
         <thead>

@@ -31,7 +31,7 @@ describe("Rubric", () => {
           description: "Criterion 1",
           longDescription: "Description for Criterion 1",
           ratings: [],
-          points: 10,
+          pointsPossible: 10,
           template: "",
           updatePoints: vi.fn(), // mocks the function
           key: "key-1",
@@ -40,7 +40,7 @@ describe("Rubric", () => {
           description: "Criterion 2",
           longDescription: "Description for Criterion 2",
           ratings: [],
-          points: 20,
+          pointsPossible: 20,
           template: "",
           updatePoints: vi.fn(),
           key: "key-2",

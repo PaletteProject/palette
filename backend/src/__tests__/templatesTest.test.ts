@@ -1,8 +1,8 @@
 import fs from "fs";
 import { Template } from "palette-types";
 import {
-  TemplateService,
   defaultTemplates,
+  TemplateService,
 } from "../TemplatesAPI/templateRequests";
 import { Request, Response } from "express";
 
@@ -33,7 +33,7 @@ const template: Template = {
       ],
       description: "",
       longDescription: "",
-      points: 5,
+      pointsPossible: 5,
       template: "ce77d8d4-461c-4c70-8da0-c788bf8e6d54",
       templateTitle: "Template 1",
       key: "deefaa1b-1635-4a47-925b-949d1b3f5462",
