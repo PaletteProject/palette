@@ -6,7 +6,6 @@ jest.mock("fs");
 
 const mockSettings: Settings = {
   userName: "mockUser",
-  templateCriteria: [],
   token: "mock token",
   preferences: {
     darkMode: true,

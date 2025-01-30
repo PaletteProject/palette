@@ -1,32 +1,21 @@
 import React from "react";
 
 /**
- * A choice is a button that the user can click to perform an action.
- */
-interface Choice {
-  label: string; // The text to display on the button
-  action: () => void; // The function to call when the button is clicked
-  variant?: string; // The variant of the button (e.g., "primary", "secondary")
-}
-
-/**
  * This generic component is a modal dialog that presents a message and a set of choices.
  * The choices are rendered as buttons at the bottom of the dialog.
  */
-interface ModalChoiceDialogProps {
+interface PopUpProps {
   show: boolean; // Whether the dialog is visible
   onHide: () => void; // The function to call when the dialog is closed
   title: string; // The title of the dialog
   message: string; // The message to display in the dialog
-  choices: Choice[]; // The button choices (not including cancel) to present to the user
 }
 
-export const ModalChoiceDialog: React.FC<ModalChoiceDialogProps> = ({
+export const PopUp: React.FC<PopUpProps> = ({
   show,
   onHide,
   title,
   message,
-  choices,
 }) => {
   if (!show) {
     return null; // Don't render anything if the modal is not visible
@@ -46,26 +35,12 @@ export const ModalChoiceDialog: React.FC<ModalChoiceDialogProps> = ({
           <p className="text-gray-700 text-center">{message}</p>
         </div>
 
-        {/* Buttons */}
         <div className="flex justify-around space-x-4">
-          {choices.map((choice, index) => (
-            <button
-              key={index}
-              className={`py-2 px-4 rounded text-white ${
-                choice.variant === "secondary"
-                  ? "bg-gray-500 hover:bg-gray-600"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
-              onClick={choice.action}
-            >
-              {choice.label}
-            </button>
-          ))}
           <button
-            className="py-2 px-4 rounded bg-gray-500 hover:bg-gray-600 text-white"
+            className="py-2 px-4 rounded bg-red-500 hover:bg-red-600 text-white"
             onClick={onHide}
           >
-            Cancel
+            Exit
           </button>
         </div>
       </div>

@@ -11,6 +11,7 @@ export interface Criteria {
   points: number;
   ratings: Rating[];
   template?: string; // placeholder
+  templateTitle?: string;
   key: string;
   updatePoints: () => void;
 }
