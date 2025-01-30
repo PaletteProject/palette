@@ -1,66 +1,20 @@
 [
   {
-    "title": "dsfas",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "75ee2c3c-e7e1-43be-aaaa-003da6dba002"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "4426e62d-65be-4a3e-be7a-7d46d75de1f7"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "e03e0eae-a2f4-4b2c-8578-b8016e1ca43b"
-      }
-    ],
-    "key": "f8588266-7b43-4b28-98e4-0fbc5f7822f5",
+    "title": "Presentation Feedback",
+    "criteria": [],
+    "key": "4b28d752-9ebf-471c-bdb8-dd3cd1725085",
     "description": "",
-    "createdAt": "2025-01-30T07:43:06.027Z",
+    "createdAt": "2025-01-30T14:59:00.201Z",
     "lastUsed": null,
     "usageCount": 0,
     "tags": []
   },
   {
-    "title": "asdfas",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "f7712e4e-4d76-4e51-ad31-03c005fc0d86"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "e40ce7da-e341-4c63-a4d1-5d497187acc1"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "c8b748c1-1543-4c08-bfc7-2f07eebb89d7"
-      }
-    ],
-    "key": "9d4ff663-cb84-48d9-b394-b887d0fc5837",
+    "title": "",
+    "criteria": [],
+    "key": "1500d030-1334-405a-9fab-913f7d1c82ce",
     "description": "",
-    "createdAt": "2025-01-30T07:43:17.593Z",
+    "createdAt": "2025-01-30T14:59:16.627Z",
     "lastUsed": null,
     "usageCount": 0,
     "tags": []

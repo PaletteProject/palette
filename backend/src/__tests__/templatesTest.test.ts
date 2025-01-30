@@ -1,6 +1,6 @@
 import fs from "fs";
 import { Template } from "palette-types";
-import { Tag } from "palette-types/src/types/Teg";
+import { Tag } from "palette-types/src/types/Tag";
 import {
   TemplateService,
   defaultTemplates,
@@ -20,7 +20,7 @@ const template: Template = {
   createdAt: new Date(),
   lastUsed: new Date(),
   usageCount: 0,
-  tags: [],
+  tags: [] as Tag[],
   criteria: [
     {
       ratings: [

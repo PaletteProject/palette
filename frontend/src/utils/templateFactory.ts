@@ -1,5 +1,5 @@
 import { Template, Criteria } from "palette-types";
-import { Tag } from "palette-types/src/types/Teg";
+import { Tag } from "palette-types/src/types/Tag";
 import { v4 as uuid } from "uuid";
 
 export function createTemplate(

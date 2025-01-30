@@ -1,5 +1,5 @@
 import { Criteria } from "./Criteria";
-import { Tag } from "./Teg";
+import { Tag } from "./Tag";
 
 export interface Template {
   id?: number; // OPTIONAL: new rubrics will not have one assigned by Canvas

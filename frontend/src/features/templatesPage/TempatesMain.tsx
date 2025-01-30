@@ -9,11 +9,13 @@ import {
   EditTemplateModal,
   Navbar,
   MainPageTemplate,
+  Dialog,
 } from "@components";
 import { Template } from "palette-types";
 import TemplateCard from "./TemplateCards.tsx";
 import { useFetch } from "@hooks";
 import { createTemplate } from "src/utils/templateFactory.ts";
+import TemplateTagModal from "src/components/modals/TemplateTagModal.tsx";
 
 // Add new types and interfaces
 type Tag = {
@@ -37,12 +39,14 @@ export default function TemplatesMain(): ReactElement {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Add new state for view mode
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [layoutStyle, setLayoutStyle] = useState<"list" | "grid">("list");
 
   // Add new state for quick edit mode
   const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
     null
   );
+
+  const [tagModalOpen, setTagModalOpen] = useState(false);
 
   // Add new state for sorting
   const [sortConfig, setSortConfig] = useState<{
@@ -60,25 +64,6 @@ export default function TemplatesMain(): ReactElement {
   // Add new states for tags
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([]);
-
-  // Add state for tag creation modal
-  const [isTagModalOpen, setIsTagModalOpen] = useState(false);
-  const [newTag, setNewTag] = useState<Partial<Tag>>({
-    name: "",
-    color: "#3B82F6", // default blue color
-  });
-
-  // Predefined colors for tags
-  const tagColors = [
-    "#3B82F6", // blue
-    "#EF4444", // red
-    "#10B981", // green
-    "#F59E0B", // yellow
-    "#8B5CF6", // purple
-    "#EC4899", // pink
-    "#6366F1", // indigo
-    "#14B8A6", // teal
-  ];
 
   // declared before, so it's initialized for the modal initial state. memoized for performance
   const closeModal = useCallback(
@@ -187,6 +172,113 @@ export default function TemplatesMain(): ReactElement {
     setIsEditModalOpen(true);
   };
 
+  const handleBatchCreateTemplate = async () => {
+    const starterTemplates = [
+      {
+        title: "Weekly Assignment Rubric",
+        tags: [
+          { id: crypto.randomUUID(), name: "Assignment", color: "#3B82F6" },
+        ],
+      },
+      {
+        title: "Final Project Evaluation",
+        tags: [
+          { id: crypto.randomUUID(), name: "Project", color: "#EF4444" },
+          { id: crypto.randomUUID(), name: "Final", color: "#10B981" },
+        ],
+      },
+      {
+        title: "Participation Assessment",
+        tags: [
+          { id: crypto.randomUUID(), name: "Participation", color: "#F59E0B" },
+        ],
+      },
+      {
+        title: "Lab Report Grading",
+        tags: [
+          { id: crypto.randomUUID(), name: "Lab", color: "#8B5CF6" },
+          { id: crypto.randomUUID(), name: "Technical", color: "#EC4899" },
+        ],
+      },
+      {
+        title: "Presentation Feedback",
+        tags: [
+          { id: crypto.randomUUID(), name: "Presentation", color: "#6366F1" },
+        ],
+      },
+    ];
+
+    const newTemplates = starterTemplates.map(({ title, tags }) => {
+      const template = createTemplate();
+      template.title = title;
+      template.tags = tags;
+      template.createdAt = new Date();
+      template.lastUsed = "Never";
+      return template;
+    });
+
+    setModal({
+      isOpen: true,
+      title: "Create Starter Templates",
+      message: `This will create ${starterTemplates.length} template(s) with predefined tags. Would you like to proceed?`,
+      choices: [
+        {
+          label: "Create Templates",
+          action: async () => {
+            try {
+              // Create templates one at a time to ensure proper state updates
+              for (const template of newTemplates) {
+                setNewTemplate(template); // Set the template to be created
+                const response = await postTemplate(); // Use the existing postTemplate function
+
+                if (!response.success) {
+                  throw new Error(
+                    `Failed to create template: ${template.title}`
+                  );
+                }
+              }
+
+              // Refresh templates list
+              const response = await getAllTemplates();
+              if (response.success) {
+                setTemplates(response.data as Template[]);
+
+                // Add the new tags to availableTags if they don't exist
+                const newTags = newTemplates.flatMap((t) => t.tags);
+                setAvailableTags((prev) => {
+                  const existingIds = new Set(prev.map((t) => t.id));
+                  const uniqueNewTags = newTags.filter(
+                    (t) => !existingIds.has(t.id)
+                  );
+                  return [...prev, ...uniqueNewTags];
+                });
+
+                setPopUp({
+                  isOpen: true,
+                  title: "Success",
+                  message: `Successfully created ${newTemplates.length} starter templates!`,
+                });
+              }
+              closeModal();
+            } catch (error) {
+              console.error("Error creating starter templates:", error);
+              setPopUp({
+                isOpen: true,
+                title: "Error",
+                message:
+                  "Failed to create some starter templates. Please try again.",
+              });
+            }
+          },
+        },
+        {
+          label: "Cancel",
+          action: closeModal,
+        },
+      ],
+    });
+  };
+
   const handleDuplicateTemplate = (template: Template) => {
     const duplicatedTemplate = { ...template, key: crypto.randomUUID() };
     setTemplates([...templates, duplicatedTemplate]);
@@ -206,7 +298,7 @@ export default function TemplatesMain(): ReactElement {
         isNewTemplate={true}
         submitTemplateHandler={handleSubmitTemplate}
         existingTemplates={templates}
-        viewMode={viewMode}
+        layoutStyle={layoutStyle}
         templateFocused={focusedTemplateKey === newTemplate.key}
         onTemplateFocusedToggle={() =>
           setFocusedTemplateKey(
@@ -247,19 +339,22 @@ export default function TemplatesMain(): ReactElement {
   const getSortedTemplates = (templatesToSort: Template[]) => {
     return [...templatesToSort].sort((a, b) => {
       switch (sortConfig.key) {
-        case "title":
+        case "title": {
           const comparison = a.title.localeCompare(b.title);
           return sortConfig.direction === "asc" ? comparison : -comparison;
-        case "dateCreated":
+        }
+        case "dateCreated": {
           const dateA = new Date(a.createdAt).getTime();
           const dateB = new Date(b.createdAt).getTime();
           return sortConfig.direction === "asc" ? dateA - dateB : dateB - dateA;
-        case "lastModified":
+        }
+        case "lastModified": {
           const modifiedA = new Date(a.lastUsed).getTime();
           const modifiedB = new Date(b.lastUsed).getTime();
           return sortConfig.direction === "asc"
             ? modifiedA - modifiedB
             : modifiedB - modifiedA;
+        }
         default:
           return 0;
       }
@@ -432,20 +527,20 @@ export default function TemplatesMain(): ReactElement {
             <input
               type="checkbox"
               className="sr-only peer"
-              checked={viewMode === "grid"}
+              checked={layoutStyle === "grid"}
               onChange={() =>
-                setViewMode(viewMode === "list" ? "grid" : "list")
+                setLayoutStyle(layoutStyle === "list" ? "grid" : "list")
               }
             />
             <div className="w-[120px] h-8 bg-gray-700 rounded-full peer peer-checked:after:translate-x-[60px] after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-[56px] after:transition-all">
               <div className="flex justify-between items-center h-full px-2 text-sm">
                 <span
-                  className={`${viewMode === "list" ? "text-white" : "text-gray-400"}`}
+                  className={`${layoutStyle === "list" ? "text-white" : "text-gray-400"}`}
                 >
                   <i className="fas fa-list mr-1" /> List
                 </span>
                 <span
-                  className={`${viewMode === "grid" ? "text-white" : "text-gray-400"}`}
+                  className={`${layoutStyle === "grid" ? "text-white" : "text-gray-400"}`}
                 >
                   <i className="fas fa-grid-2 mr-1" /> Grid
                 </span>
@@ -474,21 +569,6 @@ export default function TemplatesMain(): ReactElement {
         </select>
       </div>
     );
-  };
-
-  // Add tag management functions
-  const handleCreateTag = () => {
-    if (!newTag.name) return;
-
-    const tag: Tag = {
-      id: crypto.randomUUID(),
-      name: newTag.name,
-      color: newTag.color || tagColors[0],
-    };
-
-    setAvailableTags((prev) => [...prev, tag]);
-    setNewTag({ name: "", color: "#3B82F6" });
-    setIsTagModalOpen(false);
   };
 
   const handleAddTagToTemplate = (templateKey: string, tagId: string) => {
@@ -558,7 +638,9 @@ export default function TemplatesMain(): ReactElement {
           </button>
         ))}
         <button
-          onClick={() => setIsTagModalOpen(true)}
+          onClick={() => {
+            setTagModalOpen(true);
+          }}
           className="px-3 py-1 rounded-full text-sm bg-gray-700 text-white hover:bg-gray-600"
         >
           + New Tag
@@ -570,59 +652,91 @@ export default function TemplatesMain(): ReactElement {
   // Add tag modal component
   const renderTagModal = () => {
     return (
-      <PopUp
-        show={isTagModalOpen}
-        onHide={() => setIsTagModalOpen(false)}
-        title="Create New Tag"
-      >
-        <div className="p-4">
-          <div className="mb-4">
-            <label className="block text-white mb-2">Tag Name</label>
-            <input
-              type="text"
-              value={newTag.name}
-              onChange={(e) =>
-                setNewTag((prev) => ({ ...prev, name: e.target.value }))
-              }
-              className="w-full px-3 py-2 bg-gray-700 text-white rounded"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-white mb-2">Tag Color</label>
-            <div className="flex gap-2 flex-wrap">
-              {tagColors.map((color) => (
-                <button
-                  key={color}
-                  onClick={() => setNewTag((prev) => ({ ...prev, color }))}
-                  className={`w-8 h-8 rounded-full ${
-                    newTag.color === color ? "ring-2 ring-white" : ""
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <button
-              onClick={() => setIsTagModalOpen(false)}
-              className="px-4 py-2 bg-gray-600 text-white rounded"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleCreateTag}
-              className="px-4 py-2 bg-blue-500 text-white rounded"
-              disabled={!newTag.name}
-            >
-              Create Tag
-            </button>
-          </div>
-        </div>
-      </PopUp>
+      <TemplateTagModal
+        isOpen={tagModalOpen}
+        onClose={() => setTagModalOpen(false)}
+        setAvailableTags={setAvailableTags}
+      />
     );
   };
 
-  // Modify renderUserTemplates to use filtered templates
+  // Add new state for suggestions
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Add function to get unique suggestions from templates
+  const getSuggestions = useCallback(() => {
+    const suggestions = new Set<string>();
+
+    templates.forEach((template) => {
+      // Add template titles
+      suggestions.add(template.title);
+
+      // Add tag names
+      template.tags.forEach((tag) => suggestions.add(tag.name));
+
+      // Add criterion titles
+      template.criteria.forEach((criterion) => {
+        if (criterion.templateTitle) {
+          suggestions.add(criterion.templateTitle);
+        }
+      });
+    });
+
+    return Array.from(suggestions)
+      .filter(
+        (suggestion) =>
+          suggestion.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          suggestion !== searchQuery
+      )
+      .slice(0, 5); // Limit to 5 suggestions
+  }, [templates, searchQuery]);
+
+  // Modify the search input section to include suggestions
+  const renderSearchWithSuggestions = () => {
+    const suggestions = getSuggestions();
+
+    return (
+      <div className="mb-4 relative">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search templates..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setShowSuggestions(true)}
+            className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+            >
+              <i className="fas fa-times" />
+            </button>
+          )}
+        </div>
+
+        {showSuggestions && searchQuery && suggestions.length > 0 && (
+          <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+            {suggestions.map((suggestion, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setSearchQuery(suggestion);
+                  setShowSuggestions(false);
+                }}
+                className="w-full px-4 py-2 text-left text-white hover:bg-gray-600 first:rounded-t-lg last:rounded-b-lg"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Update renderUserTemplates to use the new search component
   const renderUserTemplates = () => {
     if (!templates) return;
     const filtered = filteredTemplates();
@@ -633,24 +747,14 @@ export default function TemplatesMain(): ReactElement {
           <p className="text-white text-2xl font-bold text-center">
             View, Edit, and Create templates here!
           </p>
-
           {renderTopRightPageButtons()}
         </div>
 
-        {/* Search input (existing code) */}
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search templates..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
-          />
-        </div>
+        {/* Replace the old search input with the new component */}
+        {renderSearchWithSuggestions()}
 
         {/* Add tag filters */}
         {renderTagFilters()}
-        {renderTagModal()}
 
         {/* Conditionally render bulk actions -- Select all button and delete/export buttons */}
         {showBulkActions && renderBulkActions()}
@@ -659,7 +763,7 @@ export default function TemplatesMain(): ReactElement {
         <div
           className={`
           ${
-            viewMode === "grid"
+            layoutStyle === "grid"
               ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
               : "flex flex-col"
           }
@@ -671,7 +775,7 @@ export default function TemplatesMain(): ReactElement {
             filtered.map((template, index) => (
               <div
                 key={template.key}
-                className={viewMode === "grid" ? "" : "mb-4"}
+                className={layoutStyle === "grid" ? "" : "mb-4"}
               >
                 <div className="flex items-center gap-2">
                   {showBulkActions && (
@@ -692,7 +796,7 @@ export default function TemplatesMain(): ReactElement {
                     isNewTemplate={false}
                     submitTemplateHandler={handleSubmitTemplate}
                     existingTemplates={templates}
-                    viewMode={viewMode}
+                    layoutStyle={layoutStyle}
                     templateFocused={focusedTemplateKey === template.key}
                     onTemplateFocusedToggle={() =>
                       setFocusedTemplateKey(
@@ -744,6 +848,12 @@ export default function TemplatesMain(): ReactElement {
           >
             Create Template
           </button>
+          <button
+            onClick={handleBatchCreateTemplate}
+            className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Batch Create
+          </button>
         </div>
 
         <ModalChoiceDialog
@@ -772,5 +882,26 @@ export default function TemplatesMain(): ReactElement {
    * Helper function to consolidate conditional rendering in the JSX.
    */
 
-  return <MainPageTemplate children={renderContent()} />;
+  // Add click outside handler to close suggestions
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!(event.target as Element).closest(".search-container")) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <MainPageTemplate
+      children={
+        <>
+          {renderContent()}
+          {renderTagModal()}
+        </>
+      }
+    />
+  );
 }

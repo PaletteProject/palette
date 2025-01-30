@@ -28,7 +28,7 @@ interface TemplateCardProps {
   isNewTemplate: boolean;
   submitTemplateHandler: () => void;
   existingTemplates: Template[];
-  viewMode: "list" | "grid";
+  layoutStyle: "list" | "grid";
   templateFocused: boolean;
   onTemplateFocusedToggle: (templateKey?: string) => void;
   isSelected: boolean;
@@ -45,10 +45,9 @@ export default function TemplateCard({
   isNewTemplate,
   submitTemplateHandler,
   existingTemplates,
-  viewMode,
+  layoutStyle,
   templateFocused,
   onTemplateFocusedToggle,
-  isSelected,
   duplicateTemplate,
 }: TemplateCardProps): ReactElement {
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
@@ -64,11 +63,6 @@ export default function TemplateCard({
   const [localMaxPoints, setLocalMaxPoints] = useState(0);
   const [isFocused, setIsFocused] = useState(templateFocused);
   const [isViewMode, setIsViewMode] = useState(false);
-
-  const cardClassName =
-    viewMode === "grid"
-      ? "h-[300px] flex flex-col"
-      : "flex flex-row items-start";
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
@@ -308,7 +302,7 @@ export default function TemplateCard({
         {...listeners}
         className={`hover:bg-gray-500 hover:cursor-pointer max-h-12 flex justify-between items-center border border-gray-700 shadow-xl p-6 rounded-lg w-full bg-gray-700
           ${templateFocused ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800" : ""}
-          ${viewMode === "grid" && templateFocused ? "shadow-2xl shadow-gray-900/50" : ""}
+          ${layoutStyle === "grid" && templateFocused ? "shadow-2xl shadow-gray-900/50" : ""}
           ${isNewTemplate ? "ring-2 ring-green-500 ring-offset-2 ring-offset-gray-800 animate-[fadeOut_2s_ease-out_forwards]" : ""}
         }`}
         title="Click to toggle expansion"
@@ -349,6 +343,16 @@ export default function TemplateCard({
           <h2 className="text-2xl font-extrabold bg-green-600 text-black py-2 px-4 rounded-lg">
             {localMaxPoints} {localMaxPoints === 1 ? "Point" : "Points"}
           </h2>
+          <div className="flex gap-2">
+            {template.tags.map((tag) => (
+              <div
+                key={tag.id}
+                className="bg-gray-700 text-white px-2 py-1 rounded-lg"
+              >
+                {tag.name}
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="mt-6 flex flex-col gap-3 h-[35vh] max-h-[50vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
@@ -416,6 +420,7 @@ export default function TemplateCard({
                 : "Never"}
             </p>
             <p>Times Used: {template.usageCount || 0}</p>
+            <p>Tags: {template.tags.map((tag) => tag.name).join(", ")}</p>
           </div>
 
           <div className="flex gap-2 mt-4">
@@ -462,7 +467,7 @@ export default function TemplateCard({
       {activeTemplateIndex === index ? (
         renderDetailedView()
       ) : (
-        <div className="flex flex-col w-full">
+        <div className={`w-full `}>
           {renderCondensedView()}
           {isFocused && renderTemplateMetadata()}
         </div>
