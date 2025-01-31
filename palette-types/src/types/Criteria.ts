@@ -5,7 +5,7 @@
 import { Rating } from "./Rating";
 
 export interface Criteria {
-  id?: string;
+  id: string;
   description: string;
   longDescription: string;
   pointsPossible: number;
