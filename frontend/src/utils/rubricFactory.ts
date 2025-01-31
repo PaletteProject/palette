@@ -38,7 +38,7 @@ function populateDefaultRatings() {
 export function createRubric(
   title: string = "",
   criteria: Criteria[] = populateDefaultCriteria(),
-  id?: number,
+  id: string = "",
   pointsPossible: number = 0,
 ): Rubric {
   return {
@@ -64,7 +64,7 @@ export function createCriterion(
   longDescription: string = "",
   points: number = 0,
   ratings: Rating[] = populateDefaultRatings(),
-  id?: number,
+  id: string = "",
   template: string = "",
   templateTitle: string = "",
 ): Criteria {
@@ -91,7 +91,7 @@ export function createRating(
   points: number = 0,
   description: string = "",
   longDescription: string = "",
-  id?: number,
+  id: string = "",
 ): Rating {
   return {
     points,

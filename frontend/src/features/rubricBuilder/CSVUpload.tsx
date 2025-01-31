@@ -1,11 +1,11 @@
-import React, { useState, useRef } from "react";
+import React, { useRef, useState } from "react";
 import { importCsv, VERSION_ONE, VERSION_TWO } from "@utils";
 import { Dialog } from "@components";
 import { Criteria, Rubric } from "palette-types";
 
 interface CSVUploadProps {
-  rubric: Rubric | undefined;
-  setRubric: React.Dispatch<React.SetStateAction<Rubric | undefined>>;
+  rubric: Rubric;
+  setRubric: React.Dispatch<React.SetStateAction<Rubric>>;
 }
 
 export const CSVUpload: React.FC<CSVUploadProps> = ({ setRubric }) => {
@@ -39,9 +39,7 @@ export const CSVUpload: React.FC<CSVUploadProps> = ({ setRubric }) => {
    * Generates a set of the current criteria descriptions stored within the component state
    * to use for checking duplicate entries.
    */
-  const buildCriteriaDescriptionSet = (
-    rubric: Rubric | undefined,
-  ): Set<string> =>
+  const buildCriteriaDescriptionSet = (rubric: Rubric): Set<string> =>
     new Set(
       (rubric?.criteria || []).map((criterion) =>
         criterion.description.trim().toLowerCase(),
@@ -73,7 +71,7 @@ export const CSVUpload: React.FC<CSVUploadProps> = ({ setRubric }) => {
             pointsPossible:
               prevRubric.pointsPossible +
               uniqueCriteria.reduce(
-                (sum, criterion) => sum + criterion.points,
+                (sum, criterion) => sum + criterion.pointsPossible,
                 0,
               ),
           }
@@ -81,10 +79,11 @@ export const CSVUpload: React.FC<CSVUploadProps> = ({ setRubric }) => {
             title: "Imported Rubric",
             criteria: uniqueCriteria,
             pointsPossible: uniqueCriteria.reduce(
-              (sum, criterion) => sum + criterion.points,
+              (sum, criterion) => sum + criterion.pointsPossible,
               0,
             ),
             key: "placeholder-key", // Placeholder
+            id: "placeholder-id",
           };
     });
   };
@@ -160,5 +159,3 @@ export const CSVUpload: React.FC<CSVUploadProps> = ({ setRubric }) => {
     </div>
   );
 };
-
-export default CSVUpload;

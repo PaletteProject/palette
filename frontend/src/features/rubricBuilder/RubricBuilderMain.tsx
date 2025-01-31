@@ -56,7 +56,7 @@ export function RubricBuilderMain(): ReactElement {
    */
 
   // active rubric being edited
-  const [rubric, setRubric] = useState<Rubric | undefined>(getInitialRubric());
+  const [rubric, setRubric] = useState<Rubric>(getInitialRubric());
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   // result of hook checking if active assignment has an existing rubric
