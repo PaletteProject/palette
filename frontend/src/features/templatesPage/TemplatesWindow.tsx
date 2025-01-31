@@ -5,22 +5,16 @@ import TemplateManagementControls from "./TemplateManagementControls.tsx";
 
 interface TemplatesWindowProps {
   templates: Template[];
-  newTemplate: Template;
   searchQuery: string;
-  isEditModalOpen: boolean;
   selectedTemplates: string[];
   focusedTemplateKey: string | null;
   selectedTagFilters: string[];
-  creatingNewTemplate: boolean;
-  setSearchQuery: (searchQuery: string) => void;
   handleUpdateTemplate: (index: number, template: Template) => void;
   handleRemoveTemplate: (index: number) => void;
   handleSubmitTemplate: () => void;
   setSelectedTagFilters: (selectedTagFilters: string[]) => void;
   setFocusedTemplateKey: (focusedTemplateKey: string | null) => void;
   handleDuplicateTemplate: (template: Template) => void;
-  deletingTemplate: Template | null;
-  setDeletingTemplate: (template: Template | null) => void;
   setSelectedTemplates: (templateKey: string) => void;
   bulkDeleteHandler: () => void;
   sorter: React.ReactNode;
@@ -28,42 +22,27 @@ interface TemplatesWindowProps {
     key: "title" | "dateCreated" | "lastModified";
     direction: "asc" | "desc";
   };
-  setSortConfig: React.Dispatch<
-    React.SetStateAction<{
-      key: "title" | "dateCreated" | "lastModified";
-      direction: "asc" | "desc";
-    }>
-  >;
 }
 
 const TemplatesWindow = ({
   templates,
-  newTemplate,
   searchQuery,
-  isEditModalOpen,
   selectedTemplates,
   focusedTemplateKey,
   selectedTagFilters,
-  creatingNewTemplate,
-  setSearchQuery,
   handleUpdateTemplate,
   handleRemoveTemplate,
   handleSubmitTemplate,
   setFocusedTemplateKey,
   handleDuplicateTemplate,
   sortConfig,
-  setSortConfig,
-  deletingTemplate,
-  setDeletingTemplate,
   setSelectedTemplates,
   bulkDeleteHandler,
   sorter,
 }: TemplatesWindowProps) => {
   const [windowTemplates, setWindowTemplates] = useState<Template[]>(templates);
   const [layoutStyle, setLayoutStyle] = useState<"list" | "grid">("list");
-  // Add new state for bulk actions
   const [showBulkActions, setShowBulkActions] = useState(false);
-  // Add new state for selected templates
   const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
@@ -92,14 +71,6 @@ const TemplatesWindow = ({
     // Keep bulk actions visible regardless of selection state
     setShowBulkActions(true);
   };
-
-  // object containing related modal state
-  const [modal, setModal] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-    choices: [] as { label: string; action: () => void }[],
-  });
 
   const handleBulkExport = () => {
     const selectedTemplatesToExport = templates.filter((t) =>
@@ -160,7 +131,6 @@ const TemplatesWindow = ({
     );
   };
 
-  // Add this sorting function before the renderUserTemplates function
   const getSortedTemplates = (templatesToSort: Template[]) => {
     return [...templatesToSort].sort((a, b) => {
       switch (sortConfig.key) {
@@ -191,7 +161,6 @@ const TemplatesWindow = ({
     });
   };
 
-  // Modified filteredTemplates to include tag filtering
   const filteredTemplates = useCallback(() => {
     let filtered = windowTemplates;
 
@@ -226,35 +195,6 @@ const TemplatesWindow = ({
     if (selectedTemplates.includes(templateKey)) {
       setSelectAll(false);
     }
-  };
-
-  const handleSortChange = (sortConfig: {
-    key: "title" | "dateCreated" | "lastModified";
-    direction: "asc" | "desc";
-  }) => {
-    const sortedTemplates = [...windowTemplates].sort((a, b) => {
-      const compareValue = sortConfig.direction === "asc" ? 1 : -1;
-
-      switch (sortConfig.key) {
-        case "title":
-          return a.title.localeCompare(b.title) * compareValue;
-        case "dateCreated":
-          return (
-            (new Date(a.createdAt).getTime() -
-              new Date(b.createdAt).getTime()) *
-            compareValue
-          );
-        case "lastModified":
-          return (
-            (new Date(a.lastUsed).getTime() - new Date(b.lastUsed).getTime()) *
-            compareValue
-          );
-        default:
-          return 0;
-      }
-    });
-
-    setWindowTemplates(sortedTemplates);
   };
 
   const renderAllTemplates = () => {

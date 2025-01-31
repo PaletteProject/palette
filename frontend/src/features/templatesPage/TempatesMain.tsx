@@ -19,18 +19,33 @@ import TemplateSearch from "./TemplateSearch.tsx";
 import AddTemplateTag from "./AddTemplateTag.tsx";
 import TemplatesWindow from "./TemplatesWindow.tsx";
 import TemplateSorter from "./TemplateSorter.tsx";
+import { createCriterion } from "../../utils/rubricFactory.ts";
 
 export default function TemplatesMain(): ReactElement {
-  // tracks which criterion card is displaying the detailed view (limited to one at a time)
-  // Add new state for view mode
+  // quick start template for testing
+  const quickStartTemplate = createTemplate();
+  quickStartTemplate.title = "Quick Start Template";
+  quickStartTemplate.tags = [
+    { id: crypto.randomUUID(), name: "Quick Start", color: "#3B82F6" },
+  ];
+  quickStartTemplate.key = crypto.randomUUID();
+  quickStartTemplate.createdAt = new Date();
+  quickStartTemplate.lastUsed = "Never";
+  quickStartTemplate.usageCount = 0;
+  quickStartTemplate.criteria = [createCriterion()];
+  quickStartTemplate.criteria[0].description = "This is a test description";
+  quickStartTemplate.criteria[0].longDescription =
+    "This is a test long description";
+  quickStartTemplate.criteria[0].id = 1;
+  quickStartTemplate.criteria[0].templateTitle = "Quick Start Template";
+  quickStartTemplate.criteria[0].template = quickStartTemplate.key;
+
   const [templates, setTemplates] = useState<Template[]>([]);
-  const [newTemplate, setNewTemplate] = useState<Template>(createTemplate());
+  const [newTemplate, setNewTemplate] = useState<Template>(quickStartTemplate);
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
     null
   );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [creatingNewTemplate, setCreatingNewTemplate] = useState(false);
-  // Add new state for search
   const [searchQuery, setSearchQuery] = useState("");
 
   // Add new state for quick edit mode
@@ -98,7 +113,7 @@ export default function TemplatesMain(): ReactElement {
 
   // Update the initial fetch useEffect
   useEffect(() => {
-    (async () => {
+    void (async () => {
       try {
         const response = await getAllTemplates();
         if (response.success) {
@@ -133,6 +148,25 @@ export default function TemplatesMain(): ReactElement {
     }
   }, [deletingTemplate]);
 
+  useEffect(() => {
+    if (newTemplate.title !== "") {
+      void (async () => {
+        try {
+          const response = await postTemplate();
+          console.log("post response", response);
+          if (response.success) {
+            const newTemplates = templates.filter(
+              (t) => t.key !== newTemplate.key
+            );
+            setTemplates(newTemplates);
+          }
+        } catch (error) {
+          console.error("Error posting template:", error);
+        }
+      })();
+    }
+  }, [newTemplate]);
+
   const handleSubmitTemplate = () => {
     void (async () => {
       try {
@@ -161,17 +195,16 @@ export default function TemplatesMain(): ReactElement {
     })();
   };
 
-  const handleCreateTemplate = async () => {
+  const handleCreateTemplate = () => {
     const newTemplate = createTemplate();
     const currentDate = new Date();
     newTemplate.createdAt = currentDate;
     newTemplate.lastUsed = "Never";
     setNewTemplate(newTemplate);
-    setCreatingNewTemplate(true);
     setIsEditModalOpen(true);
   };
 
-  const handleBatchCreateTemplate = async () => {
+  const handleBatchCreateTemplate = () => {
     const starterTemplates = [
       {
         title: "Weekly Assignment Rubric",
@@ -207,13 +240,24 @@ export default function TemplatesMain(): ReactElement {
       },
     ];
 
+    console.log("starterTemplates", starterTemplates);
+
     const newTemplates = starterTemplates.map(({ title, tags }) => {
-      const template = createTemplate();
-      template.title = title;
-      template.tags = tags;
-      template.createdAt = new Date();
-      template.lastUsed = "Never";
-      return template;
+      const temp = createTemplate();
+      const criterion = createCriterion();
+      temp.title = title;
+      temp.tags = tags;
+      temp.createdAt = new Date();
+      temp.lastUsed = "Never";
+      temp.key = crypto.randomUUID();
+      temp.usageCount = 0;
+      criterion.description = "This is a test description";
+      criterion.longDescription = "This is a test long description";
+      criterion.id = 1;
+      criterion.templateTitle = title;
+      criterion.template = temp.key;
+      temp.criteria = [criterion];
+      return temp;
     });
 
     setModal({
@@ -223,51 +267,56 @@ export default function TemplatesMain(): ReactElement {
       choices: [
         {
           label: "Create Templates",
-          action: async () => {
-            try {
-              // Create templates one at a time to ensure proper state updates
-              for (const template of newTemplates) {
-                setNewTemplate(template); // Set the template to be created
-                const response = await postTemplate(); // Use the existing postTemplate function
-
-                if (!response.success) {
-                  throw new Error(
-                    `Failed to create template: ${template.title}`
-                  );
+          action: () => {
+            void (async () => {
+              try {
+                // Create templates one at a time
+                for (const temp of newTemplates) {
+                  // Update newTemplate state and use the existing postTemplate
+                  setNewTemplate(temp);
+                  if (newTemplate.title !== "") {
+                    const response = await postTemplate();
+                    if (!response.success) {
+                      throw new Error(
+                        `Failed to create template: ${temp.title}`
+                      );
+                    } else {
+                      console.log("response from batch create", response.data);
+                    }
+                  }
                 }
-              }
+                // Rest of the success handling...
+                const response = await getAllTemplates();
+                if (response.success) {
+                  setTemplates(response.data as Template[]);
 
-              // Refresh templates list
-              const response = await getAllTemplates();
-              if (response.success) {
-                setTemplates(response.data as Template[]);
+                  // Add the new tags to availableTags if they don't exist
+                  const newTags = newTemplates.flatMap((t) => t.tags);
+                  setAvailableTags((prev) => {
+                    const existingIds = new Set(prev.map((t) => t.id));
+                    const uniqueNewTags = newTags.filter(
+                      (t) => !existingIds.has(t.id)
+                    );
+                    return [...prev, ...uniqueNewTags];
+                  });
 
-                // Add the new tags to availableTags if they don't exist
-                const newTags = newTemplates.flatMap((t) => t.tags);
-                setAvailableTags((prev) => {
-                  const existingIds = new Set(prev.map((t) => t.id));
-                  const uniqueNewTags = newTags.filter(
-                    (t) => !existingIds.has(t.id)
-                  );
-                  return [...prev, ...uniqueNewTags];
-                });
-
+                  setPopUp({
+                    isOpen: true,
+                    title: "Success",
+                    message: `Successfully created ${newTemplates.length} starter templates!`,
+                  });
+                }
+                closeModal();
+              } catch (error) {
+                console.error("Error creating starter templates:", error);
                 setPopUp({
                   isOpen: true,
-                  title: "Success",
-                  message: `Successfully created ${newTemplates.length} starter templates!`,
+                  title: "Error",
+                  message:
+                    "Failed to create some starter templates. Please try again.",
                 });
               }
-              closeModal();
-            } catch (error) {
-              console.error("Error creating starter templates:", error);
-              setPopUp({
-                isOpen: true,
-                title: "Error",
-                message:
-                  "Failed to create some starter templates. Please try again.",
-              });
-            }
+            })();
           },
         },
         {
@@ -404,14 +453,10 @@ export default function TemplatesMain(): ReactElement {
         {/* Templates Container */}
         <TemplatesWindow
           templates={templates}
-          newTemplate={newTemplate}
           searchQuery={searchQuery}
-          isEditModalOpen={isEditModalOpen}
           selectedTemplates={selectedTemplates}
           focusedTemplateKey={focusedTemplateKey}
           selectedTagFilters={selectedTagFilters}
-          creatingNewTemplate={creatingNewTemplate}
-          setSearchQuery={setSearchQuery}
           handleUpdateTemplate={handleUpdateTemplate}
           handleRemoveTemplate={handleRemoveTemplate}
           handleSubmitTemplate={handleSubmitTemplate}
@@ -419,9 +464,6 @@ export default function TemplatesMain(): ReactElement {
           setFocusedTemplateKey={setFocusedTemplateKey}
           handleDuplicateTemplate={handleDuplicateTemplate}
           sortConfig={sortConfig}
-          setSortConfig={setSortConfig}
-          deletingTemplate={deletingTemplate}
-          setDeletingTemplate={setDeletingTemplate}
           setSelectedTemplates={handleUpdateSelectedTemplates}
           bulkDeleteHandler={handleBulkDelete}
           sorter={
@@ -457,13 +499,13 @@ export default function TemplatesMain(): ReactElement {
 
         <div className="mx-10 rounded-lg flex flex-row">
           <button
-            onClick={handleCreateTemplate}
+            onClick={() => void handleCreateTemplate()}
             className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Create Template
           </button>
           <button
-            onClick={handleBatchCreateTemplate}
+            onClick={() => void handleBatchCreateTemplate()}
             className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Batch Create

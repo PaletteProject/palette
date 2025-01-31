@@ -1,6 +1,6 @@
 [
   {
-    "title": "cssdfa",
+    "title": "Presentation Feedback",
     "criteria": [
       {
         "ratings": [
@@ -8,32 +8,33 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "b1c1fed4-1764-404e-9f98-db954a6583d4"
+            "key": "a06d8ee3-5ce3-4973-8123-e8716631b39e"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "47d6ac04-3766-4d7d-bc5d-da2093b0e3fb"
+            "key": "00a46d13-e750-4d5e-a718-3d2a853ec250"
           }
         ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "9eb2da6e-0c20-4542-8bea-7fc78d121a53"
+        "description": "This is a test description",
+        "longDescription": "This is a test long description",
+        "points": 0,
+        "id": 1,
+        "template": "b2a61e76-a176-496c-bdf5-b25bdcae0f2f",
+        "templateTitle": "Presentation Feedback",
+        "key": "b51b48e7-b675-4f66-998d-068afa36ab96"
       }
     ],
-    "key": "c9a2172e-53b5-48af-a8c0-8e993849e1cb",
+    "key": "b2a61e76-a176-496c-bdf5-b25bdcae0f2f",
     "description": "",
-    "createdAt": "2025-01-31T03:51:35.588Z",
+    "createdAt": "2025-01-31T05:04:41.576Z",
     "lastUsed": null,
     "usageCount": 0,
     "tags": []
   },
   {
-    "title": "bbb",
+    "title": "Weekly Assignment Rubric",
     "criteria": [
       {
         "ratings": [
@@ -41,32 +42,33 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "59655cc2-93f0-48f0-b9fe-4ec4f9f21aa4"
+            "key": "d50a3d16-9460-4585-9c4b-62467582342e"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "2291e4d0-f7d4-44e5-aa06-4aaa8523dd1d"
+            "key": "2deaff39-357f-47c3-92fd-aa8b544e002f"
           }
         ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "e3ed3cd7-314c-4b41-b6c4-ece3f92fa5ef"
+        "description": "This is a test description",
+        "longDescription": "This is a test long description",
+        "points": 0,
+        "id": 1,
+        "template": "7f0e13d1-3825-4f0f-9494-b85dace7fad7",
+        "templateTitle": "Weekly Assignment Rubric",
+        "key": "161146ce-cbc4-4502-b76d-73da875038ba"
       }
     ],
-    "key": "76cbb440-9869-461b-b543-9bf5030003ea",
+    "key": "7f0e13d1-3825-4f0f-9494-b85dace7fad7",
     "description": "",
-    "createdAt": "2025-01-31T03:51:44.479Z",
+    "createdAt": "2025-01-31T05:04:41.585Z",
     "lastUsed": null,
     "usageCount": 0,
     "tags": []
   },
   {
-    "title": "zzz",
+    "title": "Final Project Evaluation",
     "criteria": [
       {
         "ratings": [
@@ -74,48 +76,95 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "02acf59c-6357-4819-b155-62844ad5b13c"
+            "key": "a4b6f8e5-4662-4bc6-b01c-84bae9516bba"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "307c708e-9176-421d-9ed4-99e2f30e3f40"
+            "key": "c1d4af8d-5959-443c-9754-5dc23d1a341c"
           }
         ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "5c6ec4cb-13f2-4580-b94e-292d3dff80d7"
-      },
+        "description": "This is a test description",
+        "longDescription": "This is a test long description",
+        "points": 0,
+        "id": 1,
+        "template": "561a4b81-87a3-43a1-bd3f-f6c8246e450b",
+        "templateTitle": "Final Project Evaluation",
+        "key": "88f74123-2b25-41d6-95ea-1b52c1480b65"
+      }
+    ],
+    "key": "561a4b81-87a3-43a1-bd3f-f6c8246e450b",
+    "description": "",
+    "createdAt": "2025-01-31T05:04:41.605Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": []
+  },
+  {
+    "title": "Participation Assessment",
+    "criteria": [
       {
         "ratings": [
           {
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "b88c4483-4426-408d-9890-b629f48cc560"
+            "key": "2f2a80b8-74cb-4820-a3f2-3ac35b341961"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "391a0d24-1150-4b93-822e-a4994ca40b9e"
+            "key": "5e779fa3-795d-491d-8889-53fb870f392a"
           }
         ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "942e0544-93c7-4a01-9f97-3bfc893af8cf"
+        "description": "This is a test description",
+        "longDescription": "This is a test long description",
+        "points": 0,
+        "id": 1,
+        "template": "4eee4a0a-9714-447c-a99a-befaedf4c8b1",
+        "templateTitle": "Participation Assessment",
+        "key": "1c5171f0-4c72-4514-a126-43c311588b07"
       }
     ],
-    "key": "e7521571-7600-4c45-bb59-8a6607ea778d",
+    "key": "4eee4a0a-9714-447c-a99a-befaedf4c8b1",
     "description": "",
-    "createdAt": "2025-01-31T04:07:45.786Z",
+    "createdAt": "2025-01-31T05:04:41.627Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": []
+  },
+  {
+    "title": "Quick Start Template",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "key": "969b9896-64d4-4104-9f9a-1535f6f0e4b9"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "key": "c23de5ea-1e1a-478e-b0c7-12db9d5c3c7d"
+          }
+        ],
+        "description": "This is a test description",
+        "longDescription": "This is a test long description",
+        "points": 0,
+        "id": 1,
+        "template": "ac3d9d22-7c5f-4ab8-95b2-fb5f7b59ae3c",
+        "templateTitle": "Quick Start Template",
+        "key": "8014b2f9-27cd-4dd5-a267-c646b8c3d1d5"
+      }
+    ],
+    "key": "ac3d9d22-7c5f-4ab8-95b2-fb5f7b59ae3c",
+    "description": "",
+    "createdAt": "2025-01-31T05:05:23.194Z",
     "lastUsed": null,
     "usageCount": 0,
     "tags": []

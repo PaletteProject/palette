@@ -24,7 +24,7 @@ const AddTemplateTag = ({
             setSelectedTagFilters((prev: string[]) =>
               prev.includes(tag.id)
                 ? prev.filter((id: string) => id !== tag.id)
-                : [...prev, tag.id],
+                : [...prev, tag.id]
             )
           }
           className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
@@ -46,6 +46,14 @@ const AddTemplateTag = ({
           </span>
         </button>
       ))}
+      {selectedTagFilters.length > 0 && (
+        <button
+          onClick={() => setSelectedTagFilters([])}
+          className="px-3 py-1 rounded-full text-sm bg-gray-700 text-white hover:bg-gray-600"
+        >
+          Clear Filters
+        </button>
+      )}
       <button
         onClick={() => {
           setTagModalOpen(true);

@@ -1,22 +1,18 @@
 import React, { useState } from "react";
 
+interface TemplateManagementControlsProps {
+  layoutStyle: "list" | "grid";
+  applyLayoutStyle: (style: "list" | "grid") => void;
+  showBulkActions: boolean;
+  toggleBulkActions: () => void;
+}
+
 const TemplateManagementControls = ({
   layoutStyle,
   applyLayoutStyle,
   showBulkActions,
   toggleBulkActions,
-}: {
-  layoutStyle: "list" | "grid";
-  applyLayoutStyle: (layoutStyle: "list" | "grid") => void;
-  showBulkActions: boolean;
-  toggleBulkActions: () => void;
-}) => {
-  // Add new state for sorting
-  const [sortConfig, setSortConfig] = useState<{
-    key: "title" | "dateCreated" | "lastModified";
-    direction: "asc" | "desc";
-  }>({ key: "title", direction: "asc" });
-
+}: TemplateManagementControlsProps) => {
   return (
     <div className="flex items-center gap-4">
       {/* Add bulk actions toggle button */}
