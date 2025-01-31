@@ -16,14 +16,13 @@ import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Template } from "palette-types";
 import { createCriterion } from "@utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { EditTemplateModal, ModalChoiceDialog } from "@components";
+import { ModalChoiceDialog } from "@components";
 
 interface TemplateCardProps {
   index: number;
   template: Template;
   updateTemplateHandler: (index: number, template: Template) => void;
   removeTemplate: (index: number) => void;
-  activeTemplateIndexHandler: (index: number) => void;
   isNewTemplate: boolean;
   submitTemplateHandler: () => void;
   existingTemplates: Template[];
@@ -40,7 +39,6 @@ export default function TemplateCard({
   template,
   updateTemplateHandler,
   removeTemplate,
-  activeTemplateIndexHandler,
   isNewTemplate,
   submitTemplateHandler,
   existingTemplates,
@@ -66,7 +64,7 @@ export default function TemplateCard({
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   /**
@@ -81,7 +79,7 @@ export default function TemplateCard({
           criterion.ratings.reduce((sum, rating) => sum + rating.points, 0)
         );
       },
-      0,
+      0
     );
     setLocalMaxPoints(calculatedMaxPoints);
   }, [currentTemplate, index, updateTemplateHandler]);
@@ -187,7 +185,7 @@ export default function TemplateCard({
     const isDuplicateName = existingTemplates.some(
       (t) =>
         t.title.toLowerCase() === currentTemplate.title.toLowerCase() &&
-        t.key !== currentTemplate.key,
+        t.key !== currentTemplate.key
     );
 
     if (isDuplicateName) {
@@ -206,7 +204,6 @@ export default function TemplateCard({
       return;
     }
 
-    activeTemplateIndexHandler(-1);
     setIsEditModalOpen(false);
     submitTemplateHandler();
   };
@@ -224,7 +221,7 @@ export default function TemplateCard({
     // Find an available number for the copy
     while (
       existingTemplates.some(
-        (t) => t.title.toLowerCase() === newTitle.toLowerCase(),
+        (t) => t.title.toLowerCase() === newTitle.toLowerCase()
       )
     ) {
       counter++;

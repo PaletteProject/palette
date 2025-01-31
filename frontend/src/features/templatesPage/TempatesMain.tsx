@@ -18,15 +18,15 @@ import TemplateTagModal from "src/components/modals/TemplateTagModal.tsx";
 import TemplateSearch from "./TemplateSearch.tsx";
 import AddTemplateTag from "./AddTemplateTag.tsx";
 import TemplatesWindow from "./TemplatesWindow.tsx";
+import TemplateSorter from "./TemplateSorter.tsx";
 
 export default function TemplatesMain(): ReactElement {
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
-  const [activeTemplateIndex, setActiveTemplateIndex] = useState(-1);
   // Add new state for view mode
   const [templates, setTemplates] = useState<Template[]>([]);
   const [newTemplate, setNewTemplate] = useState<Template>(createTemplate());
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
-    null,
+    null
   );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [creatingNewTemplate, setCreatingNewTemplate] = useState(false);
@@ -35,7 +35,7 @@ export default function TemplatesMain(): ReactElement {
 
   // Add new state for quick edit mode
   const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
-    null,
+    null
   );
 
   const [tagModalOpen, setTagModalOpen] = useState(false);
@@ -59,7 +59,7 @@ export default function TemplatesMain(): ReactElement {
   // declared before, so it's initialized for the modal initial state. memoized for performance
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
   // object containing related modal state
   const [modal, setModal] = useState({
@@ -71,7 +71,7 @@ export default function TemplatesMain(): ReactElement {
 
   const closePopUp = useCallback(
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
-    [],
+    []
   );
 
   const [popUp, setPopUp] = useState({
@@ -88,7 +88,7 @@ export default function TemplatesMain(): ReactElement {
     `/templates/byKey/${deletingTemplate?.key}`,
     {
       method: "DELETE",
-    },
+    }
   );
 
   const { fetchData: postTemplate } = useFetch("/templates", {
@@ -121,7 +121,7 @@ export default function TemplatesMain(): ReactElement {
           console.log("delete response", response);
           if (response.success) {
             const newTemplates = templates.filter(
-              (t) => t.key !== deletingTemplate.key,
+              (t) => t.key !== deletingTemplate.key
             );
             setTemplates(newTemplates);
             setDeletingTemplate(null);
@@ -149,7 +149,7 @@ export default function TemplatesMain(): ReactElement {
           } else {
             console.error(
               "Failed to fetch updated templates:",
-              templatesResponse,
+              templatesResponse
             );
           }
         } else {
@@ -232,7 +232,7 @@ export default function TemplatesMain(): ReactElement {
 
                 if (!response.success) {
                   throw new Error(
-                    `Failed to create template: ${template.title}`,
+                    `Failed to create template: ${template.title}`
                   );
                 }
               }
@@ -247,7 +247,7 @@ export default function TemplatesMain(): ReactElement {
                 setAvailableTags((prev) => {
                   const existingIds = new Set(prev.map((t) => t.id));
                   const uniqueNewTags = newTags.filter(
-                    (t) => !existingIds.has(t.id),
+                    (t) => !existingIds.has(t.id)
                   );
                   return [...prev, ...uniqueNewTags];
                 });
@@ -311,7 +311,7 @@ export default function TemplatesMain(): ReactElement {
     setSelectedTemplates((prev) =>
       prev.includes(templateKey)
         ? prev.filter((key) => key !== templateKey)
-        : [...prev, templateKey],
+        : [...prev, templateKey]
     );
   };
 
@@ -329,12 +329,12 @@ export default function TemplatesMain(): ReactElement {
               // Delete each selected template
               for (const templateKey of selectedTemplates) {
                 setDeletingTemplate(
-                  templates.find((t) => t.key === templateKey) as Template,
+                  templates.find((t) => t.key === templateKey) as Template
                 );
                 const response = await deleteTemplate();
                 if (response.success) {
                   const newTemplates = templates.filter(
-                    (t) => t.key !== templateKey,
+                    (t) => t.key !== templateKey
                   );
                   setTemplates(newTemplates);
                 }
@@ -417,7 +417,6 @@ export default function TemplatesMain(): ReactElement {
           handleSubmitTemplate={handleSubmitTemplate}
           setSelectedTagFilters={setSelectedTagFilters}
           setFocusedTemplateKey={setFocusedTemplateKey}
-          setActiveTemplateIndex={setActiveTemplateIndex}
           handleDuplicateTemplate={handleDuplicateTemplate}
           sortConfig={sortConfig}
           setSortConfig={setSortConfig}
@@ -425,6 +424,12 @@ export default function TemplatesMain(): ReactElement {
           setDeletingTemplate={setDeletingTemplate}
           setSelectedTemplates={handleUpdateSelectedTemplates}
           bulkDeleteHandler={handleBulkDelete}
+          sorter={
+            <TemplateSorter
+              sortConfig={sortConfig}
+              setSortConfig={setSortConfig}
+            />
+          }
         />
       </div>
     );
@@ -510,7 +515,6 @@ export default function TemplatesMain(): ReactElement {
               template={newTemplate}
               updateTemplateHandler={handleUpdateTemplate}
               removeTemplate={handleRemoveTemplate}
-              activeTemplateIndexHandler={setActiveTemplateIndex}
               isNewTemplate={true}
               submitTemplateHandler={handleSubmitTemplate}
               existingTemplates={templates}
@@ -520,7 +524,7 @@ export default function TemplatesMain(): ReactElement {
                 setFocusedTemplateKey(
                   focusedTemplateKey === newTemplate.key
                     ? null
-                    : newTemplate.key,
+                    : newTemplate.key
                 )
               }
               isSelected={selectedTemplates.includes(newTemplate.key)}

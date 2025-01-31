@@ -18,12 +18,12 @@ interface TemplatesWindowProps {
   handleSubmitTemplate: () => void;
   setSelectedTagFilters: (selectedTagFilters: string[]) => void;
   setFocusedTemplateKey: (focusedTemplateKey: string | null) => void;
-  setActiveTemplateIndex: (index: number) => void;
   handleDuplicateTemplate: (template: Template) => void;
   deletingTemplate: Template | null;
   setDeletingTemplate: (template: Template | null) => void;
   setSelectedTemplates: (templateKey: string) => void;
   bulkDeleteHandler: () => void;
+  sorter: React.ReactNode;
   sortConfig: {
     key: "title" | "dateCreated" | "lastModified";
     direction: "asc" | "desc";
@@ -50,7 +50,6 @@ const TemplatesWindow = ({
   handleRemoveTemplate,
   handleSubmitTemplate,
   setFocusedTemplateKey,
-  setActiveTemplateIndex,
   handleDuplicateTemplate,
   sortConfig,
   setSortConfig,
@@ -58,6 +57,7 @@ const TemplatesWindow = ({
   setDeletingTemplate,
   setSelectedTemplates,
   bulkDeleteHandler,
+  sorter,
 }: TemplatesWindowProps) => {
   const [windowTemplates, setWindowTemplates] = useState<Template[]>(templates);
   const [layoutStyle, setLayoutStyle] = useState<"list" | "grid">("list");
@@ -103,7 +103,7 @@ const TemplatesWindow = ({
 
   const handleBulkExport = () => {
     const selectedTemplatesToExport = templates.filter((t) =>
-      selectedTemplates.includes(t.key),
+      selectedTemplates.includes(t.key)
     );
 
     const exportData = JSON.stringify(selectedTemplatesToExport, null, 2);
@@ -165,17 +165,22 @@ const TemplatesWindow = ({
     return [...templatesToSort].sort((a, b) => {
       switch (sortConfig.key) {
         case "title": {
-          const comparison = a.title.localeCompare(b.title);
+          // Handle null/undefined titles by converting to empty string
+          const titleA = a.title || "";
+          const titleB = b.title || "";
+          const comparison = titleA.localeCompare(titleB);
           return sortConfig.direction === "asc" ? comparison : -comparison;
         }
         case "dateCreated": {
-          const dateA = new Date(a.createdAt).getTime();
-          const dateB = new Date(b.createdAt).getTime();
+          // Handle null/undefined dates by using 0 (earliest possible date)
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
           return sortConfig.direction === "asc" ? dateA - dateB : dateB - dateA;
         }
         case "lastModified": {
-          const modifiedA = new Date(a.lastUsed).getTime();
-          const modifiedB = new Date(b.lastUsed).getTime();
+          // Handle null/undefined dates by using 0 (earliest possible date)
+          const modifiedA = a.lastUsed ? new Date(a.lastUsed).getTime() : 0;
+          const modifiedB = b.lastUsed ? new Date(b.lastUsed).getTime() : 0;
           return sortConfig.direction === "asc"
             ? modifiedA - modifiedB
             : modifiedB - modifiedA;
@@ -197,9 +202,9 @@ const TemplatesWindow = ({
         (template) =>
           template.title.toLowerCase().includes(query) ||
           template.criteria.some((criterion) =>
-            criterion.templateTitle?.toLowerCase().includes(query),
+            criterion.templateTitle?.toLowerCase().includes(query)
           ) ||
-          template.tags.some((tag) => tag.name.toLowerCase().includes(query)),
+          template.tags.some((tag) => tag.name.toLowerCase().includes(query))
       );
     }
 
@@ -207,8 +212,8 @@ const TemplatesWindow = ({
     if (selectedTagFilters.length > 0) {
       filtered = filtered.filter((template) =>
         selectedTagFilters.every((tagId) =>
-          template.tags.some((tag) => tag.id === tagId),
-        ),
+          template.tags.some((tag) => tag.id === tagId)
+        )
       );
     }
 
@@ -221,6 +226,35 @@ const TemplatesWindow = ({
     if (selectedTemplates.includes(templateKey)) {
       setSelectAll(false);
     }
+  };
+
+  const handleSortChange = (sortConfig: {
+    key: "title" | "dateCreated" | "lastModified";
+    direction: "asc" | "desc";
+  }) => {
+    const sortedTemplates = [...windowTemplates].sort((a, b) => {
+      const compareValue = sortConfig.direction === "asc" ? 1 : -1;
+
+      switch (sortConfig.key) {
+        case "title":
+          return a.title.localeCompare(b.title) * compareValue;
+        case "dateCreated":
+          return (
+            (new Date(a.createdAt).getTime() -
+              new Date(b.createdAt).getTime()) *
+            compareValue
+          );
+        case "lastModified":
+          return (
+            (new Date(a.lastUsed).getTime() - new Date(b.lastUsed).getTime()) *
+            compareValue
+          );
+        default:
+          return 0;
+      }
+    });
+
+    setWindowTemplates(sortedTemplates);
   };
 
   const renderAllTemplates = () => {
@@ -259,7 +293,6 @@ const TemplatesWindow = ({
                   template={template}
                   updateTemplateHandler={handleUpdateTemplate}
                   removeTemplate={handleRemoveTemplate}
-                  activeTemplateIndexHandler={setActiveTemplateIndex}
                   isNewTemplate={false}
                   submitTemplateHandler={handleSubmitTemplate}
                   existingTemplates={templates}
@@ -267,7 +300,7 @@ const TemplatesWindow = ({
                   templateFocused={focusedTemplateKey === template.key}
                   onTemplateFocusedToggle={() =>
                     setFocusedTemplateKey(
-                      focusedTemplateKey === template.key ? null : template.key,
+                      focusedTemplateKey === template.key ? null : template.key
                     )
                   }
                   isSelected={selectedTemplates.includes(template.key)}
@@ -289,13 +322,14 @@ const TemplatesWindow = ({
     <div className="flex flex-col">
       <div className="flex justify-between mb-4">
         <div>{showBulkActions && renderBulkActions()}</div>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-4">
           <TemplateManagementControls
             layoutStyle={layoutStyle}
             applyLayoutStyle={setLayoutStyle}
             showBulkActions={showBulkActions}
             toggleBulkActions={handleToggleBulkActions}
           />
+          {sorter}
         </div>
       </div>
       {renderAllTemplates()}
