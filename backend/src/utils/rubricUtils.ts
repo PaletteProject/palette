@@ -9,7 +9,7 @@ import {
   RubricAssociation,
 } from "palette-types";
 
-import {v4 as uuid} from "uuid"; /**
+import { v4 as uuid } from "uuid"; /**
  * Transforms the rubric object into the format expected by the Canvas API.
  *
  */

@@ -1,6 +1,12 @@
-import {CanvasSubmissionResponse} from "palette-types/dist/canvasProtocol/canvasSubmissionResponse";
-import {Assignment, CanvasAssignment, CanvasCourse, Course, Submission,} from "palette-types";
-import {GroupedSubmissions} from "palette-types/dist/types/GroupedSubmissions";
+import { CanvasSubmissionResponse } from "palette-types/dist/canvasProtocol/canvasSubmissionResponse";
+import {
+  Assignment,
+  CanvasAssignment,
+  CanvasCourse,
+  Course,
+  Submission,
+} from "palette-types";
+import { GroupedSubmissions } from "palette-types/dist/types/GroupedSubmissions";
 
 /**
  * Convert canvas course object to palette course object.

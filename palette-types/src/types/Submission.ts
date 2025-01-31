@@ -1,4 +1,4 @@
-import {Criteria} from "./Criteria";
+import { Criteria } from "./Criteria";
 
 /**
  * Defines the Submission type for use within the Palette application.
