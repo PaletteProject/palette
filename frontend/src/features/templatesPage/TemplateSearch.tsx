@@ -1,5 +1,5 @@
 import { Template } from "palette-types";
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 
 const TemplateSearch = ({
   templates,
@@ -7,12 +7,14 @@ const TemplateSearch = ({
   setSearchQuery,
   showSuggestions,
   setShowSuggestions,
+  onSearch,
 }: {
   templates: Template[];
   searchQuery: string;
   setSearchQuery: (searchQuery: string) => void;
   showSuggestions: boolean;
   setShowSuggestions: (showSuggestions: boolean) => void;
+  onSearch: (query: string) => void;
 }) => {
   // Add function to get unique suggestions from templates
   const getSuggestions = useCallback(() => {
@@ -37,7 +39,7 @@ const TemplateSearch = ({
       .filter(
         (suggestion) =>
           suggestion.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          suggestion !== searchQuery,
+          suggestion !== searchQuery
       )
       .slice(0, 5); // Limit to 5 suggestions
   }, [templates, searchQuery]);
@@ -73,6 +75,7 @@ const TemplateSearch = ({
               onClick={() => {
                 setSearchQuery(suggestion);
                 setShowSuggestions(false);
+                onSearch(suggestion);
               }}
               className="w-full px-4 py-2 text-left text-white hover:bg-gray-600 first:rounded-t-lg last:rounded-b-lg"
             >

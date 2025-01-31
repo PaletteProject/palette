@@ -131,63 +131,49 @@ const TemplatesWindow = ({
     );
   };
 
-  const getSortedTemplates = (templatesToSort: Template[]) => {
-    return [...templatesToSort].sort((a, b) => {
-      switch (sortConfig.key) {
-        case "title": {
-          // Handle null/undefined titles by converting to empty string
-          const titleA = a.title || "";
-          const titleB = b.title || "";
-          const comparison = titleA.localeCompare(titleB);
-          return sortConfig.direction === "asc" ? comparison : -comparison;
-        }
-        case "dateCreated": {
-          // Handle null/undefined dates by using 0 (earliest possible date)
-          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return sortConfig.direction === "asc" ? dateA - dateB : dateB - dateA;
-        }
-        case "lastModified": {
-          // Handle null/undefined dates by using 0 (earliest possible date)
-          const modifiedA = a.lastUsed ? new Date(a.lastUsed).getTime() : 0;
-          const modifiedB = b.lastUsed ? new Date(b.lastUsed).getTime() : 0;
-          return sortConfig.direction === "asc"
-            ? modifiedA - modifiedB
-            : modifiedB - modifiedA;
-        }
-        default:
-          return 0;
-      }
-    });
-  };
-
   const filteredTemplates = useCallback(() => {
-    let filtered = windowTemplates;
+    return templates
+      .filter((template) => {
+        const matchesSearch = template.title
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+        const matchesTags =
+          selectedTagFilters.length === 0 ||
+          selectedTagFilters.every((tagId) =>
+            template.tags.some((tag) => tag.id === tagId)
+          );
+        return matchesSearch && matchesTags;
+      })
+      .sort((a, b) => {
+        const direction = sortConfig.direction === "asc" ? 1 : -1;
 
-    // Text search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (template) =>
-          template.title.toLowerCase().includes(query) ||
-          template.criteria.some((criterion) =>
-            criterion.templateTitle?.toLowerCase().includes(query)
-          ) ||
-          template.tags.some((tag) => tag.name.toLowerCase().includes(query))
-      );
-    }
+        switch (sortConfig.key) {
+          case "title":
+            return (a.title < b.title ? -1 : 1) * direction;
+          case "dateCreated":
+            return (
+              (new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()) *
+              direction
+            );
+          case "lastModified":
+            return (
+              (new Date(a.lastUsed).getTime() -
+                new Date(b.lastUsed).getTime()) *
+              direction
+            );
+          default:
+            return 0;
+        }
+      });
+  }, [templates, searchQuery, selectedTagFilters, sortConfig]);
 
-    // Tag filter
-    if (selectedTagFilters.length > 0) {
-      filtered = filtered.filter((template) =>
-        selectedTagFilters.every((tagId) =>
-          template.tags.some((tag) => tag.id === tagId)
-        )
-      );
-    }
-
-    return getSortedTemplates(filtered);
-  }, [windowTemplates, searchQuery, sortConfig, selectedTagFilters]);
+  const getOriginalIndex = useCallback(
+    (template: Template) => {
+      return templates.findIndex((t) => t.key === template.key);
+    },
+    [templates]
+  );
 
   const handleSelectTemplateBulkActions = (templateKey: string) => {
     setSelectedTemplates(templateKey);
@@ -212,7 +198,7 @@ const TemplatesWindow = ({
         `}
       >
         {filtered.length > 0 ? (
-          filtered.map((template: Template, index: number) => (
+          filtered.map((template: Template) => (
             <div
               key={template.key}
               className={layoutStyle === "grid" ? "" : "mb-4"}
@@ -229,7 +215,7 @@ const TemplatesWindow = ({
                   />
                 )}
                 <TemplateCard
-                  index={index}
+                  index={getOriginalIndex(template)}
                   template={template}
                   updateTemplateHandler={handleUpdateTemplate}
                   removeTemplate={handleRemoveTemplate}

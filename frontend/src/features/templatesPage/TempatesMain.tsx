@@ -41,7 +41,7 @@ export default function TemplatesMain(): ReactElement {
   quickStartTemplate.criteria[0].template = quickStartTemplate.key;
 
   const [templates, setTemplates] = useState<Template[]>([]);
-  const [newTemplate, setNewTemplate] = useState<Template>(quickStartTemplate);
+  const [newTemplate, setNewTemplate] = useState<Template>(createTemplate());
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
     null
   );
@@ -148,26 +148,6 @@ export default function TemplatesMain(): ReactElement {
     }
   }, [deletingTemplate]);
 
-  useEffect(() => {
-    if (newTemplate.title !== "") {
-      void (async () => {
-        try {
-          console.log("newTemplate in postTemplate", newTemplate);
-          const response = await postTemplate();
-          console.log("post response", response);
-          if (response.success) {
-            const newTemplates = templates.filter(
-              (t) => t.key !== newTemplate.key
-            );
-            setTemplates(newTemplates);
-          }
-        } catch (error) {
-          console.error("Error posting template:", error);
-        }
-      })();
-    }
-  }, [newTemplate]);
-
   const handleSubmitTemplate = () => {
     void (async () => {
       try {
@@ -196,136 +176,18 @@ export default function TemplatesMain(): ReactElement {
     })();
   };
 
+  const handleQuickStart = () => {
+    setTemplates([...templates, quickStartTemplate]);
+  };
+
   const handleCreateTemplate = () => {
     const newTemplate = createTemplate();
     const currentDate = new Date();
     newTemplate.createdAt = currentDate;
     newTemplate.lastUsed = "Never";
+    setTemplates([...templates, newTemplate]);
     setNewTemplate(newTemplate);
     setIsEditModalOpen(true);
-  };
-
-  const handleBatchCreateTemplate = () => {
-    const starterTemplates = [
-      {
-        title: "Weekly Assignment Rubric",
-        tags: [
-          { id: crypto.randomUUID(), name: "Assignment", color: "#3B82F6" },
-        ] as Tag[],
-      },
-      {
-        title: "Final Project Evaluation",
-        tags: [
-          { id: crypto.randomUUID(), name: "Project", color: "#EF4444" },
-          { id: crypto.randomUUID(), name: "Final", color: "#10B981" },
-        ] as Tag[],
-      },
-      {
-        title: "Participation Assessment",
-        tags: [
-          { id: crypto.randomUUID(), name: "Participation", color: "#F59E0B" },
-        ] as Tag[],
-      },
-      {
-        title: "Lab Report Grading",
-        tags: [
-          { id: crypto.randomUUID(), name: "Lab", color: "#8B5CF6" },
-          { id: crypto.randomUUID(), name: "Technical", color: "#EC4899" },
-        ] as Tag[],
-      },
-      {
-        title: "Presentation Feedback",
-        tags: [
-          { id: crypto.randomUUID(), name: "Presentation", color: "#6366F1" },
-        ] as Tag[],
-      },
-    ];
-
-    console.log("starterTemplates", starterTemplates);
-
-    const newTemplates = starterTemplates.map(({ title, tags }) => {
-      const temp = createTemplate();
-      const criterion = createCriterion();
-      temp.title = title;
-      temp.tags = tags;
-      temp.createdAt = new Date();
-      temp.lastUsed = "Never";
-      temp.key = crypto.randomUUID();
-      temp.usageCount = 0;
-      criterion.description = "This is a test description";
-      criterion.longDescription = "This is a test long description";
-      criterion.id = 1;
-      criterion.templateTitle = title;
-      criterion.template = temp.key;
-      temp.criteria = [criterion];
-      return temp;
-    });
-
-    setModal({
-      isOpen: true,
-      title: "Create Starter Templates",
-      message: `This will create ${starterTemplates.length} template(s) with predefined tags. Would you like to proceed?`,
-      choices: [
-        {
-          label: "Create Templates",
-          action: () => {
-            void (async () => {
-              try {
-                // Create templates one at a time
-                for (const temp of newTemplates) {
-                  // Update newTemplate state and use the existing postTemplate
-                  setNewTemplate(temp);
-                  if (newTemplate.title !== "") {
-                    const response = await postTemplate();
-                    if (!response.success) {
-                      throw new Error(
-                        `Failed to create template: ${temp.title}`
-                      );
-                    } else {
-                      console.log("response from batch create", response.data);
-                    }
-                  }
-                }
-                // Rest of the success handling...
-                const response = await getAllTemplates();
-                if (response.success) {
-                  setTemplates(response.data as Template[]);
-
-                  // Add the new tags to availableTags if they don't exist
-                  const newTags = newTemplates.flatMap((t) => t.tags);
-                  setAvailableTags((prev) => {
-                    const existingIds = new Set(prev.map((t) => t.id));
-                    const uniqueNewTags = newTags.filter(
-                      (t) => !existingIds.has(t.id)
-                    );
-                    return [...prev, ...uniqueNewTags];
-                  });
-
-                  setPopUp({
-                    isOpen: true,
-                    title: "Success",
-                    message: `Successfully created ${newTemplates.length} starter templates!`,
-                  });
-                }
-                closeModal();
-              } catch (error) {
-                console.error("Error creating starter templates:", error);
-                setPopUp({
-                  isOpen: true,
-                  title: "Error",
-                  message:
-                    "Failed to create some starter templates. Please try again.",
-                });
-              }
-            })();
-          },
-        },
-        {
-          label: "Cancel",
-          action: closeModal,
-        },
-      ],
-    });
   };
 
   const handleDuplicateTemplate = (template: Template) => {
@@ -421,6 +283,13 @@ export default function TemplatesMain(): ReactElement {
     );
   };
 
+  // Add this function before the renderTemplatesContent
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    // The TemplatesWindow component already handles the filtering based on searchQuery,
+    // so we just need to update the searchQuery state
+  };
+
   // Update renderUserTemplates to use the new search component
   const renderTemplatesContent = () => {
     if (!templates) return;
@@ -440,6 +309,7 @@ export default function TemplatesMain(): ReactElement {
           setSearchQuery={setSearchQuery}
           showSuggestions={showSuggestions}
           setShowSuggestions={setShowSuggestions}
+          onSearch={handleSearch}
         />
 
         {/* Add tag filters */}
@@ -471,6 +341,9 @@ export default function TemplatesMain(): ReactElement {
             <TemplateSorter
               sortConfig={sortConfig}
               setSortConfig={setSortConfig}
+              windowTemplates={templates}
+              searchQuery={searchQuery}
+              selectedTagFilters={selectedTagFilters}
             />
           }
         />
@@ -505,12 +378,14 @@ export default function TemplatesMain(): ReactElement {
           >
             Create Template
           </button>
-          <button
-            onClick={() => void handleBatchCreateTemplate()}
-            className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Batch Create
-          </button>
+          {templates.length === 0 && (
+            <button
+              onClick={() => void handleQuickStart()}
+              className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Quick Start
+            </button>
+          )}
         </div>
 
         <ModalChoiceDialog
