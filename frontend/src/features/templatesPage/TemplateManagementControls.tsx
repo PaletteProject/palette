@@ -1,0 +1,84 @@
+import React, { useState } from "react";
+
+const TemplateManagementControls = ({
+  layoutStyle,
+  applyLayoutStyle,
+  showBulkActions,
+  toggleBulkActions,
+}: {
+  layoutStyle: "list" | "grid";
+  applyLayoutStyle: (layoutStyle: "list" | "grid") => void;
+  showBulkActions: boolean;
+  toggleBulkActions: () => void;
+}) => {
+  // Add new state for sorting
+  const [sortConfig, setSortConfig] = useState<{
+    key: "title" | "dateCreated" | "lastModified";
+    direction: "asc" | "desc";
+  }>({ key: "title", direction: "asc" });
+
+  return (
+    <div className="flex items-center gap-4">
+      {/* Add bulk actions toggle button */}
+      <button
+        onClick={toggleBulkActions}
+        className={`px-4 py-2 rounded-lg focus:outline-none  ${
+          showBulkActions
+            ? "bg-gray-700 text-white focus:ring-blue-500 focus:ring-2"
+            : "bg-gray-700 text-gray-300"
+        }`}
+      >
+        <i className="fas fa-tasks mr-2" /> Bulk Actions
+      </button>
+
+      {/* View Toggle Buttons */}
+      <div className="flex items-center">
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            className="sr-only peer"
+            checked={layoutStyle === "grid"}
+            onChange={() =>
+              applyLayoutStyle(layoutStyle === "list" ? "grid" : "list")
+            }
+          />
+          <div className="w-[120px] h-8 bg-gray-700 rounded-full peer peer-checked:after:translate-x-[60px] after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-[56px] after:transition-all">
+            <div className="flex justify-between items-center h-full px-2 text-sm">
+              <span
+                className={`${layoutStyle === "list" ? "text-white" : "text-gray-400"}`}
+              >
+                <i className="fas fa-list mr-1" /> List
+              </span>
+              <span
+                className={`${layoutStyle === "grid" ? "text-white" : "text-gray-400"}`}
+              >
+                <i className="fas fa-grid-2 mr-1" /> Grid
+              </span>
+            </div>
+          </div>
+        </label>
+      </div>
+
+      {/* Sorting Selector */}
+      <select
+        className="bg-gray-700 text-white px-3 py-2 rounded-lg"
+        value={`${sortConfig.key}-${sortConfig.direction}`}
+        onChange={(e) => {
+          const [key, direction] = e.target.value.split("-");
+          setSortConfig({
+            key: key as typeof sortConfig.key,
+            direction: direction as "asc" | "desc",
+          });
+        }}
+      >
+        {/* Sorting Options */}
+        <option value="title-asc">Title (A-Z)</option>
+        <option value="title-desc">Title (Z-A)</option>
+        <option value="dateCreated-desc">Newest First</option>
+        <option value="dateCreated-asc">Oldest First</option>
+      </select>
+    </div>
+  );
+};
+
+export default TemplateManagementControls;

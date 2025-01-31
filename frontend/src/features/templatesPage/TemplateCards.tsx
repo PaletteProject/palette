@@ -20,7 +20,6 @@ import { EditTemplateModal, ModalChoiceDialog } from "@components";
 
 interface TemplateCardProps {
   index: number;
-  activeTemplateIndex: number;
   template: Template;
   updateTemplateHandler: (index: number, template: Template) => void;
   removeTemplate: (index: number) => void;
@@ -33,11 +32,11 @@ interface TemplateCardProps {
   onTemplateFocusedToggle: (templateKey?: string) => void;
   isSelected: boolean;
   duplicateTemplate: (template: Template) => void;
+  viewOrEdit: "edit" | "view";
 }
 
 export default function TemplateCard({
   index,
-  activeTemplateIndex,
   template,
   updateTemplateHandler,
   removeTemplate,
@@ -49,6 +48,7 @@ export default function TemplateCard({
   templateFocused,
   onTemplateFocusedToggle,
   duplicateTemplate,
+  viewOrEdit,
 }: TemplateCardProps): ReactElement {
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
@@ -66,7 +66,7 @@ export default function TemplateCard({
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   /**
@@ -81,7 +81,7 @@ export default function TemplateCard({
           criterion.ratings.reduce((sum, rating) => sum + rating.points, 0)
         );
       },
-      0,
+      0
     );
     setLocalMaxPoints(calculatedMaxPoints);
   }, [currentTemplate, index, updateTemplateHandler]);
@@ -187,7 +187,7 @@ export default function TemplateCard({
     const isDuplicateName = existingTemplates.some(
       (t) =>
         t.title.toLowerCase() === currentTemplate.title.toLowerCase() &&
-        t.key !== currentTemplate.key,
+        t.key !== currentTemplate.key
     );
 
     if (isDuplicateName) {
@@ -224,7 +224,7 @@ export default function TemplateCard({
     // Find an available number for the copy
     while (
       existingTemplates.some(
-        (t) => t.title.toLowerCase() === newTitle.toLowerCase(),
+        (t) => t.title.toLowerCase() === newTitle.toLowerCase()
       )
     ) {
       counter++;
@@ -464,14 +464,10 @@ export default function TemplateCard({
 
   return (
     <>
-      {activeTemplateIndex === index ? (
-        renderDetailedView()
-      ) : (
-        <div className={`w-full `}>
-          {renderCondensedView()}
-          {isFocused && renderTemplateMetadata()}
-        </div>
-      )}
+      <div className={`w-full `}>
+        {viewOrEdit === "view" ? renderCondensedView() : renderDetailedView()}
+        {isFocused && renderTemplateMetadata()}
+      </div>
       {modal.isOpen && (
         <ModalChoiceDialog
           show={modal.isOpen}
@@ -479,13 +475,6 @@ export default function TemplateCard({
           title={modal.title}
           message={modal.message}
           choices={modal.choices}
-        />
-      )}
-      {isEditModalOpen && (
-        <EditTemplateModal
-          onClose={handleCloseModal}
-          children={renderDetailedView()}
-          isOpen={isEditModalOpen}
         />
       )}
     </>
