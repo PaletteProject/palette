@@ -1,71 +1,164 @@
-import React from "react";
-import Papa from "papaparse";
-import { CSVRow } from "@local_types";
+import React, { useState, useRef } from "react";
+import { importCsv, VERSION_ONE, VERSION_TWO } from "@utils";
+import { Dialog } from "@components";
+import { Criteria, Rubric } from "palette-types";
 
 interface CSVUploadProps {
-  onDataChange: (data: CSVRow[]) => void;
-  closeImportCard: () => void; // callback to close the import card
+  rubric: Rubric | undefined;
+  setRubric: React.Dispatch<React.SetStateAction<Rubric | undefined>>;
 }
 
-export const CSVUpload: React.FC<CSVUploadProps> = ({
-  onDataChange,
-  closeImportCard,
-}: CSVUploadProps) => {
+export const CSVUpload: React.FC<CSVUploadProps> = ({ setRubric }) => {
+  const [showVersionModal, setShowVersionModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [selectedVersion, setSelectedVersion] = useState<number | null>(null);
+
+  const closeErrorDialog = () => setErrorMessage(null);
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file || selectedVersion === null) return;
 
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
-
-    if (fileExtension === "csv") {
-      parseCSV(file);
-    } else {
+    if (fileExtension !== "csv") {
       alert("Unsupported file format. Please upload a CSV file.");
+      return;
     }
+
+    importCsv(file, selectedVersion, handleImportSuccess, handleImportError);
   };
 
-  const parseCSV = (file: File) => {
-    Papa.parse(file, {
-      header: false, // keeps the output an array to sync with parsing xlsx files
-      complete: (results) => {
-        console.log("Parsed CSV data:", results.data);
+  const triggerFile = (version: number) => {
+    setSelectedVersion(version);
+    fileInputRef.current?.click();
+    setShowVersionModal(false);
+  };
 
-        // Validate each row to ensure it matches CSVRow type
-        const parsedData = results.data.filter((row): row is CSVRow => {
-          return (
-            Array.isArray(row) &&
-            typeof row[0] === "string" &&
-            row
-              .slice(1)
-              .every(
-                (cell) => typeof cell === "string" || typeof cell === "number",
-              )
-          );
-        });
-        console.log("Validated CSV data:", results.data);
-        onDataChange(parsedData); // Pass validated data to parent
-      },
+  /**
+   * Generates a set of the current criteria descriptions stored within the component state
+   * to use for checking duplicate entries.
+   */
+  const buildCriteriaDescriptionSet = (
+    rubric: Rubric | undefined,
+  ): Set<string> =>
+    new Set(
+      (rubric?.criteria || []).map((criterion) =>
+        criterion.description.trim().toLowerCase(),
+      ),
+    );
+
+  const handleImportSuccess = (newCriteria: Criteria[]) => {
+    setRubric((prevRubric) => {
+      const existingDescriptions = buildCriteriaDescriptionSet(prevRubric);
+
+      const hasDuplicates = newCriteria.some((criterion) =>
+        existingDescriptions.has(criterion.description.trim().toLowerCase()),
+      );
+      const uniqueCriteria = newCriteria.filter(
+        (criterion) =>
+          !existingDescriptions.has(criterion.description.trim().toLowerCase()),
+      );
+
+      if (hasDuplicates) {
+        setErrorMessage(
+          "Some criteria were not imported because they already exist in the rubric.",
+        );
+      }
+
+      return prevRubric
+        ? {
+            ...prevRubric,
+            criteria: [...prevRubric.criteria, ...uniqueCriteria],
+            pointsPossible:
+              prevRubric.pointsPossible +
+              uniqueCriteria.reduce(
+                (sum, criterion) => sum + criterion.points,
+                0,
+              ),
+          }
+        : {
+            title: "Imported Rubric",
+            criteria: uniqueCriteria,
+            pointsPossible: uniqueCriteria.reduce(
+              (sum, criterion) => sum + criterion.points,
+              0,
+            ),
+            key: "placeholder-key", // Placeholder
+          };
     });
-    closeImportCard();
+  };
+
+  const handleImportError = (error: string) => {
+    setErrorMessage(error);
   };
 
   return (
-    <div className={"flex justify-center items-center gap-10"}>
+    <div className="flex flex-col items-center gap-4">
+      <button
+        onClick={() => setShowVersionModal(true)}
+        className="bg-blue-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Import CSV
+      </button>
+      <Dialog
+        isOpen={showVersionModal}
+        onClose={() => setShowVersionModal(false)}
+        title="Select Import Version"
+      >
+        <div className="flex flex-col gap-4">
+          <button
+            onClick={() => triggerFile(VERSION_ONE)}
+            className="bg-green-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            Version 1 (Legacy)
+          </button>
+          <button
+            onClick={() => triggerFile(VERSION_TWO)}
+            className="bg-yellow-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          >
+            Version 2 (New)
+          </button>
+        </div>
+      </Dialog>
+      <Dialog isOpen={!!errorMessage} onClose={closeErrorDialog} title="Error">
+        <p>{errorMessage}</p>
+        <button
+          onClick={closeErrorDialog}
+          className="bg-red-600 text-white font-bold rounded-lg py-2 px-4 mt-4 transition duration-300 hover:bg-red-700 focus:outline-none"
+        >
+          OK
+        </button>
+      </Dialog>
+
+      <Dialog
+        isOpen={!!errorMessage}
+        onClose={closeErrorDialog}
+        title="Import Notice"
+      >
+        <p className="whitespace-pre-wrap">{errorMessage}</p>{" "}
+        {/* Preserve formatting */}
+        <button
+          onClick={closeErrorDialog}
+          className="bg-red-600 text-white font-bold rounded-lg py-2 px-4 mt-4 transition duration-300 hover:bg-red-700 focus:outline-none"
+        >
+          OK
+        </button>
+      </Dialog>
+
       <input
+        ref={fileInputRef}
         type="file"
         accept=".csv"
-        data-testid={"file-upload"}
+        id="file-input"
         onChange={handleFileChange}
-        className="mt-4 mb-4 border border-gray-600 rounded-lg p-3 text-gray-300 hover:bg-gray-800 transition duration-300 cursor-pointer focus:outline-none"
+        className="hidden"
       />
-
-      {/* Cancel Button */}
-      <button
-        onClick={closeImportCard}
-        className=" mt-4 bg-red-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-      >
-        Cancel
-      </button>
+      <label htmlFor="file-input" aria-label="file-input">
+        <button className="hidden">Upload File</button>
+      </label>
     </div>
   );
 };
+
+export default CSVUpload;
