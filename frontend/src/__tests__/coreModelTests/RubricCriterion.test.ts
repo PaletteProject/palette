@@ -23,7 +23,7 @@ describe("RubricCriterion", () => {
       expect(criterion.longDescription).toBe("");
       expect(criterion.pointsPossible).toBe(0);
       expect(criterion.ratings).toHaveLength(2);
-      expect(criterion.id).toBeUndefined(); // criterion created on the frontend should not have an id yet
+      expect(criterion.id).toBe("");
       expect(criterion.key).toBe("test-uuid"); // Mocked UUID
     });
 
