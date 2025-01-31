@@ -62,7 +62,7 @@ export const CSVExport: FC<CSVExportProps> = ({ rubric }) => {
       onClick={handleExportToCSV}
       type={"button"}
     >
-      Export to CSV
+      Export CSV
     </button>
   );
 };

@@ -623,7 +623,7 @@ export function RubricBuilderMain(): ReactElement {
         onSubmit={(event) => event.preventDefault()}
       >
         <h1 className="font-extrabold text-5xl mb-2 text-center">
-          Create a new rubric
+          Canvas Rubric Builder
         </h1>
         <div className="flex justify-between items-center">
           <div className="flex gap-2">
