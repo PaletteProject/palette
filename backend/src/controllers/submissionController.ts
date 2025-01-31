@@ -21,6 +21,14 @@ export const getSubmissions = asyncHandler(async (req, res) => {
   res.json(apiResponse);
 });
 
+type GradedSubmission = {
+  submission_id: number;
+  user: { id: number; name: string; asurite: string };
+  rubric_assessment: {
+    [p: string]: { points: number; rating_id: string; comments: string };
+  };
+};
+
 export const submitGrades = asyncHandler(async (req, res) => {
   console.log("got some grades to submit");
 
@@ -28,7 +36,7 @@ export const submitGrades = asyncHandler(async (req, res) => {
     req.params.course_id,
     req.params.assignment_id,
     req.params.student_id,
-    req.body,
+    req.body as GradedSubmission,
   );
 
   console.log(canvasResponse);
