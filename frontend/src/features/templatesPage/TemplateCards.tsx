@@ -16,7 +16,7 @@ import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Template } from "palette-types";
 import { createCriterion } from "@utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { ModalChoiceDialog } from "@components";
+import { EditTemplateModal, ModalChoiceDialog } from "@components";
 
 interface TemplateCardProps {
   index: number;
@@ -417,7 +417,12 @@ export default function TemplateCard({
                 : "Never"}
             </p>
             <p>Times Used: {template.usageCount || 0}</p>
-            <p>Tags: {template.tags.map((tag) => tag.name).join(", ")}</p>
+            <p>
+              Tags:{" "}
+              {template.tags.length > 0
+                ? template.tags.map((tag) => tag.name).join(", ")
+                : "None"}
+            </p>
           </div>
 
           <div className="flex gap-2 mt-4">
@@ -474,6 +479,11 @@ export default function TemplateCard({
           choices={modal.choices}
         />
       )}
+      <EditTemplateModal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseModal}
+        children={renderDetailedView()}
+      />
     </>
   );
 }

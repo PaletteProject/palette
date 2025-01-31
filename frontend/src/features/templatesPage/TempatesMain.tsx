@@ -152,6 +152,7 @@ export default function TemplatesMain(): ReactElement {
     if (newTemplate.title !== "") {
       void (async () => {
         try {
+          console.log("newTemplate in postTemplate", newTemplate);
           const response = await postTemplate();
           console.log("post response", response);
           if (response.success) {
@@ -210,33 +211,33 @@ export default function TemplatesMain(): ReactElement {
         title: "Weekly Assignment Rubric",
         tags: [
           { id: crypto.randomUUID(), name: "Assignment", color: "#3B82F6" },
-        ],
+        ] as Tag[],
       },
       {
         title: "Final Project Evaluation",
         tags: [
           { id: crypto.randomUUID(), name: "Project", color: "#EF4444" },
           { id: crypto.randomUUID(), name: "Final", color: "#10B981" },
-        ],
+        ] as Tag[],
       },
       {
         title: "Participation Assessment",
         tags: [
           { id: crypto.randomUUID(), name: "Participation", color: "#F59E0B" },
-        ],
+        ] as Tag[],
       },
       {
         title: "Lab Report Grading",
         tags: [
           { id: crypto.randomUUID(), name: "Lab", color: "#8B5CF6" },
           { id: crypto.randomUUID(), name: "Technical", color: "#EC4899" },
-        ],
+        ] as Tag[],
       },
       {
         title: "Presentation Feedback",
         tags: [
           { id: crypto.randomUUID(), name: "Presentation", color: "#6366F1" },
-        ],
+        ] as Tag[],
       },
     ];
 
