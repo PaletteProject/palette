@@ -184,8 +184,9 @@ export function SettingsMain(): ReactElement {
         </div>
 
         <PaletteActionButton
-          title={"Settings"}
+          title={"Update Settings"}
           onClick={() => void handleSave()}
+          color={"BLUE"}
         />
       </form>
     );

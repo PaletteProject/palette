@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { importCsv, VERSION_ONE, VERSION_TWO } from "@utils";
-import { Dialog } from "@components";
+import { Dialog, PaletteActionButton } from "@components";
 import { Criteria, Rubric } from "palette-types";
 
 interface CSVUploadProps {
@@ -8,7 +8,7 @@ interface CSVUploadProps {
   setRubric: React.Dispatch<React.SetStateAction<Rubric>>;
 }
 
-export const CSVUpload: React.FC<CSVUploadProps> = ({ setRubric }) => {
+export const CSVImport: React.FC<CSVUploadProps> = ({ setRubric }) => {
   const [showVersionModal, setShowVersionModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -93,13 +93,12 @@ export const CSVUpload: React.FC<CSVUploadProps> = ({ setRubric }) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <button
+    <div className="flex flex-col items-center">
+      <PaletteActionButton
         onClick={() => setShowVersionModal(true)}
-        className="bg-blue-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        Import CSV
-      </button>
+        title={"Import CSV"}
+        color={"BLUE"}
+      />
       <Dialog
         isOpen={showVersionModal}
         onClose={() => setShowVersionModal(false)}

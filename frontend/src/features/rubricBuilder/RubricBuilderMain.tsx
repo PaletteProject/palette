@@ -39,7 +39,7 @@ import { useFetch } from "@hooks";
 import { createCriterion, createRubric } from "@utils";
 
 import { Criteria, PaletteAPIResponse, Rubric, Template } from "palette-types";
-import { CSVExport, CSVUpload } from "@features";
+import { CSVExport, CSVImport } from "@features";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAssignment, useCourse } from "@context";
 
@@ -563,8 +563,8 @@ export function RubricBuilderMain(): ReactElement {
         </h1>
         <div className="flex justify-between items-center">
           {/* Import CSV */}
-          <div className={"flex gap-2"}>
-            <CSVUpload rubric={rubric} setRubric={setRubric} />
+          <div className={"flex gap-2 items-center"}>
+            <CSVImport rubric={rubric} setRubric={setRubric} />
 
             {/* Export CSV */}
             <CSVExport rubric={rubric} />

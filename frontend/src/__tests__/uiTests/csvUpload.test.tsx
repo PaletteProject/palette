@@ -1,6 +1,6 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
-import { CSVUpload } from "@features";
+import { CSVImport } from "@features";
 import { Criteria } from "palette-types";
 
 // Define types for mock functions
@@ -82,13 +82,13 @@ describe("CSVUpload Component", () => {
   });
 
   it("renders the import button", () => {
-    render(<CSVUpload rubric={undefined} setRubric={mockSetRubric} />);
+    render(<CSVImport rubric={undefined} setRubric={mockSetRubric} />);
     const importButton = screen.getByText(/Import CSV/i);
     expect(importButton).toBeInTheDocument();
   });
 
   it("opens the version modal when the button is clicked", () => {
-    render(<CSVUpload rubric={undefined} setRubric={mockSetRubric} />);
+    render(<CSVImport rubric={undefined} setRubric={mockSetRubric} />);
     const importButton = screen.getByText(/Import CSV/i);
     fireEvent.click(importButton);
 
@@ -97,7 +97,7 @@ describe("CSVUpload Component", () => {
   });
 
   it("calls handleFileChange and updates the rubric correctly for a valid CSV file", () => {
-    render(<CSVUpload rubric={undefined} setRubric={mockSetRubric} />);
+    render(<CSVImport rubric={undefined} setRubric={mockSetRubric} />);
     const importButton = screen.getByText(/Import CSV/i);
     fireEvent.click(importButton);
 
@@ -119,7 +119,7 @@ describe("CSVUpload Component", () => {
   });
 
   it("shows an alert when an unsupported file format is uploaded", () => {
-    render(<CSVUpload rubric={undefined} setRubric={mockSetRubric} />);
+    render(<CSVImport rubric={undefined} setRubric={mockSetRubric} />);
 
     // Click the import button
     const importButton = screen.getByText(/Import CSV/i);

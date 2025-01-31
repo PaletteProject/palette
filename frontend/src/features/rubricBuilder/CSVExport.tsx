@@ -1,6 +1,7 @@
 import Papa from "papaparse";
 import { Rating, Rubric } from "palette-types";
 import { FC } from "react";
+import { PaletteActionButton } from "@components";
 
 interface CSVExportProps {
   rubric: Rubric;
@@ -106,12 +107,10 @@ export const CSVExport: FC<CSVExportProps> = ({ rubric }) => {
   // };
 
   return (
-    <button
-      className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <PaletteActionButton
       onClick={updatedExportToCSV}
-      type={"button"}
-    >
-      Export CSV
-    </button>
+      title={"Export CSV"}
+      color={"BLUE"}
+    />
   );
 };

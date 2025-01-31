@@ -14,7 +14,7 @@ export * from "./grading/gradingDashboard/SubmissionsDashboard.tsx";
 // rubric builder exports
 export * from "./rubricBuilder/CriteriaInput";
 export * from "./rubricBuilder/CSVExport";
-export * from "./rubricBuilder/CSVUpload";
+export * from "./rubricBuilder/CSVImport.tsx";
 export * from "./rubricBuilder/RatingInput";
 export * from "./rubricBuilder/RubricBuilderMain";
 
