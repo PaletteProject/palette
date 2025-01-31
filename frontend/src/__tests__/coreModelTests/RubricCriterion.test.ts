@@ -37,14 +37,14 @@ describe("RubricCriterion", () => {
         "Detailed description",
         15,
         mockRatings,
-        123,
+        "123",
       );
 
       expect(criterion.description).toBe("Criterion Title");
       expect(criterion.longDescription).toBe("Detailed description");
       expect(criterion.pointsPossible).toBe(15);
       expect(criterion.ratings).toEqual(mockRatings);
-      expect(criterion.id).toBe(123);
+      expect(criterion.id).toBe("123");
       expect(criterion.key).toBe("test-uuid");
     });
   });

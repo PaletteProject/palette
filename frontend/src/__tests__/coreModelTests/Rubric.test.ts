@@ -35,6 +35,7 @@ describe("Rubric", () => {
           template: "",
           updatePoints: vi.fn(), // mocks the function
           key: "key-1",
+          id: "mockCrit1",
         },
         {
           description: "Criterion 2",
@@ -44,15 +45,16 @@ describe("Rubric", () => {
           template: "",
           updatePoints: vi.fn(),
           key: "key-2",
+          id: "mockCrit2",
         },
       ];
 
-      const rubric: Rubric = createRubric("Test Rubric", mockCriteria, 123);
+      const rubric: Rubric = createRubric("Test Rubric", mockCriteria, "123");
 
       // Assertions for specified values
       expect(rubric.title).toBe("Test Rubric");
       expect(rubric.criteria).toEqual(mockCriteria);
-      expect(rubric.id).toBe(123);
+      expect(rubric.id).toBe("123");
       expect(rubric.key).toBe("test-uuid"); // Mocked UUID
     });
   });

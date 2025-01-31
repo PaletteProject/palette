@@ -1,4 +1,4 @@
-import {body, ValidationChain} from "express-validator";
+import { body, ValidationChain } from "express-validator";
 
 /**
  * Rubric validation for incoming requests from the Palette application.

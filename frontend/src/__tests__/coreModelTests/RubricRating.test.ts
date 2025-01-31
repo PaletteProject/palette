@@ -3,7 +3,7 @@
  */
 
 import { createRating } from "@utils";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest"; // Mock uuid to ensure predictable values
 
 // Mock uuid to ensure predictable values
 vi.mock("uuid", () => ({
@@ -27,7 +27,7 @@ describe("RubricRating", () => {
         10,
         "Test Rating",
         "Detailed description",
-        123,
+        "123",
       );
 
       expect(rating.points).toBe(10);
