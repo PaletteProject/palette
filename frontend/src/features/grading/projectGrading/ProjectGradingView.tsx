@@ -6,6 +6,7 @@ import { Criteria, Rubric, Submission } from "palette-types";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { PaletteActionButton } from "@components";
+import { useAssignment, useCourse } from "@context";
 
 export function ProjectGradingView({
   groupName,
@@ -27,6 +28,29 @@ export function ProjectGradingView({
   // ratings state to track and update background colors
   const [ratings, setRatings] = useState<{ [key: string]: number | "" }>({});
 
+  const { activeCourse } = useCourse();
+  const { activeAssignment } = useAssignment();
+
+  const BASE_URL = "http://localhost:3000/api";
+  const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
+
+  /**
+   * Wrapper to iteratively submit all graded submissions with existing use fetch hook.
+   */
+  const submitGrades = async (gradedSubmission: GradedSubmission) => {
+    /**
+     * Fetch hook to submit graded rubric.
+     */
+    await fetch(
+      `${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.submission_id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(gradedSubmission),
+      },
+    );
+  };
+
   /**
    * Initialize ratings when grading modal opens. Maps criterion directly from rubric.
    */
@@ -40,6 +64,7 @@ export function ProjectGradingView({
         });
       });
       setRatings(initialRatings);
+      console.log(submissions);
     }
   }, [isOpen, submissions, rubric]);
 
@@ -57,43 +82,59 @@ export function ProjectGradingView({
     }));
   };
 
-  const handleSubmitGrades = () => {
-    const gradedSubmissions = submissions.map((submission) => {
-      // build rubric assessment object in Canvas format directly (reduces transformations needed later)
-      const rubricAssessment: {
-        [key: string]: {
-          points: number;
-          rating_id: string;
-          comments: string;
-        };
-      } = {};
+  type GradedSubmission = {
+    submission_id: number;
+    user: { id: number; name: string; asurite: string };
+    rubric_assessment: {
+      [p: string]: { points: number; rating_id: string; comments: string };
+    };
+  };
 
-      rubric.criteria.forEach((criterion) => {
-        const selectedPoints = ratings[`${submission.id}-${criterion.key}`];
-        const selectedRating = criterion.ratings.find(
-          (rating) => rating.points === selectedPoints,
-        );
-
-        if (selectedRating) {
-          rubricAssessment[criterion.id!] = {
-            // criterion from canvas API will always have an ID
-            points: selectedRating.points,
-            rating_id: selectedRating.id!, // rating ID from Canvas API
-            comments: "", // placeholder for comments
+  const handleSubmitGrades = async () => {
+    const gradedSubmissions: GradedSubmission[] = submissions.map(
+      (submission) => {
+        // build rubric assessment object in Canvas format directly (reduces transformations needed later)
+        const rubricAssessment: {
+          [key: string]: {
+            points: number;
+            rating_id: string;
+            comments: string;
           };
-        }
-      });
+        } = {};
 
-      return {
-        submission_id: submission.id,
-        user: submission.user,
-        rubricAssessment: rubricAssessment,
-      };
-    });
+        rubric.criteria.forEach((criterion) => {
+          const selectedPoints = ratings[`${submission.id}-${criterion.key}`];
+          const selectedRating = criterion.ratings.find(
+            (rating) => rating.points === selectedPoints,
+          );
 
-    console.log("Submitting graded submissions");
+          if (selectedRating) {
+            rubricAssessment[criterion.id] = {
+              // criterion from canvas API will always have an ID
+              points: selectedRating.points,
+              rating_id: selectedRating.id, // rating ID from Canvas API
+              comments: "", // placeholder for comments
+            };
+          }
+        });
+
+        return {
+          submission_id: submission.id,
+          user: submission.user,
+          rubric_assessment: rubricAssessment,
+        };
+      },
+    );
+
+    console.log("Submitting graded submissions: ");
     console.log(gradedSubmissions);
-    alert("GRADES SUBMITTED SUCCESSFULLY");
+
+    /**
+     * Loop through graded submissions and send eachone to the backend.
+     */
+    for (const gradedSubmission of gradedSubmissions) {
+      await submitGrades(gradedSubmission);
+    }
 
     onClose();
   };
@@ -131,7 +172,7 @@ export function ProjectGradingView({
             />
             <PaletteActionButton
               title={"Submit Grades"}
-              onClick={handleSubmitGrades}
+              onClick={() => void handleSubmitGrades()}
               color={"GREEN"}
             />
           </div>

@@ -20,3 +20,7 @@ export const getSubmissions = asyncHandler(async (req, res) => {
 
   res.json(apiResponse);
 });
+
+export const submitGrades = asyncHandler(async (req, res) => {
+  console.log("got some grades to submit");
+});
