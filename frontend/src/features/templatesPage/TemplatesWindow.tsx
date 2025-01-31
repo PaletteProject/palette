@@ -103,7 +103,7 @@ const TemplatesWindow = ({
 
   const handleBulkExport = () => {
     const selectedTemplatesToExport = templates.filter((t) =>
-      selectedTemplates.includes(t.key)
+      selectedTemplates.includes(t.key),
     );
 
     const exportData = JSON.stringify(selectedTemplatesToExport, null, 2);
@@ -197,9 +197,9 @@ const TemplatesWindow = ({
         (template) =>
           template.title.toLowerCase().includes(query) ||
           template.criteria.some((criterion) =>
-            criterion.templateTitle?.toLowerCase().includes(query)
+            criterion.templateTitle?.toLowerCase().includes(query),
           ) ||
-          template.tags.some((tag) => tag.name.toLowerCase().includes(query))
+          template.tags.some((tag) => tag.name.toLowerCase().includes(query)),
       );
     }
 
@@ -207,8 +207,8 @@ const TemplatesWindow = ({
     if (selectedTagFilters.length > 0) {
       filtered = filtered.filter((template) =>
         selectedTagFilters.every((tagId) =>
-          template.tags.some((tag) => tag.id === tagId)
-        )
+          template.tags.some((tag) => tag.id === tagId),
+        ),
       );
     }
 
@@ -267,7 +267,7 @@ const TemplatesWindow = ({
                   templateFocused={focusedTemplateKey === template.key}
                   onTemplateFocusedToggle={() =>
                     setFocusedTemplateKey(
-                      focusedTemplateKey === template.key ? null : template.key
+                      focusedTemplateKey === template.key ? null : template.key,
                     )
                   }
                   isSelected={selectedTemplates.includes(template.key)}

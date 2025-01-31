@@ -37,7 +37,7 @@ const TemplateSearch = ({
       .filter(
         (suggestion) =>
           suggestion.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          suggestion !== searchQuery
+          suggestion !== searchQuery,
       )
       .slice(0, 5); // Limit to 5 suggestions
   }, [templates, searchQuery]);
