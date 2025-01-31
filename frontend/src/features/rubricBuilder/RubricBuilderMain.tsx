@@ -13,14 +13,18 @@ import {
 } from "react";
 
 import CriteriaInput from "./CriteriaInput";
+import TemplateUpload from "./TemplateUpload";
+import { createTemplate } from "src/utils/templateFactory.ts";
 
 import {
+  Dialog,
   Footer,
   Header,
   LoadingDots,
   ModalChoiceDialog,
   NoAssignmentSelected,
   NoCourseSelected,
+  PopUp,
   SaveButton,
 } from "@components";
 
@@ -34,19 +38,25 @@ import { useFetch } from "@hooks";
 
 import { createCriterion, createRubric } from "@utils";
 
-import { Criteria, PaletteAPIResponse, Rubric } from "palette-types";
-
+import { Criteria, PaletteAPIResponse, Rubric, Template } from "palette-types";
 import { CSVExport, CSVUpload } from "@features";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAssignment, useCourse } from "@context";
 
 export function RubricBuilderMain(): ReactElement {
   /**
+   * Get initial rubric from local storage or create a new one if none exists
+   */
+  const getInitialRubric = () => {
+    const rubric = localStorage.getItem("rubric");
+    return rubric ? (JSON.parse(rubric) as Rubric) : createRubric();
+  };
+  /**
    * Rubric Builder State
    */
 
   // active rubric being edited
-  const [rubric, setRubric] = useState<Rubric | undefined>(undefined);
+  const [rubric, setRubric] = useState<Rubric | undefined>(getInitialRubric());
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   // result of hook checking if active assignment has an existing rubric
@@ -57,6 +67,12 @@ export function RubricBuilderMain(): ReactElement {
   const [isNewRubric, setIsNewRubric] = useState(false);
 
   const [isCanvasBypassed, setIsCanvasBypassed] = useState(false);
+
+  const [updatingTemplate, setUpdatingTemplate] = useState<Template | null>(
+    null,
+  );
+
+  const [templateInputActive, setTemplateInputActive] = useState(false);
 
   // declared before, so it's initialized for the modal initial state. memoized for performance
   const closeModal = useCallback(
@@ -69,6 +85,17 @@ export function RubricBuilderMain(): ReactElement {
     title: "",
     message: "",
     choices: [] as { label: string; action: () => void }[],
+  });
+
+  const closePopUp = useCallback(
+    () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
+    [],
+  );
+
+  const [popUp, setPopUp] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
   });
 
   /**
@@ -112,6 +139,15 @@ export function RubricBuilderMain(): ReactElement {
       body: JSON.stringify(rubric),
     },
   );
+
+  /* this is for updating the existing templates with most
+  recent version of the criteria before saving the rubric
+  in case any criterion are updated after intial template selection
+  */
+  const { fetchData: putTemplate } = useFetch("/templates", {
+    method: "PUT",
+    body: JSON.stringify(updatingTemplate),
+  });
 
   /**
    * Fires when user selects an assignment that doesn't have a rubric id associated with it.
@@ -211,9 +247,48 @@ export function RubricBuilderMain(): ReactElement {
     });
   };
 
+  const handleUpdateAllTemplateCriteria = async (): Promise<void> => {
+    console.log("updating template criteria");
+    console.log(rubric?.criteria);
+    const criteriaOnATemplate: Criteria[] = [];
+    rubric?.criteria.forEach((criterion) => {
+      if (criterion.template !== "") criteriaOnATemplate.push(criterion);
+    });
+
+    const existingTemplates: Template[] = [];
+    for (const criterion of criteriaOnATemplate) {
+      const exitingTemplateIndex = existingTemplates.findIndex(
+        (template) => template.key === criterion.template,
+      );
+      if (exitingTemplateIndex === -1) {
+        const template = createTemplate();
+        template.key = criterion.template!;
+        template.title = criterion.templateTitle!;
+        template.criteria.push(criterion);
+        existingTemplates.push(template);
+      }
+    }
+    console.log("existing templates");
+    console.log(existingTemplates);
+
+    for (const template of existingTemplates) {
+      setUpdatingTemplate(template);
+      const response = await putTemplate();
+      console.log("response", response);
+      if (response.success) {
+        console.log("template updated successfully");
+      } else {
+        console.error("error updating template", response.error);
+      }
+    }
+  };
+
   const handleSubmitRubric = async (event: MouseEvent): Promise<void> => {
     event.preventDefault();
+    console.log("submitting rubric");
+    await handleUpdateAllTemplateCriteria();
     if (!rubric || !activeCourse || !activeAssignment) return;
+
     setLoading(true);
 
     try {
@@ -259,6 +334,8 @@ export function RubricBuilderMain(): ReactElement {
         : createRubric(),
     );
   };
+
+
 
   /**
    * Calculate rubric max points whenever rubric criterion changes. Uses memoization to avoid re-rendering the
@@ -333,6 +410,15 @@ export function RubricBuilderMain(): ReactElement {
     setRubric({ ...rubric, criteria: newCriteria }); // update rubric to have new criteria
   };
 
+
+
+  const handleOpenTemplateImport = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    if (!templateInputActive) {
+      setTemplateInputActive(true);
+    }
+  };
+
   /**
    * Fires when a drag event ends, resorting the rubric criteria.
    * @param event - drag end event
@@ -353,6 +439,60 @@ export function RubricBuilderMain(): ReactElement {
 
       setRubric({ ...rubric, criteria: updatedCriteria });
     }
+  };
+
+  const handleImportTemplate = (template: Template) => {
+    console.log("import template in rubric builder main");
+    if (!rubric) return;
+
+    const currentCriteria = rubric.criteria;
+    const newCriteria = template.criteria;
+
+    if (newCriteria.length === 0) {
+      setPopUp({
+        isOpen: true,
+        title: "Oops!",
+        message: `This template has no criteria`,
+      });
+
+      return;
+    }
+
+    // Split into unique and duplicate criteria
+    const { unique, duplicates } = newCriteria.reduce(
+      (acc, newCriterion) => {
+        const isDuplicate = currentCriteria.some(
+          (existingCriterion) =>
+            existingCriterion.key.trim().toLowerCase() ===
+            newCriterion.key.trim().toLowerCase(),
+        );
+
+        if (isDuplicate) {
+          acc.duplicates.push(newCriterion);
+        } else {
+          acc.unique.push(newCriterion);
+        }
+
+        return acc;
+      },
+      { unique: [] as Criteria[], duplicates: [] as Criteria[] },
+    );
+
+    // Log information about duplicates if any were found
+    if (duplicates.length > 0) {
+      console.log(
+        `Found ${duplicates.length} duplicate criteria that were skipped:`,
+        duplicates.map((c) => c.description),
+      );
+    }
+
+    setRubric(
+      (prevRubric) =>
+        ({
+          ...(prevRubric ?? createRubric()),
+          criteria: [...(prevRubric?.criteria ?? []), ...unique],
+        }) as Rubric,
+    );
   };
 
   /**
@@ -406,6 +546,8 @@ export function RubricBuilderMain(): ReactElement {
     if (isCanvasBypassed && !rubric) {
       setRubric(createRubric());
     }
+    if (!rubric) return;
+    localStorage.setItem("rubric", JSON.stringify(rubric));
   }, [isCanvasBypassed, rubric]);
   /**
    * Helper function to wrap the builder JSX.
@@ -428,6 +570,13 @@ export function RubricBuilderMain(): ReactElement {
 
             {/* Export CSV */}
             <CSVExport rubric={rubric} />
+            <button
+              className="transition-all ease-in-out duration-300 bg-yellow-600 text-white font-bold rounded-lg py-2 px-4 hover:bg-yellow-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              onClick={handleOpenTemplateImport}
+              type={"button"}
+            >
+              Templates
+            </button>
           </div>
 
           <h2 className="text-2xl font-extrabold bg-green-600 text-black py-2 px-4 rounded-lg">
@@ -510,6 +659,25 @@ export function RubricBuilderMain(): ReactElement {
           message={modal.message}
           choices={modal.choices}
         />
+
+        <PopUp
+          show={popUp.isOpen}
+          onHide={closePopUp}
+          title={popUp.title}
+          message={popUp.message}
+        />
+
+        {/* Template Import Dialog */}
+        <Dialog
+          isOpen={templateInputActive}
+          onClose={() => setTemplateInputActive(false)}
+          title={"Import Template:"}
+        >
+          <TemplateUpload
+            closeImportCard={() => setTemplateInputActive(false)}
+            onTemplateSelected={handleImportTemplate}
+          />
+        </Dialog>
 
         {/* Sticky Footer with Gradient */}
         <Footer />

@@ -10,7 +10,9 @@ import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Rating } from "palette-types";
 import { createRating } from "@utils";
-import { RatingInput } from "@features";
+import { RatingInput } from "./RatingInput";
+import TemplateSetter from "./TemplateSetter";
+import { Dialog } from "@components";
 import { motion } from "framer-motion";
 
 export default function CriteriaInput({
@@ -34,6 +36,8 @@ export default function CriteriaInput({
   const [criteriaDescription, setCriteriaDescription] = useState(
     criterion.description || "",
   );
+
+  const [templateTitle, setTemplateTitle] = useState(criterion.template || "");
 
   /**
    * Whenever ratings change, recalculate criterion's max points
@@ -100,6 +104,13 @@ export default function CriteriaInput({
     handleCriteriaUpdate(index, criterion);
   };
 
+  const handleSetTemplateTitle = (event: ChangeEvent<HTMLInputElement>) => {
+    const newTitle = event.target.value;
+    setTemplateTitle(newTitle);
+    const newCriterion = { ...criterion, templateTitle: templateTitle };
+    handleCriteriaUpdate(index, newCriterion);
+  };
+
   // Update criterion when a rating is removed
   const handleRemoveRating = (ratingIndex: number) => {
     const updatedRatings = ratings.filter((_, i) => i !== ratingIndex);
@@ -147,6 +158,23 @@ export default function CriteriaInput({
     if (!templateSetterActive) {
       setTemplateSetterActive(true);
     }
+  };
+
+  const renderTemplateSetter = () => {
+    //console.log("Test");
+    if (templateSetterActive) {
+      return (
+        <TemplateSetter
+          closeTemplateCard={handleCloseTemplateSetter}
+          handleSetTemplateTitle={handleSetTemplateTitle}
+          criterion={criterion}
+        />
+      );
+    }
+  };
+
+  const handleCloseTemplateSetter = () => {
+    setTemplateSetterActive(false); // hides the template setter
   };
 
   // Use the useSortable hook to handle criteria ordering
@@ -293,6 +321,16 @@ export default function CriteriaInput({
             >
               Add Rating
             </button>
+
+            <Dialog
+              isOpen={templateSetterActive}
+              onClose={() => setTemplateSetterActive(false)}
+              title={
+                "Add common criteria to a Template for faster building in the future!"
+              }
+            >
+              {renderTemplateSetter()}
+            </Dialog>
           </div>
           <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
             Max Points: {maxPoints}

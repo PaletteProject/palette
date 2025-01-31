@@ -6,7 +6,6 @@ const SETTINGS_PATH = "./settings.json";
 
 export const defaultSettings: Settings = {
   userName: "admin",
-  templateCriteria: [],
   token: "default token",
   preferences: {
     darkMode: false,
