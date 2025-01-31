@@ -40,7 +40,10 @@ courseRouter.get(
 );
 
 courseRouter.put(
-  "/:course_id/assignments/:assignment_id/submissions/:user_id",
+  "/:course_id/assignments/:assignment_id/submissions/:student_id",
+  courseParamValidator,
+  assignmentParamValidator,
+  // todo: student id validator
   submitGrades,
 );
 

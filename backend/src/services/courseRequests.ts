@@ -20,6 +20,14 @@ import { GroupedSubmissions } from "palette-types/dist/types/GroupedSubmissions"
 const SUBMISSION_QUERY_PARAMS =
   "?include[]=group&include[]=user&include[]=submission_comments";
 
+type GradedSubmission = {
+  submission_id: number;
+  user: { id: number; name: string; asurite: string };
+  rubric_assessment: {
+    [p: string]: { points: number; rating_id: string; comments: string };
+  };
+};
+
 /**
  * Defines CRUD operations for courses from the Canvas API.
  */
@@ -70,5 +78,20 @@ export const CoursesAPI = {
     );
 
     return transformSubmissions(canvasSubmissions);
+  },
+
+  async putSubmission(
+    courseId: string,
+    assignmentId: string,
+    studentId: string,
+    submission: GradedSubmission,
+  ) {
+    return await fetchAPI<null>(
+      `/courses/${courseId}/assignments/${assignmentId}/submissions/${studentId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(submission),
+      },
+    );
   },
 };

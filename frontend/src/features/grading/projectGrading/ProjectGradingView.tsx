@@ -41,14 +41,11 @@ export function ProjectGradingView({
     /**
      * Fetch hook to submit graded rubric.
      */
-    await fetch(
-      `${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.submission_id}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(gradedSubmission),
-      },
-    );
+    await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(gradedSubmission),
+    });
   };
 
   /**
