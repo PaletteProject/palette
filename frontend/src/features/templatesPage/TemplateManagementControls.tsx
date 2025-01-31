@@ -1,5 +1,3 @@
-import React, { useState } from "react";
-
 interface TemplateManagementControlsProps {
   layoutStyle: "list" | "grid";
   applyLayoutStyle: (style: "list" | "grid") => void;

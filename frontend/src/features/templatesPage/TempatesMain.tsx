@@ -236,32 +236,34 @@ export default function TemplatesMain(): ReactElement {
       choices: [
         {
           label: "Delete All Selected",
-          action: async () => {
-            try {
-              // Delete each selected template
-              for (const templateKey of selectedTemplates) {
-                setDeletingTemplate(
-                  templates.find((t) => t.key === templateKey) as Template
-                );
-                const response = await deleteTemplate();
-                if (response.success) {
-                  const newTemplates = templates.filter(
-                    (t) => t.key !== templateKey
+          action: () => {
+            void (async () => {
+              try {
+                // Delete each selected template
+                for (const templateKey of selectedTemplates) {
+                  setDeletingTemplate(
+                    templates.find((t) => t.key === templateKey) as Template
                   );
-                  setTemplates(newTemplates);
+                  const response = await deleteTemplate();
+                  if (response.success) {
+                    const newTemplates = templates.filter(
+                      (t) => t.key !== templateKey
+                    );
+                    setTemplates(newTemplates);
+                  }
+                  console.log("delete response", response);
                 }
-                console.log("delete response", response);
+                // Refresh templates list
+                const response = await getAllTemplates();
+                if (response.success) {
+                  setTemplates(response.data as Template[]);
+                  setSelectedTemplates([]);
+                }
+                closeModal();
+              } catch (error) {
+                console.error("Error during bulk delete:", error);
               }
-              // Refresh templates list
-              const response = await getAllTemplates();
-              if (response.success) {
-                setTemplates(response.data as Template[]);
-                setSelectedTemplates([]);
-              }
-              closeModal();
-            } catch (error) {
-              console.error("Error during bulk delete:", error);
-            }
+            })();
           },
         },
         {

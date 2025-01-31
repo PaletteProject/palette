@@ -40,14 +40,9 @@ const TemplatesWindow = ({
   bulkDeleteHandler,
   sorter,
 }: TemplatesWindowProps) => {
-  const [windowTemplates, setWindowTemplates] = useState<Template[]>(templates);
   const [layoutStyle, setLayoutStyle] = useState<"list" | "grid">("list");
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
-
-  useEffect(() => {
-    setWindowTemplates(templates);
-  }, [templates]);
 
   const handleToggleBulkActions = () => {
     setShowBulkActions(!showBulkActions);

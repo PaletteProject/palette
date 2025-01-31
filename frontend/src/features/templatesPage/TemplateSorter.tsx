@@ -52,34 +52,6 @@ const TemplateSorter = ({
     });
   };
 
-  const filteredTemplates = useCallback(() => {
-    let filtered = windowTemplates;
-
-    // Text search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (template) =>
-          template.title.toLowerCase().includes(query) ||
-          template.criteria.some((criterion) =>
-            criterion.templateTitle?.toLowerCase().includes(query)
-          ) ||
-          template.tags.some((tag) => tag.name.toLowerCase().includes(query))
-      );
-    }
-
-    // Tag filter
-    if (selectedTagFilters.length > 0) {
-      filtered = filtered.filter((template) =>
-        selectedTagFilters.every((tagId) =>
-          template.tags.some((tag) => tag.id === tagId)
-        )
-      );
-    }
-
-    return getSortedTemplates(filtered);
-  }, [windowTemplates, searchQuery, sortConfig, selectedTagFilters]);
-
   return (
     <>
       <select
