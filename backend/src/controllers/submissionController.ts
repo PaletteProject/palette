@@ -23,4 +23,11 @@ export const getSubmissions = asyncHandler(async (req, res) => {
 
 export const submitGrades = asyncHandler(async (req, res) => {
   console.log("got some grades to submit");
+
+  const apiResponse: PaletteAPIResponse<null> = {
+    success: true,
+    message: "got some grades",
+  };
+
+  res.json(apiResponse);
 });
