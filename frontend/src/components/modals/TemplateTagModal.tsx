@@ -50,7 +50,7 @@ const TemplateTagModal = ({
     }));
 
     // Add new tags to availableTags
-    setAvailableTags((prevTags: any[]) => [...prevTags, ...newTags]);
+    setAvailableTags((prevTags: Tag[]) => [...prevTags, ...newTags]);
 
     // Reset form and close modal
     setNewTag({

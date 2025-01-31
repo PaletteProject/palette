@@ -10,7 +10,7 @@ export function createTemplate(
   createdAt: Date = new Date(),
   lastUsed: Date | string = "Never",
   usageCount: number = 0,
-  tags: Tag[] = []
+  tags: Tag[] = [],
 ): Template {
   return {
     title,

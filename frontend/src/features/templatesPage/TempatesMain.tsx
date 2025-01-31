@@ -9,7 +9,6 @@ import {
   EditTemplateModal,
   Navbar,
   MainPageTemplate,
-  Dialog,
 } from "@components";
 import { Template } from "palette-types";
 import TemplateCard from "./TemplateCards.tsx";
@@ -568,37 +567,6 @@ export default function TemplatesMain(): ReactElement {
           <option value="dateCreated-asc">Oldest First</option>
         </select>
       </div>
-    );
-  };
-
-  const handleAddTagToTemplate = (templateKey: string, tagId: string) => {
-    setTemplates((prev) =>
-      prev.map((template) => {
-        if (template.key === templateKey) {
-          const tag = availableTags.find((t) => t.id === tagId);
-          if (tag && !template.tags.some((t) => t.id === tagId)) {
-            return {
-              ...template,
-              tags: [...template.tags, tag],
-            };
-          }
-        }
-        return template;
-      })
-    );
-  };
-
-  const handleRemoveTagFromTemplate = (templateKey: string, tagId: string) => {
-    setTemplates((prev) =>
-      prev.map((template) => {
-        if (template.key === templateKey) {
-          return {
-            ...template,
-            tags: template.tags.filter((tag) => tag.id !== tagId),
-          };
-        }
-        return template;
-      })
     );
   };
 
