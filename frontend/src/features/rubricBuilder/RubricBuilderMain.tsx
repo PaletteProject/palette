@@ -335,8 +335,6 @@ export function RubricBuilderMain(): ReactElement {
     );
   };
 
-
-
   /**
    * Calculate rubric max points whenever rubric criterion changes. Uses memoization to avoid re-rendering the
    * function everytime, improving performance.
@@ -409,8 +407,6 @@ export function RubricBuilderMain(): ReactElement {
     newCriteria[index] = criterion; // update the criterion with changes;
     setRubric({ ...rubric, criteria: newCriteria }); // update rubric to have new criteria
   };
-
-
 
   const handleOpenTemplateImport = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
