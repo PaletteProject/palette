@@ -1,4 +1,4 @@
-import { body, ValidationChain } from "express-validator";
+import {body, ValidationChain} from "express-validator";
 
 /**
  * Rubric validation for incoming requests from the Palette application.
@@ -20,7 +20,7 @@ const rubricValidator: ValidationChain[] = [
     .notEmpty()
     .withMessage("Each criterion must have a description"),
   body("criteria.*.longDescription").optional().isString(),
-  body("criteria.*.points")
+  body("criteria.*.pointsPossible")
     .isNumeric()
     .withMessage("Points field must be numeric"),
   body("criteria.*.ratings")
