@@ -555,8 +555,6 @@ export function RubricBuilderMain(): ReactElement {
   };
 
   const removeAllCriteria = () => {
-    alert("clearing all criteria");
-
     setModal({
       isOpen: true,
       title: "Clear All Criteria?",
@@ -626,7 +624,13 @@ export function RubricBuilderMain(): ReactElement {
           />
         </div>
 
-        <div className="mt-6 flex flex-col gap-3 h-[35vh] max-h-[50vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
+        <div
+          className="mt-6 grid gap-4
+    grid-cols-1
+    auto-rows-min
+    h-[40vh]
+    overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-2"
+        >
           {renderCriteriaCards()}
         </div>
 

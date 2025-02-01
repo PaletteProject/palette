@@ -223,28 +223,11 @@ export default function CriteriaCard({
     );
   };
 
-  // todo: adjust rating card layout
   const renderDetailedView = () => {
-    /**
-     * Dynamically change gap between rating cards based on how many are rendered simultaneously.
-     */
-    const calculateGap = () => {
-      switch (ratings.length) {
-        case 1:
-          return "";
-        case 2:
-          return "gap-3";
-        case 3:
-          return "gap-2";
-        case 4:
-          return "gap-1";
-      }
-    };
-
     return (
       <div
         className={
-          " grid  grid-rows-[1fr_5fr_1fr] shadow-xl p-6 rounded-lg w-full bg-gray-700"
+          " grid  grid-rows-[1fr_5fr_1fr] shadow-xl p-6 rounded-lg w-full bg-gray-700 "
         }
         onDoubleClick={(event) => {
           // check if the clicked target is the card itself to avoid messing with child elements
@@ -258,14 +241,21 @@ export default function CriteriaCard({
         <input
           type="text"
           placeholder={`Criteria ${index + 1} Description...`}
-          className="rounded-lg p-3 text-gray-300 border border-gray-600 bg-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-800"
+          className={
+            "rounded-lg p-3 text-gray-300 border border-gray-600 bg-gray-500 focus:outline-none focus:ring-2" +
+            " focus:ring-blue-500 hover:bg-gray-800 mb-2"
+          }
           value={criteriaDescription}
           onChange={handleDescriptionChange}
         />
 
         <motion.div
           layout
-          className={`grid ${calculateGap()} grid-flow-col m-auto max-w-full`}
+          className={
+            "my-2 mx-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-64" +
+            " overflow-y-auto" +
+            " scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-2"
+          }
         >
           {renderRatingOptions()}
         </motion.div>
