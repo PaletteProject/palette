@@ -17,7 +17,7 @@ type ActionButtonProps = {
   /**
    * The button color theme.
    */
-  color: "GREEN" | "RED" | "BLUE";
+  color: "GREEN" | "RED" | "BLUE" | "YELLOW";
 };
 
 /**

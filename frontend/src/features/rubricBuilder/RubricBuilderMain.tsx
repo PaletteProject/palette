@@ -12,8 +12,8 @@ import {
   useState,
 } from "react";
 
-import CriteriaInput from "./CriteriaInput";
-import TemplateUpload from "./TemplateUpload";
+import CriteriaInput from "./inputs/CriteriaCard.tsx";
+import TemplateUpload from "./templates/TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
 import {
@@ -79,6 +79,7 @@ export function RubricBuilderMain(): ReactElement {
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
     [],
   );
+
   // object containing related modal state
   const [modal, setModal] = useState({
     isOpen: false,
@@ -547,6 +548,31 @@ export function RubricBuilderMain(): ReactElement {
     if (!rubric) return;
     localStorage.setItem("rubric", JSON.stringify(rubric));
   }, [isCanvasBypassed, rubric]);
+
+  const deleteAllCriteria = () => {
+    const newCriteria: Criteria[] = []; // empty array to reset all criteria
+    setRubric({ ...rubric, criteria: newCriteria });
+  };
+
+  const removeAllCriteria = () => {
+    alert("clearing all criteria");
+
+    setModal({
+      isOpen: true,
+      title: "Clear All Criteria?",
+      message: "Are you sure you want to remove all criteria on the form?",
+      choices: [
+        {
+          label: "Purge Them All",
+          action: () => {
+            deleteAllCriteria();
+            closeModal();
+          },
+        },
+      ],
+    });
+  };
+
   /**
    * Helper function to wrap the builder JSX.
    */
@@ -555,7 +581,7 @@ export function RubricBuilderMain(): ReactElement {
 
     return (
       <form
-        className="h-full self-center grid p-10 w-full max-w-3xl my-6 gap-6 bg-gray-800 shadow-lg rounded-lg"
+        className="h-full self-center grid p-10 w-full max-w-3xl my-6 gap-4 bg-gray-800 shadow-lg rounded-lg"
         onSubmit={(event) => event.preventDefault()}
       >
         <h1 className="font-extrabold text-5xl mb-2 text-center">
@@ -591,6 +617,14 @@ export function RubricBuilderMain(): ReactElement {
           value={rubric.title}
           onChange={handleRubricTitleChange}
         />
+
+        <div className={"flex justify-end"}>
+          <PaletteActionButton
+            onClick={removeAllCriteria}
+            color={"RED"}
+            title={"Clear Form"}
+          />
+        </div>
 
         <div className="mt-6 flex flex-col gap-3 h-[35vh] max-h-[50vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
           {renderCriteriaCards()}

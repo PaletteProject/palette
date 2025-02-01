@@ -10,12 +10,12 @@ import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Rating } from "palette-types";
 import { createRating } from "@utils";
-import { RatingInput } from "./RatingInput";
-import TemplateSetter from "./TemplateSetter";
+import { RatingCard } from "./RatingCard.tsx";
+import TemplateSetter from "../templates/TemplateSetter.tsx";
 import { Dialog } from "@components";
 import { motion } from "framer-motion";
 
-export default function CriteriaInput({
+export default function CriteriaCard({
   index,
   activeCriterionIndex,
   criterion,
@@ -122,7 +122,7 @@ export default function CriteriaInput({
   const renderRatingOptions = () => {
     return ratings.map((rating: Rating, ratingIndex: number) => {
       return (
-        <RatingInput
+        <RatingCard
           key={rating.key}
           ratingIndex={ratingIndex}
           rating={rating}
@@ -224,6 +224,7 @@ export default function CriteriaInput({
     );
   };
 
+  // todo: adjust rating card layout
   const renderDetailedView = () => {
     /**
      * Dynamically change gap between rating cards based on how many are rendered simultaneously.

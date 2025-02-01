@@ -4,7 +4,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import CriteriaInput from "../rubricBuilder/CriteriaInput.tsx";
+import CriteriaInput from "../rubricBuilder/inputs/CriteriaCard.tsx";
 
 import {
   SortableContext,
