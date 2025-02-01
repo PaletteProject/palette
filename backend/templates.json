@@ -1,6 +1,6 @@
 [
   {
-    "title": "Test 1",
+    "title": "asd",
     "criteria": [
       {
         "ratings": [
@@ -8,13 +8,13 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "e6f74899-64ac-4646-a61a-0a1e12ce3391"
+            "key": "c1236dc5-5ba8-4a47-b9c0-2809adb39e1f"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "b2fd80f4-1f6d-4435-959e-dcf13407be8e"
+            "key": "57a89244-61ce-4dc9-ba22-a0c4625e6a4b"
           }
         ],
         "description": "",
@@ -22,63 +22,19 @@
         "points": 5,
         "template": "",
         "templateTitle": "",
-        "key": "0ed29f98-3ec6-4ae6-856b-893e117c2282"
-      },
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "90ee7b1e-4b43-4b6f-8006-2d2e3a59399d"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "d968f0fc-c4e8-4245-aeb3-7af06d93a7ff"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "cc1d4a79-2c7f-4e64-931a-5fc9aba86ede"
-      },
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "09698500-3e1e-4874-8609-59014a7c38fc"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "116bd1be-0425-4876-97ec-cdfd67b72570"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "cca35727-e39f-407d-bf3b-992da824d714"
+        "key": "6223f841-81de-4ecc-b0c4-6557cb3e83c3"
       }
     ],
-    "key": "05811ecc-265e-4dab-9ed1-3850abc4b051",
+    "key": "0796f39e-facc-415a-9d63-1eea3d686e4e",
     "description": "",
-    "createdAt": "2025-02-01T22:06:14.410Z",
+    "createdAt": "2025-02-01T22:30:01.432Z",
     "lastUsed": null,
     "usageCount": 0,
     "tags": [],
-    "points": 15
+    "points": 5
   },
   {
-    "title": "Test 2",
+    "title": "fff",
     "criteria": [
       {
         "ratings": [
@@ -86,13 +42,13 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "bb63b0b5-5152-4794-8c97-da1a95243502"
+            "key": "502b6954-c523-4fd1-a9db-897f9b7a93b2"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "4990d948-7f55-4bca-9ede-ee5c8bb07886"
+            "key": "df1797a5-a9a3-4bf8-a2c2-ae804e87a217"
           }
         ],
         "description": "",
@@ -100,12 +56,46 @@
         "points": 5,
         "template": "",
         "templateTitle": "",
-        "key": "15a6d17f-4476-4a3a-8348-9523eb15f60b"
+        "key": "c47cb7c3-6fee-4219-b3ce-84ba48a9a9e5"
       }
     ],
-    "key": "a60c2de5-13d3-4d37-8410-331e6ea0f4d2",
+    "key": "bfaf7817-8b18-48d0-9d71-b2a1b0d019f4",
     "description": "",
-    "createdAt": "2025-02-01T22:06:20.469Z",
+    "createdAt": "2025-02-01T22:30:14.604Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 5
+  },
+  {
+    "title": "vvv",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "key": "62ffd87e-8dd9-45a3-849c-71f414dadcd5"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "key": "39d51204-d925-4334-8fb3-5d80cb20174c"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "points": 5,
+        "template": "",
+        "templateTitle": "",
+        "key": "da3cfc94-0e35-4a2c-bc66-119295300a14"
+      }
+    ],
+    "key": "81bf004e-573c-4201-8248-c850aad3152a",
+    "description": "",
+    "createdAt": "2025-02-01T22:30:31.503Z",
     "lastUsed": null,
     "usageCount": 0,
     "tags": [],

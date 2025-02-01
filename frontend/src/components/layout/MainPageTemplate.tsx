@@ -16,6 +16,7 @@ export function MainPageTemplate() {
     setShowSuggestions,
     handleCreateTemplate,
     handleQuickStart,
+    setIsNewTemplate,
   } = useTemplatesContext();
   const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
   const [popUp, setPopUp] = useState({

@@ -48,6 +48,7 @@ export default function TemplateCard({
     setEditingTemplate,
     focusedTemplateKey,
     setFocusedTemplateKey,
+    setIsNewTemplate,
   } = useTemplatesContext();
   const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
@@ -239,6 +240,7 @@ export default function TemplateCard({
 
     handleSubmitTemplate();
     setIsEditModalOpen(false);
+    setIsNewTemplate(false);
   };
 
   const handleCloseModal = () => {
@@ -246,11 +248,19 @@ export default function TemplateCard({
     // setIsEditModalOpen(false);
   };
   const handleViewModeToggle = () => {
+    console.log("viewing template", template);
+    console.log("viewOrEdit", viewOrEdit);
+    console.log("isNewTemplate", isNewTemplate);
+    console.log("editingTemplate", editingTemplate);
     setViewOrEdit("view");
     setIsEditModalOpen(true);
   };
 
   const handleEditModeToggle = () => {
+    console.log("editing template", template);
+    console.log("viewOrEdit", viewOrEdit);
+    console.log("isNewTemplate", isNewTemplate);
+    console.log("editingTemplate", editingTemplate);
     setViewOrEdit("edit");
     setIsEditModalOpen(true);
   };
@@ -330,7 +340,11 @@ export default function TemplateCard({
         {viewOrEdit === "edit" ? (
           <input
             type="text"
-            value={editingTemplate?.title || ""}
+            value={
+              isNewTemplate
+                ? editingTemplate?.title || ""
+                : template?.title || ""
+            }
             required={true}
             onChange={(e) => handleTitleChange(e)}
             className="rounded p-2 mb-2 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-lg truncate whitespace-nowrap"
@@ -487,7 +501,7 @@ export default function TemplateCard({
           choices={modal.choices}
         />
       )}
-      {isNewTemplate && (
+      {(isNewTemplate || isEditModalOpen) && (
         <EditTemplateModal
           isOpen={isEditModalOpen}
           onClose={handleCloseModal}
