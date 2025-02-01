@@ -39,7 +39,7 @@ export function createRubric(
   title: string = "",
   criteria: Criteria[] = populateDefaultCriteria(),
   id?: number,
-  pointsPossible: number = 0,
+  pointsPossible: number = 0
 ): Rubric {
   return {
     title,
@@ -62,11 +62,11 @@ export function createRubric(
 export function createCriterion(
   description: string = "",
   longDescription: string = "",
-  points: number = 0,
   ratings: Rating[] = populateDefaultRatings(),
+  points: number = ratings.reduce((acc, rating) => acc + rating.points, 0),
   id?: number,
   template: string = "",
-  templateTitle: string = "",
+  templateTitle: string = ""
 ): Criteria {
   return {
     ratings,
@@ -91,7 +91,7 @@ export function createRating(
   points: number = 0,
   description: string = "",
   longDescription: string = "",
-  id?: number,
+  id?: number
 ): Rating {
   return {
     points,

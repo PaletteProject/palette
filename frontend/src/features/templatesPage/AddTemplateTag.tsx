@@ -24,7 +24,7 @@ const AddTemplateTag = ({
             setSelectedTagFilters((prev: string[]) =>
               prev.includes(tag.id)
                 ? prev.filter((id: string) => id !== tag.id)
-                : [...prev, tag.id]
+                : [...prev, tag.id],
             )
           }
           className={`px-3 py-1 rounded-full text-sm flex items-center gap-1

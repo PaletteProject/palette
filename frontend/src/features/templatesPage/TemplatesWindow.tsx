@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import TemplateCard from "../templatesPage/TemplateCards.tsx";
 import { Template } from "palette-types";
 import TemplateManagementControls from "./TemplateManagementControls.tsx";
@@ -21,6 +21,15 @@ const TemplatesWindow = () => {
     closeModal,
     setModal,
   } = useTemplatesContext();
+
+  useEffect(() => {
+    console.log("templates window rendered");
+  }, []);
+
+  const notifyWindowOnUpdate = (updatedTemplates: Template[]) => {
+    console.log("templates window notified");
+    console.log("updatedTemplates", updatedTemplates);
+  };
 
   const handleSelectAll = () => {
     const newSelectAll = !selectAll;
@@ -208,7 +217,7 @@ const TemplatesWindow = () => {
                     className="h-4 w-4"
                   />
                 )}
-                <TemplateCard viewOrEdit="view" template={template} />
+                <TemplateCard template={template} />
               </div>
             </div>
           ))

@@ -11,6 +11,10 @@ export function createTemplate(
   lastUsed: Date | string = "Never",
   usageCount: number = 0,
   tags: Tag[] = [],
+  points: number = criteria.reduce(
+    (acc, criterion) => acc + criterion.points,
+    0
+  )
 ): Template {
   return {
     title,
@@ -22,5 +26,6 @@ export function createTemplate(
     lastUsed: typeof lastUsed === "string" ? new Date(lastUsed) : lastUsed,
     usageCount,
     tags,
+    points,
   };
 }

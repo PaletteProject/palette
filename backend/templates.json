@@ -1,6 +1,6 @@
 [
   {
-    "title": "wererwer",
+    "title": "Test 1",
     "criteria": [
       {
         "ratings": [
@@ -8,13 +8,13 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "26b936bc-662d-4e3b-98c5-abc17f7b41e9"
+            "key": "e6f74899-64ac-4646-a61a-0a1e12ce3391"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "5355362f-0009-4441-9c03-29890981be95"
+            "key": "b2fd80f4-1f6d-4435-959e-dcf13407be8e"
           }
         ],
         "description": "",
@@ -22,7 +22,7 @@
         "points": 5,
         "template": "",
         "templateTitle": "",
-        "key": "098c7701-d64b-4052-b44c-bb674ae15414"
+        "key": "0ed29f98-3ec6-4ae6-856b-893e117c2282"
       },
       {
         "ratings": [
@@ -30,13 +30,13 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "0fd4a687-243a-4ecb-b43e-0f4142259b6a"
+            "key": "90ee7b1e-4b43-4b6f-8006-2d2e3a59399d"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "bea360a3-0356-46f9-a8a8-2b2d769b12ee"
+            "key": "d968f0fc-c4e8-4245-aeb3-7af06d93a7ff"
           }
         ],
         "description": "",
@@ -44,7 +44,7 @@
         "points": 5,
         "template": "",
         "templateTitle": "",
-        "key": "4aa393d3-516d-46c5-a694-59ce766ac26e"
+        "key": "cc1d4a79-2c7f-4e64-931a-5fc9aba86ede"
       },
       {
         "ratings": [
@@ -52,13 +52,13 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "c73591fe-ead3-4d53-8479-11123296de97"
+            "key": "09698500-3e1e-4874-8609-59014a7c38fc"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "2bedffd9-57bd-4bd8-b6fb-44523777c3be"
+            "key": "116bd1be-0425-4876-97ec-cdfd67b72570"
           }
         ],
         "description": "",
@@ -66,18 +66,19 @@
         "points": 5,
         "template": "",
         "templateTitle": "",
-        "key": "113b2f25-ebc9-433b-b480-65ed0a59b7c9"
+        "key": "cca35727-e39f-407d-bf3b-992da824d714"
       }
     ],
-    "key": "a4e5f570-28c3-4da7-a9e6-216bc4dd10a4",
+    "key": "05811ecc-265e-4dab-9ed1-3850abc4b051",
     "description": "",
-    "createdAt": "2025-02-01T06:39:03.129Z",
+    "createdAt": "2025-02-01T22:06:14.410Z",
     "lastUsed": null,
     "usageCount": 0,
-    "tags": []
+    "tags": [],
+    "points": 15
   },
   {
-    "title": "werqwerwr",
+    "title": "Test 2",
     "criteria": [
       {
         "ratings": [
@@ -85,13 +86,13 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "6d37921c-2881-43d1-8196-7efef16d3f48"
+            "key": "bb63b0b5-5152-4794-8c97-da1a95243502"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "436c5c61-626b-4756-942a-4c367f4e65db"
+            "key": "4990d948-7f55-4bca-9ede-ee5c8bb07886"
           }
         ],
         "description": "",
@@ -99,256 +100,15 @@
         "points": 5,
         "template": "",
         "templateTitle": "",
-        "key": "e3cd66af-b97c-456f-a4f1-439fb3f0f231"
-      },
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "24de3282-3ae9-41a9-a97f-f1912ed3a3bc"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "3c4e43d5-dd4c-46d0-b6da-ef423056d046"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "77a1ba63-f420-421a-9098-9b5f7f7a2342"
+        "key": "15a6d17f-4476-4a3a-8348-9523eb15f60b"
       }
     ],
-    "key": "4ac91f89-077d-4f14-a069-cbfdc601074e",
+    "key": "a60c2de5-13d3-4d37-8410-331e6ea0f4d2",
     "description": "",
-    "createdAt": "2025-02-01T06:39:32.117Z",
+    "createdAt": "2025-02-01T22:06:20.469Z",
     "lastUsed": null,
     "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "asdas",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "5570f4f2-af0c-4c5a-be1b-8a5c24f970ff"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "8ea91ddd-ed2a-47b8-baaa-0ca5e9987030"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "59fdd82e-55f8-4903-b367-a129d69d534d"
-      },
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "4b7d5db6-ce85-4fbb-bf4c-a5c09f56c258"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "06383f4c-023f-4f43-b207-d2d807ba3195"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "70a61514-f0b1-4b20-814a-8366d3aefd2a"
-      }
-    ],
-    "key": "a39fb00d-4d88-42b4-9faf-1ad54f84b38d",
-    "description": "",
-    "createdAt": "2025-02-01T06:52:04.523Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "asdf",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "1667b1c1-9a6f-4532-b32f-bb5bc873b5e7"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "364ef6d2-a7f6-41e0-a952-2c9ed0c8e830"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "02755a4e-dbb6-4aeb-b737-471001987354"
-      },
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "9d5b7ce3-a377-4d8c-854b-9cfb8f55aa60"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "c11e331f-0973-49e5-8975-2a68763ca362"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "9f83e7ef-c90a-4d59-bf2a-b8ec50f0a6ca"
-      }
-    ],
-    "key": "5e3bf7ad-b6fc-4681-815a-ee6b9d46998f",
-    "description": "",
-    "createdAt": "2025-02-01T06:52:08.442Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "sadfsfdas",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "97c02f4e-e57c-42b5-b5ee-ff0b560912b1"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "4fe30264-0498-4fd8-a211-7e4d15d53345"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "91965328-914a-46e2-887f-4dfd42f7b67c"
-      },
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "bedf910a-0c17-488e-8fbc-7ca4c3fa6499"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "4be070dc-ab46-47ea-a083-04d56a73da36"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "3e4a0707-4bd8-493b-9ccd-0393e778d62e"
-      }
-    ],
-    "key": "d3d48903-0533-47fa-8ef7-3731bb2c3e82",
-    "description": "",
-    "createdAt": "2025-02-01T07:06:56.568Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "sdfadsfsdf",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "e227871d-cc20-41d1-af1c-704090c512e6"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "ba89ab44-0c36-467c-b70a-79827dc1e2ce"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "3da9ccf9-205a-47f1-bf74-27adb6d5f795"
-      },
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "8bdb4c57-73d9-4a59-8bed-91ab767c8efb"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "d855ba80-0d01-4c3b-9333-dd60155b7154"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "68b5717b-0d85-4a55-a435-f426c3559624"
-      }
-    ],
-    "key": "30a1bc1e-2129-4a8a-84cb-4c381a7a6d71",
-    "description": "",
-    "createdAt": "2025-02-01T07:07:22.608Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
+    "tags": [],
+    "points": 5
   }
 ]

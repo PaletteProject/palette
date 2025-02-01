@@ -11,4 +11,5 @@ export interface Template {
   lastUsed: Date | string;
   usageCount: number;
   tags: Tag[];
+  points: number;
 }

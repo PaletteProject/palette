@@ -1,4 +1,4 @@
-import { EditTemplateModal, ModalChoiceDialog } from "@components";
+import { ModalChoiceDialog } from "@components";
 import { Navbar } from "@components";
 import { PopUp } from "../PopUp";
 import { useCallback, useState } from "react";
@@ -6,8 +6,6 @@ import { useTemplatesContext } from "src/features/templatesPage/TemplateContext"
 import TemplateSearch from "src/features/templatesPage/TemplateSearch";
 import TemplatesWindow from "src/features/templatesPage/TemplatesWindow";
 import { useEditModal } from "src/features/templatesPage/EditModalProvider";
-import TemplateCard from "src/features/templatesPage/TemplateCards";
-import { Template } from "palette-types";
 export function MainPageTemplate() {
   const {
     templates,
@@ -42,6 +40,11 @@ export function MainPageTemplate() {
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
     []
   );
+
+  const createTemplate = () => {
+    setIsEditModalOpen(true);
+    handleCreateTemplate();
+  };
 
   // Update renderUserTemplates to use the new search component
   const renderTemplatesContent = () => {
@@ -95,7 +98,7 @@ export function MainPageTemplate() {
 
         <div className="mx-10 rounded-lg flex flex-row">
           <button
-            onClick={() => void handleCreateTemplate()}
+            onClick={() => void createTemplate()}
             className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Create Template
@@ -138,18 +141,6 @@ export function MainPageTemplate() {
           {renderContent()}
         </main>
       </div>
-      {isEditModalOpen && (
-        <EditTemplateModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          children={
-            <TemplateCard
-              viewOrEdit="edit"
-              template={newTemplate as Template}
-            />
-          }
-        />
-      )}
     </>
   );
 }

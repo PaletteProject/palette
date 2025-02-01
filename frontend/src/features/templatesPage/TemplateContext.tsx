@@ -9,7 +9,6 @@ import React, {
 import { Template } from "palette-types";
 import { useFetch } from "src/hooks/useFetch";
 import { createTemplate } from "src/utils/templateFactory.ts";
-import { useEditModal } from "./EditModalProvider";
 
 interface TemplateContextType {
   newTemplate: Template | null;
@@ -29,7 +28,6 @@ interface TemplateContextType {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   showSuggestions: boolean;
-
   setShowSuggestions: (show: boolean) => void;
   selectedTagFilters: string[];
   setSelectedTagFilters: (filters: string[]) => void;
@@ -71,6 +69,10 @@ interface TemplateContextType {
   setIndex: (index: number) => void;
   duplicateTemplate: Template | null;
   setDuplicateTemplate: (template: Template) => void;
+  viewOrEdit: "view" | "edit";
+  setViewOrEdit: (viewOrEdit: "view" | "edit") => void;
+  editingTemplate: Template | null;
+  setEditingTemplate: (template: Template) => void;
 }
 
 const TemplatesContext = createContext<TemplateContextType>({
@@ -124,6 +126,10 @@ const TemplatesContext = createContext<TemplateContextType>({
   setIndex: () => {},
   duplicateTemplate: null,
   setDuplicateTemplate: () => {},
+  viewOrEdit: "view",
+  setViewOrEdit: () => {},
+  editingTemplate: null,
+  setEditingTemplate: () => {},
 });
 
 export function useTemplatesContext() {
@@ -139,7 +145,12 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([]);
-  const [newTemplate, setNewTemplate] = useState<Template | null>(null);
+  const [newTemplate, setNewTemplate] = useState<Template | null>(
+    createTemplate()
+  );
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(
+    createTemplate()
+  );
   const [isNewTemplate, setIsNewTemplate] = useState(false);
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
     null
@@ -157,7 +168,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [duplicateTemplate, setDuplicateTemplate] = useState<Template | null>(
     null
   );
-
+  const [viewOrEdit, setViewOrEdit] = useState<"view" | "edit">("view");
   const { fetchData: getAllTemplates } = useFetch("/templates", {
     method: "GET",
   });
@@ -171,7 +182,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
   const { fetchData: postTemplate } = useFetch("/templates", {
     method: "POST",
-    body: JSON.stringify(newTemplate), // use latest rubric data
+    body: JSON.stringify(editingTemplate), // use latest rubric data
   });
 
   const closeModal = useCallback(
@@ -185,8 +196,6 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     message: "",
     choices: [] as { label: string; action: () => void }[],
   });
-
-  const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
 
   // Update the initial fetch useEffect
 
@@ -207,10 +216,6 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
       }
     })();
   }, []);
-
-  useEffect(() => {
-    console.log("templates changed", templates);
-  }, [templates]);
 
   useEffect(() => {
     console.log("deletingTemplate changed", deletingTemplate);
@@ -261,9 +266,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     newTemplate.usageCount = 0;
     newTemplate.key = crypto.randomUUID();
     setTemplates([...templates, newTemplate]);
-    setNewTemplate(newTemplate);
-    setIsEditModalOpen(true);
-
+    setEditingTemplate(newTemplate);
+    setViewOrEdit("edit");
     setIndex(templates.length);
 
     setIsNewTemplate(true);
@@ -295,6 +299,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
       criteria: duplicateTemplate?.criteria || [],
       tags: duplicateTemplate?.tags || [],
       description: duplicateTemplate?.description || "",
+      points: duplicateTemplate?.points || 0,
     };
 
     setTemplates([...templates, copiedTemplate]);
@@ -308,8 +313,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
   const handleUpdateTemplate = (index: number, template: Template) => {
     if (!template) return;
-    // console.log("template to update", template);
-    setNewTemplate(template);
+    setTemplates(templates.map((t) => (t.key === template.key ? template : t)));
   };
 
   const handleSubmitTemplate = () => {
@@ -386,6 +390,10 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         setIndex,
         duplicateTemplate,
         setDuplicateTemplate,
+        viewOrEdit,
+        setViewOrEdit,
+        editingTemplate,
+        setEditingTemplate,
       }}
     >
       {children}
