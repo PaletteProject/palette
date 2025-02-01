@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import TemplateCard from "../templatesPage/TemplateCards.tsx";
 import { Template } from "palette-types";
 import TemplateManagementControls from "./TemplateManagementControls.tsx";
+import { useTemplatesContext } from "./TemplateContext.tsx";
 
 interface TemplatesWindowProps {
-  templates: Template[];
   searchQuery: string;
   selectedTemplates: string[];
   focusedTemplateKey: string | null;
@@ -15,7 +15,7 @@ interface TemplatesWindowProps {
   setSelectedTagFilters: (selectedTagFilters: string[]) => void;
   setFocusedTemplateKey: (focusedTemplateKey: string | null) => void;
   handleDuplicateTemplate: (template: Template) => void;
-  setSelectedTemplates: (templateKey: string) => void;
+  setSelectedTemplates: (templateKeys: string[]) => void;
   bulkDeleteHandler: () => void;
   sorter: React.ReactNode;
   sortConfig: {
@@ -25,7 +25,6 @@ interface TemplatesWindowProps {
 }
 
 const TemplatesWindow = ({
-  templates,
   searchQuery,
   selectedTemplates,
   focusedTemplateKey,
@@ -40,6 +39,7 @@ const TemplatesWindow = ({
   bulkDeleteHandler,
   sorter,
 }: TemplatesWindowProps) => {
+  const { templates, setTemplates } = useTemplatesContext();
   const [layoutStyle, setLayoutStyle] = useState<"list" | "grid">("list");
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
@@ -53,17 +53,13 @@ const TemplatesWindow = ({
     setSelectAll(newSelectAll);
 
     if (newSelectAll) {
-      // Select all templates regardless of filters
-      templates.forEach((template) => {
-        if (!selectedTemplates.includes(template.key)) {
-          setSelectedTemplates(template.key);
-        }
-      });
+      // Select all templates
+      const allTemplateKeys = templates.map((template) => template.key);
+      setSelectedTemplates(allTemplateKeys);
     } else {
       // Deselect all templates
-      selectedTemplates.forEach((key) => setSelectedTemplates(key));
+      setSelectedTemplates([]);
     }
-    // Keep bulk actions visible regardless of selection state
     setShowBulkActions(true);
   };
 
@@ -171,11 +167,21 @@ const TemplatesWindow = ({
   );
 
   const handleSelectTemplateBulkActions = (templateKey: string) => {
-    setSelectedTemplates(templateKey);
-    // If a template is being unchecked, also uncheck "Select All"
+    console.log("Current selected:", selectedTemplates);
+    console.log("Toggling template:", templateKey);
+
     if (selectedTemplates.includes(templateKey)) {
-      setSelectAll(false);
+      const newSelected = selectedTemplates.filter(
+        (key) => key !== templateKey
+      );
+      console.log("New selected after removal:", newSelected);
+      setSelectedTemplates(newSelected);
+    } else {
+      const newSelected = [...selectedTemplates, templateKey];
+      console.log("New selected after addition:", newSelected);
+      setSelectedTemplates(newSelected);
     }
+    setSelectAll(false);
   };
 
   const renderAllTemplates = () => {
@@ -211,7 +217,6 @@ const TemplatesWindow = ({
                 )}
                 <TemplateCard
                   index={getOriginalIndex(template)}
-                  template={template}
                   updateTemplateHandler={handleUpdateTemplate}
                   removeTemplate={handleRemoveTemplate}
                   isNewTemplate={false}

@@ -1,21 +1,20 @@
 import { Template } from "palette-types";
 import { useCallback } from "react";
-
+import { useTemplatesContext } from "./TemplateContext.tsx";
 const TemplateSearch = ({
-  templates,
   searchQuery,
   setSearchQuery,
   showSuggestions,
   setShowSuggestions,
   onSearch,
 }: {
-  templates: Template[];
   searchQuery: string;
   setSearchQuery: (searchQuery: string) => void;
   showSuggestions: boolean;
   setShowSuggestions: (showSuggestions: boolean) => void;
   onSearch: (query: string) => void;
 }) => {
+  const { templates } = useTemplatesContext();
   // Add function to get unique suggestions from templates
   const getSuggestions = useCallback(() => {
     const suggestions = new Set<string>();
@@ -39,7 +38,7 @@ const TemplateSearch = ({
       .filter(
         (suggestion) =>
           suggestion.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          suggestion !== searchQuery,
+          suggestion !== searchQuery
       )
       .slice(0, 5); // Limit to 5 suggestions
   }, [templates, searchQuery]);

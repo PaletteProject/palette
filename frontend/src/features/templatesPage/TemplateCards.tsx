@@ -13,14 +13,14 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
-import { Criteria, Template } from "palette-types";
+import { Criteria, Tag, Template } from "palette-types";
 import { createCriterion } from "@utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { EditTemplateModal, ModalChoiceDialog } from "@components";
-
+import TemplateTagModal from "src/components/modals/TemplateTagModal.tsx";
+import { useTemplatesContext } from "./TemplateContext.tsx";
 interface TemplateCardProps {
   index: number;
-  template: Template;
   updateTemplateHandler: (index: number, template: Template) => void;
   removeTemplate: (index: number) => void;
   isNewTemplate: boolean;
@@ -36,7 +36,6 @@ interface TemplateCardProps {
 
 export default function TemplateCard({
   index,
-  template,
   updateTemplateHandler,
   removeTemplate,
   isNewTemplate,
@@ -48,10 +47,14 @@ export default function TemplateCard({
   duplicateTemplate,
   viewOrEdit,
 }: TemplateCardProps): ReactElement {
+  const { newTemplate } = useTemplatesContext();
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
-  const [currentTemplate, setCurrentTemplate] = useState<Template>(template);
+  const [currentTemplate, setCurrentTemplate] = useState<Template | null>(
+    newTemplate || null
+  );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [tagModalOpen, setTagModalOpen] = useState(false);
   const [modal, setModal] = useState({
     isOpen: false,
     title: "",
@@ -64,7 +67,7 @@ export default function TemplateCard({
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   /**
@@ -79,9 +82,13 @@ export default function TemplateCard({
           criterion.ratings.reduce((sum, rating) => sum + rating.points, 0)
         );
       },
-      0,
+      0
     );
     setLocalMaxPoints(calculatedMaxPoints);
+    console.log(
+      "currentTemplate from template card useEffect",
+      currentTemplate
+    );
   }, [currentTemplate, index, updateTemplateHandler]);
 
   // update rubric state with new list of criteria
@@ -135,7 +142,7 @@ export default function TemplateCard({
   // Use the useSortable hook to handle criteria ordering
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: template.key,
+      id: newTemplate?.key || "",
     });
 
   const style = {
@@ -146,13 +153,20 @@ export default function TemplateCard({
   const handleCondensedViewClick = (event: ReactMouseEvent) => {
     event.preventDefault();
     setIsFocused(!isFocused);
-    onTemplateFocusedToggle(isFocused ? undefined : template.key);
+    onTemplateFocusedToggle(isFocused ? undefined : newTemplate?.key);
+  };
+
+  const handleSetAvailableTags = (tags: Tag[]) => {
+    const updatedTemplate = { ...currentTemplate, tags };
+    console.log(updatedTemplate);
+    setCurrentTemplate(updatedTemplate as Template);
+    updateTemplateHandler(index, updatedTemplate as Template);
   };
 
   const submitTemplate = (event: ReactMouseEvent) => {
     event.preventDefault();
 
-    if (!currentTemplate.title.trim()) {
+    if (!currentTemplate?.title.trim()) {
       setModal({
         isOpen: true,
         title: "Invalid Template",
@@ -167,7 +181,7 @@ export default function TemplateCard({
       return;
     }
 
-    if (currentTemplate.criteria.length === 0) {
+    if (currentTemplate?.criteria.length === 0) {
       setModal({
         isOpen: true,
         title: "Invalid Template",
@@ -184,8 +198,8 @@ export default function TemplateCard({
 
     const isDuplicateName = existingTemplates.some(
       (t) =>
-        t.title.toLowerCase() === currentTemplate.title.toLowerCase() &&
-        t.key !== currentTemplate.key,
+        t.title.toLowerCase() === currentTemplate?.title.toLowerCase() &&
+        t.key !== currentTemplate?.key
     );
 
     if (isDuplicateName) {
@@ -209,35 +223,37 @@ export default function TemplateCard({
   };
 
   const handleCloseModal = () => {
-    setCurrentTemplate(template); // Reset to original template
+    setCurrentTemplate(newTemplate || null); // Reset to original template
     setIsEditModalOpen(false);
   };
 
   const handleDuplicateTemplate = () => {
-    const baseName = template.title.replace(/\s*\(\d+\)$/, ""); // Remove existing numbers in parentheses
+    const baseName = newTemplate?.title.replace(/\s*\(\d+\)$/, ""); // Remove existing numbers in parentheses
     let counter = 1;
     let newTitle = `${baseName} (${counter})`;
 
     // Find an available number for the copy
     while (
       existingTemplates.some(
-        (t) => t.title.toLowerCase() === newTitle.toLowerCase(),
+        (t) => t.title.toLowerCase() === newTitle.toLowerCase()
       )
     ) {
       counter++;
       newTitle = `${baseName} (${counter})`;
     }
 
-    const duplicatedTemplate: Template = {
-      ...template,
-      key: crypto.randomUUID(), // Generate new unique key
-      title: newTitle,
-      createdAt: new Date(),
-      lastUsed: new Date(),
-      usageCount: 0,
-    };
+    // const duplicatedTemplate : Template = {
+    //   ...newTemplate,
+    //   key: crypto.randomUUID(),
+    //   title: newTitle,
+    //   createdAt: new Date(),
+    //   lastUsed: new Date(),
+    //   usageCount: 0,
+    //     criteria: newTemplate?.criteria || [],
+    //   tags: newTemplate?.tags || [],
+    // };
 
-    duplicateTemplate(duplicatedTemplate);
+    // duplicateTemplate(duplicatedTemplate);
   };
 
   const handleViewModeToggle = () => {
@@ -306,7 +322,7 @@ export default function TemplateCard({
         onClick={handleCondensedViewClick}
       >
         <div className="text-gray-300">
-          <strong>{template.title}</strong> - Points: {localMaxPoints}
+          <strong>{newTemplate?.title}</strong> - Points: {localMaxPoints}
         </div>
       </div>
     );
@@ -321,19 +337,22 @@ export default function TemplateCard({
         {isNewTemplate || !isViewMode ? (
           <input
             type="text"
-            value={currentTemplate.title}
+            value={currentTemplate?.title}
             required={true}
             onChange={(e) => {
-              const newTemplate = { ...currentTemplate, title: e.target.value };
-              setCurrentTemplate(newTemplate);
-              updateTemplateHandler(index, newTemplate);
+              const newTemplate = {
+                ...currentTemplate,
+                title: e.target.value,
+              };
+              setCurrentTemplate(newTemplate as Template);
+              updateTemplateHandler(index, newTemplate as Template);
             }}
             className=" rounded p-3 mb-4 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-xl truncate whitespace-nowrap"
             placeholder="Template title"
           />
         ) : (
           <h1 className="font-extrabold text-5xl mb-2 text-center">
-            {template.title}
+            {newTemplate?.title}
           </h1>
         )}
         <div className="flex justify-between items-center">
@@ -341,14 +360,13 @@ export default function TemplateCard({
             {localMaxPoints} {localMaxPoints === 1 ? "Point" : "Points"}
           </h2>
           <div className="flex gap-2">
-            {template.tags.map((tag) => (
-              <div
-                key={tag.id}
-                className="bg-gray-700 text-white px-2 py-1 rounded-lg"
-              >
-                {tag.name}
-              </div>
-            ))}
+            <button
+              className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
+                       hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onClick={() => setTagModalOpen(true)}
+            >
+              Add Tag
+            </button>
           </div>
         </div>
 
@@ -396,18 +414,8 @@ export default function TemplateCard({
           <div className="text-sm text-gray-400 mt-4">
             <p>
               Created:{" "}
-              {new Date(template.createdAt).toLocaleString(undefined, {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
-            <p>
-              Last Used:{" "}
-              {template.lastUsed
-                ? new Date(template.lastUsed).toLocaleString(undefined, {
+              {newTemplate?.createdAt
+                ? new Date(newTemplate?.createdAt).toLocaleString(undefined, {
                     year: "numeric",
                     month: "short",
                     day: "numeric",
@@ -416,11 +424,23 @@ export default function TemplateCard({
                   })
                 : "Never"}
             </p>
-            <p>Times Used: {template.usageCount || 0}</p>
+            <p>
+              Last Used:{" "}
+              {newTemplate?.lastUsed
+                ? new Date(newTemplate?.lastUsed).toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "Never"}
+            </p>
+            <p>Times Used: {newTemplate?.usageCount || 0}</p>
             <p>
               Tags:{" "}
-              {template.tags.length > 0
-                ? template.tags.map((tag) => tag.name).join(", ")
+              {newTemplate?.tags?.length && newTemplate?.tags?.length > 0
+                ? newTemplate?.tags.map((tag) => tag.name).join(", ")
                 : "None"}
             </p>
           </div>
@@ -484,6 +504,13 @@ export default function TemplateCard({
         onClose={handleCloseModal}
         children={renderDetailedView()}
       />
+      {tagModalOpen && (
+        <TemplateTagModal
+          isOpen={tagModalOpen}
+          onClose={() => setTagModalOpen(false)}
+          setAvailableTags={handleSetAvailableTags}
+        />
+      )}
     </>
   );
 }

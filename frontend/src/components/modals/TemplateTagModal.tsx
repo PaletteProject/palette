@@ -5,7 +5,7 @@ import { Tag } from "palette-types";
 interface TemplateTagModalProps {
   isOpen: boolean;
   onClose: () => void;
-  setAvailableTags: React.Dispatch<React.SetStateAction<Tag[]>>;
+  setAvailableTags: (tags: Tag[]) => void;
 }
 
 const TemplateTagModal = ({
@@ -75,7 +75,7 @@ const TemplateTagModal = ({
     }));
 
     // Add new tags to availableTags
-    setAvailableTags((prevTags: Tag[]) => [...prevTags, ...newTags]);
+    setAvailableTags([...newTags]);
 
     // Reset form and close modal
     setNewTag({

@@ -1,19 +1,19 @@
 import { Tag, Template } from "palette-types";
 import React from "react";
+import { useTemplatesContext } from "./TemplateContext";
 
 const AddTemplateTag = ({
   availableTags,
   selectedTagFilters,
   setSelectedTagFilters,
-  templates,
   setTagModalOpen,
 }: {
   availableTags: Tag[];
   selectedTagFilters: string[];
   setSelectedTagFilters: React.Dispatch<React.SetStateAction<string[]>>;
-  templates: Template[];
   setTagModalOpen: (tagModalOpen: boolean) => void;
 }) => {
+  const { templates } = useTemplatesContext();
   return (
     <div className="mb-4 flex flex-wrap gap-2 items-center">
       <span className="text-white">Filter by tags:</span>
@@ -24,7 +24,7 @@ const AddTemplateTag = ({
             setSelectedTagFilters((prev: string[]) =>
               prev.includes(tag.id)
                 ? prev.filter((id: string) => id !== tag.id)
-                : [...prev, tag.id],
+                : [...prev, tag.id]
             )
           }
           className={`px-3 py-1 rounded-full text-sm flex items-center gap-1

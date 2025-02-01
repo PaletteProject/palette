@@ -20,8 +20,14 @@ import AddTemplateTag from "./AddTemplateTag.tsx";
 import TemplatesWindow from "./TemplatesWindow.tsx";
 import TemplateSorter from "./TemplateSorter.tsx";
 import { createCriterion } from "../../utils/rubricFactory.ts";
-
+import { TemplateProvider } from "./TemplateContext.tsx";
+import { useTemplatesContext } from "./TemplateContext.tsx";
+import { EditModalProvider } from "./EditModalProvider.tsx";
+import { useEditModal } from "./EditModalProvider.tsx";
 export default function TemplatesMain(): ReactElement {
+  const { templates, setTemplates } = useTemplatesContext();
+  const { newTemplate, setNewTemplate } = useTemplatesContext();
+  const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
   // quick start template for testing
   const quickStartTemplate = createTemplate();
   quickStartTemplate.title = "Quick Start Template";
@@ -40,13 +46,11 @@ export default function TemplatesMain(): ReactElement {
   quickStartTemplate.criteria[0].templateTitle = "Quick Start Template";
   quickStartTemplate.criteria[0].template = quickStartTemplate.key;
 
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [newTemplate, setNewTemplate] = useState<Template>(createTemplate());
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
     null
   );
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [doingQuickStart, setDoingQuickStart] = useState(false);
 
   // Add new state for quick edit mode
   const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
@@ -95,10 +99,6 @@ export default function TemplatesMain(): ReactElement {
     message: "",
   });
 
-  const { fetchData: getAllTemplates } = useFetch("/templates", {
-    method: "GET",
-  });
-
   const { fetchData: deleteTemplate } = useFetch(
     `/templates/byKey/${deletingTemplate?.key}`,
     {
@@ -111,62 +111,16 @@ export default function TemplatesMain(): ReactElement {
     body: JSON.stringify(newTemplate), // use latest rubric data
   });
 
-  // Update the initial fetch useEffect
-  useEffect(() => {
-    void (async () => {
-      try {
-        const response = await getAllTemplates();
-        if (response.success) {
-          console.log("response.data", response.data);
-          setTemplates(response.data as Template[]);
-        } else {
-          console.error("Failed to fetch templates:", response);
-        }
-      } catch (error) {
-        console.error("Failed to fetch templates:", error);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    if (deletingTemplate) {
-      void (async () => {
-        try {
-          const response = await deleteTemplate();
-          console.log("delete response", response);
-          if (response.success) {
-            const newTemplates = templates.filter(
-              (t) => t.key !== deletingTemplate.key
-            );
-            setTemplates(newTemplates);
-            setDeletingTemplate(null);
-          }
-        } catch (error) {
-          console.error("Error deleting template:", error);
-        }
-      })();
-    }
-  }, [deletingTemplate]);
-
   const handleSubmitTemplate = () => {
     void (async () => {
       try {
         setIsEditModalOpen(false);
-
         const response = await postTemplate();
-        console.log("Template submission response:", response);
 
         if (response.success) {
-          const templatesResponse = await getAllTemplates();
-          if (templatesResponse.success) {
-            setTemplates(templatesResponse.data as Template[]);
-            console.log("templates after submission", templatesResponse.data);
-          } else {
-            console.error(
-              "Failed to fetch updated templates:",
-              templatesResponse
-            );
-          }
+          // The templates will be automatically updated through the context
+          // No need to fetch again
+          console.log("Template submitted successfully");
         } else {
           console.error("Template submission failed:", response);
         }
@@ -177,7 +131,7 @@ export default function TemplatesMain(): ReactElement {
   };
 
   const handleQuickStart = () => {
-    setTemplates([...templates, quickStartTemplate]);
+    console.log("handleQuickStart", templates);
   };
 
   const handleCreateTemplate = () => {
@@ -219,12 +173,8 @@ export default function TemplatesMain(): ReactElement {
     setNewTemplate(template);
   };
 
-  const handleUpdateSelectedTemplates = (templateKey: string) => {
-    setSelectedTemplates((prev) =>
-      prev.includes(templateKey)
-        ? prev.filter((key) => key !== templateKey)
-        : [...prev, templateKey]
-    );
+  const handleUpdateSelectedTemplates = (templateKeys: string[]) => {
+    setSelectedTemplates(templateKeys);
   };
 
   const handleBulkDelete = () => {
@@ -254,11 +204,6 @@ export default function TemplatesMain(): ReactElement {
                   console.log("delete response", response);
                 }
                 // Refresh templates list
-                const response = await getAllTemplates();
-                if (response.success) {
-                  setTemplates(response.data as Template[]);
-                  setSelectedTemplates([]);
-                }
                 closeModal();
               } catch (error) {
                 console.error("Error during bulk delete:", error);
@@ -292,121 +237,6 @@ export default function TemplatesMain(): ReactElement {
     // so we just need to update the searchQuery state
   };
 
-  // Update renderUserTemplates to use the new search component
-  const renderTemplatesContent = () => {
-    if (!templates) return;
-
-    return (
-      <div className="mt-0 p-10 gap-6 w-full">
-        <div className="flex justify-between items-center mb-4">
-          <p className="text-white text-2xl font-bold text-center">
-            View, Edit, and Create templates here!
-          </p>
-        </div>
-
-        {/* Search Bar */}
-        <TemplateSearch
-          templates={templates}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          showSuggestions={showSuggestions}
-          setShowSuggestions={setShowSuggestions}
-          onSearch={handleSearch}
-        />
-
-        {/* Add tag filters */}
-        <AddTemplateTag
-          availableTags={availableTags}
-          selectedTagFilters={selectedTagFilters}
-          setSelectedTagFilters={setSelectedTagFilters}
-          templates={templates}
-          setTagModalOpen={setTagModalOpen}
-        />
-
-        {/* Templates Container */}
-        <TemplatesWindow
-          templates={templates}
-          searchQuery={searchQuery}
-          selectedTemplates={selectedTemplates}
-          focusedTemplateKey={focusedTemplateKey}
-          selectedTagFilters={selectedTagFilters}
-          handleUpdateTemplate={handleUpdateTemplate}
-          handleRemoveTemplate={handleRemoveTemplate}
-          handleSubmitTemplate={handleSubmitTemplate}
-          setSelectedTagFilters={setSelectedTagFilters}
-          setFocusedTemplateKey={setFocusedTemplateKey}
-          handleDuplicateTemplate={handleDuplicateTemplate}
-          sortConfig={sortConfig}
-          setSelectedTemplates={handleUpdateSelectedTemplates}
-          bulkDeleteHandler={handleBulkDelete}
-          sorter={
-            <TemplateSorter
-              sortConfig={sortConfig}
-              setSortConfig={setSortConfig}
-              windowTemplates={templates}
-              searchQuery={searchQuery}
-              selectedTagFilters={selectedTagFilters}
-            />
-          }
-        />
-      </div>
-    );
-  };
-
-  const renderNoTemplates = () => {
-    return (
-      <div className="mt-0 p-10 gap-6 w-full">
-        <p className="text-white text-2xl font-bold mb-4 text-center">
-          View, Edit, and Create templates here!
-        </p>
-        <p className="text-gray-300 text-2xl font-bold mb-4">
-          No templates found. Create a template to get started!
-        </p>
-      </div>
-    );
-  };
-
-  const renderContent = () => {
-    return (
-      <div className="min-h-screen pt-16">
-        <Navbar />
-
-        {templates.length > 0 ? renderTemplatesContent() : renderNoTemplates()}
-
-        <div className="mx-10 rounded-lg flex flex-row">
-          <button
-            onClick={() => void handleCreateTemplate()}
-            className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Create Template
-          </button>
-          {templates.length === 0 && (
-            <button
-              onClick={() => void handleQuickStart()}
-              className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Quick Start
-            </button>
-          )}
-        </div>
-
-        <ModalChoiceDialog
-          show={modal.isOpen}
-          onHide={closeModal}
-          title={modal.title}
-          message={modal.message}
-          choices={modal.choices}
-        />
-        <PopUp
-          show={popUp.isOpen}
-          onHide={closePopUp}
-          title={popUp.title}
-          message={popUp.message}
-        />
-      </div>
-    );
-  };
-
   /**
    * Helper function to consolidate conditional rendering in the JSX.
    */
@@ -432,36 +262,32 @@ export default function TemplatesMain(): ReactElement {
           children={
             <TemplateCard
               index={templates.length}
-              template={newTemplate}
               updateTemplateHandler={handleUpdateTemplate}
               removeTemplate={handleRemoveTemplate}
               isNewTemplate={true}
               submitTemplateHandler={handleSubmitTemplate}
               existingTemplates={templates}
               layoutStyle={"list"}
-              templateFocused={focusedTemplateKey === newTemplate.key}
+              templateFocused={focusedTemplateKey === newTemplate?.key}
               onTemplateFocusedToggle={() =>
                 setFocusedTemplateKey(
-                  focusedTemplateKey === newTemplate.key
+                  focusedTemplateKey === newTemplate?.key
                     ? null
-                    : newTemplate.key
+                    : newTemplate?.key || null
                 )
               }
-              isSelected={selectedTemplates.includes(newTemplate.key)}
+              isSelected={selectedTemplates.includes(newTemplate?.key || "")}
               duplicateTemplate={handleDuplicateTemplate}
               viewOrEdit="edit"
             />
           }
         />
       )}
-      <MainPageTemplate
-        children={
-          <>
-            {renderContent()}
-            {renderTagModal()}
-          </>
-        }
-      />
+      <EditModalProvider>
+        <TemplateProvider>
+          <MainPageTemplate />
+        </TemplateProvider>
+      </EditModalProvider>
     </>
   );
 }
