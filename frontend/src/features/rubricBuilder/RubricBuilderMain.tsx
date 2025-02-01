@@ -12,7 +12,7 @@ import {
   useState,
 } from "react";
 
-import CriteriaInput from "./inputs/CriteriaCard.tsx";
+import CriteriaInput from "./cards/CriteriaCard.tsx";
 import TemplateUpload from "./templates/TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
