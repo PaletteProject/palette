@@ -10,8 +10,8 @@ An interactive rubric builder and grading assistant tool to improve the group pr
 
 1. [Requirements](#requirements)
 2. [Startup Instructions](#startup-instructions)
-    - [Running with Docker](#running-with-docker)
-    - [Running without Docker](#running-without-docker)
+   - [Running with Docker](#running-with-docker)
+   - [Running without Docker](#running-without-docker)
 3. [Shutting Down](#shutting-down)
 4. [Troubleshooting](#troubleshooting)
 
@@ -87,7 +87,7 @@ A token is required to interact with the Canvas API.
    This will build and start the container, including a **PostgreSQL** database, on any OS.
 
 3. **Stopping the Containers**
-    - Use `CTRL + C` if in attached mode or `docker-compose down` if detached.
+   - Use `CTRL + C` if in attached mode or `docker-compose down` if detached.
 
 ### Running without Docker
 
@@ -159,5 +159,3 @@ Once up and running, you can interact with the application on http://localhost:5
    Verify port `5173` is free.
 
 ---
-
-
