@@ -131,6 +131,12 @@ If you have [Node.js](https://nodejs.org/en) (version 18+) and [PostgreSQL](http
 
 ---
 
+## Usage
+
+Once up and running, you can interact with the application on http://localhost:5173.
+
+---
+
 ## Troubleshooting
 
 1. **Permissions Issues**  
@@ -154,7 +160,4 @@ If you have [Node.js](https://nodejs.org/en) (version 18+) and [PostgreSQL](http
 
 ---
 
-## Usage
 
-Once up and running, you can interact with the application on http://localhost:5173. Check out the rubrics builder to
-add and manage grading rubrics directly within Canvas.
