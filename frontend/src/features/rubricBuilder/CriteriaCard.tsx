@@ -11,7 +11,7 @@ import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Rating } from "palette-types";
 import { createRating } from "@utils";
 import { RatingCard } from "./RatingCard.tsx";
-import TemplateSetter from "../templates/TemplateSetter.tsx";
+import TemplateSetter from "./templates/TemplateSetter.tsx";
 import { Dialog } from "@components";
 import { motion } from "framer-motion";
 
@@ -139,7 +139,6 @@ export default function CriteriaCard({
   ) => {
     event.preventDefault();
 
-    if (ratings.length >= 4) return; // limit max of 4 ratings to be added
     const updatedRatings = ratings.slice(0);
     updatedRatings.push(createRating(ratings.length));
     setRatings(updatedRatings);
@@ -309,16 +308,11 @@ export default function CriteriaCard({
               +
             </button>
             <button
-              className={
-                ratings.length < 4
-                  ? addButtonActiveStyle
-                  : addButtonInactiveStyle
-              }
+              className={addButtonActiveStyle}
               onClick={(event: ReactMouseEvent<HTMLButtonElement>) =>
                 handleAddRating(event, index)
               }
               type={"button"}
-              disabled={ratings.length >= 4}
             >
               Add Rating
             </button>

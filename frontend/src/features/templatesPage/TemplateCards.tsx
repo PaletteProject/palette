@@ -4,7 +4,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import CriteriaCard from "../rubricBuilder/cards/CriteriaCard.tsx";
+import CriteriaCard from "../rubricBuilder/CriteriaCard.tsx";
 
 import {
   SortableContext,
