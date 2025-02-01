@@ -6,4 +6,4 @@ export * from "./formatDate";
 export * from "./randomColor";
 export * from "./rubricFactory";
 export * from "./calculateMaxPoints";
-export * from "./CSVParser";
+export * from "../features/rubricBuilder/csv/CSVParser.ts";
