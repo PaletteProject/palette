@@ -109,8 +109,6 @@ courseRouter.get(
  *         description: Rubric created successfully.
  *       400:
  *         description: Validation error.
- */
-/**
  * @route POST /courses/:courseID/rubrics
  * @description Create a new rubric in a specific course.
  */
@@ -160,8 +158,6 @@ courseRouter.post(
  *                     type: object
  *       404:
  *         description: Rubric not found.
- */
-/**
  * @route GET /courses/:course_id/rubrics/:id
  * @description Get a rubric by its ID in a specific course.
  */
@@ -195,8 +191,6 @@ courseRouter.get(
  *               type: array
  *               items:
  *                 type: object
- */
-/**
  * @route GET /courses/:course_id/rubrics
  * @description Get all rubrics in a specific course.
  * @route - GET courses/
@@ -230,8 +224,6 @@ courseRouter.get(
  *                   name:
  *                     type: string
  *                     example: Example Course
- */
-/**
  * @route GET /courses
  * @description Get all courses for the current user
  */
@@ -288,8 +280,6 @@ courseRouter.get("/", getAllCourses);
  *         description: Invalid input or missing fields.
  *       404:
  *         description: Rubric not found.
- */
-/**
  * @route PUT /courses/:course_id/rubrics/:id
  * @description Update a rubric by its ID in a specific course.
  */
@@ -326,8 +316,6 @@ courseRouter.put(
  *         description: The rubric has been deleted successfully.
  *       404:
  *         description: Rubric not found.
- */
-/**
  * @route DELETE /courses/:course_id/rubrics/:id
  * @description Delete a rubric by its ID in a specific course.
  */
@@ -367,8 +355,6 @@ courseRouter.delete(
  *                   name:
  *                     type: string
  *                     example: Assignment 1
- */
-/**
  * @route GET /courses/:courseID/assignments
  * @description Get all assignments for a course
  */
@@ -407,8 +393,6 @@ courseRouter.get("/:course_id/assignments", getAssignments);
  *                   type: string
  *       404:
  *         description: Assignment not found.
- */
-/**
  * @route GET /courses/:courseId/assignments/:assignmentId
  */
 courseRouter.get("/:course_id/assignments/:assignment_id", getAssignment);
