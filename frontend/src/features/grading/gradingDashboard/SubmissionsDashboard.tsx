@@ -5,9 +5,11 @@ import { AssignmentData, GroupSubmissions } from "@features";
 export function SubmissionsDashboard({
   rubric,
   submissions,
+  fetchSubmissions,
 }: {
   rubric: Rubric | undefined;
   submissions: GroupedSubmissions;
+  fetchSubmissions: () => Promise<void>;
 }) {
   // layout control
   const [isExpandedView, setExpandedView] = useState<boolean>(false);
@@ -63,6 +65,7 @@ export function SubmissionsDashboard({
               isExpanded={isExpandedView}
               submissions={groupSubmissions}
               rubric={rubric!}
+              fetchSubmissions={fetchSubmissions}
             />
           );
         })}

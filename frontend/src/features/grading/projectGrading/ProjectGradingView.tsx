@@ -14,12 +14,14 @@ export function ProjectGradingView({
   rubric,
   isOpen,
   onClose,
+  fetchSubmissions,
 }: {
   groupName: string;
   submissions: Submission[];
   rubric: Rubric;
   isOpen: boolean;
   onClose: () => void; // event handler defined in GroupSubmissions.tsx
+  fetchSubmissions: () => Promise<void>;
 }) {
   if (!isOpen) {
     return null;
@@ -54,28 +56,35 @@ export function ProjectGradingView({
   useEffect(() => {
     if (isOpen) {
       const initialRatings: { [key: string]: number | "" } = {};
+
       submissions.forEach((submission) => {
-        rubric.criteria.forEach((criterion) => {
-          initialRatings[`${submission.id}-${criterion.key}`] = ""; // start with an empty rating (will eventually
-          // change to grab current rating if it exists)
-        });
+        if (submission.graded) {
+          // non-graded assignments won't have a rubric assessment
+          for (const [criterionId, assessment] of Object.entries(
+            submission.rubricAssessment,
+          )) {
+            initialRatings[`${submission.id}-${criterionId}`] =
+              assessment.points || "";
+          }
+        }
       });
+
       setRatings(initialRatings);
-      console.log(submissions);
+      console.log(initialRatings);
     }
-  }, [isOpen, submissions, rubric]);
+  }, [isOpen, submissions]);
 
   /**
    * Update ratings state on changes.
    */
   const handleRatingChange = (
     submissionId: number,
-    criterionKey: string,
+    criterionId: string,
     value: string,
   ) => {
     setRatings((prev) => ({
       ...prev,
-      [`${submissionId}-${criterionKey}`]: value === "" ? "" : parseInt(value),
+      [`${submissionId}-${criterionId}`]: value === "" ? "" : Number(value),
     }));
   };
 
@@ -92,7 +101,7 @@ export function ProjectGradingView({
       (submission) => {
         // build rubric assessment object in Canvas format directly (reduces transformations needed later)
         const rubricAssessment: {
-          [key: string]: {
+          [criterionId: string]: {
             points: number;
             rating_id: string;
             comments: string;
@@ -100,7 +109,8 @@ export function ProjectGradingView({
         } = {};
 
         rubric.criteria.forEach((criterion) => {
-          const selectedPoints = ratings[`${submission.id}-${criterion.key}`];
+          console.log(criterion.id);
+          const selectedPoints = ratings[`${submission.id}-${criterion.id}`];
           const selectedRating = criterion.ratings.find(
             (rating) => rating.points === selectedPoints,
           );
@@ -133,6 +143,8 @@ export function ProjectGradingView({
       await submitGrades(gradedSubmission);
     }
 
+    await fetchSubmissions();
+
     onClose();
   };
 
@@ -144,10 +156,12 @@ export function ProjectGradingView({
     criterion: Criteria,
   ): string => {
     if (value === "") return "bg-gray-800"; // Default background color
-    const highest = criterion.ratings[0]?.points; // First element (highest score)
-    const lowest = criterion.ratings[criterion.ratings.length - 1]?.points; // Last element (lowest score)
+
+    const highest = Math.max(...criterion.ratings.map((r) => r.points));
+    const lowest = Math.min(...criterion.ratings.map((r) => r.points));
+
     if (value === highest) return "bg-green-500"; // Green for the highest score
-    if (value === lowest) return "bg-red-500"; // Red for the lowest score
+    if (value === lowest) return "bg-red-500"; // Red for the lowest score (even if it's 0)
     return "bg-yellow-500"; // Yellow for anything in between
   };
 
@@ -158,7 +172,7 @@ export function ProjectGradingView({
           "scroll-auto fixed z-80 inset-0 bg-black bg-opacity-85 flex justify-center items-center text-white"
         }
       >
-        <div className="bg-gray-700 p-6 rounded-xl shadow-lg relative w-1/2 grid gap-4">
+        <div className="bg-gray-700 p-6 rounded-xl shadow-lg relative w-full grid gap-4 m-4">
           <h1 className="text-4xl text-white font-semibold">{groupName}</h1>
           {renderGradingTable()}
           <div className={"flex gap-4 justify-end"}>
@@ -187,7 +201,7 @@ export function ProjectGradingView({
             <th className="border border-gray-500 px-4 py-2">Group Member</th>
             {rubric.criteria.map((criterion: Criteria) => (
               <th
-                key={criterion.key}
+                key={criterion.id}
                 className="border border-gray-500 px-4 py-2"
               >
                 {criterion.description}
@@ -210,20 +224,20 @@ export function ProjectGradingView({
                 </td>
                 {rubric.criteria.map((criterion: Criteria) => (
                   <td
-                    key={`${submission.id}-${criterion.key}`}
+                    key={`${submission.id}-${criterion.id}`}
                     className="border border-gray-500 px-4 py-2 text-center"
                   >
                     {/* Input field for grading */}
                     <select
                       className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
-                        ratings[`${submission.id}-${criterion.key}`] ?? "",
+                        ratings[`${submission.id}-${criterion.id}`] ?? "",
                         criterion,
                       )}`}
-                      value={ratings[`${submission.id}-${criterion.key}`] ?? ""}
+                      value={ratings[`${submission.id}-${criterion.id}`] ?? ""}
                       onChange={(e) =>
                         handleRatingChange(
                           submission.id,
-                          criterion.key,
+                          criterion.id,
                           e.target.value,
                         )
                       }

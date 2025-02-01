@@ -84,7 +84,13 @@ export function GradingMain(): ReactElement {
 
   const renderContent = () => {
     if (!loading && activeCourse && activeAssignment) {
-      return <SubmissionsDashboard submissions={submissions} rubric={rubric} />;
+      return (
+        <SubmissionsDashboard
+          submissions={submissions}
+          rubric={rubric}
+          fetchSubmissions={fetchSubmissions}
+        />
+      );
     }
 
     return (

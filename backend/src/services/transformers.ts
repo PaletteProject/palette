@@ -1,12 +1,6 @@
-import { CanvasSubmissionResponse } from "palette-types/dist/canvasProtocol/canvasSubmissionResponse";
-import {
-  Assignment,
-  CanvasAssignment,
-  CanvasCourse,
-  Course,
-  Submission,
-} from "palette-types";
-import { GroupedSubmissions } from "palette-types/dist/types/GroupedSubmissions";
+import {CanvasSubmissionResponse} from "palette-types/dist/canvasProtocol/canvasSubmissionResponse";
+import {Assignment, CanvasAssignment, CanvasCourse, Course, Submission,} from "palette-types";
+import {GroupedSubmissions} from "palette-types/dist/types/GroupedSubmissions";
 
 /**
  * Convert canvas course object to palette course object.
@@ -94,7 +88,7 @@ const mapToPaletteSubmission = (
       name: canvasResponse.group?.name || "No Group",
     },
     comments: transformComments(),
-    rubricAssessment: [], //todo
+    rubricAssessment: canvasResponse.rubric_assessment,
     workflowState: canvasResponse.workflow_state, // status of the submission
     graded: canvasResponse?.graded_at || false,
     gradedBy: canvasResponse.grader_id,

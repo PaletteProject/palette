@@ -9,12 +9,14 @@ export function GroupSubmissions({
   isExpanded,
   submissions,
   rubric,
+  fetchSubmissions,
 }: {
   groupName: string;
   progress: number;
   isExpanded: boolean;
   submissions: Submission[];
   rubric: Rubric;
+  fetchSubmissions: () => Promise<void>;
 }) {
   // grading popup state (submissions are already filtered by group)
   const [isGradingViewOpen, setGradingViewOpen] = useState<boolean>(false);
@@ -78,10 +80,11 @@ export function GroupSubmissions({
       {isExpanded && renderSubmissions()}
       <ProjectGradingView
         isOpen={isGradingViewOpen}
-        groupName={"Group 99"}
+        groupName={groupName}
         submissions={submissions}
         rubric={rubric}
         onClose={handleGradingViewClose}
+        fetchSubmissions={fetchSubmissions}
       />
     </div>
   );

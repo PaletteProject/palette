@@ -18,7 +18,7 @@ import {
 import { GroupedSubmissions } from "palette-types/dist/types/GroupedSubmissions";
 
 const SUBMISSION_QUERY_PARAMS =
-  "?include[]=group&include[]=user&include[]=submission_comments";
+  "?include[]=group&include[]=user&include[]=submission_comments&grouped=true&include[]=rubric_assessment";
 
 type GradedSubmission = {
   submission_id: number;
