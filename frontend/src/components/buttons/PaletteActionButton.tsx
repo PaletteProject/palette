@@ -47,6 +47,11 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
       hover: "hover:bg-blue-700",
       focus: "focus:ring-blue-500",
     },
+    YELLOW: {
+      bg: "bg-yellow-600",
+      hover: "hover:bg-yellow-700",
+      focus: "focus:ring-yellow-500",
+    },
   }[color];
 
   return (
