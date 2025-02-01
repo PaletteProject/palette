@@ -1,21 +1,14 @@
-interface TemplateManagementControlsProps {
-  layoutStyle: "list" | "grid";
-  applyLayoutStyle: (style: "list" | "grid") => void;
-  showBulkActions: boolean;
-  toggleBulkActions: () => void;
-}
+import { useTemplatesContext } from "./TemplateContext.tsx";
 
-const TemplateManagementControls = ({
-  layoutStyle,
-  applyLayoutStyle,
-  showBulkActions,
-  toggleBulkActions,
-}: TemplateManagementControlsProps) => {
+const TemplateManagementControls = () => {
+  const { layoutStyle, setLayoutStyle, showBulkActions, setShowBulkActions } =
+    useTemplatesContext();
+
   return (
     <div className="flex items-center gap-4">
       {/* Add bulk actions toggle button */}
       <button
-        onClick={toggleBulkActions}
+        onClick={() => setShowBulkActions(!showBulkActions)}
         className={`px-4 py-2 rounded-lg focus:outline-none  ${
           showBulkActions
             ? "bg-gray-700 text-white focus:ring-blue-500 focus:ring-2"
@@ -25,7 +18,7 @@ const TemplateManagementControls = ({
         <i className="fas fa-tasks mr-2" /> Bulk Actions
       </button>
 
-      {/* View Toggle Buttons */}
+      {/* View Toggle */}
       <div className="flex items-center">
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -33,7 +26,7 @@ const TemplateManagementControls = ({
             className="sr-only peer"
             checked={layoutStyle === "grid"}
             onChange={() =>
-              applyLayoutStyle(layoutStyle === "list" ? "grid" : "list")
+              setLayoutStyle(layoutStyle === "list" ? "grid" : "list")
             }
           />
           <div className="w-[120px] h-8 bg-gray-700 rounded-full peer peer-checked:after:translate-x-[60px] after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-[56px] after:transition-all">

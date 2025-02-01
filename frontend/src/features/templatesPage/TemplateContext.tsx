@@ -15,18 +15,21 @@ interface TemplateContextType {
   newTemplate: Template | null;
   setNewTemplate: (template: Template) => void;
   deletingTemplate: Template | null;
+  deletingTemplates: Template[] | null;
+  setDeletingTemplates: (templates: Template[]) => void;
   setDeletingTemplate: (template: Template) => void;
   templates: Template[];
   setTemplates: (templates: Template[]) => void;
   handleSubmitTemplate: () => void;
   focusedTemplateKey: string | null;
   setFocusedTemplateKey: (key: string | null) => void;
-  handleDuplicateTemplate: (template: Template) => void;
+  handleDuplicateTemplate: () => void;
   selectedTemplates: string[];
   setSelectedTemplates: (templates: string[]) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   showSuggestions: boolean;
+
   setShowSuggestions: (show: boolean) => void;
   selectedTagFilters: string[];
   setSelectedTagFilters: (filters: string[]) => void;
@@ -34,6 +37,7 @@ interface TemplateContextType {
   setShowBulkActions: (show: boolean) => void;
   selectAll: boolean;
   setSelectAll: (select: boolean) => void;
+  handleCreateTemplate: () => void;
   sortConfig: {
     key: "title" | "dateCreated" | "lastModified";
     direction: "asc" | "desc";
@@ -60,18 +64,28 @@ interface TemplateContextType {
   closeModal: () => void;
   handleRemoveTemplate: (index: number) => void;
   handleUpdateTemplate: (index: number, template: Template) => void;
+  handleQuickStart: () => void;
+  isNewTemplate: boolean;
+  setIsNewTemplate: (isNewTemplate: boolean) => void;
+  index: number;
+  setIndex: (index: number) => void;
+  duplicateTemplate: Template | null;
+  setDuplicateTemplate: (template: Template) => void;
 }
 
 const TemplatesContext = createContext<TemplateContextType>({
   newTemplate: null,
   setNewTemplate: () => {},
   deletingTemplate: null,
+  deletingTemplates: null,
+  setDeletingTemplates: () => {},
   setDeletingTemplate: () => {},
   templates: [],
   setTemplates: () => {},
   handleSubmitTemplate: () => {},
   focusedTemplateKey: null,
   setFocusedTemplateKey: () => {},
+  handleQuickStart: () => {},
   handleDuplicateTemplate: () => {},
   selectedTemplates: [],
   setSelectedTemplates: () => {},
@@ -81,6 +95,7 @@ const TemplatesContext = createContext<TemplateContextType>({
   setShowSuggestions: () => {},
   selectedTagFilters: [],
   setSelectedTagFilters: () => {},
+  handleCreateTemplate: () => {},
   sortConfig: {
     key: "title",
     direction: "asc",
@@ -103,6 +118,12 @@ const TemplatesContext = createContext<TemplateContextType>({
   closeModal: () => {},
   handleRemoveTemplate: () => {},
   handleUpdateTemplate: () => {},
+  isNewTemplate: false,
+  setIsNewTemplate: () => {},
+  index: 0,
+  setIndex: () => {},
+  duplicateTemplate: null,
+  setDuplicateTemplate: () => {},
 });
 
 export function useTemplatesContext() {
@@ -119,10 +140,12 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([]);
   const [newTemplate, setNewTemplate] = useState<Template | null>(null);
-
+  const [isNewTemplate, setIsNewTemplate] = useState(false);
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
     null
   );
+  const [index, setIndex] = useState(0);
+  const [deletingTemplates, setDeletingTemplates] = useState<Template[]>([]);
   const [layoutStyle, setLayoutStyle] = useState<"list" | "grid">("list");
   const [sortConfig, setSortConfig] = useState<{
     key: "title" | "dateCreated" | "lastModified";
@@ -131,6 +154,9 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
+  const [duplicateTemplate, setDuplicateTemplate] = useState<Template | null>(
+    null
+  );
 
   const { fetchData: getAllTemplates } = useFetch("/templates", {
     method: "GET",
@@ -168,6 +194,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     void (async () => {
       try {
         const response = await getAllTemplates();
+        setShowBulkActions(false); // this needs to be here to prevent bulk actions from being shown when the page is loaded in case the last thing that was done was a bulk delete
+
         if (response.success) {
           console.log("template provider response", response.data);
           setTemplates(response.data as Template[]);
@@ -200,6 +228,84 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     }
   }, [deletingTemplate]);
 
+  useEffect(() => {
+    if (deletingTemplates.length > 0) {
+      void (async () => {
+        try {
+          // Delete all templates in parallel
+
+          for (const template of deletingTemplates) {
+            console.log("deleting temoakte", deletingTemplates);
+            setDeletingTemplate(template);
+
+            await deleteTemplate();
+          }
+
+          const response = await getAllTemplates();
+          if (response.success) {
+            setTemplates(response.data as Template[]);
+          } else {
+            console.error("Failed to fetch templates:", response);
+          }
+        } catch (error) {
+          console.error("Error deleting templates:", error);
+        }
+      })();
+    }
+  }, [deletingTemplates]);
+
+  const handleCreateTemplate = () => {
+    const newTemplate = createTemplate();
+    newTemplate.createdAt = new Date();
+    newTemplate.lastUsed = "Never";
+    newTemplate.usageCount = 0;
+    newTemplate.key = crypto.randomUUID();
+    setTemplates([...templates, newTemplate]);
+    setNewTemplate(newTemplate);
+    setIsEditModalOpen(true);
+
+    setIndex(templates.length);
+
+    setIsNewTemplate(true);
+  };
+
+  const handleDuplicateTemplate = () => {
+    const baseName = duplicateTemplate?.title.replace(/\s*\(\d+\)$/, ""); // Remove existing numbers in parentheses
+    let counter = 1;
+    let newTitle = `${baseName} (${counter})`;
+
+    // Find an available number for the copy
+    while (
+      templates.some((t) => t.title.toLowerCase() === newTitle.toLowerCase())
+    ) {
+      counter++;
+      newTitle = `${baseName} (${counter})`;
+    }
+
+    console.log("newTitle", newTitle);
+
+    const copiedTemplate: Template = {
+      ...duplicateTemplate,
+      key: crypto.randomUUID(),
+      title: newTitle,
+      createdAt: new Date(),
+
+      lastUsed: new Date(),
+      usageCount: 0,
+      criteria: duplicateTemplate?.criteria || [],
+      tags: duplicateTemplate?.tags || [],
+      description: duplicateTemplate?.description || "",
+    };
+
+    setTemplates([...templates, copiedTemplate]);
+    setIndex(templates.length);
+    setIsNewTemplate(true);
+  };
+
+  const handleQuickStart = () => {
+    console.log("quick start");
+  };
+
   const handleUpdateTemplate = (index: number, template: Template) => {
     if (!template) return;
     // console.log("template to update", template);
@@ -228,16 +334,6 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         console.error("Error submitting template:", error);
       }
     })();
-    setIsEditModalOpen(false);
-  };
-
-  const handleDuplicateTemplate = (template: Template) => {
-    const duplicatedTemplate = { ...template, key: crypto.randomUUID() };
-    setTemplates([...templates, duplicatedTemplate]);
-  };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
   };
 
   const handleRemoveTemplate = (index: number) => {
@@ -254,6 +350,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         templates,
         setTemplates,
         deletingTemplate,
+        deletingTemplates,
+        setDeletingTemplates,
         setDeletingTemplate,
         handleSubmitTemplate,
         focusedTemplateKey,
@@ -267,6 +365,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         setShowSuggestions,
         selectedTagFilters,
         setSelectedTagFilters,
+        handleCreateTemplate,
         sortConfig,
         setSortConfig,
         layoutStyle,
@@ -280,6 +379,13 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         closeModal,
         handleRemoveTemplate,
         handleUpdateTemplate,
+        handleQuickStart,
+        isNewTemplate,
+        setIsNewTemplate,
+        index,
+        setIndex,
+        duplicateTemplate,
+        setDuplicateTemplate,
       }}
     >
       {children}

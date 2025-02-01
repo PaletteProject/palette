@@ -3,7 +3,6 @@ import {
   ReactElement,
   useEffect,
   useState,
-  useCallback,
 } from "react";
 import CriteriaInput from "../rubricBuilder/CriteriaInput.tsx";
 
@@ -19,23 +18,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { EditTemplateModal, ModalChoiceDialog } from "@components";
 import TemplateTagModal from "src/components/modals/TemplateTagModal.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
+import { useEditModal } from "./EditModalProvider.tsx";
 interface TemplateCardProps {
-  index: number;
-  isNewTemplate: boolean;
-  templateFocused: boolean;
-  onTemplateFocusedToggle: (templateKey?: string) => void;
-  isSelected: boolean;
-  viewOrEdit: "edit" | "view";
   template: Template;
+  viewOrEdit: "edit" | "view";
 }
 
 export default function TemplateCard({
-  index,
-  isNewTemplate,
-  templateFocused,
-  onTemplateFocusedToggle,
-  viewOrEdit,
   template,
+  viewOrEdit,
 }: TemplateCardProps): ReactElement {
   const {
     setNewTemplate,
@@ -47,13 +38,17 @@ export default function TemplateCard({
     handleRemoveTemplate,
     templates,
     handleSubmitTemplate,
+    isNewTemplate,
+    index,
+    handleDuplicateTemplate,
+    setDuplicateTemplate,
   } = useTemplatesContext();
+  const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [tagModalOpen, setTagModalOpen] = useState(false);
   const [localMaxPoints, setLocalMaxPoints] = useState(0);
-  const [isFocused, setIsFocused] = useState(templateFocused);
+  const [isFocused, setIsFocused] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
 
   /**
@@ -140,7 +135,6 @@ export default function TemplateCard({
   const handleCondensedViewClick = (event: ReactMouseEvent) => {
     event.preventDefault();
     setIsFocused(!isFocused);
-    onTemplateFocusedToggle(isFocused ? undefined : template?.key);
   };
 
   const handleSetAvailableTags = (tags: Tag[]) => {
@@ -205,50 +199,29 @@ export default function TemplateCard({
       return;
     }
 
-    setIsEditModalOpen(false);
     handleSubmitTemplate();
+    setIsEditModalOpen(false);
   };
 
   const handleCloseModal = () => {
-    setNewTemplate(template as Template); // Reset to original template
-    setIsEditModalOpen(false);
-  };
-
-  const handleDuplicateTemplate = () => {
-    const baseName = template?.title.replace(/\s*\(\d+\)$/, ""); // Remove existing numbers in parentheses
-    let counter = 1;
-    let newTitle = `${baseName} (${counter})`;
-
-    // Find an available number for the copy
-    while (
-      templates.some((t) => t.title.toLowerCase() === newTitle.toLowerCase())
-    ) {
-      counter++;
-      newTitle = `${baseName} (${counter})`;
-    }
-
-    // const duplicatedTemplate : Template = {
-    //   ...newTemplate,
-    //   key: crypto.randomUUID(),
-    //   title: newTitle,
-    //   createdAt: new Date(),
-    //   lastUsed: new Date(),
-    //   usageCount: 0,
-    //     criteria: newTemplate?.criteria || [],
-    //   tags: newTemplate?.tags || [],
-    // };
-
-    // duplicateTemplate(duplicatedTemplate);
+    // setNewTemplate(template); // Reset to original template
+    // setIsEditModalOpen(false);
   };
 
   const handleViewModeToggle = () => {
     setIsEditModalOpen(true);
-    setIsViewMode(!isViewMode);
+    // setIsEditModalOpen(true);
+    // setIsViewMode(!isViewMode);
   };
 
   const handleEditModeToggle = () => {
-    setIsEditModalOpen(true);
-    setIsViewMode(false);
+    // setIsEditModalOpen(true);
+    // setIsViewMode(false);
+  };
+
+  const copyTemplate = () => {
+    setDuplicateTemplate(template);
+    handleDuplicateTemplate();
   };
 
   const renderCriteriaCards = () => {
@@ -299,9 +272,8 @@ export default function TemplateCard({
         {...attributes}
         {...listeners}
         className={`hover:bg-gray-500 hover:cursor-pointer max-h-12 flex justify-between items-center border border-gray-700 shadow-xl p-6 rounded-lg w-full bg-gray-700
-          ${templateFocused ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800" : ""}
-          ${layoutStyle === "grid" && templateFocused ? "shadow-2xl shadow-gray-900/50" : ""}
-          ${isNewTemplate ? "ring-2 ring-green-500 ring-offset-2 ring-offset-gray-800 animate-[fadeOut_2s_ease-out_forwards]" : ""}
+          ${isFocused ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800" : ""}
+          ${layoutStyle === "grid" && isFocused ? "shadow-2xl shadow-gray-900/50" : ""}
         }`}
         title="Click to toggle expansion"
         onClick={handleCondensedViewClick}
@@ -319,7 +291,7 @@ export default function TemplateCard({
         className="h-full grid p-10 w-full max-w-3xl my-6 gap-6 bg-gray-800 shadow-lg rounded-lg"
         onSubmit={(event) => event.preventDefault()}
       >
-        {isNewTemplate || !isViewMode ? (
+        {isNewTemplate || viewOrEdit === "view" ? (
           <input
             type="text"
             value={template?.title}
@@ -445,7 +417,7 @@ export default function TemplateCard({
               Edit
             </button>
             <button
-              onClick={handleDuplicateTemplate}
+              onClick={copyTemplate}
               className="transition-all ease-in-out duration-300 text-green-400 hover:text-green-500 focus:outline-none"
             >
               Copy
@@ -464,16 +436,16 @@ export default function TemplateCard({
   };
 
   // Add effect to handle focus state based on isQuickEdit
-  useEffect(() => {
-    if (!templateFocused) {
-      setIsFocused(false);
-    }
-  }, [templateFocused]);
+  // useEffect(() => {
+  //   if (!templateFocused) {
+  //     setIsFocused(false);
+  //   }
+  // }, [templateFocused]);
 
   return (
     <>
       <div className={`w-full `}>
-        {viewOrEdit === "view" ? renderCondensedView() : renderDetailedView()}
+        {renderCondensedView()}
         {isFocused && renderTemplateMetadata()}
       </div>
       {modal.isOpen && (

@@ -1,38 +1,23 @@
 import { EditTemplateModal, ModalChoiceDialog } from "@components";
 import { Navbar } from "@components";
 import { PopUp } from "../PopUp";
-import { ReactNode, useCallback, useState } from "react";
-import AddTemplateTag from "src/features/templatesPage/AddTemplateTag";
+import { useCallback, useState } from "react";
 import { useTemplatesContext } from "src/features/templatesPage/TemplateContext";
 import TemplateSearch from "src/features/templatesPage/TemplateSearch";
 import TemplatesWindow from "src/features/templatesPage/TemplatesWindow";
-import TemplateSorter from "src/features/templatesPage/TemplateSorter";
-import { createTemplate } from "src/utils/templateFactory";
 import { useEditModal } from "src/features/templatesPage/EditModalProvider";
 import TemplateCard from "src/features/templatesPage/TemplateCards";
 import { Template } from "palette-types";
 export function MainPageTemplate() {
   const {
     templates,
-    setTemplates,
     newTemplate,
-    setNewTemplate,
-    deletingTemplate,
-    setDeletingTemplate,
-    handleSubmitTemplate,
-    focusedTemplateKey,
-    setFocusedTemplateKey,
-    handleDuplicateTemplate,
-    selectedTemplates,
-    setSelectedTemplates,
     searchQuery,
     setSearchQuery,
     showSuggestions,
     setShowSuggestions,
-    selectedTagFilters,
-    setSelectedTagFilters,
-    handleRemoveTemplate,
-    handleUpdateTemplate,
+    handleCreateTemplate,
+    handleQuickStart,
   } = useTemplatesContext();
   const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
   const [popUp, setPopUp] = useState({
@@ -57,23 +42,6 @@ export function MainPageTemplate() {
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
     []
   );
-
-  const handleCreateTemplate = () => {
-    const newTemplate = {
-      ...createTemplate(),
-      createdAt: new Date(),
-      lastUsed: "Never",
-      usageCount: 0,
-      key: crypto.randomUUID(),
-    };
-    setTemplates([...templates, newTemplate]);
-    setNewTemplate(newTemplate);
-    setIsEditModalOpen(true);
-  };
-
-  const handleQuickStart = () => {
-    console.log("quick start");
-  };
 
   // Update renderUserTemplates to use the new search component
   const renderTemplatesContent = () => {
@@ -176,17 +144,6 @@ export function MainPageTemplate() {
           onClose={() => setIsEditModalOpen(false)}
           children={
             <TemplateCard
-              index={templates.length}
-              isNewTemplate={true}
-              templateFocused={focusedTemplateKey === newTemplate?.key}
-              onTemplateFocusedToggle={() =>
-                setFocusedTemplateKey(
-                  focusedTemplateKey === newTemplate?.key
-                    ? null
-                    : newTemplate?.key || null
-                )
-              }
-              isSelected={selectedTemplates.includes(newTemplate?.key || "")}
               viewOrEdit="edit"
               template={newTemplate as Template}
             />

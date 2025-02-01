@@ -1,4 +1,3 @@
-import { Template } from "palette-types";
 import { useCallback } from "react";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 const TemplateSearch = ({

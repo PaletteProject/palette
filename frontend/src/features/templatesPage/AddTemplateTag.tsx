@@ -1,4 +1,4 @@
-import { Tag, Template } from "palette-types";
+import { Tag } from "palette-types";
 import React from "react";
 import { useTemplatesContext } from "./TemplateContext";
 

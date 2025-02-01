@@ -1,18 +1,7 @@
-const TemplateSorter = ({
-  sortConfig,
-  setSortConfig,
-}: {
-  sortConfig: {
-    key: "title" | "dateCreated" | "lastModified";
-    direction: "asc" | "desc";
-  };
-  setSortConfig: React.Dispatch<
-    React.SetStateAction<{
-      key: "title" | "dateCreated" | "lastModified";
-      direction: "asc" | "desc";
-    }>
-  >;
-}) => {
+import { useTemplatesContext } from "./TemplateContext.tsx";
+
+const TemplateSorter = () => {
+  const { sortConfig, setSortConfig } = useTemplatesContext();
   return (
     <>
       <select

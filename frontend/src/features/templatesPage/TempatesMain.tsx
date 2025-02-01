@@ -2,27 +2,18 @@
  * Rubric Builder view.
  */
 
-import { ReactElement, useCallback, useEffect, useState } from "react";
-import {
-  ModalChoiceDialog,
-  PopUp,
-  EditTemplateModal,
-  Navbar,
-  MainPageTemplate,
-} from "@components";
-import { Template, Tag } from "palette-types";
+import { ReactElement } from "react";
+import { EditTemplateModal, MainPageTemplate } from "@components";
+import { Template } from "palette-types";
 import TemplateCard from "./TemplateCards.tsx";
-import { useFetch } from "@hooks";
 import { createTemplate } from "src/utils/templateFactory.ts";
-import TemplateTagModal from "src/components/modals/TemplateTagModal.tsx";
 import { createCriterion } from "../../utils/rubricFactory.ts";
 import { TemplateProvider } from "./TemplateContext.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 import { EditModalProvider } from "./EditModalProvider.tsx";
 import { useEditModal } from "./EditModalProvider.tsx";
 export default function TemplatesMain(): ReactElement {
-  const { templates, setTemplates } = useTemplatesContext();
-  const { newTemplate, setNewTemplate } = useTemplatesContext();
+  const { newTemplate } = useTemplatesContext();
   const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
   // quick start template for testing
   const quickStartTemplate = createTemplate();
@@ -42,189 +33,6 @@ export default function TemplatesMain(): ReactElement {
   quickStartTemplate.criteria[0].templateTitle = "Quick Start Template";
   quickStartTemplate.criteria[0].template = quickStartTemplate.key;
 
-  const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
-    null
-  );
-  const [searchQuery, setSearchQuery] = useState("");
-  const [doingQuickStart, setDoingQuickStart] = useState(false);
-
-  // Add new state for quick edit mode
-  const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
-    null
-  );
-
-  const [tagModalOpen, setTagModalOpen] = useState(false);
-
-  // Add new state for sorting
-  const [sortConfig, setSortConfig] = useState<{
-    key: "title" | "dateCreated" | "lastModified";
-    direction: "asc" | "desc";
-  }>({ key: "title", direction: "asc" });
-
-  // Add new state for selected templates
-  const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
-
-  // Add new states for tags
-
-  // Add new state for suggestions  // Add new state for suggestions
-  const [showSuggestions, setShowSuggestions] = useState(false);
-
-  // declared before, so it's initialized for the modal initial state. memoized for performance
-  const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
-  );
-  // object containing related modal state
-  const [modal, setModal] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-    choices: [] as { label: string; action: () => void }[],
-  });
-
-  const closePopUp = useCallback(
-    () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
-    []
-  );
-
-  const [popUp, setPopUp] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-  });
-
-  const { fetchData: deleteTemplate } = useFetch(
-    `/templates/byKey/${deletingTemplate?.key}`,
-    {
-      method: "DELETE",
-    }
-  );
-
-  const { fetchData: postTemplate } = useFetch("/templates", {
-    method: "POST",
-    body: JSON.stringify(newTemplate), // use latest rubric data
-  });
-
-  const handleSubmitTemplate = () => {
-    void (async () => {
-      try {
-        setIsEditModalOpen(false);
-        const response = await postTemplate();
-
-        if (response.success) {
-          // The templates will be automatically updated through the context
-          // No need to fetch again
-          console.log("Template submitted successfully");
-        } else {
-          console.error("Template submission failed:", response);
-        }
-      } catch (error) {
-        console.error("Error submitting template:", error);
-      }
-    })();
-  };
-
-  const handleQuickStart = () => {
-    console.log("handleQuickStart", templates);
-  };
-
-  const handleCreateTemplate = () => {
-    const newTemplate = createTemplate();
-    const currentDate = new Date();
-    newTemplate.createdAt = currentDate;
-    newTemplate.lastUsed = "Never";
-    setTemplates([...templates, newTemplate]);
-    setNewTemplate(newTemplate);
-    setIsEditModalOpen(true);
-  };
-
-  const handleDuplicateTemplate = (template: Template) => {
-    const duplicatedTemplate = { ...template, key: crypto.randomUUID() };
-    setTemplates([...templates, duplicatedTemplate]);
-  };
-
-  const handleUpdateSelectedTemplates = (templateKeys: string[]) => {
-    setSelectedTemplates(templateKeys);
-  };
-
-  const handleBulkDelete = () => {
-    console.log("selectedTemplates in handleBulkDelete", selectedTemplates);
-    setModal({
-      isOpen: true,
-      title: "Confirm Bulk Delete",
-      message: `Are you sure you want to delete ${selectedTemplates.length} templates? This action cannot be undone.`,
-      choices: [
-        {
-          label: "Delete All Selected",
-          action: () => {
-            void (async () => {
-              try {
-                // Delete each selected template
-                for (const templateKey of selectedTemplates) {
-                  setDeletingTemplate(
-                    templates.find((t) => t.key === templateKey) as Template
-                  );
-                  const response = await deleteTemplate();
-                  if (response.success) {
-                    const newTemplates = templates.filter(
-                      (t) => t.key !== templateKey
-                    );
-                    setTemplates(newTemplates);
-                  }
-                  console.log("delete response", response);
-                }
-                // Refresh templates list
-                closeModal();
-              } catch (error) {
-                console.error("Error during bulk delete:", error);
-              }
-            })();
-          },
-        },
-        {
-          label: "Cancel",
-          action: closeModal,
-        },
-      ],
-    });
-  };
-
-  // Add tag modal component
-  const renderTagModal = () => {
-    return (
-      <>
-        {/* <TemplateTagModal
-          isOpen={tagModalOpen}
-          onClose={() => setTagModalOpen(false)}
-          setAvailableTags={setAvailableTags}
-        /> */}
-      </>
-    );
-  };
-
-  // Add this function before the renderTemplatesContent
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    // The TemplatesWindow component already handles the filtering based on searchQuery,
-    // so we just need to update the searchQuery state
-  };
-
-  /**
-   * Helper function to consolidate conditional rendering in the JSX.
-   */
-
-  // Add click outside handler to close suggestions
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!(event.target as Element).closest(".search-container")) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   return (
     <>
       {isEditModalOpen && (
@@ -233,19 +41,8 @@ export default function TemplatesMain(): ReactElement {
           onClose={() => setIsEditModalOpen(false)}
           children={
             <TemplateCard
-              index={templates.length}
-              isNewTemplate={true}
-              templateFocused={focusedTemplateKey === newTemplate?.key}
-              onTemplateFocusedToggle={() =>
-                setFocusedTemplateKey(
-                  focusedTemplateKey === newTemplate?.key
-                    ? null
-                    : newTemplate?.key || null
-                )
-              }
-              isSelected={selectedTemplates.includes(newTemplate?.key || "")}
-              viewOrEdit="edit"
               template={newTemplate as Template}
+              viewOrEdit="edit"
             />
           }
         />

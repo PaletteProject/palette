@@ -1,41 +1,26 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import TemplateCard from "../templatesPage/TemplateCards.tsx";
 import { Template } from "palette-types";
 import TemplateManagementControls from "./TemplateManagementControls.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
-import { useFetch } from "src/hooks/useFetch.ts";
-
+import TemplateSorter from "./TemplateSorter.tsx";
 const TemplatesWindow = () => {
   const {
     templates,
-    setTemplates,
     selectedTemplates,
     setSelectedTemplates,
-    focusedTemplateKey,
-    setFocusedTemplateKey,
-    handleSubmitTemplate,
-    handleDuplicateTemplate,
     searchQuery,
     selectedTagFilters,
     sortConfig,
-    setSortConfig,
     layoutStyle,
-    setLayoutStyle,
     showBulkActions,
     setShowBulkActions,
     selectAll,
     setSelectAll,
-    handleRemoveTemplate,
-    handleUpdateTemplate,
-    setDeletingTemplate,
-    modal,
+    setDeletingTemplates,
     closeModal,
     setModal,
   } = useTemplatesContext();
-
-  const handleToggleBulkActions = () => {
-    setShowBulkActions(!showBulkActions);
-  };
 
   const handleSelectAll = () => {
     const newSelectAll = !selectAll;
@@ -62,28 +47,12 @@ const TemplatesWindow = () => {
         {
           label: "Delete All Selected",
           action: () => {
-            void (async () => {
-              try {
-                // Delete each selected template
-                for (const templateKey of selectedTemplates) {
-                  setDeletingTemplate(
-                    templates.find((t) => t.key === templateKey) as Template
-                  );
-                  // const response = await deleteTemplate();
-                  // if (response.success) {
-                  //   const newTemplates = templates.filter(
-                  //     (t) => t.key !== templateKey
-                  //   );
-                  //   setTemplates(newTemplates);
-                  // }
-                  // console.log("delete response", response);
-                }
-                // Refresh templates list
-                closeModal();
-              } catch (error) {
-                console.error("Error during bulk delete:", error);
-              }
-            })();
+            setDeletingTemplates(
+              selectedTemplates.map(
+                (key) => templates.find((t) => t.key === key) as Template
+              )
+            );
+            closeModal();
           },
         },
         {
@@ -190,13 +159,6 @@ const TemplatesWindow = () => {
       });
   }, [templates, searchQuery, selectedTagFilters, sortConfig]);
 
-  const getOriginalIndex = useCallback(
-    (template: Template) => {
-      return templates.findIndex((t) => t.key === template.key);
-    },
-    [templates]
-  );
-
   const handleSelectTemplateBulkActions = (templateKey: string) => {
     console.log("Current selected:", selectedTemplates);
     console.log("Toggling template:", templateKey);
@@ -246,19 +208,7 @@ const TemplatesWindow = () => {
                     className="h-4 w-4"
                   />
                 )}
-                <TemplateCard
-                  index={getOriginalIndex(template)}
-                  isNewTemplate={false}
-                  templateFocused={focusedTemplateKey === template.key}
-                  onTemplateFocusedToggle={() =>
-                    setFocusedTemplateKey(
-                      focusedTemplateKey === template.key ? null : template.key
-                    )
-                  }
-                  isSelected={selectedTemplates.includes(template.key)}
-                  viewOrEdit="view"
-                  template={template}
-                />
+                <TemplateCard viewOrEdit="view" template={template} />
               </div>
             </div>
           ))
@@ -270,17 +220,14 @@ const TemplatesWindow = () => {
       </div>
     );
   };
+
   return (
     <div className="flex flex-col">
       <div className="flex justify-between mb-4">
         <div>{showBulkActions && renderBulkActions()}</div>
         <div className="ml-auto flex items-center gap-4">
-          <TemplateManagementControls
-            layoutStyle={layoutStyle}
-            applyLayoutStyle={setLayoutStyle}
-            showBulkActions={showBulkActions}
-            toggleBulkActions={handleToggleBulkActions}
-          />
+          <TemplateManagementControls />
+          <TemplateSorter />
         </div>
       </div>
       {renderAllTemplates()}
