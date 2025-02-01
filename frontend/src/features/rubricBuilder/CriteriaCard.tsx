@@ -12,7 +12,7 @@ import { Criteria, Rating } from "palette-types";
 import { createRating } from "@utils";
 import { RatingCard } from "./RatingCard.tsx";
 import TemplateSetter from "./templates/TemplateSetter.tsx";
-import { Dialog } from "@components";
+import { Dialog, PaletteActionButton } from "@components";
 import { motion } from "framer-motion";
 
 export default function CriteriaCard({
@@ -59,19 +59,6 @@ export default function CriteriaCard({
     const newCriterion = { ...criterion, points: maxRating };
     handleCriteriaUpdate(index, newCriterion);
   }, [ratings]);
-
-  /**
-   * useEffect hook to ghost the add ratings button when 4 ratings are rendered.
-   *
-   * Related button styles and state.
-   */
-  const addButtonActiveStyle =
-    "transition-all ease-in-out duration-300 bg-violet-600 text-white font-bold rounded-lg px-4" +
-    " py-2 justify-self-end hover:bg-violet-700 focus:ring-2 focus:ring-violet-500 focus:outline-none";
-
-  const addButtonInactiveStyle =
-    "transition-all ease-in-out duration-300 bg-violet-200 text-violet-600 font-bold rounded-lg px-4" +
-    " py-2 justify-self-end hover:bg-violet-300 focus:ring-2 focus:ring-violet-500 focus:outline-none opacity-50 cursor-not-allowed";
 
   /**
    * Criteria change functionality.
@@ -260,67 +247,45 @@ export default function CriteriaCard({
           {renderRatingOptions()}
         </motion.div>
 
-        <div className={"flex gap-3 items-end justify-between"}>
-          <div className="flex gap-3">
-            <button
-              onPointerDown={(event: ReactMouseEvent<HTMLButtonElement>) =>
-                handleRemoveCriteriaButton(event, index)
-              }
-              className={
-                "transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-4" +
-                " py-2 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:outline-none"
-              }
-              type={"button"}
-            >
-              Remove
-            </button>
-            <button
-              className={
-                "transition-all ease-in-out duration-300 bg-amber-600 text-white font-bold rounded-lg px-4" +
-                " py-2 hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none"
-              }
-              onPointerDown={() => {
-                setActiveCriterionIndex(-1); // setting the index to -1 will ensure the current criteria will
-                // condense and another one won't open
-              }}
-              type={"button"}
-            >
-              Collapse
-            </button>
-            <button
-              className={
-                "transition-all ease-in-out duration-300 bg-slate-600 rounded-full px-2" +
-                " py-2 hover:bg-slate-700 focus:ring-2 focus:ring-slate-500 focus:outline-none"
-              }
-              onClick={handleTemplateSetterPress}
-              type={"button"}
-            >
-              +
-            </button>
-            <button
-              className={addButtonActiveStyle}
-              onClick={(event: ReactMouseEvent<HTMLButtonElement>) =>
-                handleAddRating(event, index)
-              }
-              type={"button"}
-            >
-              Add Rating
-            </button>
+        <div className="flex gap-2 items-center justify-center">
+          <PaletteActionButton
+            color={"PURPLE"}
+            onClick={(event) => handleAddRating(event, index)}
+            title={"Add Rating"}
+          />
 
-            <Dialog
-              isOpen={templateSetterActive}
-              onClose={() => setTemplateSetterActive(false)}
-              title={
-                "Add common criteria to a Template for faster building in the future!"
-              }
-            >
-              {renderTemplateSetter()}
-            </Dialog>
-          </div>
-          <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
-            Max Points: {maxPoints}
-          </p>
+          <PaletteActionButton
+            color={"YELLOW"}
+            onPointerDown={() => setActiveCriterionIndex(-1)}
+            title={"Collapse Card"}
+          />
+
+          <PaletteActionButton
+            color={"RED"}
+            onPointerDown={(event: ReactMouseEvent<HTMLButtonElement>) =>
+              handleRemoveCriteriaButton(event, index)
+            }
+            title={"Remove Criterion"}
+          />
+
+          <PaletteActionButton
+            color={"BLUE"}
+            onClick={handleTemplateSetterPress}
+            title={"Add Template"}
+          />
+          <Dialog
+            isOpen={templateSetterActive}
+            onClose={() => setTemplateSetterActive(false)}
+            title={
+              "Add common criteria to a Template for faster building in the future!"
+            }
+          >
+            {renderTemplateSetter()}
+          </Dialog>
         </div>
+        <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
+          Max Points: {maxPoints}
+        </p>
       </div>
     );
   };

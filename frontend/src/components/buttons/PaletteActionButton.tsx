@@ -5,7 +5,11 @@ type ActionButtonProps = {
    * The function to call when the button is clicked.
    * It can either take a `React.MouseEvent` as a parameter or no parameters.
    */
-  onClick:
+  onClick?:
+    | ((event: React.MouseEvent<HTMLButtonElement>) => void)
+    | (() => void);
+
+  onPointerDown?:
     | ((event: React.MouseEvent<HTMLButtonElement>) => void)
     | (() => void);
 
@@ -17,7 +21,7 @@ type ActionButtonProps = {
   /**
    * The button color theme.
    */
-  color: "GREEN" | "RED" | "BLUE" | "YELLOW";
+  color: "GREEN" | "RED" | "BLUE" | "YELLOW" | "PURPLE";
 };
 
 /**
@@ -28,6 +32,7 @@ type ActionButtonProps = {
  */
 export const PaletteActionButton: React.FC<ActionButtonProps> = ({
   onClick,
+  onPointerDown,
   title = "Save",
   color,
 }: ActionButtonProps): ReactElement => {
@@ -52,6 +57,11 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
       hover: "hover:bg-yellow-700",
       focus: "focus:ring-yellow-500",
     },
+    PURPLE: {
+      bg: "bg-purple-600",
+      hover: "hover:bg-purple-700",
+      focus: "focus:ring-purple-500",
+    },
   }[color];
 
   return (
@@ -61,6 +71,7 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
         text-white font-bold rounded-lg py-2 px-4 
         hover:scale-105 focus:outline-none focus:ring-2 ${colorStyles.focus}`}
       onClick={onClick}
+      onPointerDown={onPointerDown}
       type="button"
       title={title}
       aria-label={title}
