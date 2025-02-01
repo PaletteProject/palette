@@ -1,6 +1,6 @@
 [
   {
-    "title": "Quick Start Template",
+    "title": "sfdasdsf",
     "criteria": [
       {
         "ratings": [
@@ -8,53 +8,13 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "516d532d-7454-4fa4-9db3-99645d0b3cf5"
+            "key": "69655b3b-805f-4016-a620-185732ac0bfa"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "cc7d9c2c-5bd5-49fc-8e16-7d606f0a833a"
-          }
-        ],
-        "description": "This is a test description",
-        "longDescription": "This is a test long description",
-        "points": 0,
-        "id": 1,
-        "template": "c4bf6acb-c97a-4fc3-9dfc-63229ba6d3a4",
-        "templateTitle": "Quick Start Template",
-        "key": "eebce8fe-97a5-4be0-aea9-93edeffc6eaa"
-      }
-    ],
-    "key": "c4bf6acb-c97a-4fc3-9dfc-63229ba6d3a4",
-    "description": "",
-    "createdAt": "2025-01-31T15:43:10.937Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": [
-      {
-        "id": "bb48aa5f-c5d1-4e3a-ba06-c243dacda57f",
-        "name": "Quick Start",
-        "color": "#3B82F6"
-      }
-    ]
-  },
-  {
-    "title": "aa",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "09be2a42-c69f-4e48-87a6-1fadd7e883ec"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "981f257b-54b4-424b-8a29-cabedfb2693f"
+            "key": "b34a3cf1-a0a4-47dd-ad76-f8a78d3ad843"
           }
         ],
         "description": "",
@@ -62,238 +22,7 @@
         "points": 5,
         "template": "",
         "templateTitle": "",
-        "key": "fe86e38a-fa70-4095-8ddd-74f40aca9897"
-      }
-    ],
-    "key": "e8c914bc-db0d-4dc7-b6ef-3543770c2a13",
-    "description": "",
-    "createdAt": "2025-01-31T15:43:23.771Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "bb",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "266e088f-e8fd-4dcc-adc6-2d6ab3ee1e00"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "455eeaba-2831-4a37-80f3-07564c669f16"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "ee07e24c-6ea4-4f90-bd5c-8f25d40571fe"
-      }
-    ],
-    "key": "5e6361ad-7389-455d-9b8f-14098c2df622",
-    "description": "",
-    "createdAt": "2025-01-31T15:43:59.147Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "cc",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "d40552b7-ec59-4aaa-90fc-f1f17b2f8651"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "1e09de8f-9022-44f5-acf3-c83afa19db54"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "2cd8e8fd-5908-424f-b54a-ed8b1d1c3eeb"
-      }
-    ],
-    "key": "18e7b72f-9861-4848-9da0-8082516c8625",
-    "description": "",
-    "createdAt": "2025-02-01T00:34:12.227Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "dd",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "04b820db-f896-4e76-95d9-3ebb9f627637"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "f4ff493c-a454-493d-b5ba-5f301bf8679f"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "b3b46603-5f48-4a44-ac4b-2ca34f5a8354"
-      }
-    ],
-    "key": "95db2666-7eca-42b8-8c41-2714656d743f",
-    "description": "",
-    "createdAt": "2025-02-01T00:34:18.092Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "ee",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "eb92e558-af47-48ee-a7e7-af22483890b9"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "a0ee33ae-156f-4cb5-ba41-a0e9f95bcde4"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "0abf60ea-7b4b-49d8-9afb-f17e9c159c83"
-      }
-    ],
-    "key": "fc5eb8fc-463b-4b46-a99c-e87ef4e7f697",
-    "description": "",
-    "createdAt": "2025-02-01T00:34:21.903Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "ff",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "5b3f3c35-a2b2-4e5f-a6d4-10a793729563"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "745103c3-cb4d-4489-920f-7f15b62de432"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "ef09395f-0041-4b20-af07-37832d14916b"
-      }
-    ],
-    "key": "bf6c764a-c569-4295-8f02-d8545f8ca061",
-    "description": "",
-    "createdAt": "2025-02-01T00:34:31.143Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "gg",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "69bb4dd5-f188-4140-8273-8e3f2b15c9c9"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "d023b997-d670-4771-9fa4-ab68308eec24"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "fcdcb9bd-4a91-4366-b533-f7b091e4535c"
-      }
-    ],
-    "key": "c2a11527-9352-496f-8154-d43980197f8f",
-    "description": "",
-    "createdAt": "2025-02-01T00:34:37.923Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "zz",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "d0a52220-dd10-472d-9d34-403b68fc2425"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "c4f5d967-36d9-4cd2-8a83-1b84848e280c"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "67576bd1-5a8c-4d8d-b896-f2466c358c33"
+        "key": "94539e76-ecfb-4969-9888-2ca2e6bed12b"
       },
       {
         "ratings": [
@@ -301,13 +30,13 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "d394be08-22a2-4a48-9831-e84045b2ea45"
+            "key": "2516e150-b343-4796-b4f1-4acd242294ad"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "d4215494-477d-43c1-b43e-14b12d27c88e"
+            "key": "b897ff37-c3b8-47c0-a44d-15a88c65467c"
           }
         ],
         "description": "",
@@ -315,18 +44,18 @@
         "points": 5,
         "template": "",
         "templateTitle": "",
-        "key": "047a1b58-d162-49bf-b965-5163f2fc991f"
+        "key": "c58c5ae5-5039-4784-affc-3969a714f999"
       }
     ],
-    "key": "182ad5a5-da25-450b-a963-702dfbec2994",
+    "key": "13540884-2b14-4842-a9ae-4a915c6cea9f",
     "description": "",
-    "createdAt": "2025-02-01T00:42:19.510Z",
+    "createdAt": "2025-02-01T04:54:29.662Z",
     "lastUsed": null,
     "usageCount": 0,
     "tags": []
   },
   {
-    "title": "xxx",
+    "title": "fffffff",
     "criteria": [
       {
         "ratings": [
@@ -334,13 +63,13 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "acacbaf2-f8b0-422e-9447-5214181a21fb"
+            "key": "a462fb2f-3386-42a7-9f2c-6840b9f2da41"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "90851ef4-bcaf-4409-a08d-ca79def65da6"
+            "key": "8d3a3d3f-45a6-495f-a5e9-f858ad10d55b"
           }
         ],
         "description": "",
@@ -348,7 +77,7 @@
         "points": 5,
         "template": "",
         "templateTitle": "",
-        "key": "47d62426-3e5e-4012-a34d-418405d41302"
+        "key": "4b11b33a-a8a5-46c8-bac9-769ce950445f"
       },
       {
         "ratings": [
@@ -356,13 +85,13 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "da291606-1e13-4a06-9604-7f716c5a9a3c"
+            "key": "1e5edc78-ddf9-46e7-99e7-6cef8b9973f2"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "05b061f2-2fbe-42a0-aa46-1b1ae3dfd988"
+            "key": "20c3946c-c577-4de5-8d49-30fdba916492"
           }
         ],
         "description": "",
@@ -370,32 +99,21 @@
         "points": 5,
         "template": "",
         "templateTitle": "",
-        "key": "ab0c9ac4-0dbf-4dfa-ad7b-bd5fe511e188"
-      }
-    ],
-    "key": "87e30a09-cda8-4e78-890c-7d178d5b1f83",
-    "description": "",
-    "createdAt": "2025-02-01T00:42:53.228Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "dfg",
-    "criteria": [
+        "key": "e4af61b3-4acb-4c46-83a2-e93c87ebd690"
+      },
       {
         "ratings": [
           {
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "232fa71e-208b-404f-aeca-8cc2c900d6e7"
+            "key": "0e64a4bb-9fbc-4c5a-aee1-5b2310a84498"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "251bacf4-ef5f-4042-a91f-2e8cb74370b1"
+            "key": "b62cb94a-c134-4295-9047-70050cf0118f"
           }
         ],
         "description": "",
@@ -403,45 +121,12 @@
         "points": 5,
         "template": "",
         "templateTitle": "",
-        "key": "590c4306-5314-4c97-bc21-ea00e717f5b7"
+        "key": "ae298d4b-c66c-4ca5-855f-19c97d11111d"
       }
     ],
-    "key": "4402209e-19cf-491f-893f-9a73f19d1913",
+    "key": "da2fb2cd-9e6f-4233-a502-e653a7fea63d",
     "description": "",
-    "createdAt": "2025-02-01T02:19:46.974Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": []
-  },
-  {
-    "title": "sss",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "f0de9c5e-4bbc-4c94-91e1-26a234dbc707"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "ab4f9f09-c5f6-42e3-936e-83b05913c152"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "04c7cd7b-c0eb-4a46-9e83-0a79e1408ae5"
-      }
-    ],
-    "key": "a9102346-9c20-4d94-8f3b-da5c0cdc472f",
-    "description": "",
-    "createdAt": "2025-02-01T02:24:14.107Z",
+    "createdAt": "2025-02-01T04:54:39.688Z",
     "lastUsed": null,
     "usageCount": 0,
     "tags": []

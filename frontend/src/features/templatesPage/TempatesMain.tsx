@@ -15,10 +15,6 @@ import TemplateCard from "./TemplateCards.tsx";
 import { useFetch } from "@hooks";
 import { createTemplate } from "src/utils/templateFactory.ts";
 import TemplateTagModal from "src/components/modals/TemplateTagModal.tsx";
-import TemplateSearch from "./TemplateSearch.tsx";
-import AddTemplateTag from "./AddTemplateTag.tsx";
-import TemplatesWindow from "./TemplatesWindow.tsx";
-import TemplateSorter from "./TemplateSorter.tsx";
 import { createCriterion } from "../../utils/rubricFactory.ts";
 import { TemplateProvider } from "./TemplateContext.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
@@ -69,8 +65,6 @@ export default function TemplatesMain(): ReactElement {
   const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
 
   // Add new states for tags
-  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
-  const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([]);
 
   // Add new state for suggestions  // Add new state for suggestions
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -149,30 +143,6 @@ export default function TemplatesMain(): ReactElement {
     setTemplates([...templates, duplicatedTemplate]);
   };
 
-  const handleRemoveTemplate = (index: number) => {
-    if (!templates) return;
-
-    setModal({
-      isOpen: true,
-      title: "Confirm Template Removal",
-      message: `Are you sure you want to remove ${templates[index].title}? This action is (currently) not reversible.`,
-      choices: [
-        {
-          label: "Destroy it!",
-          action: () => {
-            setDeletingTemplate(templates[index]);
-            closeModal();
-          },
-        },
-      ],
-    });
-  };
-
-  const handleUpdateTemplate = (index: number, template: Template) => {
-    if (!template) return;
-    setNewTemplate(template);
-  };
-
   const handleUpdateSelectedTemplates = (templateKeys: string[]) => {
     setSelectedTemplates(templateKeys);
   };
@@ -222,11 +192,13 @@ export default function TemplatesMain(): ReactElement {
   // Add tag modal component
   const renderTagModal = () => {
     return (
-      <TemplateTagModal
-        isOpen={tagModalOpen}
-        onClose={() => setTagModalOpen(false)}
-        setAvailableTags={setAvailableTags}
-      />
+      <>
+        {/* <TemplateTagModal
+          isOpen={tagModalOpen}
+          onClose={() => setTagModalOpen(false)}
+          setAvailableTags={setAvailableTags}
+        /> */}
+      </>
     );
   };
 
@@ -262,12 +234,7 @@ export default function TemplatesMain(): ReactElement {
           children={
             <TemplateCard
               index={templates.length}
-              updateTemplateHandler={handleUpdateTemplate}
-              removeTemplate={handleRemoveTemplate}
               isNewTemplate={true}
-              submitTemplateHandler={handleSubmitTemplate}
-              existingTemplates={templates}
-              layoutStyle={"list"}
               templateFocused={focusedTemplateKey === newTemplate?.key}
               onTemplateFocusedToggle={() =>
                 setFocusedTemplateKey(
@@ -277,8 +244,8 @@ export default function TemplatesMain(): ReactElement {
                 )
               }
               isSelected={selectedTemplates.includes(newTemplate?.key || "")}
-              duplicateTemplate={handleDuplicateTemplate}
               viewOrEdit="edit"
+              template={newTemplate as Template}
             />
           }
         />

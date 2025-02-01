@@ -3,46 +3,35 @@ import TemplateCard from "../templatesPage/TemplateCards.tsx";
 import { Template } from "palette-types";
 import TemplateManagementControls from "./TemplateManagementControls.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
+import { useFetch } from "src/hooks/useFetch.ts";
 
-interface TemplatesWindowProps {
-  searchQuery: string;
-  selectedTemplates: string[];
-  focusedTemplateKey: string | null;
-  selectedTagFilters: string[];
-  handleUpdateTemplate: (index: number, template: Template) => void;
-  handleRemoveTemplate: (index: number) => void;
-  handleSubmitTemplate: () => void;
-  setSelectedTagFilters: (selectedTagFilters: string[]) => void;
-  setFocusedTemplateKey: (focusedTemplateKey: string | null) => void;
-  handleDuplicateTemplate: (template: Template) => void;
-  setSelectedTemplates: (templateKeys: string[]) => void;
-  bulkDeleteHandler: () => void;
-  sorter: React.ReactNode;
-  sortConfig: {
-    key: "title" | "dateCreated" | "lastModified";
-    direction: "asc" | "desc";
-  };
-}
-
-const TemplatesWindow = ({
-  searchQuery,
-  selectedTemplates,
-  focusedTemplateKey,
-  selectedTagFilters,
-  handleUpdateTemplate,
-  handleRemoveTemplate,
-  handleSubmitTemplate,
-  setFocusedTemplateKey,
-  handleDuplicateTemplate,
-  sortConfig,
-  setSelectedTemplates,
-  bulkDeleteHandler,
-  sorter,
-}: TemplatesWindowProps) => {
-  const { templates, setTemplates } = useTemplatesContext();
-  const [layoutStyle, setLayoutStyle] = useState<"list" | "grid">("list");
-  const [showBulkActions, setShowBulkActions] = useState(false);
-  const [selectAll, setSelectAll] = useState(false);
+const TemplatesWindow = () => {
+  const {
+    templates,
+    setTemplates,
+    selectedTemplates,
+    setSelectedTemplates,
+    focusedTemplateKey,
+    setFocusedTemplateKey,
+    handleSubmitTemplate,
+    handleDuplicateTemplate,
+    searchQuery,
+    selectedTagFilters,
+    sortConfig,
+    setSortConfig,
+    layoutStyle,
+    setLayoutStyle,
+    showBulkActions,
+    setShowBulkActions,
+    selectAll,
+    setSelectAll,
+    handleRemoveTemplate,
+    handleUpdateTemplate,
+    setDeletingTemplate,
+    modal,
+    closeModal,
+    setModal,
+  } = useTemplatesContext();
 
   const handleToggleBulkActions = () => {
     setShowBulkActions(!showBulkActions);
@@ -61,6 +50,48 @@ const TemplatesWindow = ({
       setSelectedTemplates([]);
     }
     setShowBulkActions(true);
+  };
+
+  const handleBulkDelete = () => {
+    console.log("selectedTemplates in handleBulkDelete", selectedTemplates);
+    setModal({
+      isOpen: true,
+      title: "Confirm Bulk Delete",
+      message: `Are you sure you want to delete ${selectedTemplates.length} templates? This action cannot be undone.`,
+      choices: [
+        {
+          label: "Delete All Selected",
+          action: () => {
+            void (async () => {
+              try {
+                // Delete each selected template
+                for (const templateKey of selectedTemplates) {
+                  setDeletingTemplate(
+                    templates.find((t) => t.key === templateKey) as Template
+                  );
+                  // const response = await deleteTemplate();
+                  // if (response.success) {
+                  //   const newTemplates = templates.filter(
+                  //     (t) => t.key !== templateKey
+                  //   );
+                  //   setTemplates(newTemplates);
+                  // }
+                  // console.log("delete response", response);
+                }
+                // Refresh templates list
+                closeModal();
+              } catch (error) {
+                console.error("Error during bulk delete:", error);
+              }
+            })();
+          },
+        },
+        {
+          label: "Cancel",
+          action: closeModal,
+        },
+      ],
+    });
   };
 
   const handleBulkExport = () => {
@@ -99,7 +130,7 @@ const TemplatesWindow = ({
             {selectedTemplates.length > 0 && (
               <>
                 <button
-                  onClick={bulkDeleteHandler}
+                  onClick={handleBulkDelete}
                   className="px-2 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center gap-2"
                 >
                   <i className="fas fa-trash-alt" />
@@ -217,12 +248,7 @@ const TemplatesWindow = ({
                 )}
                 <TemplateCard
                   index={getOriginalIndex(template)}
-                  updateTemplateHandler={handleUpdateTemplate}
-                  removeTemplate={handleRemoveTemplate}
                   isNewTemplate={false}
-                  submitTemplateHandler={handleSubmitTemplate}
-                  existingTemplates={templates}
-                  layoutStyle={layoutStyle}
                   templateFocused={focusedTemplateKey === template.key}
                   onTemplateFocusedToggle={() =>
                     setFocusedTemplateKey(
@@ -230,8 +256,8 @@ const TemplatesWindow = ({
                     )
                   }
                   isSelected={selectedTemplates.includes(template.key)}
-                  duplicateTemplate={handleDuplicateTemplate}
                   viewOrEdit="view"
+                  template={template}
                 />
               </div>
             </div>
@@ -255,7 +281,6 @@ const TemplatesWindow = ({
             showBulkActions={showBulkActions}
             toggleBulkActions={handleToggleBulkActions}
           />
-          {sorter}
         </div>
       </div>
       {renderAllTemplates()}

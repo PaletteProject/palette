@@ -10,9 +10,30 @@ import TemplateSorter from "src/features/templatesPage/TemplateSorter";
 import { createTemplate } from "src/utils/templateFactory";
 import { useEditModal } from "src/features/templatesPage/EditModalProvider";
 import TemplateCard from "src/features/templatesPage/TemplateCards";
+import { Template } from "palette-types";
 export function MainPageTemplate() {
-  const { templates, setTemplates, newTemplate, setNewTemplate } =
-    useTemplatesContext();
+  const {
+    templates,
+    setTemplates,
+    newTemplate,
+    setNewTemplate,
+    deletingTemplate,
+    setDeletingTemplate,
+    handleSubmitTemplate,
+    focusedTemplateKey,
+    setFocusedTemplateKey,
+    handleDuplicateTemplate,
+    selectedTemplates,
+    setSelectedTemplates,
+    searchQuery,
+    setSearchQuery,
+    showSuggestions,
+    setShowSuggestions,
+    selectedTagFilters,
+    setSelectedTagFilters,
+    handleRemoveTemplate,
+    handleUpdateTemplate,
+  } = useTemplatesContext();
   const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
   const [popUp, setPopUp] = useState({
     isOpen: false,
@@ -38,10 +59,13 @@ export function MainPageTemplate() {
   );
 
   const handleCreateTemplate = () => {
-    const newTemplate = createTemplate();
-    const currentDate = new Date();
-    newTemplate.createdAt = currentDate;
-    newTemplate.lastUsed = "Never";
+    const newTemplate = {
+      ...createTemplate(),
+      createdAt: new Date(),
+      lastUsed: "Never",
+      usageCount: 0,
+      key: crypto.randomUUID(),
+    };
     setTemplates([...templates, newTemplate]);
     setNewTemplate(newTemplate);
     setIsEditModalOpen(true);
@@ -64,10 +88,18 @@ export function MainPageTemplate() {
         </div>
 
         {/* Search Bar */}
+        <TemplateSearch
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          showSuggestions={showSuggestions}
+          setShowSuggestions={setShowSuggestions}
+          onSearch={setSearchQuery}
+        />
 
         {/* Add tag filters */}
 
         {/* Templates Container */}
+        <TemplatesWindow />
       </div>
     );
   };
@@ -135,13 +167,6 @@ export function MainPageTemplate() {
             "flex-grow overflow-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
           }
         >
-          {templates.length > 0 && (
-            <div className="flex flex-col gap-4">
-              {templates.map((template) => (
-                <div key={template.key}>{template.title}</div>
-              ))}
-            </div>
-          )}
           {renderContent()}
         </main>
       </div>
@@ -152,12 +177,7 @@ export function MainPageTemplate() {
           children={
             <TemplateCard
               index={templates.length}
-              updateTemplateHandler={handleUpdateTemplate}
-              removeTemplate={handleRemoveTemplate}
               isNewTemplate={true}
-              submitTemplateHandler={handleSubmitTemplate}
-              existingTemplates={templates}
-              layoutStyle={"list"}
               templateFocused={focusedTemplateKey === newTemplate?.key}
               onTemplateFocusedToggle={() =>
                 setFocusedTemplateKey(
@@ -167,8 +187,8 @@ export function MainPageTemplate() {
                 )
               }
               isSelected={selectedTemplates.includes(newTemplate?.key || "")}
-              duplicateTemplate={handleDuplicateTemplate}
               viewOrEdit="edit"
+              template={newTemplate as Template}
             />
           }
         />
