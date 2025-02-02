@@ -15,9 +15,11 @@ dist-ssr
 # env files
 *.env
 
-# sensitive files
+# local json files
 settings.json
 templates.json
+
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

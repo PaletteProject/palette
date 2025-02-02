@@ -21,9 +21,9 @@ describe("RubricCriterion", () => {
 
       expect(criterion.description).toBe("");
       expect(criterion.longDescription).toBe("");
-      expect(criterion.points).toBe(0);
+      expect(criterion.pointsPossible).toBe(0);
       expect(criterion.ratings).toHaveLength(2);
-      expect(criterion.id).toBeUndefined(); // criterion created on the frontend should not have an id yet
+      expect(criterion.id).toBe("");
       expect(criterion.key).toBe("test-uuid"); // Mocked UUID
     });
 
@@ -37,14 +37,14 @@ describe("RubricCriterion", () => {
         "Detailed description",
         15,
         mockRatings,
-        123,
+        "123",
       );
 
       expect(criterion.description).toBe("Criterion Title");
       expect(criterion.longDescription).toBe("Detailed description");
-      expect(criterion.points).toBe(15);
+      expect(criterion.pointsPossible).toBe(15);
       expect(criterion.ratings).toEqual(mockRatings);
-      expect(criterion.id).toBe(123);
+      expect(criterion.id).toBe("123");
       expect(criterion.key).toBe("test-uuid");
     });
   });
@@ -83,7 +83,7 @@ describe("RubricCriterion", () => {
       // Call updatePoints to update the points based on the ratings
       criterion.updatePoints();
 
-      expect(criterion.points).toBe(20); // Should be the maximum points in ratings
+      expect(criterion.pointsPossible).toBe(20); // Should be the maximum points in ratings
     });
   });
 });

@@ -10,7 +10,7 @@ export * from "./modals/Dialog.tsx";
 export * from "./layout/Navbar.tsx";
 export * from "../features/errorPages/NotFoundPage.tsx";
 export * from "./LoadingDots";
-export * from "./buttons/SaveButton.tsx";
+export * from "./buttons/PaletteActionButton.tsx";
 export * from "./contextSelectors/NoCourseSelected.tsx";
 export * from "./contextSelectors/NoAssignmentSelected.tsx";
 export * from "./layout/MainPageTemplate.tsx";

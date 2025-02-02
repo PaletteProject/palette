@@ -19,7 +19,10 @@ An interactive rubric builder and grading assistant tool to improve the group pr
 
 ## Requirements
 
-Palette runs in a Docker container, providing the necessary Node environment. Make sure you have the following installed:
+### Docker
+
+Palette runs in a Docker container, providing the necessary Node environment. Make sure you have the following
+installed:
 
 - **Docker**: [Install Docker](https://docs.docker.com/get-docker/)
 - **Docker Compose**: [Install Docker Compose](https://docs.docker.com/compose/install/)
@@ -30,6 +33,36 @@ Check your installations with:
 docker --version
 docker-compose --version
 ```
+
+### Canvas API Token
+
+A token is required to interact with the Canvas API.
+
+#### Generating a personal token:
+
+- Sign in to Canvas
+- On the left sidebar menu click the account widget
+- Click `Settings`
+- Scroll down to `Approved Integrations`
+- Select `+ New Access Token`
+- Label your token by filling in the `Purpose` field
+- Set an expiration date and/or time as desired, leave blank for no expiration.
+- Copy the full token before refreshing the page.
+
+#### Using your Canvas token with Palette:
+
+- In the top right of the application, click on the gray circle to open a drop-down menu
+- Select `Settings`
+- Paste your full Canvas API token into the `Token Input` field
+- Select `Update Settings`
+- Navigate to the `Builder` tab if you want to create or edit rubrics or the `Grading` tab to grade assignment
+  submissions.
+- Select your target course and assignment.
+- Have a blast!
+
+> [!IMPORTANT]
+> Your account must be authorized as a teacher or grader in order to perform most actions. Students can do certain
+> actions via the API but Palette does not support those at this time.
 
 ---
 
@@ -98,6 +131,12 @@ If you have [Node.js](https://nodejs.org/en) (version 18+) and [PostgreSQL](http
 
 ---
 
+## Usage
+
+Once up and running, you can interact with the application on http://localhost:5173.
+
+---
+
 ## Troubleshooting
 
 1. **Permissions Issues**  
@@ -120,7 +159,3 @@ If you have [Node.js](https://nodejs.org/en) (version 18+) and [PostgreSQL](http
    Verify port `5173` is free.
 
 ---
-
-## Usage
-
-Once up and running, you can interact with the application on http://localhost:5173. Check out the rubrics builder to add and manage grading rubrics directly within Canvas.

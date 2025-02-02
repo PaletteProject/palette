@@ -51,7 +51,8 @@ export const ModalChoiceDialog: React.FC<ModalChoiceDialogProps> = ({
           {choices.map((choice, index) => (
             <button
               key={index}
-              className={`py-2 px-4 rounded text-white ${
+              autoFocus={index === 0} // autofocus the first option
+              className={`py-2 px-4 rounded text-white focus:outline-0 focus:ring-4 focus:ring-blue-400 transform transition-transform focus:scale-105  ${
                 choice.variant === "secondary"
                   ? "bg-gray-500 hover:bg-gray-600"
                   : "bg-blue-600 hover:bg-blue-700"
@@ -62,7 +63,7 @@ export const ModalChoiceDialog: React.FC<ModalChoiceDialogProps> = ({
             </button>
           ))}
           <button
-            className="py-2 px-4 rounded bg-gray-500 hover:bg-gray-600 text-white"
+            className="py-2 px-4 rounded bg-gray-500 hover:bg-gray-600 focus:outline-0 focus:ring-4 focus:ring-gray-400 text-white transform transition-transform focus:scale-105 "
             onClick={onHide}
           >
             Cancel

@@ -5,7 +5,7 @@
 import { Criteria } from "./Criteria";
 
 export interface Rubric {
-  id?: number; // OPTIONAL: new rubrics will not have one assigned by Canvas
+  id: string;
   title: string;
   pointsPossible: number;
   key: string; // unique id for react

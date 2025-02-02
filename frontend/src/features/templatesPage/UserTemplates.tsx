@@ -17,7 +17,7 @@ import { Criteria, Rubric, Template } from "palette-types";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCourse } from "../../context";
 import { useAssignment } from "../../context/AssignmentProvider.tsx";
-import TemplateUpload from "../rubricBuilder/TemplateUpload.tsx";
+import TemplateUpload from "../rubricBuilder/templates/TemplateUpload.tsx";
 import TemplateCard from "./TemplateCards";
 import { useFetch } from "@hooks";
 

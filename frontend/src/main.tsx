@@ -17,7 +17,7 @@ import {
   RubricBuilderMain,
   SettingsMain,
 } from "@features";
-import { AssignmentProvider, CourseProvider } from "@context"; // Defined a "root" div in index.html that we pull in here and then call the React render method.
+import { AssignmentProvider, CourseProvider } from "@context";
 
 // Defined a "root" div in index.html that we pull in here and then call the React render method.
 createRoot(document.getElementById("root")!).render(
