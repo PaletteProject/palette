@@ -195,7 +195,7 @@ export default function TemplateCard({
     const isDuplicateName = templates.some(
       (t) =>
         t.title.toLowerCase() === template?.title.toLowerCase() &&
-        t.key !== template?.key
+        t.key !== template?.key,
     );
 
     if (isDuplicateName) {
