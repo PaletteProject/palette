@@ -298,7 +298,6 @@ export default function TemplateCard({
                 removeCriterion={handleRemoveCriterion}
                 setActiveCriterionIndex={setActiveCriterionIndex}
                 addingFromTemplateUI={true}
-                templateViewMode={viewOrEditClicked} // TODO: remove this
               />
             </motion.div>
           ))}
