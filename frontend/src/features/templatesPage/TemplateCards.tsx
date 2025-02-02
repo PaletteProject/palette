@@ -5,7 +5,7 @@ import {
   useState,
   ChangeEvent,
 } from "react";
-import CriteriaInput from "../rubricBuilder/CriteriaInput.tsx";
+import CriteriaCard from "../rubricBuilder/CriteriaCard.tsx";
 
 import {
   SortableContext,
@@ -279,7 +279,7 @@ export default function TemplateCard({
               transition={{ duration: 0.3 }} // Controls the duration of the animations
               className="my-1"
             >
-              <CriteriaInput
+              <CriteriaCard
                 index={index}
                 activeCriterionIndex={activeCriterionIndex}
                 criterion={criterion}

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Template } from "palette-types";
-import { useFetch } from "src/hooks/useFetch";
+import { useFetch } from "../../../hooks/useFetch.ts";
 
 interface TemplateUploadProps {
   closeImportCard: () => void; // callback to close the template import card

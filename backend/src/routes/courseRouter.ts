@@ -21,7 +21,10 @@ import {
   getRubric,
   updateRubric,
 } from "../controllers/rubricController.js";
-import { getSubmissions } from "../controllers/submissionController.js";
+import {
+  getSubmissions,
+  submitGrades,
+} from "../controllers/submissionController.js";
 
 const courseRouter = express.Router();
 
@@ -34,6 +37,14 @@ courseRouter.get(
   assignmentParamValidator,
   validationErrorHandler,
   getSubmissions,
+);
+
+courseRouter.put(
+  "/:course_id/assignments/:assignment_id/submissions/:student_id",
+  courseParamValidator,
+  assignmentParamValidator,
+  // todo: student id validator
+  submitGrades,
 );
 
 /**

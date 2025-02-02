@@ -20,7 +20,7 @@ const rubricValidator: ValidationChain[] = [
     .notEmpty()
     .withMessage("Each criterion must have a description"),
   body("criteria.*.longDescription").optional().isString(),
-  body("criteria.*.points")
+  body("criteria.*.pointsPossible")
     .isNumeric()
     .withMessage("Points field must be numeric"),
   body("criteria.*.ratings")

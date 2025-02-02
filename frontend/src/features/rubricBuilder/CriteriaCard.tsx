@@ -10,13 +10,13 @@ import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Rating } from "palette-types";
 import { createRating } from "@utils";
-import { RatingInput } from "./RatingInput";
-import TemplateSetter from "./TemplateSetter";
-import { Dialog } from "@components";
+import { RatingCard } from "./RatingCard.tsx";
+import TemplateSetter from "./templates/TemplateSetter.tsx";
+import { Dialog, PaletteActionButton } from "@components";
 import { motion } from "framer-motion";
 import { useTemplatesContext } from "src/features/templatesPage/TemplateContext";
 
-export default function CriteriaInput({
+export default function CriteriaCard({
   index,
   activeCriterionIndex,
   criterion,
@@ -67,19 +67,6 @@ export default function CriteriaInput({
   }, [ratings]);
 
   /**
-   * useEffect hook to ghost the add ratings button when 4 ratings are rendered.
-   *
-   * Related button styles and state.
-   */
-  const addButtonActiveStyle =
-    "transition-all ease-in-out duration-300 bg-violet-600 text-white font-bold rounded-lg px-4" +
-    " py-2 justify-self-end hover:bg-violet-700 focus:ring-2 focus:ring-violet-500 focus:outline-none";
-
-  const addButtonInactiveStyle =
-    "transition-all ease-in-out duration-300 bg-violet-200 text-violet-600 font-bold rounded-lg px-4" +
-    " py-2 justify-self-end hover:bg-violet-300 focus:ring-2 focus:ring-violet-500 focus:outline-none opacity-50 cursor-not-allowed";
-
-  /**
    * Criteria change functionality.
    */
 
@@ -128,7 +115,7 @@ export default function CriteriaInput({
   const renderRatingOptions = () => {
     return ratings.map((rating: Rating, ratingIndex: number) => {
       return (
-        <RatingInput
+        <RatingCard
           key={rating.key}
           ratingIndex={ratingIndex}
           rating={rating}
@@ -145,7 +132,6 @@ export default function CriteriaInput({
   ) => {
     event.preventDefault();
 
-    if (ratings.length >= 4) return; // limit max of 4 ratings to be added
     const updatedRatings = ratings.slice(0);
     updatedRatings.push(createRating(ratings.length));
     setRatings(updatedRatings);
@@ -235,26 +221,10 @@ export default function CriteriaInput({
   };
 
   const renderDetailedView = () => {
-    /**
-     * Dynamically change gap between rating cards based on how many are rendered simultaneously.
-     */
-    const calculateGap = () => {
-      switch (ratings.length) {
-        case 1:
-          return "";
-        case 2:
-          return "gap-3";
-        case 3:
-          return "gap-2";
-        case 4:
-          return "gap-1";
-      }
-    };
-
     return (
       <div
         className={
-          " grid  grid-rows-[1fr_5fr_1fr] shadow-xl p-6 rounded-lg w-full bg-gray-700"
+          " grid  grid-rows-[1fr_5fr_1fr] shadow-xl p-6 rounded-lg w-full bg-gray-700 "
         }
         onDoubleClick={(event) => {
           // check if the clicked target is the card itself to avoid messing with child elements
@@ -281,7 +251,11 @@ export default function CriteriaInput({
 
         <motion.div
           layout
-          className={`grid ${calculateGap()} grid-flow-col m-auto max-w-full`}
+          className={
+            "my-2 mx-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-64" +
+            " overflow-y-auto" +
+            " scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-2"
+          }
         >
           {renderRatingOptions()}
         </motion.div>
@@ -343,20 +317,38 @@ export default function CriteriaInput({
               </button>
             )}
 
-            <Dialog
-              isOpen={templateSetterActive}
-              onClose={() => setTemplateSetterActive(false)}
-              title={
-                "Add common criteria to a Template for faster building in the future!"
-              }
-            >
-              {renderTemplateSetter()}
-            </Dialog>
-          </div>
-          <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
-            Max Points: {maxPoints}
-          </p>
+          <PaletteActionButton
+            color={"YELLOW"}
+            onPointerDown={() => setActiveCriterionIndex(-1)}
+            title={"Collapse Card"}
+          />
+
+          <PaletteActionButton
+            color={"RED"}
+            onPointerDown={(event: ReactMouseEvent<HTMLButtonElement>) =>
+              handleRemoveCriteriaButton(event, index)
+            }
+            title={"Remove Criterion"}
+          />
+
+          <PaletteActionButton
+            color={"BLUE"}
+            onClick={handleTemplateSetterPress}
+            title={"Add Template"}
+          />
+          <Dialog
+            isOpen={templateSetterActive}
+            onClose={() => setTemplateSetterActive(false)}
+            title={
+              "Add common criteria to a Template for faster building in the future!"
+            }
+          >
+            {renderTemplateSetter()}
+          </Dialog>
         </div>
+        <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
+          Max Points: {maxPoints}
+        </p>
       </div>
     );
   };

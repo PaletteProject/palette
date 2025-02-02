@@ -5,7 +5,7 @@ import { CanvasCriterion } from "./CanvasCriterion";
 
 export interface CanvasRubric {
   // the ID of the rubric
-  id?: number;
+  id?: string;
 
   // the title of the rubric
   title: string; // REQUIRED

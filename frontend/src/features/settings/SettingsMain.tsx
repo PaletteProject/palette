@@ -1,6 +1,16 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Settings } from "palette-types";
+<<<<<<< HEAD
 import { LoadingDots, ModalChoiceDialog, SaveButton } from "@components";
+=======
+import {
+  Footer,
+  Header,
+  LoadingDots,
+  ModalChoiceDialog,
+  PaletteActionButton,
+} from "@components";
+>>>>>>> main
 import { useFetch } from "@hooks";
 
 export function SettingsMain(): ReactElement {
@@ -177,7 +187,11 @@ export function SettingsMain(): ReactElement {
           </div>
         </div>
 
-        <SaveButton title={"Settings"} onClick={() => void handleSave()} />
+        <PaletteActionButton
+          title={"Update Settings"}
+          onClick={() => void handleSave()}
+          color={"BLUE"}
+        />
       </form>
     );
   };

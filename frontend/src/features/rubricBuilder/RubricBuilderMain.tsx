@@ -12,8 +12,8 @@ import {
   useState,
 } from "react";
 
-import CriteriaInput from "./CriteriaInput";
-import TemplateUpload from "./TemplateUpload";
+import CriteriaInput from "./CriteriaCard.tsx";
+import TemplateUpload from "./templates/TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
 import {
@@ -22,9 +22,13 @@ import {
   ModalChoiceDialog,
   NoAssignmentSelected,
   NoCourseSelected,
+  PaletteActionButton,
   PopUp,
+<<<<<<< HEAD
   SaveButton,
   Navbar,
+=======
+>>>>>>> main
 } from "@components";
 
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
@@ -34,12 +38,11 @@ import {
 } from "@dnd-kit/sortable";
 
 import { useFetch } from "@hooks";
-import { CSVRow } from "@local_types";
 
-import { createCriterion, createRating, createRubric } from "@utils";
+import { createCriterion, createRubric } from "@utils";
 
 import { Criteria, PaletteAPIResponse, Rubric, Template } from "palette-types";
-import { CSVExport, CSVUpload } from "@features";
+import { CSVExport, CSVImport } from "@features";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAssignment, useCourse } from "@context";
 
@@ -57,8 +60,6 @@ export function RubricBuilderMain(): ReactElement {
 
   // active rubric being edited
   const [rubric, setRubric] = useState<Rubric>(getInitialRubric());
-  // csv import modal
-  const [fileInputActive, setFileInputActive] = useState(false);
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   // result of hook checking if active assignment has an existing rubric
@@ -81,6 +82,7 @@ export function RubricBuilderMain(): ReactElement {
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
     [],
   );
+
   // object containing related modal state
   const [modal, setModal] = useState({
     isOpen: false,
@@ -344,17 +346,6 @@ export function RubricBuilderMain(): ReactElement {
   };
 
   /**
-   * Generates a set of the current criteria descriptions stored within the component state to use for checking
-   * duplicate entries.
-   */
-  const buildCriteriaDescriptionSet = (clearedRubric: Rubric): Set<string> =>
-    new Set(
-      clearedRubric.criteria.map((criterion) =>
-        criterion.description.trim().toLowerCase(),
-      ),
-    );
-
-  /**
    * Calculate rubric max points whenever rubric criterion changes. Uses memoization to avoid re-rendering the
    * function everytime, improving performance.
    *
@@ -366,7 +357,9 @@ export function RubricBuilderMain(): ReactElement {
     return (
       rubric.criteria.reduce(
         (sum, criterion) =>
-          isNaN(criterion.points) ? sum : sum + criterion.points,
+          isNaN(criterion.pointsPossible)
+            ? sum
+            : sum + criterion.pointsPossible,
         0, // init sum to 0
       ) ?? 0 // fallback value if criterion is undefined
     );
@@ -425,56 +418,6 @@ export function RubricBuilderMain(): ReactElement {
     const newCriteria = [...rubric.criteria];
     newCriteria[index] = criterion; // update the criterion with changes;
     setRubric({ ...rubric, criteria: newCriteria }); // update rubric to have new criteria
-  };
-
-  /**
-   * CSV Import and Export Functionality
-   * @param data - parsed csv data
-   */
-
-  // Update state with the new CSV/XLSX data
-  const handleImportFile = (data: CSVRow[]) => {
-    if (!rubric) return;
-
-    const clearedRubric = { ...rubric, criteria: [] };
-    setRubric(clearedRubric);
-
-    const existingCriteriaDescriptions =
-      buildCriteriaDescriptionSet(clearedRubric);
-
-    const newCriteria = data
-      .slice(1)
-      .map((row) => {
-        if (typeof row[0] !== "string" || !row[0].trim()) return null;
-        if (existingCriteriaDescriptions.has(row[0].trim().toLowerCase()))
-          return null;
-
-        const criterion: Criteria = createCriterion(row[0], "", [], 0);
-        for (let i = 1; i < row.length; i += 2) {
-          const points = Number(row[i]);
-          const description = row[i + 1] as string;
-          if (description)
-            criterion.ratings.push(createRating(points, description));
-        }
-        criterion.updatePoints();
-        return criterion;
-      })
-      .filter(Boolean);
-
-    setRubric(
-      (prevRubric) =>
-        ({
-          ...(prevRubric ?? createRubric()),
-          criteria: [...(prevRubric?.criteria ?? []), ...newCriteria],
-        }) as Rubric,
-    );
-  };
-
-  const handleImportFilePress = (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    if (!fileInputActive) {
-      setFileInputActive(true);
-    }
   };
 
   const handleOpenTemplateImport = (event: MouseEvent<HTMLButtonElement>) => {
@@ -617,6 +560,29 @@ export function RubricBuilderMain(): ReactElement {
     if (!rubric) return;
     localStorage.setItem("rubric", JSON.stringify(rubric));
   }, [isCanvasBypassed, rubric]);
+
+  const deleteAllCriteria = () => {
+    const newCriteria: Criteria[] = []; // empty array to reset all criteria
+    setRubric({ ...rubric, criteria: newCriteria });
+  };
+
+  const removeAllCriteria = () => {
+    setModal({
+      isOpen: true,
+      title: "Clear All Criteria?",
+      message: "Are you sure you want to remove all criteria on the form?",
+      choices: [
+        {
+          label: "Purge Them All",
+          action: () => {
+            deleteAllCriteria();
+            closeModal();
+          },
+        },
+      ],
+    });
+  };
+
   /**
    * Helper function to wrap the builder JSX.
    */
@@ -625,22 +591,18 @@ export function RubricBuilderMain(): ReactElement {
 
     return (
       <form
-        className="h-full self-center grid p-10 w-full max-w-3xl my-6 gap-6 bg-gray-800 shadow-lg rounded-lg"
+        className="h-full self-center grid p-10 w-full max-w-3xl my-6 gap-4 bg-gray-800 shadow-lg rounded-lg"
         onSubmit={(event) => event.preventDefault()}
       >
         <h1 className="font-extrabold text-5xl mb-2 text-center">
-          Create a new rubric
+          Canvas Rubric Builder
         </h1>
         <div className="flex justify-between items-center">
-          <div className="flex gap-2">
-            <button
-              className="transition-all ease-in-out duration-300 bg-violet-600 text-white font-bold rounded-lg py-2 px-4 hover:bg-violet-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-500"
-              onClick={handleImportFilePress}
-              type={"button"}
-            >
-              Import CSV
-            </button>
+          {/* Import CSV */}
+          <div className={"flex gap-2 items-center"}>
+            <CSVImport rubric={rubric} setRubric={setRubric} />
 
+            {/* Export CSV */}
             <CSVExport rubric={rubric} />
             <button
               className="transition-all ease-in-out duration-300 bg-yellow-600 text-white font-bold rounded-lg py-2 px-4 hover:bg-yellow-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500"
@@ -666,23 +628,35 @@ export function RubricBuilderMain(): ReactElement {
           onChange={handleRubricTitleChange}
         />
 
-        <div className="mt-6 flex flex-col gap-3 h-[35vh] max-h-[50vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
+        <div className={"flex justify-end"}>
+          <PaletteActionButton
+            onClick={removeAllCriteria}
+            color={"RED"}
+            title={"Clear Form"}
+          />
+        </div>
+
+        <div
+          className="mt-6 grid gap-4
+    grid-cols-1
+    auto-rows-min
+    h-[40vh]
+    overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-2"
+        >
           {renderCriteriaCards()}
         </div>
 
         <div className="grid gap-4 mt-6">
-          <button
-            className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
-                     hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <PaletteActionButton
+            title={"Add Criteria"}
             onClick={handleAddCriteria}
-            type={"button"}
-          >
-            Add Criteria
-          </button>
+            color={"BLUE"}
+          />
 
-          <SaveButton
-            title={"Rubric"}
+          <PaletteActionButton
+            title={"Save Rubric"}
             onClick={(event) => void handleSubmitRubric(event)}
+            color={"GREEN"}
           />
         </div>
       </form>
@@ -749,18 +723,6 @@ export function RubricBuilderMain(): ReactElement {
           title={popUp.title}
           message={popUp.message}
         />
-
-        {/* CSV/XLSX Import Dialog */}
-        <Dialog
-          isOpen={fileInputActive}
-          onClose={() => setFileInputActive(false)}
-          title={"Import a CSV Template"}
-        >
-          <CSVUpload
-            onDataChange={(data: CSVRow[]) => handleImportFile(data)}
-            closeImportCard={() => setFileInputActive(false)}
-          />
-        </Dialog>
 
         {/* Template Import Dialog */}
         <Dialog

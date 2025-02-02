@@ -3,7 +3,7 @@
  */
 
 import { createRating } from "@utils";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest"; // Mock uuid to ensure predictable values
 
 // Mock uuid to ensure predictable values
 vi.mock("uuid", () => ({
@@ -18,7 +18,7 @@ describe("RubricRating", () => {
       expect(rating.points).toBe(0);
       expect(rating.description).toBe("");
       expect(rating.longDescription).toBe("");
-      expect(rating.id).toBeUndefined(); // rating created on frontend should not have id yet
+      expect(rating.id).toBe(""); // rating created on frontend should not have id yet
       expect(rating.key).toBe("test-uuid"); // mocked UUID
     });
 
@@ -27,13 +27,13 @@ describe("RubricRating", () => {
         10,
         "Test Rating",
         "Detailed description",
-        123,
+        "123",
       );
 
       expect(rating.points).toBe(10);
       expect(rating.description).toBe("Test Rating");
       expect(rating.longDescription).toBe("Detailed description");
-      expect(rating.id).toBe(123);
+      expect(rating.id).toBe("123");
       expect(rating.key).toBe("test-uuid");
     });
   });

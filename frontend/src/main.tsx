@@ -41,5 +41,5 @@ createRoot(document.getElementById("root")!).render(
         </Router>
       </AssignmentProvider>
     </CourseProvider>
-  </StrictMode>,
+  </StrictMode>
 );
