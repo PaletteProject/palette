@@ -37,7 +37,7 @@ export default function TemplateCard({
     closeModal,
     handleRemoveTemplate,
     templates,
-    handleSubmitTemplate,
+    handleSubmitNewTemplate,
     isNewTemplate,
     index,
     handleDuplicateTemplate,
@@ -49,36 +49,16 @@ export default function TemplateCard({
     focusedTemplateKey,
     setFocusedTemplateKey,
     setIsNewTemplate,
+    setShowBulkActions,
+    setTemplates,
+    handleSubmitEditedTemplate,
   } = useTemplatesContext();
   const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   const [tagModalOpen, setTagModalOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [isViewMode, setIsViewMode] = useState(false);
-
-  /**
-  /**
-   * Whenever ratings change, recalculate criterion's max points
-   */
-  // useEffect(() => {
-  //   if (!editingTemplate) return;
-  //   const calculatedMaxPoints =
-  //     editingTemplate?.criteria?.reduce((acc: number, criterion: Criteria) => {
-  //       return (
-  //         acc +
-  //         criterion.ratings.reduce(
-  //           (sum: number, rating: Rating) => sum + rating.points,
-  //           0
-  //         )
-  //       );
-  //     }, 0) || 0;
-  //   setLocalMaxPoints(calculatedMaxPoints);
-  // }, [editingTemplate, index, handleUpdateTemplate]);
-
-  // useEffect(() => {
-  //   setEditingTemplate(template);
-  // }, []);
+  const [viewOrEditClicked, setViewOrEditClicked] = useState(false);
 
   // update rubric state with new list of criteria
   const handleAddCriteria = (event: ReactMouseEvent<HTMLButtonElement>) => {
@@ -238,36 +218,53 @@ export default function TemplateCard({
       return;
     }
 
-    handleSubmitTemplate();
+    if (isNewTemplate) {
+      handleSubmitNewTemplate();
+    } else {
+      handleSubmitEditedTemplate();
+    }
     setIsEditModalOpen(false);
     setIsNewTemplate(false);
+    setShowBulkActions(false);
   };
 
   const handleCloseModal = () => {
-    // setNewTemplate(template); // Reset to original template
-    // setIsEditModalOpen(false);
+    setTemplates([]);
+    setViewOrEditClicked(false);
+    setIsEditModalOpen(false);
   };
   const handleViewModeToggle = () => {
-    console.log("viewing template", template);
+    console.log("viewing ", template);
     console.log("viewOrEdit", viewOrEdit);
     console.log("isNewTemplate", isNewTemplate);
     console.log("editingTemplate", editingTemplate);
     setViewOrEdit("view");
+    setEditingTemplate(template);
+    setViewOrEditClicked(true);
     setIsEditModalOpen(true);
   };
 
   const handleEditModeToggle = () => {
-    console.log("editing template", template);
+    console.log("editing ", template);
     console.log("viewOrEdit", viewOrEdit);
     console.log("isNewTemplate", isNewTemplate);
     console.log("editingTemplate", editingTemplate);
     setViewOrEdit("edit");
+    setEditingTemplate(template);
+    setViewOrEditClicked(true);
     setIsEditModalOpen(true);
   };
 
   const copyTemplate = () => {
     setDuplicateTemplate(template);
     handleDuplicateTemplate();
+  };
+
+  const setTitleDisplay = () => {
+    if (isNewTemplate || viewOrEditClicked) {
+      return editingTemplate?.title;
+    }
+    return template?.title;
   };
 
   const renderCriteriaCards = () => {
@@ -301,7 +298,7 @@ export default function TemplateCard({
                 removeCriterion={handleRemoveCriterion}
                 setActiveCriterionIndex={setActiveCriterionIndex}
                 addingFromTemplateUI={true}
-                templateViewMode={isViewMode}
+                templateViewMode={viewOrEditClicked} // TODO: remove this
               />
             </motion.div>
           ))}
@@ -332,6 +329,9 @@ export default function TemplateCard({
   };
 
   const renderDetailedView = () => {
+    console.log("rendering detailed view", isNewTemplate);
+    console.log("editingTemplate", editingTemplate?.title);
+    console.log("template", template?.title);
     return (
       <form
         className="h-full grid p-4 sm:p-6 w-full max-w-3xl my-3 gap-4 bg-gray-800 shadow-lg rounded-lg"
@@ -340,11 +340,7 @@ export default function TemplateCard({
         {viewOrEdit === "edit" ? (
           <input
             type="text"
-            value={
-              isNewTemplate
-                ? editingTemplate?.title || ""
-                : template?.title || ""
-            }
+            value={setTitleDisplay()}
             required={true}
             onChange={(e) => handleTitleChange(e)}
             className="rounded p-2 mb-2 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-lg truncate whitespace-nowrap"
@@ -501,7 +497,7 @@ export default function TemplateCard({
           choices={modal.choices}
         />
       )}
-      {(isNewTemplate || isEditModalOpen) && (
+      {(isNewTemplate || viewOrEditClicked) && (
         <EditTemplateModal
           isOpen={isEditModalOpen}
           onClose={handleCloseModal}

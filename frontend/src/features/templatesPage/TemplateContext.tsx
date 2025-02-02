@@ -19,7 +19,8 @@ interface TemplateContextType {
   setDeletingTemplate: (template: Template) => void;
   templates: Template[];
   setTemplates: (templates: Template[]) => void;
-  handleSubmitTemplate: () => void;
+  handleSubmitNewTemplate: () => void;
+  handleSubmitEditedTemplate: () => void;
   focusedTemplateKey: string | null;
   setFocusedTemplateKey: (key: string | null) => void;
   handleDuplicateTemplate: () => void;
@@ -84,7 +85,8 @@ const TemplatesContext = createContext<TemplateContextType>({
   setDeletingTemplate: () => {},
   templates: [],
   setTemplates: () => {},
-  handleSubmitTemplate: () => {},
+  handleSubmitNewTemplate: () => {},
+  handleSubmitEditedTemplate: () => {},
   focusedTemplateKey: null,
   setFocusedTemplateKey: () => {},
   handleQuickStart: () => {},
@@ -185,6 +187,11 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     body: JSON.stringify(editingTemplate), // use latest rubric data
   });
 
+  const { fetchData: putTemplate } = useFetch("/templates", {
+    method: "PUT",
+    body: JSON.stringify(editingTemplate),
+  });
+
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
     []
@@ -260,15 +267,16 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   }, [deletingTemplates]);
 
   const handleCreateTemplate = () => {
-    const newTemplate = createTemplate();
-    newTemplate.createdAt = new Date();
-    newTemplate.lastUsed = "Never";
-    newTemplate.usageCount = 0;
-    newTemplate.key = crypto.randomUUID();
-    setTemplates([...templates, newTemplate]);
-    setEditingTemplate(newTemplate);
+    const template = createTemplate();
+    template.createdAt = new Date();
+    template.lastUsed = "Nevercc";
+    template.usageCount = 23;
+    template.key = crypto.randomUUID();
+    setTemplates([...templates, template]);
+    setEditingTemplate(template);
+
     setViewOrEdit("edit");
-    setIndex(templates.length);
+    // setIndex(templates.length);
 
     setIsNewTemplate(true);
   };
@@ -316,10 +324,34 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     setTemplates(templates.map((t) => (t.key === template.key ? template : t)));
   };
 
-  const handleSubmitTemplate = () => {
+  const handleSubmitNewTemplate = () => {
     void (async () => {
       try {
         const response = await postTemplate();
+
+        if (response.success) {
+          // The templates will be automatically updated through the context
+          // No need to fetch again
+          console.log("Template submitted successfully");
+          const response = await getAllTemplates();
+          if (response.success) {
+            setTemplates(response.data as Template[]);
+          } else {
+            console.error("Failed to fetch templates:", response);
+          }
+        } else {
+          console.error("Template submission failed:", response);
+        }
+      } catch (error) {
+        console.error("Error submitting template:", error);
+      }
+    })();
+  };
+
+  const handleSubmitEditedTemplate = () => {
+    void (async () => {
+      try {
+        const response = await putTemplate();
 
         if (response.success) {
           // The templates will be automatically updated through the context
@@ -357,7 +389,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         deletingTemplates,
         setDeletingTemplates,
         setDeletingTemplate,
-        handleSubmitTemplate,
+        handleSubmitNewTemplate,
+        handleSubmitEditedTemplate,
         focusedTemplateKey,
         setFocusedTemplateKey,
         handleDuplicateTemplate,

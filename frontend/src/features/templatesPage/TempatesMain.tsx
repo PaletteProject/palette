@@ -35,13 +35,6 @@ export default function TemplatesMain(): ReactElement {
 
   return (
     <>
-      {/* {newTemplate && (
-        <EditTemplateModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          children={<TemplateCard template={newTemplate} />}
-        />
-      )} */}
       <EditModalProvider>
         <TemplateProvider>
           <MainPageTemplate />

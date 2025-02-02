@@ -70,6 +70,7 @@ const TemplatesWindow = () => {
         },
       ],
     });
+    setShowBulkActions(false);
   };
 
   const handleBulkExport = () => {
