@@ -54,5 +54,83 @@
     "usageCount": 0,
     "tags": [],
     "points": 10
+  },
+  {
+    "title": "asdfasdf",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "key": "70d4bc19-6f62-4a06-b7f9-38b661ab891a"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "key": "62b1522a-2aac-4fd9-ac35-ba5a38de5d28"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "points": 5,
+        "template": "",
+        "templateTitle": "",
+        "key": "2979d7ee-998a-4cd7-b627-6833f654f4d7"
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "key": "355b5034-00ba-45ae-89b3-f9160aa5d462"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "key": "6edd70b7-cabf-4bc1-8c89-2fe096018f99"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "points": 5,
+        "template": "",
+        "templateTitle": "",
+        "key": "f7d8e1a1-f40c-49cb-9e45-c27171183bc5"
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "key": "a6a8b5e8-c823-4546-9761-85594b834ba8"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "key": "f1d08373-b720-4ad9-b747-f4c0f4c6060d"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "points": 5,
+        "template": "",
+        "templateTitle": "",
+        "key": "545215b5-d81c-4f5f-a51f-4fd1fde4dcb9"
+      }
+    ],
+    "key": "7da59be2-6dbb-4bf5-acab-87d7a6e665ca",
+    "description": "",
+    "createdAt": "2025-02-02T01:14:01.044Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 15
   }
 ]

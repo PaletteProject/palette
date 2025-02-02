@@ -21,6 +21,7 @@ const template: Template = {
   lastUsed: new Date(),
   usageCount: 0,
   tags: [] as Tag[],
+  points: 5,
   criteria: [
     {
       ratings: [
@@ -81,7 +82,7 @@ describe("Get Templates", () => {
 
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       "./templates.json",
-      JSON.stringify(defaultTemplates, null, 2),
+      JSON.stringify(defaultTemplates, null, 2)
     );
   });
 });
