@@ -23,7 +23,7 @@ export default function TemplatesMain(): ReactElement {
   quickStartTemplate.criteria[0].description = "This is a test description";
   quickStartTemplate.criteria[0].longDescription =
     "This is a test long description";
-  quickStartTemplate.criteria[0].id = 1;
+  quickStartTemplate.criteria[0].id = "crit1";
   quickStartTemplate.criteria[0].templateTitle = "Quick Start Template";
   quickStartTemplate.criteria[0].template = quickStartTemplate.key;
 

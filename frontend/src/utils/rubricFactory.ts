@@ -62,9 +62,9 @@ export function createRubric(
 export function createCriterion(
   description: string = "",
   longDescription: string = "",
+  points: number = 0,
   ratings: Rating[] = populateDefaultRatings(),
-  points: number = ratings.reduce((acc, rating) => acc + rating.points, 0),
-  id?: number,
+  id: string = "",
   template: string = "",
   templateTitle: string = ""
 ): Criteria {

@@ -1,8 +1,5 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Settings } from "palette-types";
-<<<<<<< HEAD
-import { LoadingDots, ModalChoiceDialog, SaveButton } from "@components";
-=======
 import {
   Footer,
   Header,
@@ -10,7 +7,6 @@ import {
   ModalChoiceDialog,
   PaletteActionButton,
 } from "@components";
->>>>>>> main
 import { useFetch } from "@hooks";
 
 export function SettingsMain(): ReactElement {

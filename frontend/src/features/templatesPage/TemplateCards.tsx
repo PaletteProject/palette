@@ -69,7 +69,10 @@ export default function TemplateCard({
     const updatedTemplate = {
       ...editingTemplate,
       criteria: newCriteria,
-      points: newCriteria.reduce((acc, criterion) => acc + criterion.points, 0),
+      points: newCriteria.reduce(
+        (acc, criterion) => acc + criterion.pointsPossible,
+        0
+      ),
     };
     console.log("updatedTemplate criteria", updatedTemplate.criteria);
     setEditingTemplate(updatedTemplate);
@@ -195,7 +198,7 @@ export default function TemplateCard({
     const isDuplicateName = templates.some(
       (t) =>
         t.title.toLowerCase() === template?.title.toLowerCase() &&
-        t.key !== template?.key,
+        t.key !== template?.key
     );
 
     if (isDuplicateName) {

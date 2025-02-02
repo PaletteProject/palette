@@ -11,7 +11,7 @@ import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Rating } from "palette-types";
 import { createRating } from "@utils";
 import { RatingCard } from "./RatingCard.tsx";
-import TemplateSetter from "./templates/TemplateSetter.tsx";
+// import TemplateSetter from "./templates/TemplateSetter.tsx";
 import { Dialog, PaletteActionButton } from "@components";
 import { motion } from "framer-motion";
 import { useTemplatesContext } from "src/features/templatesPage/TemplateContext";
@@ -38,7 +38,7 @@ export default function CriteriaCard({
   const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
   const [templateSetterActive, setTemplateSetterActive] = useState(false); // file input display is open or not
   const [criteriaDescription, setCriteriaDescription] = useState(
-    criterion.description || "",
+    criterion.description || ""
   );
 
   const [templateTitle, setTemplateTitle] = useState(criterion.template || "");
@@ -80,7 +80,7 @@ export default function CriteriaCard({
 
   const handleRemoveCriteriaButton = (
     event: ReactMouseEvent,
-    index: number,
+    index: number
   ) => {
     event.preventDefault();
     event.stopPropagation();
@@ -90,7 +90,7 @@ export default function CriteriaCard({
   // Update criterion when ratings change.
   const handleRatingChange = (ratingIndex: number, updatedRating: Rating) => {
     const updatedRatings = ratings.map((rating, index) =>
-      index === ratingIndex ? updatedRating : rating,
+      index === ratingIndex ? updatedRating : rating
     );
     setRatings(updatedRatings);
     criterion.ratings = updatedRatings;
@@ -128,7 +128,7 @@ export default function CriteriaCard({
 
   const handleAddRating = (
     event: ReactMouseEvent<HTMLButtonElement>,
-    index: number,
+    index: number
   ) => {
     event.preventDefault();
 
@@ -144,7 +144,7 @@ export default function CriteriaCard({
   };
 
   const handleTemplateSetterPress = (
-    event: ReactMouseEvent<HTMLButtonElement>,
+    event: ReactMouseEvent<HTMLButtonElement>
   ) => {
     event.preventDefault();
     if (!templateSetterActive) {
@@ -152,18 +152,18 @@ export default function CriteriaCard({
     }
   };
 
-  const renderTemplateSetter = () => {
-    //console.log("Test");
-    if (templateSetterActive) {
-      return (
-        <TemplateSetter
-          closeTemplateCard={handleCloseTemplateSetter}
-          handleSetTemplateTitle={handleSetTemplateTitle}
-          criterion={criterion}
-        />
-      );
-    }
-  };
+  // const renderTemplateSetter = (): ReactElement | null => {
+  //   if (templateSetterActive) {
+  //     return (
+  //       <TemplateSetter
+  //         closeTemplateCard={handleCloseTemplateSetter}
+  //         handleSetTemplateTitle={handleSetTemplateTitle}
+  //         criterion={criterion}
+  //       />
+  //     );
+  //   }
+  //   return null;
+  // };
 
   const handleCloseTemplateSetter = () => {
     setTemplateSetterActive(false); // hides the template setter
@@ -199,7 +199,7 @@ export default function CriteriaCard({
             <>
               <button
                 onPointerDown={(
-                  event: ReactMouseEvent, // Change to onPointerDown
+                  event: ReactMouseEvent // Change to onPointerDown
                 ) => handleRemoveCriteriaButton(event, index)}
                 type={"button"}
                 className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
@@ -234,20 +234,17 @@ export default function CriteriaCard({
         }}
       >
         {/* Card style and main grid layout for content*/}
-        {viewOrEdit == "edit" || currentPath == "/rubric-builder" ? (
-          <input
-            type="text"
-            placeholder={`Criteria ${index + 1} Description...`}
-            className="rounded-lg p-3 text-gray-300 border border-gray-600 bg-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-800"
-            value={criteriaDescription}
-            onChange={handleDescriptionChange}
-          />
-        ) : (
-          <div className="rounded-lg p-3 text-gray-300">
-            <h3 className="font-semibold">{criterion.template}</h3>
-            <p>{criteriaDescription}</p>
-          </div>
-        )}
+
+        <input
+          type="text"
+          placeholder={`Criteria ${index + 1} Description...`}
+          className={
+            "rounded-lg p-3 text-gray-300 border border-gray-600 bg-gray-500 focus:outline-none focus:ring-2" +
+            " focus:ring-blue-500 hover:bg-gray-800 mb-2"
+          }
+          value={criteriaDescription}
+          onChange={handleDescriptionChange}
+        />
 
         <motion.div
           layout
@@ -260,62 +257,12 @@ export default function CriteriaCard({
           {renderRatingOptions()}
         </motion.div>
 
-        <div className={"flex gap-3 items-end justify-between"}>
-          <div className="flex gap-3">
-            {(viewOrEdit == "edit" || currentPath == "/rubric-builder") && (
-              <button
-                onPointerDown={(event: ReactMouseEvent<HTMLButtonElement>) =>
-                  handleRemoveCriteriaButton(event, index)
-                }
-                className={
-                  "transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-4" +
-                  " py-2 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:outline-none"
-                }
-                type={"button"}
-              >
-                Remove
-              </button>
-            )}
-            <button
-              className={
-                "transition-all ease-in-out duration-300 bg-amber-600 text-white font-bold rounded-lg px-4" +
-                " py-2 hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none"
-              }
-              onPointerDown={() => {
-                setActiveCriterionIndex(-1);
-              }}
-              type={"button"}
-            >
-              Collapse
-            </button>
-            {!addingFromTemplateUI && (
-              <button
-                className={
-                  "transition-all ease-in-out duration-300 bg-slate-600 rounded-full px-2" +
-                  " py-2 hover:bg-slate-700 focus:ring-2 focus:ring-slate-500 focus:outline-none"
-                }
-                onClick={handleTemplateSetterPress}
-                type={"button"}
-              >
-                +
-              </button>
-            )}
-            {(viewOrEdit == "edit" || currentPath == "/rubric-builder") && (
-              <button
-                className={
-                  ratings.length < 4
-                    ? addButtonActiveStyle
-                    : addButtonInactiveStyle
-                }
-                onClick={(event: ReactMouseEvent<HTMLButtonElement>) =>
-                  handleAddRating(event, index)
-                }
-                type={"button"}
-                disabled={ratings.length >= 4}
-              >
-                Add Rating
-              </button>
-            )}
+        <div className="flex gap-2 items-center justify-center">
+          <PaletteActionButton
+            color={"PURPLE"}
+            onClick={(event) => handleAddRating(event, index)}
+            title={"Add Rating"}
+          />
 
           <PaletteActionButton
             color={"YELLOW"}
@@ -336,7 +283,7 @@ export default function CriteriaCard({
             onClick={handleTemplateSetterPress}
             title={"Add Template"}
           />
-          <Dialog
+          {/* <Dialog
             isOpen={templateSetterActive}
             onClose={() => setTemplateSetterActive(false)}
             title={
@@ -344,7 +291,7 @@ export default function CriteriaCard({
             }
           >
             {renderTemplateSetter()}
-          </Dialog>
+          </Dialog> */}
         </div>
         <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
           Max Points: {maxPoints}

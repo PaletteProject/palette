@@ -13,22 +13,19 @@ import {
 } from "react";
 
 import CriteriaInput from "./CriteriaCard.tsx";
-import TemplateUpload from "./templates/TemplateUpload.tsx";
+// import TemplateUpload from "./templates/TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
 import {
   Dialog,
+  Footer,
+  Header,
   LoadingDots,
   ModalChoiceDialog,
   NoAssignmentSelected,
   NoCourseSelected,
   PaletteActionButton,
   PopUp,
-<<<<<<< HEAD
-  SaveButton,
-  Navbar,
-=======
->>>>>>> main
 } from "@components";
 
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
@@ -72,7 +69,7 @@ export function RubricBuilderMain(): ReactElement {
   const [isCanvasBypassed, setIsCanvasBypassed] = useState(false);
 
   const [updatingTemplate, setUpdatingTemplate] = useState<Template | null>(
-    null,
+    null
   );
 
   const [templateInputActive, setTemplateInputActive] = useState(false);
@@ -80,7 +77,7 @@ export function RubricBuilderMain(): ReactElement {
   // declared before, so it's initialized for the modal initial state. memoized for performance
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   // object containing related modal state
@@ -93,7 +90,7 @@ export function RubricBuilderMain(): ReactElement {
 
   const closePopUp = useCallback(
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
-    [],
+    []
   );
 
   const [popUp, setPopUp] = useState({
@@ -116,7 +113,7 @@ export function RubricBuilderMain(): ReactElement {
 
   // GET rubric from the active assignment.
   const { fetchData: getRubric } = useFetch(
-    `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}`,
+    `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}`
   );
 
   useEffect(() => {
@@ -133,7 +130,7 @@ export function RubricBuilderMain(): ReactElement {
     {
       method: "PUT",
       body: JSON.stringify(rubric),
-    },
+    }
   );
 
   const { fetchData: postRubric } = useFetch(
@@ -141,7 +138,7 @@ export function RubricBuilderMain(): ReactElement {
     {
       method: "POST",
       body: JSON.stringify(rubric),
-    },
+    }
   );
 
   /* this is for updating the existing templates with most
@@ -255,18 +252,14 @@ export function RubricBuilderMain(): ReactElement {
     console.log("updating template criteria");
     console.log(rubric?.criteria);
     const criteriaOnATemplate: Criteria[] = [];
-    console.log("rubric criteria", rubric?.criteria);
     rubric?.criteria.forEach((criterion) => {
-      if (criterion.template !== "") {
-        console.log("criterion", criterion);
-        criteriaOnATemplate.push(criterion);
-      }
+      if (criterion.template !== "") criteriaOnATemplate.push(criterion);
     });
 
     const existingTemplates: Template[] = [];
     for (const criterion of criteriaOnATemplate) {
       const exitingTemplateIndex = existingTemplates.findIndex(
-        (template) => template.key === criterion.template,
+        (template) => template.key === criterion.template
       );
       if (exitingTemplateIndex === -1) {
         const template = createTemplate();
@@ -280,7 +273,6 @@ export function RubricBuilderMain(): ReactElement {
     console.log(existingTemplates);
 
     for (const template of existingTemplates) {
-      template.usageCount += 1;
       setUpdatingTemplate(template);
       const response = await putTemplate();
       console.log("response", response);
@@ -295,8 +287,7 @@ export function RubricBuilderMain(): ReactElement {
   const handleSubmitRubric = async (event: MouseEvent): Promise<void> => {
     event.preventDefault();
     console.log("submitting rubric");
-    const response = await handleUpdateAllTemplateCriteria();
-    console.log("template response", response);
+    await handleUpdateAllTemplateCriteria();
     if (!rubric || !activeCourse || !activeAssignment) return;
 
     setLoading(true);
@@ -339,9 +330,7 @@ export function RubricBuilderMain(): ReactElement {
   const handleRubricTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
     setRubric((prevRubric) =>
-      prevRubric
-        ? { ...prevRubric, title: event.target.value }
-        : createRubric(),
+      prevRubric ? { ...prevRubric, title: event.target.value } : createRubric()
     );
   };
 
@@ -360,7 +349,7 @@ export function RubricBuilderMain(): ReactElement {
           isNaN(criterion.pointsPossible)
             ? sum
             : sum + criterion.pointsPossible,
-        0, // init sum to 0
+        0 // init sum to 0
       ) ?? 0 // fallback value if criterion is undefined
     );
   }, [rubric?.criteria]);
@@ -435,10 +424,10 @@ export function RubricBuilderMain(): ReactElement {
     if (!rubric) return;
     if (event.over) {
       const oldIndex = rubric.criteria.findIndex(
-        (criterion) => criterion.key === event.active.id,
+        (criterion) => criterion.key === event.active.id
       );
       const newIndex = rubric.criteria.findIndex(
-        (criterion) => criterion.key === event.over!.id, // assert not null for type safety
+        (criterion) => criterion.key === event.over!.id // assert not null for type safety
       );
 
       const updatedCriteria = [...rubric.criteria];
@@ -456,8 +445,6 @@ export function RubricBuilderMain(): ReactElement {
     const currentCriteria = rubric.criteria;
     const newCriteria = template.criteria;
 
-    console.log("template", template);
-
     if (newCriteria.length === 0) {
       setPopUp({
         isOpen: true,
@@ -474,7 +461,7 @@ export function RubricBuilderMain(): ReactElement {
         const isDuplicate = currentCriteria.some(
           (existingCriterion) =>
             existingCriterion.key.trim().toLowerCase() ===
-            newCriterion.key.trim().toLowerCase(),
+            newCriterion.key.trim().toLowerCase()
         );
 
         if (isDuplicate) {
@@ -485,14 +472,14 @@ export function RubricBuilderMain(): ReactElement {
 
         return acc;
       },
-      { unique: [] as Criteria[], duplicates: [] as Criteria[] },
+      { unique: [] as Criteria[], duplicates: [] as Criteria[] }
     );
 
     // Log information about duplicates if any were found
     if (duplicates.length > 0) {
       console.log(
         `Found ${duplicates.length} duplicate criteria that were skipped:`,
-        duplicates.map((c) => c.description),
+        duplicates.map((c) => c.description)
       );
     }
 
@@ -501,7 +488,7 @@ export function RubricBuilderMain(): ReactElement {
         ({
           ...(prevRubric ?? createRubric()),
           criteria: [...(prevRubric?.criteria ?? []), ...unique],
-        }) as Rubric,
+        }) as Rubric
     );
   };
 
@@ -541,7 +528,7 @@ export function RubricBuilderMain(): ReactElement {
                 handleCriteriaUpdate={handleUpdateCriterion}
                 removeCriterion={handleRemoveCriterion}
                 setActiveCriterionIndex={setActiveCriterionIndex}
-                addingFromTemplateUI={false}
+                addingFromTemplateUI={true}
               />
             </motion.div>
           ))}
@@ -669,25 +656,15 @@ export function RubricBuilderMain(): ReactElement {
   const renderContent = () => {
     if (loading) return <LoadingDots />;
     if (isCanvasBypassed) return renderRubricBuilderForm();
-    if (!activeCourse)
-      return (
-        <div className="h-[calc(100vh-5rem)] flex items-center justify-center">
-          <NoCourseSelected />
-        </div>
-      );
-    if (!activeAssignment)
-      return (
-        <div className="h-[calc(100vh-5rem)] flex items-center justify-center">
-          <NoAssignmentSelected />
-        </div>
-      );
+    if (!activeCourse) return <NoCourseSelected />;
+    if (!activeAssignment) return <NoAssignmentSelected />;
 
     return renderRubricBuilderForm();
   };
 
   const renderBypassButton = () => {
     return (
-      <div className={"justify-self-center self-center mb-20"}>
+      <div className={"justify-self-center self-center"}>
         <button
           className={"text-2xl font-bold text-red-500"}
           type={"button"}
@@ -701,11 +678,10 @@ export function RubricBuilderMain(): ReactElement {
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <div className="min-h-screen h-auto flex flex-col w-full bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
-        <Navbar />
-        <div className="mt-20 flex items-center justify-center">
-          {renderContent()}
-        </div>
+      <div className="min-h-screen justify-between flex flex-col w-screen bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
+        {/* Sticky Header with Gradient */}
+        <Header />
+        {renderContent()}
         {!isCanvasBypassed && renderBypassButton()}
 
         {/* ModalChoiceDialog */}
@@ -724,7 +700,7 @@ export function RubricBuilderMain(): ReactElement {
           message={popUp.message}
         />
 
-        {/* Template Import Dialog */}
+        {/* Template Import Dialog
         <Dialog
           isOpen={templateInputActive}
           onClose={() => setTemplateInputActive(false)}
@@ -734,7 +710,10 @@ export function RubricBuilderMain(): ReactElement {
             closeImportCard={() => setTemplateInputActive(false)}
             onTemplateSelected={handleImportTemplate}
           />
-        </Dialog>
+        </Dialog> */}
+
+        {/* Sticky Footer with Gradient */}
+        <Footer />
       </div>
     </DndContext>
   );
