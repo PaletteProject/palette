@@ -110,5 +110,43 @@
     "usageCount": 0,
     "tags": [],
     "points": 5
+  },
+  {
+    "title": "adsfsf",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "d1503949-d9ca-4c0f-967e-f991184425d0"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "51fa7837-f130-483e-86f7-8af3d878e039"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 0,
+        "id": "",
+        "template": "06cd8969-f90a-4a0f-b800-45b50555a6b4",
+        "templateTitle": "",
+        "key": "743f477a-3beb-422b-8702-416c75110366",
+        "points": 5
+      }
+    ],
+    "key": "06cd8969-f90a-4a0f-b800-45b50555a6b4",
+    "description": "",
+    "createdAt": "2025-02-02T20:58:33.314Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 0
   }
 ]

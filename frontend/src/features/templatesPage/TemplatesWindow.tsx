@@ -231,7 +231,7 @@ const TemplatesWindow = () => {
       <div className="flex justify-between mb-4">
         <div>{showBulkActions && renderBulkActions()}</div>
         <div className="ml-auto flex items-center gap-4">
-          {/* <TemplateManagementControls /> */}
+          <TemplateManagementControls />
           <TemplateSorter />
         </div>
       </div>

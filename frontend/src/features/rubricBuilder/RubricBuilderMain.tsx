@@ -13,6 +13,7 @@ import {
 } from "react";
 
 import CriteriaInput from "./CriteriaCard.tsx";
+import TemplateUpload from "./TemplateUpload.tsx";
 // import TemplateUpload from "./templates/TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
@@ -700,7 +701,7 @@ export function RubricBuilderMain(): ReactElement {
           message={popUp.message}
         />
 
-        {/* Template Import Dialog
+        {/* Template Import Dialog */}
         <Dialog
           isOpen={templateInputActive}
           onClose={() => setTemplateInputActive(false)}
@@ -710,7 +711,7 @@ export function RubricBuilderMain(): ReactElement {
             closeImportCard={() => setTemplateInputActive(false)}
             onTemplateSelected={handleImportTemplate}
           />
-        </Dialog> */}
+        </Dialog>
 
         {/* Sticky Footer with Gradient */}
         <Footer />

@@ -11,7 +11,7 @@ import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Rating } from "palette-types";
 import { createRating } from "@utils";
 import { RatingCard } from "./RatingCard.tsx";
-// import TemplateSetter from "./templates/TemplateSetter.tsx";
+import TemplateSetter from "./TemplateSetter.tsx";
 import { Dialog, PaletteActionButton } from "@components";
 import { motion } from "framer-motion";
 import { useTemplatesContext } from "src/features/templatesPage/TemplateContext";
@@ -152,18 +152,18 @@ export default function CriteriaCard({
     }
   };
 
-  // const renderTemplateSetter = (): ReactElement | null => {
-  //   if (templateSetterActive) {
-  //     return (
-  //       <TemplateSetter
-  //         closeTemplateCard={handleCloseTemplateSetter}
-  //         handleSetTemplateTitle={handleSetTemplateTitle}
-  //         criterion={criterion}
-  //       />
-  //     );
-  //   }
-  //   return null;
-  // };
+  const renderTemplateSetter = (): ReactElement | null => {
+    if (templateSetterActive) {
+      return (
+        <TemplateSetter
+          closeTemplateCard={handleCloseTemplateSetter}
+          handleSetTemplateTitle={handleSetTemplateTitle}
+          criterion={criterion}
+        />
+      );
+    }
+    return null;
+  };
 
   const handleCloseTemplateSetter = () => {
     setTemplateSetterActive(false); // hides the template setter
@@ -283,7 +283,7 @@ export default function CriteriaCard({
             onClick={handleTemplateSetterPress}
             title={"Add Template"}
           />
-          {/* <Dialog
+          <Dialog
             isOpen={templateSetterActive}
             onClose={() => setTemplateSetterActive(false)}
             title={
@@ -291,7 +291,7 @@ export default function CriteriaCard({
             }
           >
             {renderTemplateSetter()}
-          </Dialog> */}
+          </Dialog>
         </div>
         <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
           Max Points: {maxPoints}

@@ -101,7 +101,6 @@ export function GradingMain(): ReactElement {
 
     return (
       <>
-        <Navbar />
         <div className={"grid h-full pt-[522px]"}>
           {loading && <LoadingDots />}
           {!activeCourse && <NoCourseSelected />}
