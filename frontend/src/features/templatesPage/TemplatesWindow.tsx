@@ -26,11 +26,6 @@ const TemplatesWindow = () => {
     console.log("templates window rendered");
   }, []);
 
-  const notifyWindowOnUpdate = (updatedTemplates: Template[]) => {
-    console.log("templates window notified");
-    console.log("updatedTemplates", updatedTemplates);
-  };
-
   const handleSelectAll = () => {
     const newSelectAll = !selectAll;
     setSelectAll(newSelectAll);
@@ -58,8 +53,8 @@ const TemplatesWindow = () => {
           action: () => {
             setDeletingTemplates(
               selectedTemplates.map(
-                (key) => templates.find((t) => t.key === key) as Template
-              )
+                (key) => templates.find((t) => t.key === key) as Template,
+              ),
             );
             closeModal();
           },
@@ -75,7 +70,7 @@ const TemplatesWindow = () => {
 
   const handleBulkExport = () => {
     const selectedTemplatesToExport = templates.filter((t) =>
-      selectedTemplates.includes(t.key)
+      selectedTemplates.includes(t.key),
     );
 
     const exportData = JSON.stringify(selectedTemplatesToExport, null, 2);
@@ -141,7 +136,7 @@ const TemplatesWindow = () => {
         const matchesTags =
           selectedTagFilters.length === 0 ||
           selectedTagFilters.every((tagId) =>
-            template.tags.some((tag) => tag.id === tagId)
+            template.tags.some((tag) => tag.id === tagId),
           );
         return matchesSearch && matchesTags;
       })
@@ -175,7 +170,7 @@ const TemplatesWindow = () => {
 
     if (selectedTemplates.includes(templateKey)) {
       const newSelected = selectedTemplates.filter(
-        (key) => key !== templateKey
+        (key) => key !== templateKey,
       );
       console.log("New selected after removal:", newSelected);
       setSelectedTemplates(newSelected);

@@ -13,7 +13,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
-import { Criteria, Rating, Tag, Template } from "palette-types";
+import { Criteria, Tag, Template } from "palette-types";
 import { createCriterion } from "@utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { EditTemplateModal, ModalChoiceDialog } from "@components";
@@ -28,8 +28,6 @@ export default function TemplateCard({
   template,
 }: TemplateCardProps): ReactElement {
   const {
-    newTemplate,
-    setNewTemplate,
     layoutStyle,
     setModal,
     modal,
@@ -199,7 +197,7 @@ export default function TemplateCard({
     const isDuplicateName = templates.some(
       (t) =>
         t.title.toLowerCase() === template?.title.toLowerCase() &&
-        t.key !== template?.key
+        t.key !== template?.key,
     );
 
     if (isDuplicateName) {

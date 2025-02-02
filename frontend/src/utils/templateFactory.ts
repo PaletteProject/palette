@@ -13,8 +13,8 @@ export function createTemplate(
   tags: Tag[] = [],
   points: number = criteria.reduce(
     (acc, criterion) => acc + criterion.points,
-    0
-  )
+    0,
+  ),
 ): Template {
   return {
     title,

@@ -28,6 +28,6 @@ export function EditTemplateModal({ children }: EditTemplateModalProps) {
         </button>
       </div>
     </div>,
-    document.getElementById("modal-portal") as HTMLElement // use the dialog portal root!
+    document.getElementById("modal-portal") as HTMLElement, // use the dialog portal root!
   );
 }

@@ -3,18 +3,12 @@
  */
 
 import { ReactElement } from "react";
-import { EditTemplateModal, MainPageTemplate } from "@components";
-import { Template } from "palette-types";
-import TemplateCard from "./TemplateCards.tsx";
+import { MainPageTemplate } from "@components";
 import { createTemplate } from "src/utils/templateFactory.ts";
 import { createCriterion } from "../../utils/rubricFactory.ts";
 import { TemplateProvider } from "./TemplateContext.tsx";
-import { useTemplatesContext } from "./TemplateContext.tsx";
 import { EditModalProvider } from "./EditModalProvider.tsx";
-import { useEditModal } from "./EditModalProvider.tsx";
 export default function TemplatesMain(): ReactElement {
-  const { newTemplate } = useTemplatesContext();
-  const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
   // quick start template for testing
   const quickStartTemplate = createTemplate();
   quickStartTemplate.title = "Quick Start Template";

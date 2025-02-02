@@ -9,16 +9,14 @@ import { useEditModal } from "src/features/templatesPage/EditModalProvider";
 export function MainPageTemplate() {
   const {
     templates,
-    newTemplate,
     searchQuery,
     setSearchQuery,
     showSuggestions,
     setShowSuggestions,
     handleCreateTemplate,
     handleQuickStart,
-    setIsNewTemplate,
   } = useTemplatesContext();
-  const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
+  const { setIsEditModalOpen } = useEditModal();
   const [popUp, setPopUp] = useState({
     isOpen: false,
     title: "",
@@ -34,12 +32,12 @@ export function MainPageTemplate() {
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
 
   const closePopUp = useCallback(
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
-    []
+    [],
   );
 
   const createTemplate = () => {
