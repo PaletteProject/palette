@@ -8,6 +8,7 @@ import { TemplateProvider, useTemplatesContext } from "./TemplateContext.tsx";
 import { EditModalProvider, useEditModal } from "./EditModalProvider.tsx";
 import TemplatesWindow from "./TemplatesWindow.tsx";
 import TemplateSearch from "./TemplateSearch.tsx";
+import AddTemplateTag from "./AddTemplateTag.tsx";
 
 export default function TemplatesMain(): ReactElement {
   return (
@@ -82,6 +83,7 @@ function TemplatesMainContent(): ReactElement {
         />
 
         {/* Add tag filters */}
+        <AddTemplateTag />
 
         {/* Templates Container */}
         <TemplatesWindow />

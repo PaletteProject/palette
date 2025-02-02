@@ -6,7 +6,7 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
-import { Template } from "palette-types";
+import { Tag, Template } from "palette-types";
 import { useFetch } from "src/hooks/useFetch";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
@@ -77,6 +77,10 @@ interface TemplateContextType {
   setEditingTemplate: (template: Template) => void;
   viewingTemplate: Template | null;
   setViewingTemplate: (template: Template) => void;
+  availableTags: Tag[];
+  setAvailableTags: (tags: Tag[]) => void;
+  tagModalOpen: boolean;
+  setTagModalOpen: (tagModalOpen: boolean) => void;
 }
 
 const TemplatesContext = createContext<TemplateContextType>({
@@ -103,6 +107,9 @@ const TemplatesContext = createContext<TemplateContextType>({
   selectedTagFilters: [],
   setSelectedTagFilters: () => {},
   handleCreateTemplate: () => {},
+  availableTags: [],
+  setAvailableTags: () => {},
+  setTagModalOpen: () => {},
   sortConfig: {
     key: "title",
     direction: "asc",
@@ -137,6 +144,7 @@ const TemplatesContext = createContext<TemplateContextType>({
   setEditingTemplate: () => {},
   viewingTemplate: null,
   setViewingTemplate: () => {},
+  tagModalOpen: false,
 });
 
 export function useTemplatesContext() {
@@ -147,6 +155,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
     null,
   );
+  const [tagModalOpen, setTagModalOpen] = useState(false);
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -175,6 +184,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [duplicateTemplate, setDuplicateTemplate] = useState<Template | null>(
     null,
   );
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [viewOrEdit, setViewOrEdit] = useState<"view" | "edit">("view");
   const { fetchData: getAllTemplates } = useFetch("/templates", {
     method: "GET",
@@ -441,6 +451,10 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         setEditingTemplate,
         viewingTemplate,
         setViewingTemplate,
+        availableTags,
+        setAvailableTags,
+        tagModalOpen,
+        setTagModalOpen,
       }}
     >
       {children}
