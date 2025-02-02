@@ -5,7 +5,6 @@ import { useAssignment, useCourse } from "@context";
 import {
   LoadingDots,
   MainPageTemplate,
-  Navbar,
   NoAssignmentSelected,
   NoCourseSelected,
 } from "@components";

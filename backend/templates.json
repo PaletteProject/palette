@@ -1,6 +1,6 @@
 [
   {
-    "title": "asdfasdfAAAA",
+    "title": "ndghn",
     "criteria": [
       {
         "ratings": [
@@ -8,145 +8,161 @@
             "points": 5,
             "description": "Well done",
             "longDescription": "",
-            "key": "70d4bc19-6f62-4a06-b7f9-38b661ab891a"
+            "id": "",
+            "key": "66e07e3b-547d-4fbe-90a2-80f5e6633ad8"
           },
           {
             "points": 0,
             "description": "Not included",
             "longDescription": "",
-            "key": "62b1522a-2aac-4fd9-ac35-ba5a38de5d28"
-          }
-        ],
-        "description": "a",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "2979d7ee-998a-4cd7-b627-6833f654f4d7"
-      },
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "355b5034-00ba-45ae-89b3-f9160aa5d462"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "6edd70b7-cabf-4bc1-8c89-2fe096018f99"
-          }
-        ],
-        "description": "b",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "f7d8e1a1-f40c-49cb-9e45-c27171183bc5"
-      },
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "a6a8b5e8-c823-4546-9761-85594b834ba8"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "f1d08373-b720-4ad9-b747-f4c0f4c6060d"
-          }
-        ],
-        "description": "c",
-        "longDescription": "",
-        "points": 5,
-        "template": "",
-        "templateTitle": "",
-        "key": "545215b5-d81c-4f5f-a51f-4fd1fde4dcb9"
-      }
-    ],
-    "key": "7da59be2-6dbb-4bf5-acab-87d7a6e665ca",
-    "description": "",
-    "createdAt": "2025-02-02T01:14:01.044Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": [],
-    "points": 15
-  },
-  {
-    "title": "A",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "key": "20818b1a-dce6-4a94-a15d-9381e257ccfb"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "key": "c7d7ea28-c681-4d8b-8cdf-0ef2eddc19f6"
+            "id": "",
+            "key": "073cc8fc-194f-46c1-8f5d-72659b01c285"
           }
         ],
         "description": "",
         "longDescription": "",
-        "points": 5,
-        "template": "4b08d5e2-2c39-471a-8c35-4571fdf1f779",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "c88ae20f-abea-4b8f-9d56-b9efb027a180",
         "templateTitle": "",
-        "key": "523ad36c-afaa-40fc-8c29-9ec36ce74291"
+        "key": "14e7a65e-95ac-4a80-b0b0-7c0fdc84f9f4",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "02a857ef-f084-400e-b646-bedf49e50c82"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "59a2f6aa-ab82-4636-83c0-3843e862e72a"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "c88ae20f-abea-4b8f-9d56-b9efb027a180",
+        "templateTitle": "",
+        "key": "3ec604cf-2ccf-4438-847e-61b064960b7e",
+        "points": 5
       }
     ],
-    "key": "4b08d5e2-2c39-471a-8c35-4571fdf1f779",
+    "key": "c88ae20f-abea-4b8f-9d56-b9efb027a180",
     "description": "",
-    "createdAt": "2025-02-02T02:27:41.012Z",
+    "createdAt": "2025-02-02T22:34:38.675Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 10
+  },
+  {
+    "title": "dfgsdfg",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "d97c6edd-45ab-4da7-beef-76e99ff9494e"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "6573c66c-4dd4-4edb-9a61-d7f04c2e3957"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "c9a5bf39-387e-4fb6-b996-c91db9b8cc2e",
+        "templateTitle": "",
+        "key": "d4c85755-ef08-47c5-bf9a-33022c412133",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "c20de1fa-178c-4a22-a574-60373eaa0304"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "44c62efd-4ef2-4b48-a1ec-ee92f6be1912"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "c9a5bf39-387e-4fb6-b996-c91db9b8cc2e",
+        "templateTitle": "",
+        "key": "b714b790-9d9c-4146-bfcf-6c8eb52eb485",
+        "points": 5
+      }
+    ],
+    "key": "c9a5bf39-387e-4fb6-b996-c91db9b8cc2e",
+    "description": "",
+    "createdAt": "2025-02-02T22:36:10.105Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 10
+  },
+  {
+    "title": "xyz",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "617743b2-7ff7-42d0-ac75-7ba4b16a7eaa"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "bc0d2d73-f4c8-47d9-a139-b7bdb0f71407"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "e9a0df2e-e5a9-4bf3-a28c-fc0a48193761",
+        "templateTitle": "",
+        "key": "386654ee-7499-4633-85f2-c2962567acb7",
+        "points": 5
+      }
+    ],
+    "key": "e9a0df2e-e5a9-4bf3-a28c-fc0a48193761",
+    "description": "",
+    "createdAt": "2025-02-02T22:36:21.617Z",
     "lastUsed": null,
     "usageCount": 0,
     "tags": [],
     "points": 5
-  },
-  {
-    "title": "adsfsf",
-    "criteria": [
-      {
-        "ratings": [
-          {
-            "points": 5,
-            "description": "Well done",
-            "longDescription": "",
-            "id": "",
-            "key": "d1503949-d9ca-4c0f-967e-f991184425d0"
-          },
-          {
-            "points": 0,
-            "description": "Not included",
-            "longDescription": "",
-            "id": "",
-            "key": "51fa7837-f130-483e-86f7-8af3d878e039"
-          }
-        ],
-        "description": "",
-        "longDescription": "",
-        "pointsPossible": 0,
-        "id": "",
-        "template": "06cd8969-f90a-4a0f-b800-45b50555a6b4",
-        "templateTitle": "",
-        "key": "743f477a-3beb-422b-8702-416c75110366",
-        "points": 5
-      }
-    ],
-    "key": "06cd8969-f90a-4a0f-b800-45b50555a6b4",
-    "description": "",
-    "createdAt": "2025-02-02T20:58:33.314Z",
-    "lastUsed": null,
-    "usageCount": 0,
-    "tags": [],
-    "points": 0
   }
 ]

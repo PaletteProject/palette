@@ -23,7 +23,7 @@ interface TemplateContextType {
   handleSubmitEditedTemplate: () => void;
   focusedTemplateKey: string | null;
   setFocusedTemplateKey: (key: string | null) => void;
-  handleDuplicateTemplate: () => void;
+  handleDuplicateTemplate: (key: string) => void;
   selectedTemplates: string[];
   setSelectedTemplates: (templates: string[]) => void;
   searchQuery: string;
@@ -61,19 +61,22 @@ interface TemplateContextType {
     choices: { label: string; action: () => void }[];
   }) => void;
   closeModal: () => void;
-  handleRemoveTemplate: (index: number) => void;
+  handleRemoveTemplate: (key: string) => void;
   handleUpdateTemplate: (index: number, template: Template) => void;
   handleQuickStart: () => void;
   isNewTemplate: boolean;
   setIsNewTemplate: (isNewTemplate: boolean) => void;
   index: number;
   setIndex: (index: number) => void;
+
   duplicateTemplate: Template | null;
   setDuplicateTemplate: (template: Template) => void;
   viewOrEdit: "view" | "edit";
   setViewOrEdit: (viewOrEdit: "view" | "edit") => void;
   editingTemplate: Template | null;
   setEditingTemplate: (template: Template) => void;
+  viewingTemplate: Template | null;
+  setViewingTemplate: (template: Template) => void;
 }
 
 const TemplatesContext = createContext<TemplateContextType>({
@@ -132,6 +135,8 @@ const TemplatesContext = createContext<TemplateContextType>({
   setViewOrEdit: () => {},
   editingTemplate: null,
   setEditingTemplate: () => {},
+  viewingTemplate: null,
+  setViewingTemplate: () => {},
 });
 
 export function useTemplatesContext() {
@@ -140,7 +145,7 @@ export function useTemplatesContext() {
 
 export function TemplateProvider({ children }: { children: ReactNode }) {
   const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
-    null
+    null,
   );
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
@@ -148,14 +153,14 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([]);
   const [newTemplate, setNewTemplate] = useState<Template | null>(
-    createTemplate()
+    createTemplate(),
   );
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(
-    createTemplate()
+    createTemplate(),
   );
   const [isNewTemplate, setIsNewTemplate] = useState(false);
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
-    null
+    null,
   );
   const [index, setIndex] = useState(0);
   const [deletingTemplates, setDeletingTemplates] = useState<Template[]>([]);
@@ -168,18 +173,20 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
   const [duplicateTemplate, setDuplicateTemplate] = useState<Template | null>(
-    null
+    null,
   );
   const [viewOrEdit, setViewOrEdit] = useState<"view" | "edit">("view");
   const { fetchData: getAllTemplates } = useFetch("/templates", {
     method: "GET",
   });
+  const [viewingTemplate, setViewingTemplate] = useState<Template | null>(null);
 
   const { fetchData: deleteTemplate } = useFetch(
     `/templates/byKey/${deletingTemplate?.key}`,
+
     {
       method: "DELETE",
-    }
+    },
   );
 
   const { fetchData: postTemplate } = useFetch("/templates", {
@@ -194,7 +201,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
   // object containing related modal state
   const [modal, setModal] = useState({
@@ -232,8 +239,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         if (response.success) {
           setTemplates(
             templates.filter(
-              (template) => template.key !== deletingTemplate.key
-            )
+              (template) => template.key !== deletingTemplate.key,
+            ),
           );
         }
       })();
@@ -269,20 +276,23 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const handleCreateTemplate = () => {
     const template = createTemplate();
     template.createdAt = new Date();
-    template.lastUsed = "Nevercc";
+    template.lastUsed = "Never";
     template.usageCount = 23;
     template.key = crypto.randomUUID();
     setTemplates([...templates, template]);
     setEditingTemplate(template);
-    console.log("template", template);
+    // console.log("template", template);
     setViewOrEdit("edit");
     // setIndex(templates.length);
 
     setIsNewTemplate(true);
   };
 
-  const handleDuplicateTemplate = () => {
-    const baseName = duplicateTemplate?.title.replace(/\s*\(\d+\)$/, ""); // Remove existing numbers in parentheses
+  const handleDuplicateTemplate = (key: string) => {
+    const templateToCopy = templates.find((t) => t.key === key);
+    if (!templateToCopy) return;
+
+    const baseName = templateToCopy?.title.replace(/\s*\(\d+\)$/, ""); // Remove existing numbers in parentheses
     let counter = 1;
     let newTitle = `${baseName} (${counter})`;
 
@@ -294,20 +304,19 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
       newTitle = `${baseName} (${counter})`;
     }
 
-    console.log("newTitle", newTitle);
+    // console.log("newTitle", newTitle);
 
     const copiedTemplate: Template = {
-      ...duplicateTemplate,
+      ...templateToCopy,
       key: crypto.randomUUID(),
       title: newTitle,
       createdAt: new Date(),
-
-      lastUsed: new Date(),
+      lastUsed: "",
       usageCount: 0,
-      criteria: duplicateTemplate?.criteria || [],
-      tags: duplicateTemplate?.tags || [],
-      description: duplicateTemplate?.description || "",
-      points: duplicateTemplate?.points || 0,
+      criteria: templateToCopy?.criteria || [],
+      tags: templateToCopy?.tags || [],
+      description: templateToCopy?.description || "",
+      points: templateToCopy?.points || 0,
     };
 
     setTemplates([...templates, copiedTemplate]);
@@ -372,10 +381,13 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     })();
   };
 
-  const handleRemoveTemplate = (index: number) => {
+  const handleRemoveTemplate = (key: string) => {
     if (!templates) return;
 
-    setDeletingTemplate(templates[index]);
+    const templateToRemove = templates.find((t) => t.key === key);
+    if (!templateToRemove) return;
+
+    setDeletingTemplate(templateToRemove);
   };
 
   return (
@@ -427,6 +439,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         setViewOrEdit,
         editingTemplate,
         setEditingTemplate,
+        viewingTemplate,
+        setViewingTemplate,
       }}
     >
       {children}

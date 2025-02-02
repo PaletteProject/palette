@@ -25,7 +25,7 @@ import { v4 as uuid } from "uuid"; /**
  * @returns {RequestFormattedRubric} - The transformed rubric object.
  */
 export const toCanvasFormat = (
-  originalRubric: Rubric
+  originalRubric: Rubric,
 ): RequestFormattedRubric => {
   const formattedCriteria: RequestFormattedCriteria = Object.fromEntries(
     originalRubric.criteria.map((criterion, index) => {
@@ -45,11 +45,11 @@ export const toCanvasFormat = (
                   points: rating.points,
                 },
               ];
-            })
+            }),
           ),
         },
       ];
-    })
+    }),
   );
   // return the transformed rubric object
   return {
@@ -94,7 +94,7 @@ export const toPaletteFormat = (rubric: CanvasRubric): Rubric => {
  * @param assignment_id
  */
 export const createAssignmentAssociation = (
-  assignment_id: number
+  assignment_id: number,
 ): RubricAssociation => {
   return {
     association_type: "Assignment",

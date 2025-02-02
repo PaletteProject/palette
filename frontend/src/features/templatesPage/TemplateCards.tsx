@@ -39,7 +39,6 @@ export default function TemplateCard({
     isNewTemplate,
     index,
     handleDuplicateTemplate,
-    setDuplicateTemplate,
     viewOrEdit,
     setViewOrEdit,
     editingTemplate,
@@ -50,15 +49,19 @@ export default function TemplateCard({
     setShowBulkActions,
     setTemplates,
     handleSubmitEditedTemplate,
+    viewingTemplate,
+    setViewingTemplate,
   } = useTemplatesContext();
   const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   const [tagModalOpen, setTagModalOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+
   const [viewOrEditClicked, setViewOrEditClicked] = useState(false);
 
   // update rubric state with new list of criteria
+
   const handleAddCriteria = (event: ReactMouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
@@ -71,13 +74,13 @@ export default function TemplateCard({
       criteria: newCriteria,
       points: newCriteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0
+        0,
       ),
     };
-    console.log("updatedTemplate criteria", updatedTemplate.criteria);
+    // console.log("updatedTemplate criteria", updatedTemplate.criteria);
     setEditingTemplate(updatedTemplate);
     setActiveCriterionIndex(newCriteria.length - 1);
-    console.log("new criterion added");
+    // console.log("new criterion added");
   };
 
   const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -95,6 +98,12 @@ export default function TemplateCard({
       const newCriteria = [...(editingTemplate?.criteria || [])];
       newCriteria.splice(index, 1);
       const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
+      // console.log("updatedTemplate criteria", updatedTemplate.criteria);
+      updatedTemplate.points = updatedTemplate.criteria.reduce(
+        (acc, criterion) => acc + criterion.pointsPossible,
+        0,
+      );
+      // console.log("updatedTemplate points", updatedTemplate.points);
       setEditingTemplate(updatedTemplate as Template);
       handleUpdateTemplate(index, updatedTemplate as Template);
     };
@@ -120,10 +129,17 @@ export default function TemplateCard({
     if (!editingTemplate) return;
     const newCriteria = [...editingTemplate.criteria];
     newCriteria[index] = criterion;
-    const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
+    const updatedTemplate = {
+      ...editingTemplate,
+      criteria: newCriteria,
+      points: newCriteria.reduce(
+        (acc, criterion) => acc + criterion.pointsPossible,
+        0,
+      ),
+    };
     setEditingTemplate(updatedTemplate as Template);
     handleUpdateTemplate(index, updatedTemplate as Template);
-    console.log("criterion updated");
+    // console.log("criterion updated");
   };
 
   // Use the useSortable hook to handle criteria ordering
@@ -139,7 +155,11 @@ export default function TemplateCard({
 
   const handleCondensedViewClick = (event: ReactMouseEvent, key: string) => {
     event.preventDefault();
+    const templateToFocus = templates.find((t) => t.key === key) as Template;
+    setViewingTemplate(templateToFocus);
+    setEditingTemplate(templateToFocus);
     // If clicking the currently focused template, unfocus it
+
     if (focusedTemplateKey === key) {
       setFocusedTemplateKey(null);
       setIsFocused(false);
@@ -157,7 +177,7 @@ export default function TemplateCard({
 
   const handleSetAvailableTags = (tags: Tag[]) => {
     const updatedTemplate = { ...editingTemplate, tags };
-    console.log(updatedTemplate);
+    // console.log(updatedTemplate);
     setEditingTemplate(updatedTemplate as Template);
     handleUpdateTemplate(index, updatedTemplate as Template);
   };
@@ -198,7 +218,7 @@ export default function TemplateCard({
     const isDuplicateName = templates.some(
       (t) =>
         t.title.toLowerCase() === template?.title.toLowerCase() &&
-        t.key !== template?.key
+        t.key !== template?.key,
     );
 
     if (isDuplicateName) {
@@ -229,38 +249,38 @@ export default function TemplateCard({
 
   const handleCloseModal = () => {
     setTemplates([]);
-    setViewOrEditClicked(false);
+    // setViewOrEditClicked(false);
     setIsEditModalOpen(false);
   };
 
   const handleViewModeToggle = () => {
     setViewOrEdit("view");
-    setEditingTemplate(template);
+    // setEditingTemplate(template);
+    // setViewingTemplate(template);
     setViewOrEditClicked(true);
     setIsEditModalOpen(true);
   };
 
   const handleEditModeToggle = () => {
     setViewOrEdit("edit");
-    setEditingTemplate(template);
+    // setEditingTemplate(template);
+    // setViewingTemplate(template);
     setViewOrEditClicked(true);
     setIsEditModalOpen(true);
   };
 
-  const copyTemplate = () => {
-    setDuplicateTemplate(template);
-    handleDuplicateTemplate();
+  const copyTemplate = (key: string) => {
+    handleDuplicateTemplate(key);
   };
 
-  const setTitleDisplay = () => {
-    if (isNewTemplate || viewOrEditClicked) {
-      return editingTemplate?.title;
-    }
-    return template?.title;
+  const removeTemplate = (key: string) => {
+    console.log("removing template", key);
+    handleRemoveTemplate(key);
   };
 
   const renderCriteriaCards = () => {
     if (!editingTemplate) return;
+
     return (
       <SortableContext
         items={editingTemplate.criteria.map((criterion) => criterion.key)}
@@ -289,7 +309,6 @@ export default function TemplateCard({
                 handleCriteriaUpdate={handleUpdateCriterion}
                 removeCriterion={handleRemoveCriterion}
                 setActiveCriterionIndex={setActiveCriterionIndex}
-                addingFromTemplateUI={true}
               />
             </motion.div>
           ))}
@@ -320,9 +339,6 @@ export default function TemplateCard({
   };
 
   const renderDetailedView = () => {
-    console.log("rendering detailed view", isNewTemplate);
-    console.log("editingTemplate", editingTemplate?.title);
-    console.log("template", template?.title);
     return (
       <form
         className="h-full grid p-4 sm:p-6 w-full max-w-3xl my-3 gap-4 bg-gray-800 shadow-lg rounded-lg"
@@ -331,7 +347,7 @@ export default function TemplateCard({
         {viewOrEdit === "edit" ? (
           <input
             type="text"
-            value={setTitleDisplay()}
+            value={editingTemplate?.title}
             required={true}
             onChange={(e) => handleTitleChange(e)}
             className="rounded p-2 mb-2 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-lg truncate whitespace-nowrap"
@@ -339,7 +355,7 @@ export default function TemplateCard({
           />
         ) : (
           <h1 className="font-extrabold text-3xl sm:text-4xl mb-2 text-center">
-            {template?.title}
+            {viewingTemplate?.title}
           </h1>
         )}
         <div className="flex justify-between items-center">
@@ -448,13 +464,13 @@ export default function TemplateCard({
               Edit
             </button>
             <button
-              onClick={copyTemplate}
+              onClick={() => copyTemplate(template?.key)}
               className="transition-all ease-in-out duration-300 text-green-400 hover:text-green-500 focus:outline-none"
             >
               Copy
             </button>
             <button
-              onPointerDown={() => handleRemoveTemplate(index)}
+              onPointerDown={() => removeTemplate(template?.key)}
               type="button"
               className="transition-all ease-in-out duration-300 text-red-600 hover:text-red-700 focus:outline-none"
             >

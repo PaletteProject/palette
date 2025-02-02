@@ -1,8 +1,6 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Settings } from "palette-types";
 import {
-  Footer,
-  Header,
   LoadingDots,
   ModalChoiceDialog,
   PaletteActionButton,

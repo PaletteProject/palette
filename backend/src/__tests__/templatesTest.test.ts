@@ -85,7 +85,7 @@ describe("Get Templates", () => {
 
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       "./templates.json",
-      JSON.stringify(defaultTemplates, null, 2)
+      JSON.stringify(defaultTemplates, null, 2),
     );
   });
 });

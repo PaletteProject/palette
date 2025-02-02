@@ -46,12 +46,12 @@ function TemplatesMainContent(): ReactElement {
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
 
   const closePopUp = useCallback(
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
-    []
+    [],
   );
 
   const createTemplate = () => {
