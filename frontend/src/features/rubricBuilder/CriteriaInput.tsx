@@ -5,7 +5,7 @@ import {
   useEffect,
   useState,
 } from "react";
-
+import { useLocation } from "react-router-dom";
 import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Rating } from "palette-types";
@@ -38,10 +38,12 @@ export default function CriteriaInput({
   const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
   const [templateSetterActive, setTemplateSetterActive] = useState(false); // file input display is open or not
   const [criteriaDescription, setCriteriaDescription] = useState(
-    criterion.description || "",
+    criterion.description || ""
   );
 
   const [templateTitle, setTemplateTitle] = useState(criterion.template || "");
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   /**
    * Whenever ratings change, recalculate criterion's max points
@@ -91,7 +93,7 @@ export default function CriteriaInput({
 
   const handleRemoveCriteriaButton = (
     event: ReactMouseEvent,
-    index: number,
+    index: number
   ) => {
     event.preventDefault();
     event.stopPropagation();
@@ -101,7 +103,7 @@ export default function CriteriaInput({
   // Update criterion when ratings change.
   const handleRatingChange = (ratingIndex: number, updatedRating: Rating) => {
     const updatedRatings = ratings.map((rating, index) =>
-      index === ratingIndex ? updatedRating : rating,
+      index === ratingIndex ? updatedRating : rating
     );
     setRatings(updatedRatings);
     criterion.ratings = updatedRatings;
@@ -139,7 +141,7 @@ export default function CriteriaInput({
 
   const handleAddRating = (
     event: ReactMouseEvent<HTMLButtonElement>,
-    index: number,
+    index: number
   ) => {
     event.preventDefault();
 
@@ -156,7 +158,7 @@ export default function CriteriaInput({
   };
 
   const handleTemplateSetterPress = (
-    event: ReactMouseEvent<HTMLButtonElement>,
+    event: ReactMouseEvent<HTMLButtonElement>
   ) => {
     event.preventDefault();
     if (!templateSetterActive) {
@@ -207,11 +209,11 @@ export default function CriteriaInput({
           <strong>{criteriaDescription}</strong> - Max Points: {maxPoints}
         </div>
         <div className={"flex gap-3"}>
-          {viewOrEdit == "edit" && (
+          {(viewOrEdit == "edit" || currentPath == "/rubric-builder") && (
             <>
               <button
                 onPointerDown={(
-                  event: ReactMouseEvent, // Change to onPointerDown
+                  event: ReactMouseEvent // Change to onPointerDown
                 ) => handleRemoveCriteriaButton(event, index)}
                 type={"button"}
                 className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
@@ -262,7 +264,7 @@ export default function CriteriaInput({
         }}
       >
         {/* Card style and main grid layout for content*/}
-        {viewOrEdit == "edit" ? (
+        {viewOrEdit == "edit" || currentPath == "/rubric-builder" ? (
           <input
             type="text"
             placeholder={`Criteria ${index + 1} Description...`}
@@ -286,7 +288,7 @@ export default function CriteriaInput({
 
         <div className={"flex gap-3 items-end justify-between"}>
           <div className="flex gap-3">
-            {viewOrEdit == "edit" && (
+            {(viewOrEdit == "edit" || currentPath == "/rubric-builder") && (
               <button
                 onPointerDown={(event: ReactMouseEvent<HTMLButtonElement>) =>
                   handleRemoveCriteriaButton(event, index)
@@ -324,7 +326,7 @@ export default function CriteriaInput({
                 +
               </button>
             )}
-            {viewOrEdit == "edit" && (
+            {(viewOrEdit == "edit" || currentPath == "/rubric-builder") && (
               <button
                 className={
                   ratings.length < 4

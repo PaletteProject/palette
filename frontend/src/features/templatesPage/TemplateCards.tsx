@@ -61,18 +61,17 @@ export default function TemplateCard({
   // update rubric state with new list of criteria
   const handleAddCriteria = (event: ReactMouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    // if (isNewTemplate) {
-    //   setEditingTemplate(editingTemplate as Template);
-    // }
-    if (!editingTemplate) return;
 
-    const newCriteria = [...editingTemplate.criteria, createCriterion()];
+    if (!editingTemplate) return;
+    const newCriterion = createCriterion();
+    newCriterion.template = editingTemplate.key;
+    const newCriteria = [...editingTemplate.criteria, newCriterion];
     const updatedTemplate = {
       ...editingTemplate,
       criteria: newCriteria,
       points: newCriteria.reduce((acc, criterion) => acc + criterion.points, 0),
     };
-    console.log("updatedTemplate", updatedTemplate);
+    console.log("updatedTemplate criteria", updatedTemplate.criteria);
     setEditingTemplate(updatedTemplate);
     setActiveCriterionIndex(newCriteria.length - 1);
     console.log("new criterion added");
@@ -85,7 +84,6 @@ export default function TemplateCard({
       title: event.target.value,
     } as Template;
     setEditingTemplate(updatedTemplate);
-    // setNewTemplate(updatedTemplate);
   };
 
   const handleRemoveCriterion = (index: number, criterion: Criteria) => {
@@ -197,7 +195,7 @@ export default function TemplateCard({
     const isDuplicateName = templates.some(
       (t) =>
         t.title.toLowerCase() === template?.title.toLowerCase() &&
-        t.key !== template?.key,
+        t.key !== template?.key
     );
 
     if (isDuplicateName) {
@@ -231,11 +229,8 @@ export default function TemplateCard({
     setViewOrEditClicked(false);
     setIsEditModalOpen(false);
   };
+
   const handleViewModeToggle = () => {
-    console.log("viewing ", template);
-    console.log("viewOrEdit", viewOrEdit);
-    console.log("isNewTemplate", isNewTemplate);
-    console.log("editingTemplate", editingTemplate);
     setViewOrEdit("view");
     setEditingTemplate(template);
     setViewOrEditClicked(true);
@@ -243,10 +238,6 @@ export default function TemplateCard({
   };
 
   const handleEditModeToggle = () => {
-    console.log("editing ", template);
-    console.log("viewOrEdit", viewOrEdit);
-    console.log("isNewTemplate", isNewTemplate);
-    console.log("editingTemplate", editingTemplate);
     setViewOrEdit("edit");
     setEditingTemplate(template);
     setViewOrEditClicked(true);
@@ -471,13 +462,6 @@ export default function TemplateCard({
       </div>
     );
   };
-
-  // Add effect to handle focus state based on isQuickEdit
-  // useEffect(() => {
-  //   if (!templateFocused) {
-  //     setIsFocused(false);
-  //   }
-  // }, [templateFocused]);
 
   return (
     <>
