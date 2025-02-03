@@ -35,7 +35,6 @@ const userRouter = express.Router();
  */
 userRouter.get("/settings", getUserSettings);
 
-
 /**
  * @swagger
  * /user/settings:

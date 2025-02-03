@@ -25,7 +25,6 @@ import { getSubmissions } from "../controllers/submissionController.js";
 
 const courseRouter = express.Router();
 
-
 /**
  * @swagger
  * /courses/{course_id}/assignments/{assignment_id}/submissions:
@@ -167,7 +166,6 @@ courseRouter.get(
   validationErrorHandler,
   getRubric,
 );
-
 
 /**
  * @swagger

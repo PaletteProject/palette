@@ -8,27 +8,27 @@ removes all unused CSS classes when we do a production build.
 
 /* Scrollbar for modern browsers */
 .scrollbar-thin {
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: #4b5563 #1f2937; /* Firefox */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #4b5563 #1f2937; /* Firefox */
 }
 
 /* Scrollbar track */
 .scrollbar-track-gray-800::-webkit-scrollbar-track {
-    background-color: #1f2937; /* dark gray for the track */
+  background-color: #1f2937; /* dark gray for the track */
 }
 
 /* Scrollbar handle */
 .scrollbar-thumb-gray-500::-webkit-scrollbar-thumb {
-    background-color: #4b5563; /* medium gray for the thumb */
-    border-radius: 8px; /* make the thumb rounded */
+  background-color: #4b5563; /* medium gray for the thumb */
+  border-radius: 8px; /* make the thumb rounded */
 }
 
 /* Scrollbar width for Webkit (Chrome, Safari, etc.) */
 .scrollbar-thin::-webkit-scrollbar {
-    width: 8px; /* width of the scrollbar */
+  width: 8px; /* width of the scrollbar */
 }
 
 /* Change the thumb color on hover */
 .scrollbar-thumb-gray-500::-webkit-scrollbar-thumb:hover {
-    background-color: #6b7280; /* lighter gray on hover */
+  background-color: #6b7280; /* lighter gray on hover */
 }
