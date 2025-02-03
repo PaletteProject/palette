@@ -36,7 +36,7 @@ export const SettingsAPI = {
       initializeSettings();
     }
 
-    // mask out sensitive fields, if requestedq
+    // mask out sensitive fields, if requested
     if (!includeSensitiveFields) {
       // get the old token
       return {
