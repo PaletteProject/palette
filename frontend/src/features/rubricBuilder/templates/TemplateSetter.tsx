@@ -1,7 +1,7 @@
 import { ChangeEvent, useEffect, useState } from "react";
 
-import { Template } from "../../../../palette-types/src/types/Template";
-import { createTemplate } from "../../utils/templateFactory";
+import { Template } from "palette-types/dist/types/Template.ts";
+import { createTemplate } from "../../../utils/templateFactory.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { Criteria } from "palette-types";

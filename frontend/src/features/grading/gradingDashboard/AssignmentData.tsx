@@ -1,4 +1,4 @@
-import { useAssignment } from "../../context/AssignmentProvider.tsx";
+import { useAssignment } from "../../../context/AssignmentProvider.tsx";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Rubric } from "palette-types";

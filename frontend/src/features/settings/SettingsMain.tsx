@@ -5,7 +5,7 @@ import {
   Header,
   LoadingDots,
   ModalChoiceDialog,
-  SaveButton,
+  PaletteActionButton,
 } from "@components";
 import { useFetch } from "@hooks";
 
@@ -183,7 +183,11 @@ export function SettingsMain(): ReactElement {
           </div>
         </div>
 
-        <SaveButton title={"Settings"} onClick={() => void handleSave()} />
+        <PaletteActionButton
+          title={"Update Settings"}
+          onClick={() => void handleSave()}
+          color={"BLUE"}
+        />
       </form>
     );
   };

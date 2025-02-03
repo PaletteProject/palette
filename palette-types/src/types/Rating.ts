@@ -3,7 +3,7 @@
  */
 
 export interface Rating {
-  id?: number;
+  id: string;
   description: string;
   longDescription: string;
   points: number;

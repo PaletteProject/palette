@@ -5,10 +5,11 @@
 import { Rating } from "./Rating";
 
 export interface Criteria {
-  id?: number;
+  id: string;
   description: string;
   longDescription: string;
-  points: number;
+  pointsPossible: number;
+  pointsGraded?: number;
   ratings: Rating[];
   template?: string; // placeholder
   templateTitle?: string;
