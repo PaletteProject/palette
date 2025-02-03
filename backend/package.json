@@ -6,7 +6,7 @@
   "main": "src/app.ts",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"tsc --watch\" \"nodemon dist/backend/src/app.js\"",
+    "dev": "concurrently \"tsc --watch\" \"nodemon dist/backend/src/app.js --ignore settings.json\"",
     "build": "tsc",
     "start": "node dist/backend/src/app.js",
     "test": "jest --passWithNoTests",

@@ -36,7 +36,7 @@ export const SettingsAPI = {
       initializeSettings();
     }
 
-    // mask out sensitive fields, if requested
+    // mask out sensitive fields, if requestedq
     if (!includeSensitiveFields) {
       // get the old token
       return {
@@ -80,13 +80,21 @@ function initializeSettings() {
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(defaultSettings, null, 2));
     settings = defaultSettings;
   } else {
-    const loadedSettings = JSON.parse(
-      fs.readFileSync(SETTINGS_PATH, "utf-8"),
-    ) as Settings;
-    // Fill in any missing fields with default values
-    settings = mergeSettings(loadedSettings);
-    // Save the merged settings back to the file
-    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+    try {
+      const loadedSettings = JSON.parse(
+        fs.readFileSync(SETTINGS_PATH, "utf-8"),
+      ) as Partial<Settings>;
+      // Fill in any missing fields with default values
+      settings = mergeSettings(loadedSettings);
+      // Save the merged settings back to the file
+      fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+    } catch (error) {
+      console.error("Error parsing settings.json", error);
+      // revert to default settings
+      settings = defaultSettings;
+      // Save the merged settings back to the file
+      fs.writeFileSync(SETTINGS_PATH, JSON.stringify(defaultSettings, null, 2));
+    }
   }
 }
 
