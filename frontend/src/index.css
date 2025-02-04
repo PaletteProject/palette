@@ -33,7 +33,6 @@ removes all unused CSS classes when we do a production build.
   background-color: #6b7280; /* lighter gray on hover */
 }
 
-
 html {
-    scroll-behavior: smooth;
+  scroll-behavior: smooth;
 }
