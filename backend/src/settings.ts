@@ -7,6 +7,7 @@ const SETTINGS_PATH = "./settings.json";
 export const defaultSettings: Settings = {
   userName: "admin",
   token: "default token",
+  templateCriteria: [],
   preferences: {
     darkMode: false,
     defaultScale: 1,
@@ -56,13 +57,16 @@ export const SettingsAPI = {
    *
    * @param newSettings The subset of the settings object to update
    */
-  updateUserSettings(newSettings: Settings): void {
+  updateUserSettings(newSettings: Partial<Settings>): void {
     if (settings === null) {
       initializeSettings();
     }
 
     // Update the settings object and write it to the settings file
-    settings = newSettings;
+    settings = mergeSettings({
+      ...settings,
+      ...newSettings,
+    });
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
   },
 };
@@ -76,8 +80,41 @@ function initializeSettings() {
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(defaultSettings, null, 2));
     settings = defaultSettings;
   } else {
-    settings = JSON.parse(fs.readFileSync(SETTINGS_PATH, "utf-8")) as Settings;
+    try {
+      const loadedSettings = JSON.parse(
+        fs.readFileSync(SETTINGS_PATH, "utf-8"),
+      ) as Partial<Settings>;
+      // Fill in any missing fields with default values
+      settings = mergeSettings(loadedSettings);
+      // Save the merged settings back to the file
+      fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+    } catch (error) {
+      console.error("Error parsing settings.json", error);
+      // revert to default settings
+      settings = defaultSettings;
+      // Save the merged settings back to the file
+      fs.writeFileSync(SETTINGS_PATH, JSON.stringify(defaultSettings, null, 2));
+    }
   }
+}
+
+/**
+ * Helper function to fill in any missing settings fields with default values.
+ */
+function mergeSettings(target: Partial<Settings>): Settings {
+  return {
+    userName: target.userName ?? defaultSettings.userName,
+    token: target.token ?? defaultSettings.token,
+    templateCriteria:
+      target.templateCriteria ?? defaultSettings.templateCriteria,
+    preferences: {
+      darkMode:
+        target.preferences?.darkMode ?? defaultSettings.preferences.darkMode,
+      defaultScale:
+        target.preferences?.defaultScale ??
+        defaultSettings.preferences.defaultScale,
+    },
+  };
 }
 
 /**
