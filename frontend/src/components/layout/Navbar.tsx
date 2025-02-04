@@ -20,6 +20,8 @@ export function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const selectCourseSectionAssignmentPaths = ["/rubric-builder", "/grading"];
+
   /**
    * Map paths to nav button labels.
    *
@@ -73,11 +75,11 @@ export function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 bg-gradient-to-r from-red-500 via-green-500 to-purple-500 min-h-12 h-16 z-50">
       <div className="flex items-center h-16 mx-4 justify-between">
-        {renderNavButtons()}
+        {currentPath !== "/" && renderNavButtons()}
 
         <div className={"flex items-center gap-10"}>
           <div className={"hidden md:flex justify-around gap-4"}>
-            {currentPath !== "/templates" && (
+            {selectCourseSectionAssignmentPaths.includes(currentPath) && (
               <>
                 <ActiveCourseSelection setDialogOpen={setCourseDialogOpen} />
                 <ActiveAssignmentSelection
@@ -86,12 +88,14 @@ export function Navbar() {
               </>
             )}
           </div>
-          <button
-            className={`self-center px-5 py-1 h-12 bg-gray-500 text-white rounded-full font-semibold hover:bg-gray-600 transition duration-300 transform hover:scale-105`}
-            onClick={handleOpenUserMenu}
-          >
-            P
-          </button>
+          {currentPath !== "/" && (
+            <button
+              className={`self-center px-5 py-1 h-12 bg-gray-500 text-white rounded-full font-semibold hover:bg-gray-600 transition duration-300 transform hover:scale-105`}
+              onClick={handleOpenUserMenu}
+            >
+              P
+            </button>
+          )}
         </div>
 
         <Menu
