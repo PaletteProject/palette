@@ -181,32 +181,38 @@ export default function CriteriaCard({
         style={style} // Apply the sortable style
         {...attributes} // Spread the attributes
         {...listeners} // Spread the listeners
-        className={`hover:bg-gray-500 hover:cursor-pointer max-h-56 flex gap-2 justify-between items-center border border-gray-700 shadow-xl p-6 rounded-lg w-full bg-gray-700`}
+        className={`hover:bg-gray-500 hover:cursor-pointer h-24 max-h-36 flex gap-2 justify-between items-center border border-gray-700 shadow-xl p-6 rounded-lg w-full bg-gray-700`}
         onDoubleClick={handleExpandCriterion}
       >
         <div
           className="text-gray-300 max-w-1/2 break-words whitespace-normal overflow-hidden"
           title={criteriaDescription} // show full text on hover
         >
-          {criteriaDescription} - Max Points: {maxPoints}
+          {criteriaDescription}
         </div>
-        <div className={"flex gap-3"}>
-          <button
-            onPointerDown={(
-              event: ReactMouseEvent, // Change to onPointerDown
-            ) => handleRemoveCriteriaButton(event, index)}
-            type={"button"}
-            className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
-          >
-            Remove
-          </button>
-          <button
-            onPointerDown={handleExpandCriterion}
-            type={"button"}
-            className="transition-all ease-in-out duration-300 bg-emerald-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-emerald-700 focus:outline-none border-2 border-transparent"
-          >
-            Edit
-          </button>
+        <div
+          id={"rhs-condensed-view"}
+          className={"flex flex-col items-center gap-2"}
+        >
+          <div className={"flex gap-3"}>
+            <button
+              onPointerDown={(
+                event: ReactMouseEvent, // Change to onPointerDown
+              ) => handleRemoveCriteriaButton(event, index)}
+              type={"button"}
+              className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
+            >
+              Remove
+            </button>
+            <button
+              onPointerDown={handleExpandCriterion}
+              type={"button"}
+              className="transition-all ease-in-out duration-300 bg-emerald-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-emerald-700 focus:outline-none border-2 border-transparent"
+            >
+              Edit
+            </button>
+          </div>
+          <div className={"font-bold"}>{`Max Points: ${maxPoints}`}</div>
         </div>
       </div>
     );
