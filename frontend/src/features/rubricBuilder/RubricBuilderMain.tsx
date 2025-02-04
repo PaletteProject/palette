@@ -625,7 +625,7 @@ export function RubricBuilderMain(): ReactElement {
         </div>
 
         <div
-          className="mt-6 grid gap-4
+          className="mt-6 grid gap-1
     grid-cols-1
     auto-rows-min
     h-[40vh]
