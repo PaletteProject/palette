@@ -195,22 +195,19 @@ export default function CriteriaCard({
           className={"flex flex-col items-center gap-2"}
         >
           <div className={"flex gap-3"}>
-            <button
-              onPointerDown={(
-                event: ReactMouseEvent, // Change to onPointerDown
-              ) => handleRemoveCriteriaButton(event, index)}
-              type={"button"}
-              className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
-            >
-              Remove
-            </button>
-            <button
+            <PaletteActionButton
+              color={"RED"}
+              title={"Remove"}
+              onPointerDown={(event: ReactMouseEvent) =>
+                handleRemoveCriteriaButton(event, index)
+              }
+            />
+
+            <PaletteActionButton
+              color={"GREEN"}
               onPointerDown={handleExpandCriterion}
-              type={"button"}
-              className="transition-all ease-in-out duration-300 bg-emerald-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-emerald-700 focus:outline-none border-2 border-transparent"
-            >
-              Edit
-            </button>
+              title={"Edit"}
+            />
           </div>
           <div className={"font-bold"}>{`Max Points: ${maxPoints}`}</div>
         </div>
