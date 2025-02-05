@@ -13,7 +13,6 @@ on:
       - dev
 
 jobs:
-
   # Run ESLint on the project
   lint:
     runs-on: ubuntu-latest
@@ -24,7 +23,7 @@ jobs:
       - name: Node setup
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Cache Node modules
         uses: actions/cache@v3
@@ -48,7 +47,6 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
-
   # Run Prettier checks
   prettier:
     runs-on: ubuntu-latest
@@ -60,7 +58,7 @@ jobs:
       - name: Node setup
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Cache Node modules
         uses: actions/cache@v3
@@ -76,7 +74,6 @@ jobs:
       - name: Run Prettier
         run: npm run prettier:check
 
-
   # Run Jest tests
   tests:
     runs-on: ubuntu-latest
@@ -87,7 +84,7 @@ jobs:
       - name: Node setup
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Cache Node modules
         uses: actions/cache@v3
@@ -107,7 +104,6 @@ jobs:
       - name: Test Suites
         run: npm run test
 
-
   # Check for accidental root dependencies
   check-dependencies:
     runs-on: ubuntu-latest
@@ -118,7 +114,7 @@ jobs:
       - name: Node setup
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Cache Node modules
         uses: actions/cache@v3
@@ -144,6 +140,3 @@ jobs:
             echo "Error: Only 'concurrently' is allowed in devDependencies in root package.json."
             exit 1
           fi
-
-
-
