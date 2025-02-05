@@ -13,7 +13,7 @@ import {
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Tag, Template } from "palette-types";
 import { ModalChoiceDialog, Dialog } from "@components";
-import TemplateTagModal from "src/components/modals/TemplateTagModal.tsx";
+import TemplateTagCreator from "src/features/templatesPage/TemplateTagCreator.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
 
@@ -311,7 +311,7 @@ export default function TemplateCard({
       )}
 
       {tagModalOpen && (
-        <TemplateTagModal
+        <TemplateTagCreator
           isOpen={tagModalOpen}
           onClose={() => setTagModalOpen(false)}
           setAvailableTags={handleSetAvailableTags}

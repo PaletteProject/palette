@@ -3,7 +3,6 @@
  */
 
 export * from "./modals/Dialog.tsx";
-export * from "./modals/EditTemplateModal.tsx";
 export * from "./layout/Footer.tsx";
 export * from "./layout/Header.tsx";
 export * from "./modals/ModalChoiceDialog.tsx";

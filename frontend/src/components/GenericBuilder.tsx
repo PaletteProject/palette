@@ -212,71 +212,73 @@ export const GenericBuilder = ({
 
   const renderBuilderForm = () => {
     return (
-      <form
-        className="h-full grid p-4 sm:p-6 w-full max-w-3xl my-3 gap-4 bg-gray-800 shadow-lg rounded-lg"
-        onSubmit={(event) => event.preventDefault()}
-      >
-        {viewOrEdit === "edit" ? (
-          <input
-            type="text"
-            value={editingTemplate?.title}
-            required={true}
-            onChange={(e) => handleDocumentTitleChange(e)}
-            className="rounded p-2 mb-2 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-lg truncate whitespace-nowrap"
-            placeholder={
-              builderType === "template" ? "Template title" : "Rubric title"
-            }
-          />
-        ) : (
-          <h1 className="font-extrabold text-3xl sm:text-4xl mb-2 text-center">
-            {builderType === "template" ? (
-              viewingTemplate?.title
-            ) : (
-              <>Rubric: {viewingTemplate?.title}</>
-            )}
-          </h1>
-        )}
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-extrabold bg-green-600 text-black py-1 px-3 rounded-lg">
-            {editingTemplate?.points}{" "}
-            {editingTemplate?.points === 1 ? "Point" : "Points"}
-          </h2>
-          <div className="flex gap-2">
-            <button
-              className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-1 px-3
+      <div className="flex justify-center items-center">
+        <form
+          className="h-full grid p-4 w-2/5 sm:p-6 max-w-3xl my-3 gap-4 bg-gray-800 shadow-lg rounded-lg"
+          onSubmit={(event) => event.preventDefault()}
+        >
+          {viewOrEdit === "edit" ? (
+            <input
+              type="text"
+              value={editingTemplate?.title}
+              required={true}
+              onChange={(e) => handleDocumentTitleChange(e)}
+              className="rounded p-2 mb-2 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-lg truncate whitespace-nowrap"
+              placeholder={
+                builderType === "template" ? "Template title" : "Rubric title"
+              }
+            />
+          ) : (
+            <h1 className="font-extrabold text-3xl sm:text-4xl mb-2 text-center">
+              {builderType === "template" ? (
+                viewingTemplate?.title
+              ) : (
+                <>Rubric: {viewingTemplate?.title}</>
+              )}
+            </h1>
+          )}
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-extrabold bg-green-600 text-black py-1 px-3 rounded-lg">
+              {editingTemplate?.points}{" "}
+              {editingTemplate?.points === 1 ? "Point" : "Points"}
+            </h2>
+            <div className="flex gap-2">
+              <button
+                className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-1 px-3
                        hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={() => setTagModalOpen(true)}
-            >
-              Add Tag
-            </button>
+                onClick={() => setTagModalOpen(true)}
+              >
+                Add Tag
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div className="mt-3 flex flex-col gap-2 h-[30vh] sm:h-[35vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
-          {renderCriteriaCards()}
-        </div>
+          <div className="mt-3 flex flex-col gap-2 h-[30vh] sm:h-[35vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
+            {renderCriteriaCards()}
+          </div>
 
-        {viewOrEdit === "edit" && (
-          <div className="grid gap-2 mt-3">
-            <button
-              className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
+          {viewOrEdit === "edit" && (
+            <div className="grid gap-2 mt-3">
+              <button
+                className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
                        hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={handleAddCriteria}
-              type={"button"}
-            >
-              Add Criteria
-            </button>
-            <button
-              className="transition-all ease-in-out duration-300 bg-green-600 text-white font-bold rounded-lg py-2 px-4
+                onClick={handleAddCriteria}
+                type={"button"}
+              >
+                Add Criteria
+              </button>
+              <button
+                className="transition-all ease-in-out duration-300 bg-green-600 text-white font-bold rounded-lg py-2 px-4
                        hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
-              onClick={(event) => submitDocument(event)}
-              type={"button"}
-            >
-              Save Template
-            </button>
-          </div>
-        )}
-      </form>
+                onClick={(event) => submitDocument(event)}
+                type={"button"}
+              >
+                Save Template
+              </button>
+            </div>
+          )}
+        </form>
+      </div>
     );
   };
 

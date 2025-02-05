@@ -37,7 +37,7 @@ const TemplateSearch = ({
       .filter(
         (suggestion) =>
           suggestion.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          suggestion !== searchQuery,
+          suggestion !== searchQuery
       )
       .slice(0, 5); // Limit to 5 suggestions
   }, [templates, searchQuery]);
@@ -60,7 +60,7 @@ const TemplateSearch = ({
             onClick={() => setSearchQuery("")}
             className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
           >
-            <i className="fas fa-times" />
+            ✕
           </button>
         )}
       </div>
