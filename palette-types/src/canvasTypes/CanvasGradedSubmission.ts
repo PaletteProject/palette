@@ -1,4 +1,4 @@
-export type GradedSubmission = {
+export type CanvasGradedSubmission = {
   submission_id: number;
   user: { id: number; name: string; asurite: string };
   rubric_assessment: {

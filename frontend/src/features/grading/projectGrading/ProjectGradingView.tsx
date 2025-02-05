@@ -2,7 +2,12 @@
  * Primary project grading view. Opens as a modal over the grading dashboard.
  */
 
-import { Criteria, Rubric, Submission } from "palette-types";
+import {
+  CanvasGradedSubmission,
+  Criteria,
+  Rubric,
+  Submission,
+} from "palette-types";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { PaletteActionButton } from "@components";
@@ -39,7 +44,7 @@ export function ProjectGradingView({
   /**
    * Wrapper to iteratively submit all graded submissions with existing use fetch hook.
    */
-  const submitGrades = async (gradedSubmission: GradedSubmission) => {
+  const submitGrades = async (gradedSubmission: CanvasGradedSubmission) => {
     /**
      * Fetch hook to submit graded rubric.
      */
@@ -91,16 +96,8 @@ export function ProjectGradingView({
     }));
   };
 
-  type GradedSubmission = {
-    submission_id: number;
-    user: { id: number; name: string; asurite: string };
-    rubric_assessment: {
-      [p: string]: { points: number; rating_id: string; comments: string };
-    };
-  };
-
   const handleSubmitGrades = async () => {
-    const gradedSubmissions: GradedSubmission[] = submissions.map(
+    const gradedSubmissions: CanvasGradedSubmission[] = submissions.map(
       (submission) => {
         // build rubric assessment object in Canvas format directly (reduces transformations needed later)
         const rubricAssessment: {
