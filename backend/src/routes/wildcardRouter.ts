@@ -5,12 +5,14 @@ import asyncHandler from "express-async-handler";
 import { __dirname } from "../app.js";
 
 /**
- * Handles wildcard routes for the application.
- *
- * This middleware function handles all requests that do not match any defined routes.
- * If the request URL starts with "/api", it responds with a 404 status code and an error message.
- * Otherwise, it serves the `index.html` file from the frontend's distribution directory.
- *
+ * @swagger
+ * /{any}:
+ *   get:
+ *     summary: Handle unknown API routes
+ *     description: This route handles requests that do not match any defined API routes.
+ *     responses:
+ *       404:
+ *         description: API route not found.
  * @param {Request} req - The Express request object.
  * @param {Response} res - The Express response object.
  */

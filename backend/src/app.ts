@@ -3,6 +3,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { StatusCodes } from "http-status-codes";
+import { swaggerUiServe, swaggerUiSetup } from "./APIDoc/APIDocumentation.js";
 import { validationErrorHandler } from "./middleware/validationErrorHandler.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { responseLogger } from "./middleware/responseLogger.js";
@@ -28,6 +29,9 @@ const corsOptions = {
 app.use(cors(corsOptions)); // enable CORS with above configuration
 app.use(express.json()); // middleware to parse json requests
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+// Add Swagger documentation route
+app.use("/api-docs", swaggerUiServe, swaggerUiSetup); // Serves Swagger UI for OpenAPI documentation
 
 // Request logging
 app.use(requestLogger);
@@ -56,5 +60,8 @@ app.use(fallbackErrorHandler);
 app.listen(PORT, () => {
   console.log(
     "\nPalette started!\n\nAccess the application at http://localhost:5173",
+  );
+  console.log(
+    `Swagger API documentation available at http://localhost:${PORT}/api-docs`,
   );
 });
