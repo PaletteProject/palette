@@ -2,13 +2,16 @@
  * Rubric Builder view.
  */
 
-import { ReactElement, useCallback, useState } from "react";
-import { MainPageTemplate, ModalChoiceDialog, PopUp } from "@components";
+import { ReactElement, useState } from "react";
+import { Dialog, MainPageTemplate } from "@components";
 import { TemplateProvider, useTemplatesContext } from "./TemplateContext.tsx";
-import { EditModalProvider, useEditModal } from "./EditModalProvider.tsx";
+import { EditModalProvider } from "./EditModalProvider.tsx";
 import TemplatesWindow from "./TemplatesWindow.tsx";
 import TemplateSearch from "./TemplateSearch.tsx";
 import AddTemplateTag from "./AddTemplateTag.tsx";
+import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
+import { createRubric } from "@utils";
+import { Template } from "palette-types";
 
 export default function TemplatesMain(): ReactElement {
   return (
@@ -28,37 +31,32 @@ function TemplatesMainContent(): ReactElement {
     showSuggestions,
     setShowSuggestions,
     handleCreateTemplate,
+    handleSubmitNewTemplate,
     handleQuickStart,
+    setIsNewTemplate,
+    setShowBulkActions,
+    editingTemplate,
+    setEditingTemplate,
   } = useTemplatesContext();
-  const { setIsEditModalOpen } = useEditModal();
 
-  const [popUp, setPopUp] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-  });
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
 
-  const [modal, setModal] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-    choices: [] as { label: string; action: () => void }[],
-  });
+  const handleCloseModal = () => {
+    setTemplateDialogOpen(false);
+  };
 
-  const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
-  );
-
-  const closePopUp = useCallback(
-    () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
-    [],
-  );
-
-  const createTemplate = () => {
+  const handleCreateNewTemplate = () => {
     console.log("createTemplate");
-    setIsEditModalOpen(true);
+    setTemplateDialogOpen(true);
     handleCreateTemplate();
+  };
+
+  const handleNewTemplateSubmit = () => {
+    setTemplateDialogOpen(false);
+    console.log("handleNewTemplateSubmit");
+    handleSubmitNewTemplate();
+    setIsNewTemplate(false);
+    setShowBulkActions(false);
   };
 
   // Update renderUserTemplates to use the new search component
@@ -113,7 +111,7 @@ function TemplatesMainContent(): ReactElement {
 
         <div className="mx-10 rounded-lg flex flex-row">
           <button
-            onClick={() => void createTemplate()}
+            onClick={() => void handleCreateNewTemplate()}
             className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Create Template
@@ -128,18 +126,20 @@ function TemplatesMainContent(): ReactElement {
           )}
         </div>
 
-        <ModalChoiceDialog
-          show={modal.isOpen}
-          onHide={closeModal}
-          title={modal.title}
-          message={modal.message}
-          choices={modal.choices}
-        />
-        <PopUp
-          show={popUp.isOpen}
-          onHide={closePopUp}
-          title={popUp.title}
-          message={popUp.message}
+        <Dialog
+          isOpen={templateDialogOpen}
+          onClose={handleCloseModal}
+          title={""}
+          children={
+            <GenericBuilder
+              builderType="template"
+              document={editingTemplate as Template}
+              setDocument={(template) =>
+                setEditingTemplate(template as Template)
+              }
+              onSubmit={handleNewTemplateSubmit}
+            />
+          }
         />
       </div>
     );

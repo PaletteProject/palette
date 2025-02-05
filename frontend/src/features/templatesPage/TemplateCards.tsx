@@ -3,9 +3,7 @@ import {
   ReactElement,
   useEffect,
   useState,
-  ChangeEvent,
 } from "react";
-import CriteriaCard from "../rubricBuilder/CriteriaCard.tsx";
 
 import {
   SortableContext,
@@ -13,13 +11,12 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
-import { Criteria, Tag, Template } from "palette-types";
-import { createCriterion } from "@utils";
-import { AnimatePresence, motion } from "framer-motion";
-import { EditTemplateModal, ModalChoiceDialog } from "@components";
+import { Tag, Template } from "palette-types";
+import { ModalChoiceDialog, Dialog } from "@components";
 import TemplateTagModal from "src/components/modals/TemplateTagModal.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
-import { useEditModal } from "./EditModalProvider.tsx";
+import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
+
 interface TemplateCardProps {
   template: Template;
 }
@@ -35,11 +32,9 @@ export default function TemplateCard({
     closeModal,
     handleRemoveTemplate,
     templates,
-    handleSubmitNewTemplate,
     isNewTemplate,
     index,
     handleDuplicateTemplate,
-    viewOrEdit,
     setViewOrEdit,
     editingTemplate,
     setEditingTemplate,
@@ -47,100 +42,14 @@ export default function TemplateCard({
     setFocusedTemplateKey,
     setIsNewTemplate,
     setShowBulkActions,
-    setTemplates,
     handleSubmitEditedTemplate,
-    viewingTemplate,
     setViewingTemplate,
   } = useTemplatesContext();
-  const { isEditModalOpen, setIsEditModalOpen } = useEditModal();
-  // tracks which criterion card is displaying the detailed view (limited to one at a time)
-  const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   const [tagModalOpen, setTagModalOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
   const [viewOrEditClicked, setViewOrEditClicked] = useState(false);
-
-  // update rubric state with new list of criteria
-
-  const handleAddCriteria = (event: ReactMouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-
-    if (!editingTemplate) return;
-    const newCriterion = createCriterion();
-    newCriterion.template = editingTemplate.key;
-    const newCriteria = [...editingTemplate.criteria, newCriterion];
-    const updatedTemplate = {
-      ...editingTemplate,
-      criteria: newCriteria,
-      points: newCriteria.reduce(
-        (acc, criterion) => acc + criterion.pointsPossible,
-        0,
-      ),
-    };
-    // console.log("updatedTemplate criteria", updatedTemplate.criteria);
-    setEditingTemplate(updatedTemplate);
-    setActiveCriterionIndex(newCriteria.length - 1);
-    // console.log("new criterion added");
-  };
-
-  const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    const updatedTemplate = {
-      ...editingTemplate,
-      title: event.target.value,
-    } as Template;
-    setEditingTemplate(updatedTemplate);
-  };
-
-  const handleRemoveCriterion = (index: number, criterion: Criteria) => {
-    if (!template) return;
-    const deleteCriterion = () => {
-      const newCriteria = [...(editingTemplate?.criteria || [])];
-      newCriteria.splice(index, 1);
-      const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
-      // console.log("updatedTemplate criteria", updatedTemplate.criteria);
-      updatedTemplate.points = updatedTemplate.criteria.reduce(
-        (acc, criterion) => acc + criterion.pointsPossible,
-        0,
-      );
-      // console.log("updatedTemplate points", updatedTemplate.points);
-      setEditingTemplate(updatedTemplate as Template);
-      handleUpdateTemplate(index, updatedTemplate as Template);
-    };
-
-    setModal({
-      isOpen: true,
-      title: "Confirm Criterion Removal",
-      message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
-      choices: [
-        {
-          label: "Destroy it!",
-          action: () => {
-            deleteCriterion();
-            closeModal();
-          },
-        },
-      ],
-    });
-  };
-
-  // update criterion at given index
-  const handleUpdateCriterion = (index: number, criterion: Criteria) => {
-    if (!editingTemplate) return;
-    const newCriteria = [...editingTemplate.criteria];
-    newCriteria[index] = criterion;
-    const updatedTemplate = {
-      ...editingTemplate,
-      criteria: newCriteria,
-      points: newCriteria.reduce(
-        (acc, criterion) => acc + criterion.pointsPossible,
-        0,
-      ),
-    };
-    setEditingTemplate(updatedTemplate as Template);
-    handleUpdateTemplate(index, updatedTemplate as Template);
-    // console.log("criterion updated");
-  };
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
 
   // Use the useSortable hook to handle criteria ordering
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -182,9 +91,7 @@ export default function TemplateCard({
     handleUpdateTemplate(index, updatedTemplate as Template);
   };
 
-  const submitTemplate = (event: ReactMouseEvent) => {
-    event.preventDefault();
-
+  const submitTemplate = () => {
     if (!editingTemplate?.title.trim()) {
       setModal({
         isOpen: true,
@@ -218,7 +125,7 @@ export default function TemplateCard({
     const isDuplicateName = templates.some(
       (t) =>
         t.title.toLowerCase() === template?.title.toLowerCase() &&
-        t.key !== template?.key,
+        t.key !== template?.key
     );
 
     if (isDuplicateName) {
@@ -237,36 +144,27 @@ export default function TemplateCard({
       return;
     }
 
-    if (isNewTemplate) {
-      handleSubmitNewTemplate();
-    } else {
-      handleSubmitEditedTemplate();
-    }
-    setIsEditModalOpen(false);
+    handleSubmitEditedTemplate();
+
+    setTemplateDialogOpen(false);
     setIsNewTemplate(false);
     setShowBulkActions(false);
   };
 
   const handleCloseModal = () => {
-    setTemplates([]);
-    // setViewOrEditClicked(false);
-    setIsEditModalOpen(false);
+    setTemplateDialogOpen(false);
   };
 
   const handleViewModeToggle = () => {
     setViewOrEdit("view");
-    // setEditingTemplate(template);
-    // setViewingTemplate(template);
     setViewOrEditClicked(true);
-    setIsEditModalOpen(true);
+    setTemplateDialogOpen(true);
   };
 
   const handleEditModeToggle = () => {
     setViewOrEdit("edit");
-    // setEditingTemplate(template);
-    // setViewingTemplate(template);
     setViewOrEditClicked(true);
-    setIsEditModalOpen(true);
+    setTemplateDialogOpen(true);
   };
 
   const copyTemplate = (key: string) => {
@@ -276,45 +174,6 @@ export default function TemplateCard({
   const removeTemplate = (key: string) => {
     console.log("removing template", key);
     handleRemoveTemplate(key);
-  };
-
-  const renderCriteriaCards = () => {
-    if (!editingTemplate) return;
-
-    return (
-      <SortableContext
-        items={editingTemplate.criteria.map((criterion) => criterion.key)}
-        strategy={verticalListSortingStrategy}
-      >
-        <AnimatePresence>
-          {editingTemplate.criteria.map((criterion, index) => (
-            <motion.div
-              key={criterion.key}
-              initial={{
-                opacity: 0,
-                y: 50,
-              }} // Starting state (entry animation)
-              animate={{
-                opacity: 1,
-                y: 0,
-              }} // Animate to this state when in the DOM
-              exit={{ opacity: 0, x: 50 }} // Ending state (exit animation)
-              transition={{ duration: 0.3 }} // Controls the duration of the animations
-              className="my-1"
-            >
-              <CriteriaCard
-                index={index}
-                activeCriterionIndex={activeCriterionIndex}
-                criterion={criterion}
-                handleCriteriaUpdate={handleUpdateCriterion}
-                removeCriterion={handleRemoveCriterion}
-                setActiveCriterionIndex={setActiveCriterionIndex}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </SortableContext>
-    );
   };
 
   const renderCondensedView = () => {
@@ -335,70 +194,6 @@ export default function TemplateCard({
           <strong>{template?.title}</strong> - Points: {template?.points}
         </div>
       </div>
-    );
-  };
-
-  const renderDetailedView = () => {
-    return (
-      <form
-        className="h-full grid p-4 sm:p-6 w-full max-w-3xl my-3 gap-4 bg-gray-800 shadow-lg rounded-lg"
-        onSubmit={(event) => event.preventDefault()}
-      >
-        {viewOrEdit === "edit" ? (
-          <input
-            type="text"
-            value={editingTemplate?.title}
-            required={true}
-            onChange={(e) => handleTitleChange(e)}
-            className="rounded p-2 mb-2 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-lg truncate whitespace-nowrap"
-            placeholder="Template title"
-          />
-        ) : (
-          <h1 className="font-extrabold text-3xl sm:text-4xl mb-2 text-center">
-            {viewingTemplate?.title}
-          </h1>
-        )}
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-extrabold bg-green-600 text-black py-1 px-3 rounded-lg">
-            {editingTemplate?.points}{" "}
-            {editingTemplate?.points === 1 ? "Point" : "Points"}
-          </h2>
-          <div className="flex gap-2">
-            <button
-              className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-1 px-3
-                       hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={() => setTagModalOpen(true)}
-            >
-              Add Tag
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-3 flex flex-col gap-2 h-[30vh] sm:h-[35vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
-          {renderCriteriaCards()}
-        </div>
-
-        {viewOrEdit === "edit" && (
-          <div className="grid gap-2 mt-3">
-            <button
-              className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
-                       hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={handleAddCriteria}
-              type={"button"}
-            >
-              Add Criteria
-            </button>
-            <button
-              className="transition-all ease-in-out duration-300 bg-green-600 text-white font-bold rounded-lg py-2 px-4
-                       hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
-              onClick={(event) => void submitTemplate(event)}
-              type={"button"}
-            >
-              Save Template
-            </button>
-          </div>
-        )}
-      </form>
     );
   };
 
@@ -498,12 +293,23 @@ export default function TemplateCard({
         />
       )}
       {(isNewTemplate || viewOrEditClicked) && (
-        <EditTemplateModal
-          isOpen={isEditModalOpen}
+        <Dialog
+          isOpen={templateDialogOpen}
           onClose={handleCloseModal}
-          children={renderDetailedView()}
+          title={""}
+          children={
+            <GenericBuilder
+              builderType="template"
+              document={editingTemplate as Template}
+              setDocument={(template) =>
+                setEditingTemplate(template as Template)
+              }
+              onSubmit={submitTemplate}
+            />
+          }
         />
       )}
+
       {tagModalOpen && (
         <TemplateTagModal
           isOpen={tagModalOpen}
