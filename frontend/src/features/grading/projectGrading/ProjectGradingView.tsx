@@ -58,8 +58,11 @@ export function ProjectGradingView({
       const initialRatings: { [key: string]: number | "" } = {};
 
       submissions.forEach((submission) => {
-        if (submission.graded) {
-          // non-graded assignments won't have a rubric assessment
+        /**
+         *  If a submission has a rubric assessment (already graded), load in grades from canvas to display.
+         *  Otherwise, rating options will render with the default empty value/color theme.
+         */
+        if (submission.rubricAssessment) {
           for (const [criterionId, assessment] of Object.entries(
             submission.rubricAssessment,
           )) {
