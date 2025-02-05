@@ -5,16 +5,13 @@ import {
   useState,
 } from "react";
 
-import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable"; // Import useSortable
+import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Tag, Template } from "palette-types";
-import { ModalChoiceDialog, Dialog } from "@components";
+import { Dialog } from "@components";
 import TemplateTagCreator from "src/features/templatesPage/TemplateTagCreator.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
+
 import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
 
 interface TemplateCardProps {
@@ -26,10 +23,7 @@ export default function TemplateCard({
 }: TemplateCardProps): ReactElement {
   const {
     layoutStyle,
-    setModal,
-    modal,
     handleUpdateTemplate,
-    closeModal,
     handleRemoveTemplate,
     templates,
     isNewTemplate,
@@ -92,58 +86,6 @@ export default function TemplateCard({
   };
 
   const submitTemplate = () => {
-    if (!editingTemplate?.title.trim()) {
-      setModal({
-        isOpen: true,
-        title: "Invalid Template",
-        message: "Please enter a title for your template before saving.",
-        choices: [
-          {
-            label: "OK",
-            action: closeModal,
-          },
-        ],
-      });
-      return;
-    }
-
-    if (editingTemplate?.criteria.length === 0) {
-      setModal({
-        isOpen: true,
-        title: "Invalid Template",
-        message: "Please add at least one criterion before saving.",
-        choices: [
-          {
-            label: "OK",
-            action: closeModal,
-          },
-        ],
-      });
-      return;
-    }
-
-    const isDuplicateName = templates.some(
-      (t) =>
-        t.title.toLowerCase() === template?.title.toLowerCase() &&
-        t.key !== template?.key
-    );
-
-    if (isDuplicateName) {
-      setModal({
-        isOpen: true,
-        title: "Duplicate Template Name",
-        message:
-          "A template with this name already exists. Please choose a different name.",
-        choices: [
-          {
-            label: "OK",
-            action: closeModal,
-          },
-        ],
-      });
-      return;
-    }
-
     handleSubmitEditedTemplate();
 
     setTemplateDialogOpen(false);
@@ -156,12 +98,6 @@ export default function TemplateCard({
   };
 
   const handleViewModeToggle = () => {
-    setViewOrEdit("view");
-    setViewOrEditClicked(true);
-    setTemplateDialogOpen(true);
-  };
-
-  const handleEditModeToggle = () => {
     setViewOrEdit("edit");
     setViewOrEditClicked(true);
     setTemplateDialogOpen(true);
@@ -253,12 +189,6 @@ export default function TemplateCard({
               View
             </button>
             <button
-              onClick={handleEditModeToggle}
-              className="transition-all ease-in-out duration-300 text-blue-400 hover:text-blue-500 focus:outline-none"
-            >
-              Edit
-            </button>
-            <button
               onClick={() => copyTemplate(template?.key)}
               className="transition-all ease-in-out duration-300 text-green-400 hover:text-green-500 focus:outline-none"
             >
@@ -283,15 +213,6 @@ export default function TemplateCard({
         {renderCondensedView()}
         {isFocused && renderTemplateMetadata()}
       </div>
-      {modal.isOpen && (
-        <ModalChoiceDialog
-          show={modal.isOpen}
-          onHide={closeModal}
-          title={modal.title}
-          message={modal.message}
-          choices={modal.choices}
-        />
-      )}
       {(isNewTemplate || viewOrEditClicked) && (
         <Dialog
           isOpen={templateDialogOpen}

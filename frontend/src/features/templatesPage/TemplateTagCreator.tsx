@@ -64,7 +64,7 @@ const TemplateTagCreator = ({
   React.useEffect(() => {
     const interval = setInterval(() => {
       setCurrentPlaceholderIndex(
-        (prev) => (prev + 1) % placeholderSuggestions.length
+        (prev) => (prev + 1) % placeholderSuggestions.length,
       );
     }, 3000); // Change every 3 seconds
 
@@ -176,7 +176,7 @@ const TemplateTagCreator = ({
                     setNewTag((prev) => ({
                       ...prev,
                       stagedTags: prev.stagedTags.filter(
-                        (_, i) => i !== selectedTagIndex
+                        (_, i) => i !== selectedTagIndex,
                       ),
                     }));
                     setSelectedTagIndex(null);
@@ -202,7 +202,7 @@ const TemplateTagCreator = ({
                     ...prev,
                     workingColor: color,
                     stagedTags: prev.stagedTags.map((tag, i) =>
-                      i === selectedTagIndex ? { ...tag, color } : tag
+                      i === selectedTagIndex ? { ...tag, color } : tag,
                     ),
                   }));
                 }}

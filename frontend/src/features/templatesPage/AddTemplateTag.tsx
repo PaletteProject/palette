@@ -22,7 +22,7 @@ const AddTemplateTag = () => {
               setSelectedTagFilters(
                 selectedTagFilters.includes(tag.id)
                   ? selectedTagFilters.filter((t) => t !== tag.id)
-                  : [...selectedTagFilters, tag.id]
+                  : [...selectedTagFilters, tag.id],
               )
             }
             className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
@@ -38,7 +38,7 @@ const AddTemplateTag = () => {
               (
               {
                 templates.filter((t) =>
-                  t.tags.some((tTag) => tTag.id === tag.id)
+                  t.tags.some((tTag) => tTag.id === tag.id),
                 ).length
               }
               )

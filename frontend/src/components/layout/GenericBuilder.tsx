@@ -1,4 +1,4 @@
-import { Tag, Template, Criteria, Rubric } from "palette-types";
+import { Template, Criteria, Rubric } from "palette-types";
 import { useTemplatesContext } from "../../features/templatesPage/TemplateContext";
 import React, {
   useCallback,
@@ -12,8 +12,8 @@ import {
 } from "@dnd-kit/sortable";
 import { AnimatePresence } from "framer-motion";
 import CriteriaCard from "src/features/rubricBuilder/CriteriaCard";
-import { createCriterion, createRubric } from "@utils";
-
+import { createCriterion } from "@utils";
+import { ModalChoiceDialog } from "@components";
 interface GenericBuilderProps {
   builderType: "template" | "rubric";
   document: Template | Rubric;
@@ -32,16 +32,10 @@ export const GenericBuilder = ({
     setEditingTemplate,
     viewingTemplate,
     setViewingTemplate,
-
-    handleSubmitNewTemplate,
-    handleSubmitEditedTemplate,
     handleUpdateTemplate,
     viewOrEdit,
     setTagModalOpen,
     templates,
-    isNewTemplate,
-    setIsNewTemplate,
-    setShowBulkActions,
   } = useTemplatesContext();
 
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
@@ -56,11 +50,11 @@ export const GenericBuilder = ({
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
 
   const handleDocumentTitleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     e.preventDefault();
 
@@ -90,7 +84,7 @@ export const GenericBuilder = ({
       criteria: newCriteria,
       points: newCriteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0
+        0,
       ),
     };
     if (builderType === "template") {
@@ -113,7 +107,7 @@ export const GenericBuilder = ({
       const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
       updatedTemplate.points = updatedTemplate.criteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0
+        0,
       );
       // console.log("updatedTemplate points", updatedTemplate.points);
       setEditingTemplate(updatedTemplate as Template);
@@ -126,22 +120,37 @@ export const GenericBuilder = ({
       setDocument({ ...document, criteria: newCriteria });
     };
 
-    setModal({
-      isOpen: true,
-      title: "Confirm Criterion Removal",
-      message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
-      choices: [
-        {
-          label: "Destroy it!",
-          action: () => {
-            builderType === "template"
-              ? deleteTemplateCriterion()
-              : deleteRubricCriterion();
-            closeModal();
+    if (builderType === "template") {
+      setModal({
+        isOpen: true,
+        title: "Confirm Criterion Removal",
+        message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
+        choices: [
+          {
+            label: "Destroy it!",
+            action: () => {
+              deleteTemplateCriterion();
+              closeModal();
+            },
           },
-        },
-      ],
-    });
+        ],
+      });
+    } else {
+      setModal({
+        isOpen: true,
+        title: "Confirm Criterion Removal",
+        message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
+        choices: [
+          {
+            label: "Destroy it!",
+            action: () => {
+              deleteRubricCriterion();
+              closeModal();
+            },
+          },
+        ],
+      });
+    }
   };
 
   const renderCriteriaCards = () => {
@@ -197,7 +206,7 @@ export const GenericBuilder = ({
         criteria: newCriteria,
         points: newCriteria.reduce(
           (acc, criterion) => acc + criterion.pointsPossible,
-          0
+          0,
         ),
       };
       setEditingTemplate(updatedTemplate as Template);
@@ -211,74 +220,141 @@ export const GenericBuilder = ({
 
   const submitDocument = (event: ReactMouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+
+    console.log("document", document);
+
+    if (document?.title.trim() === "") {
+      console.log("document?.title", document?.title);
+      setModal({
+        isOpen: true,
+        title: "Invalid Template",
+        message: "Please enter a title for your template before saving.",
+        choices: [
+          {
+            label: "OK",
+            action: closeModal,
+          },
+        ],
+      });
+      return;
+    }
+
+    if (document?.criteria.length === 0) {
+      console.log("document?.criteria", document?.criteria);
+      setModal({
+        isOpen: true,
+        title: "Invalid Template",
+        message: "Please add at least one criterion before saving.",
+        choices: [
+          {
+            label: "OK",
+            action: closeModal,
+          },
+        ],
+      });
+      return;
+    }
+
+    if (builderType === "template") {
+      const isDuplicateName = templates.some(
+        (t) =>
+          t.title.toLowerCase() === document?.title.toLowerCase() &&
+          t.key !== document?.key,
+      );
+      if (isDuplicateName) {
+        setModal({
+          isOpen: true,
+          title: "Duplicate Template Name",
+          message:
+            "A template with this name already exists. Please choose a different name.",
+          choices: [
+            {
+              label: "OK",
+              action: closeModal,
+            },
+          ],
+        });
+        return;
+      }
+    }
     onSubmit();
   };
 
   return (
-    <form
-      className="h-full grid p-4 sm:p-6 w-full max-w-3xl my-3 gap-4 bg-gray-800 shadow-lg rounded-lg"
-      onSubmit={(event) => event.preventDefault()}
-    >
-      {viewOrEdit === "edit" ? (
-        <input
-          type="text"
-          value={editingTemplate?.title}
-          required={true}
-          onChange={(e) => handleDocumentTitleChange(e)}
-          className="rounded p-2 mb-2 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-lg truncate whitespace-nowrap"
-          placeholder={
-            builderType === "template" ? "Template title" : "Rubric title"
-          }
-        />
-      ) : (
-        <h1 className="font-extrabold text-3xl sm:text-4xl mb-2 text-center">
-          {builderType === "template" ? (
-            viewingTemplate?.title
-          ) : (
-            <>Rubric: {viewingTemplate?.title}</>
-          )}
-        </h1>
-      )}
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-extrabold bg-green-600 text-black py-1 px-3 rounded-lg">
-          {editingTemplate?.points}{" "}
-          {editingTemplate?.points === 1 ? "Point" : "Points"}
-        </h2>
-        <div className="flex gap-2">
-          <button
-            className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-1 px-3
+    <>
+      <form
+        className="h-full grid p-4 sm:p-6 w-full max-w-3xl my-3 gap-4 bg-gray-800 shadow-lg rounded-lg"
+        onSubmit={(event) => event.preventDefault()}
+      >
+        {viewOrEdit === "edit" ? (
+          <input
+            type="text"
+            value={editingTemplate?.title}
+            required={true}
+            onChange={(e) => handleDocumentTitleChange(e)}
+            className="rounded p-2 mb-2 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-lg truncate whitespace-nowrap"
+            placeholder={
+              builderType === "template" ? "Template title" : "Rubric title"
+            }
+          />
+        ) : (
+          <h1 className="font-extrabold text-3xl sm:text-4xl mb-2 text-center">
+            {builderType === "template" ? (
+              viewingTemplate?.title
+            ) : (
+              <>Rubric: {viewingTemplate?.title}</>
+            )}
+          </h1>
+        )}
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-extrabold bg-green-600 text-black py-1 px-3 rounded-lg">
+            {editingTemplate?.points}{" "}
+            {editingTemplate?.points === 1 ? "Point" : "Points"}
+          </h2>
+          <div className="flex gap-2">
+            <button
+              className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-1 px-3
                        hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onClick={() => setTagModalOpen(true)}
-          >
-            Add Tag
-          </button>
+              onClick={() => setTagModalOpen(true)}
+            >
+              Add Tag
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="mt-3 flex flex-col gap-2 h-[30vh] sm:h-[35vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
-        {renderCriteriaCards()}
-      </div>
+        <div className="mt-3 flex flex-col gap-2 h-[30vh] sm:h-[35vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
+          {renderCriteriaCards()}
+        </div>
 
-      {viewOrEdit === "edit" && (
-        <div className="grid gap-2 mt-3">
-          <button
-            className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
+        {viewOrEdit === "edit" && (
+          <div className="grid gap-2 mt-3">
+            <button
+              className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
                        hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onClick={handleAddCriteria}
-            type={"button"}
-          >
-            Add Criteria
-          </button>
-          <button
-            className="transition-all ease-in-out duration-300 bg-green-600 text-white font-bold rounded-lg py-2 px-4
+              onClick={handleAddCriteria}
+              type={"button"}
+            >
+              Add Criteria
+            </button>
+            <button
+              className="transition-all ease-in-out duration-300 bg-green-600 text-white font-bold rounded-lg py-2 px-4
                        hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
-            onClick={(event) => submitDocument(event)}
-            type={"button"}
-          >
-            Save Template
-          </button>
-        </div>
-      )}
-    </form>
+              onClick={(event) => submitDocument(event)}
+              type={"button"}
+            >
+              Save Template
+            </button>
+          </div>
+        )}
+      </form>
+
+      <ModalChoiceDialog
+        show={modal.isOpen}
+        onHide={closeModal}
+        title={modal.title}
+        message={modal.message}
+        choices={modal.choices}
+      />
+    </>
   );
 };

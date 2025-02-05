@@ -10,7 +10,6 @@ import TemplatesWindow from "./TemplatesWindow.tsx";
 import TemplateSearch from "./TemplateSearch.tsx";
 import AddTemplateTag from "./AddTemplateTag.tsx";
 import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
-import { createRubric } from "@utils";
 import { Template } from "palette-types";
 
 export default function TemplatesMain(): ReactElement {
@@ -52,7 +51,7 @@ function TemplatesMainContent(): ReactElement {
   };
 
   const handleNewTemplateSubmit = () => {
-    setTemplateDialogOpen(false);
+    // setTemplateDialogOpen(false);
     console.log("handleNewTemplateSubmit");
     handleSubmitNewTemplate();
     setIsNewTemplate(false);
