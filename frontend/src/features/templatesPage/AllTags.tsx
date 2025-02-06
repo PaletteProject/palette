@@ -1,17 +1,13 @@
 import React from "react";
 import { useTemplatesContext } from "./TemplateContext";
 import { Tag } from "palette-types";
-import { useEffect, useState } from "react";
-import { Dialog } from "../../components/modals/Dialog.tsx";
+import { useState } from "react";
 import { useFetch } from "../../hooks/useFetch";
 
 const AllTags = () => {
   const { availableTags, setAvailableTags } = useTemplatesContext();
 
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
-  const [showDialog, setShowDialog] = useState(false);
-  const [selectedTagIndex, setSelectedTagIndex] = useState<number | null>(null);
-  const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
 
   const { fetchData: deleteTags } = useFetch("/tags/bulk", {
     method: "DELETE",
@@ -22,11 +18,6 @@ const AllTags = () => {
     method: "GET",
   });
 
-  const handleTagClick = (tag: Tag) => {
-    setSelectedTags((prevTags) => [...prevTags, tag]);
-    setShowDialog(true);
-  };
-
   const getTags = async () => {
     const response = await getAvailableTags();
     const tags = response.data as Tag[];
@@ -34,9 +25,20 @@ const AllTags = () => {
   };
 
   const handleRemoveTags = () => {
-    deleteTags();
-    setSelectedTags([]);
-    getTags();
+    deleteTags()
+      .then(() => {
+        setSelectedTags([]);
+        getTags()
+          .then(() => {
+            console.log("tags fetched");
+          })
+          .catch((error) => {
+            console.error("error fetching tags", error);
+          });
+      })
+      .catch((error) => {
+        console.error("error deleting tags", error);
+      });
   };
 
   return (
@@ -55,7 +57,7 @@ const AllTags = () => {
                   setSelectedTags((prevTags) =>
                     prevTags.includes(tag)
                       ? prevTags.filter((t) => t !== tag)
-                      : [...prevTags, tag]
+                      : [...prevTags, tag],
                   );
                 }}
               >

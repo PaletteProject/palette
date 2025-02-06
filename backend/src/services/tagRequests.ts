@@ -1,4 +1,4 @@
-import { Tag, PaletteAPIResponse, Template } from "palette-types";
+import { Tag, PaletteAPIResponse } from "palette-types";
 import asyncHandler from "express-async-handler";
 import { Request, Response } from "express";
 import { createTag } from "../../../frontend/src/utils/tagFactory.js";
@@ -16,7 +16,7 @@ export const TagService = {
       fs.writeFileSync(
         tagsPath,
 
-        JSON.stringify(defaultTags, null, 2)
+        JSON.stringify(defaultTags, null, 2),
       );
       tags = defaultTags;
     } else {
@@ -37,7 +37,7 @@ export const TagService = {
 
     if (tagData) {
       const tagIndex = localTags.findIndex(
-        (tmplt: Tag) => tmplt.name === tagData.name
+        (tmplt: Tag) => tmplt.name === tagData.name,
       );
       tag.name = tagData.name;
       tag.color = tagData.color;
@@ -79,17 +79,17 @@ export const TagService = {
     if (tagsToAdd) {
       for (const tagToAdd of tagsToAdd) {
         const tagIndex = localTags.findIndex(
-          (t: Tag) => t.name === tagToAdd.name
+          (t: Tag) => t.name === tagToAdd.name,
         );
         const tag = createTag();
         tag.name = tagToAdd.name;
         tag.color = tagToAdd.color;
         tag.key = tagToAdd.key;
-        tag.description = tag.description;
-        tag.createdAt = tag.createdAt;
+        tag.description = tagToAdd.description;
+        tag.createdAt = tagToAdd.createdAt;
 
-        tag.lastUsed = tag.lastUsed;
-        tag.usageCount = tag.usageCount;
+        tag.lastUsed = tagToAdd.lastUsed;
+        tag.usageCount = tagToAdd.usageCount;
 
         if (tagIndex === -1) {
           localTags.push(tag);
@@ -120,7 +120,7 @@ export const TagService = {
 
     if (tagData) {
       const tagIndex = localTags.findIndex(
-        (tag: Tag) => tag.key === tagData.key
+        (tag: Tag) => tag.key === tagData.key,
       );
       console.log("tagIndex", tagIndex);
       console.log("tagData", tagData);
@@ -180,17 +180,16 @@ export const TagService = {
     if (tagsToDelete) {
       for (const tagToDelete of tagsToDelete) {
         const tagIndex = localTags.findIndex(
-          (t: Tag) => t.name === tagToDelete.name
+          (t: Tag) => t.name === tagToDelete.name,
         );
         const tag = createTag();
         tag.name = tagToDelete.name;
         tag.color = tagToDelete.color;
         tag.key = tagToDelete.key;
-        tag.description = tag.description;
-        tag.createdAt = tag.createdAt;
-
-        tag.lastUsed = tag.lastUsed;
-        tag.usageCount = tag.usageCount;
+        tag.description = tagToDelete.description;
+        tag.createdAt = tagToDelete.createdAt;
+        tag.lastUsed = tagToDelete.lastUsed;
+        tag.usageCount = tagToDelete.usageCount;
 
         if (tagIndex !== -1) {
           localTags.splice(tagIndex, 1);

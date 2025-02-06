@@ -4,7 +4,7 @@ import TemplateTagCreator from "src/features/templatesPage/TemplateTagCreator";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
-import { Tag, Template } from "palette-types";
+import { Tag } from "palette-types";
 import { Dialog } from "../../components/modals/Dialog.tsx";
 import AllTags from "./AllTags";
 
@@ -33,22 +33,28 @@ const AddTemplateTag = () => {
     const backendTags = response.data as Tag[];
 
     const templatesWithTags = templates.filter(
-      (template) => template.tags.length > 0
+      (template) => template.tags.length > 0,
     );
     const templateTags = templatesWithTags.flatMap((template) => template.tags);
 
     // Combine backend tags and template tags, removing duplicates
     const combinedTags = Array.from(
       new Map(
-        [...backendTags, ...templateTags].map((tag) => [tag.key, tag])
-      ).values()
+        [...backendTags, ...templateTags].map((tag) => [tag.key, tag]),
+      ).values(),
     );
 
     setAvailableTags(combinedTags);
   };
 
   useEffect(() => {
-    getTags();
+    getTags()
+      .then(() => {
+        console.log("tags fetched");
+      })
+      .catch((error) => {
+        console.error("error fetching tags", error);
+      });
   }, []);
 
   useEffect(() => {
@@ -62,8 +68,8 @@ const AddTemplateTag = () => {
         {availableTags
           .filter((tag) =>
             templates.some((template) =>
-              template.tags.some((tTag) => tTag.key === tag.key)
-            )
+              template.tags.some((tTag) => tTag.key === tag.key),
+            ),
           )
           .map((tag) => (
             <button
@@ -72,7 +78,7 @@ const AddTemplateTag = () => {
                 setSelectedTagFilters(
                   selectedTagFilters.includes(tag.key)
                     ? selectedTagFilters.filter((t) => t !== tag.key)
-                    : [...selectedTagFilters, tag.key]
+                    : [...selectedTagFilters, tag.key],
                 )
               }
               className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
@@ -88,7 +94,7 @@ const AddTemplateTag = () => {
                 (
                 {
                   templates.filter((t) =>
-                    t.tags.some((tTag) => tTag.key === tag.key)
+                    t.tags.some((tTag) => tTag.key === tag.key),
                   ).length
                 }
                 )
@@ -129,7 +135,13 @@ const AddTemplateTag = () => {
         setAvailableTags={setAvailableTags}
         onCreateTags={() => {
           setTagModalOpen(false);
-          getTags();
+          getTags()
+            .then(() => {
+              console.log("tags fetched");
+            })
+            .catch((error) => {
+              console.error("error fetching tags", error);
+            });
         }}
       />
       <Dialog

@@ -12,4 +12,5 @@ export interface Template {
   usageCount: number;
   tags: Tag[];
   points: number;
+  quickStart: boolean;
 }

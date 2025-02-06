@@ -1,4 +1,4 @@
-import { TemplateService } from "../TemplatesAPI/templateRequests.js";
+import { TemplateService } from "../services/templateRequests.js";
 import { Request, Response } from "express";
 
 export const addTemplate = async (req: Request, res: Response) => {

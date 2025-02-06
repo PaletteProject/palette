@@ -5,19 +5,17 @@
 import { ReactElement, useState } from "react";
 import { Dialog, MainPageTemplate } from "@components";
 import { TemplateProvider, useTemplatesContext } from "./TemplateContext.tsx";
-import { EditModalProvider } from "./EditModalProvider.tsx";
 import TemplatesWindow from "./TemplatesWindow.tsx";
 import TemplateSearch from "./TemplateSearch.tsx";
 import AddTemplateTag from "./AddTemplateTag.tsx";
 import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
 import { Template } from "palette-types";
+import TemplateMetrics from "./TemplateMetrics.tsx";
 
 export default function TemplatesMain(): ReactElement {
   return (
     <TemplateProvider>
-      <EditModalProvider>
-        <TemplatesMainContent />
-      </EditModalProvider>
+      <TemplatesMainContent />
     </TemplateProvider>
   );
 }
@@ -124,6 +122,8 @@ function TemplatesMainContent(): ReactElement {
             </button>
           )}
         </div>
+
+        <TemplateMetrics />
 
         <Dialog
           isOpen={templateDialogOpen}

@@ -7,7 +7,7 @@ export const createTag = (
   description: string = "",
   createdAt: Date = new Date(),
   lastUsed: Date | string = "Never",
-  usageCount: number = 0
+  usageCount: number = 0,
 ): Tag => {
   return {
     key: uuid(),
