@@ -11,14 +11,16 @@ export function SubmissionsDashboard({
   fetchSubmissions: () => Promise<void>;
 }) {
   return (
-    <div>
-      <h1 className={"text-5xl font-bold p-4"}>Submission Dashboard</h1>
-      <AssignmentData rubric={rubric} />
+    <div className={"grid justify-start"}>
+      <div className={"mb-4"}>
+        <h1 className={"text-5xl font-bold p-4"}>Submission Dashboard</h1>
+        <AssignmentData rubric={rubric} />
+      </div>
 
       <div
         className={
-          " grid grid-flow-col-dense auto-rows-fr grid-cols-auto " +
-          " gap-4 px-8 max-w-screen max-h-full m-auto justify-start"
+          "grid gap-4 px-8 m-auto max-w-screen-lg " +
+          "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
         }
       >
         {Object.entries(submissions).map(([groupId, groupSubmissions]) => {
