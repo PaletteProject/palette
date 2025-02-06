@@ -21,6 +21,11 @@ export const deleteTagByKey = (req: Request, res: Response) => {
   return tagData;
 };
 
+export const deleteTags = (req: Request, res: Response) => {
+  const tagData = TagService.deleteTags(req, res, () => {});
+  return tagData;
+};
+
 export const getAllTags = async (req: Request, res: Response) => {
   const response = await TagService.getAllTags(req, res, () => {});
   return response;

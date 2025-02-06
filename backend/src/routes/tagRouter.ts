@@ -7,6 +7,7 @@ import {
   getTagByKey,
   deleteTagByKey,
   addTags,
+  deleteTags,
 } from "../controllers/tagController.js";
 
 const router = express.Router();
@@ -155,4 +156,26 @@ router.put("/", updateTag);
  */
 
 router.delete("/byKey/:key", deleteTagByKey);
+
+/**
+ * @swagger
+ * /tags/byKey/{key}:
+ *   delete:
+ *     summary: Delete a tag by key
+ *     description: Remove a tag using its key.
+ *     parameters:
+ *       - in: path
+ *         name: key
+ *         required: true
+ *         schema:
+ *           type: string
+
+ *     responses:
+ *       200:
+ *         description: Tag deleted.
+ *       404:
+ *         description: Tag not found.
+ */
+
+router.delete("/bulk", deleteTags);
 export default router;

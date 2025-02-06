@@ -168,6 +168,48 @@ export const TagService = {
     res.json(apiResponse);
   },
 
+  deleteTags: asyncHandler(async (req: Request, res: Response) => {
+    if (tags === null) {
+      TagService.initializeTags();
+    }
+
+    const tagsData = fs.readFileSync(tagsPath, "utf8");
+    const localTags = JSON.parse(tagsData) as Tag[];
+    const tagsToDelete = (await req.body) as Tag[] | null;
+
+    if (tagsToDelete) {
+      for (const tagToDelete of tagsToDelete) {
+        const tagIndex = localTags.findIndex(
+          (t: Tag) => t.name === tagToDelete.name
+        );
+        const tag = createTag();
+        tag.name = tagToDelete.name;
+        tag.color = tagToDelete.color;
+        tag.key = tagToDelete.key;
+        tag.description = tag.description;
+        tag.createdAt = tag.createdAt;
+
+        tag.lastUsed = tag.lastUsed;
+        tag.usageCount = tag.usageCount;
+
+        if (tagIndex !== -1) {
+          localTags.splice(tagIndex, 1);
+        } else {
+          console.log("Tag not found!");
+        }
+      }
+
+      fs.writeFileSync(tagsPath, JSON.stringify(localTags, null, 2));
+    }
+
+    const apiResponse: PaletteAPIResponse<unknown> = {
+      success: true,
+      message: "Tags deleted successfully!",
+    };
+
+    res.json(apiResponse);
+  }),
+
   // GET REQUESTS (Templates API Functions)
 
   getAllTags: asyncHandler(async (req: Request, res: Response) => {

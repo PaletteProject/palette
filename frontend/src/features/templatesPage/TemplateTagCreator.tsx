@@ -58,7 +58,7 @@ const TemplateTagCreator = ({
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
-  const { addingTagFromBuilder, editingTemplate } = useTemplatesContext();
+  const { addingTagFromBuilder } = useTemplatesContext();
 
   // Add effect to rotate placeholders
   React.useEffect(() => {
@@ -164,10 +164,7 @@ const TemplateTagCreator = ({
 
               <button
                 onClick={() => {
-                  setNewTag((prev) => ({
-                    ...prev,
-                    stagedTags: [],
-                  }));
+                  setStagedTags([]);
                   setSelectedTagIndex(null);
                 }}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
