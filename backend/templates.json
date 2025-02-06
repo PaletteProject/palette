@@ -58,8 +58,8 @@
     "key": "c88ae20f-abea-4b8f-9d56-b9efb027a180",
     "description": "",
     "createdAt": "2025-02-02T22:34:38.675Z",
-    "lastUsed": null,
-    "usageCount": 0,
+    "lastUsed": "2025-02-06T06:49:22.778Z",
+    "usageCount": 2,
     "tags": [
       {
         "key": "e977f0e7-a86c-4238-851b-f9f1a4583b84",
@@ -198,7 +198,7 @@
     "description": "",
     "createdAt": "2025-02-02T22:36:21.617Z",
     "lastUsed": null,
-    "usageCount": 0,
+    "usageCount": 1,
     "tags": [],
     "points": 5
   },

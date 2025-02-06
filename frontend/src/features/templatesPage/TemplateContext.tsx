@@ -41,12 +41,12 @@ interface TemplateContextType {
   setSelectAll: (select: boolean) => void;
   handleCreateTemplate: () => void;
   sortConfig: {
-    key: "title" | "dateCreated" | "lastModified";
+    key: "title" | "dateCreated" | "lastModified" | "usageCount";
     direction: "asc" | "desc";
   };
 
   setSortConfig: (config: {
-    key: "title" | "dateCreated" | "lastModified";
+    key: "title" | "dateCreated" | "lastModified" | "usageCount";
     direction: "asc" | "desc";
   }) => void;
   layoutStyle: "list" | "grid";
@@ -183,7 +183,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [layoutStyle, setLayoutStyle] = useState<"list" | "grid">("list");
 
   const [sortConfig, setSortConfig] = useState<{
-    key: "title" | "dateCreated" | "lastModified";
+    key: "title" | "dateCreated" | "lastModified" | "usageCount";
     direction: "asc" | "desc";
   }>({ key: "title", direction: "asc" });
 

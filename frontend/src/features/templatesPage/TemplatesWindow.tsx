@@ -156,6 +156,8 @@ const TemplatesWindow = () => {
                 new Date(b.lastUsed).getTime()) *
               direction
             );
+          case "usageCount":
+            return (a.usageCount - b.usageCount) * direction;
           default:
             return 0;
         }
