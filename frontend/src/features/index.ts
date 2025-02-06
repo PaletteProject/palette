@@ -6,9 +6,7 @@
 export * from "./grading/gradingDashboard/AssignmentData.tsx";
 export * from "./grading/GradingMain";
 export * from "./grading/gradingDashboard/GroupSubmissions.tsx";
-export * from "./grading/gradingDashboard/IndividualSubmission.tsx";
 export * from "./grading/gradingDashboard/ProgressBar.tsx";
-export * from "./grading/gradingDashboard/StatusIcons.tsx";
 export * from "./grading/gradingDashboard/SubmissionsDashboard.tsx";
 
 // rubric builder exports

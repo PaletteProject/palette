@@ -1,19 +1,17 @@
 import { Rubric, Submission } from "palette-types";
-import { IndividualSubmission, ProgressBar } from "@features";
+import { ProgressBar } from "@features";
 import { ProjectGradingView } from "../projectGrading/ProjectGradingView.tsx";
 import { useState } from "react";
 
 export function GroupSubmissions({
   groupName,
   progress,
-  isExpanded,
   submissions,
   rubric,
   fetchSubmissions,
 }: {
   groupName: string;
   progress: number;
-  isExpanded: boolean;
   submissions: Submission[];
   rubric: Rubric;
   fetchSubmissions: () => Promise<void>;
@@ -62,22 +60,11 @@ export function GroupSubmissions({
     );
   };
 
-  const renderSubmissions = () => {
-    return (
-      <div className={"mt-2 grid gap-2"}>
-        {submissions.map((submission) => (
-          <IndividualSubmission submission={submission} key={submission.id} />
-        ))}
-      </div>
-    );
-  };
-
   return (
     <div
       className={`max-w-md flex flex-col gap-4 m-2 p-6 border border-gray-400 border-opacity-35 shadow-xl rounded-2xl overflow-hidden`}
     >
       {renderGroupHeader()}
-      {isExpanded && renderSubmissions()}
       <ProjectGradingView
         isOpen={isGradingViewOpen}
         groupName={groupName}
