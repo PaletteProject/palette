@@ -39,11 +39,33 @@ export const CoursesAPI = {
    */
   async getCourses(): Promise<Course[]> {
     const canvasCourses = await fetchAPI<CanvasCourse[]>(
-      "/courses?enrollment_type=teacher&per_page=25",
+      "/courses?per_page=50",
     );
 
-    // map canvas courses to palette courses and filter out any null entries
-    return canvasCourses
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    // Step 1: Filter by valid enrollments (teacher or TA)
+    let filteredCourses = canvasCourses.filter((course) =>
+      course.enrollments?.some(
+        (enrollment) =>
+          enrollment.type === "teacher" || enrollment.type === "ta",
+      ),
+    );
+
+    // Step 2: Conditionally filter by start date if there are more than 5 courses
+    // todo: temp fix until custom filters are added
+    if (filteredCourses.length > 5) {
+      filteredCourses = filteredCourses.filter((course) => {
+        const startDate = course.start_at ? new Date(course.start_at) : null;
+        return startDate ? startDate >= oneYearAgo : false;
+      });
+    }
+
+    console.log("Filtered courses BELOW");
+    console.log(filteredCourses);
+
+    return filteredCourses
       .map(mapToPaletteCourse)
       .filter((course): course is Course => course !== null);
   },
