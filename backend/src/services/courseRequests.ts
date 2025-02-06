@@ -28,6 +28,7 @@ type GradedSubmission = {
   };
 };
 
+const RESULTS_PER_PAGE = 100;
 /**
  * Defines CRUD operations for courses from the Canvas API.
  */
@@ -37,13 +38,24 @@ export const CoursesAPI = {
    *
    * @returns Promise for a filtered array of course objects.
    */
+
   async getCourses(): Promise<Course[]> {
-    const canvasCourses = await fetchAPI<CanvasCourse[]>(
-      "/courses?per_page=50",
-    );
+    let canvasCourses: CanvasCourse[] = [];
+    let page = 1;
+    let fetchedCourses: CanvasCourse[];
+
+    do {
+      fetchedCourses = await fetchAPI<CanvasCourse[]>(
+        `/courses?per_page=${RESULTS_PER_PAGE}&page=${page}`,
+      );
+
+      canvasCourses = canvasCourses.concat(fetchedCourses);
+      page++;
+    } while (fetchedCourses.length === RESULTS_PER_PAGE); // continue if we received a full page
 
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    console.log(oneYearAgo);
 
     // Step 1: Filter by valid enrollments (teacher or TA)
     let filteredCourses = canvasCourses.filter((course) =>
@@ -75,7 +87,7 @@ export const CoursesAPI = {
       throw new Error("Course ID is undefined");
     }
     const canvasAssignments = await fetchAPI<CanvasAssignment[]>(
-      `/courses/${courseId}/assignments?per_page=50`,
+      `/courses/${courseId}/assignments?per_page=${RESULTS_PER_PAGE}`,
     );
     return canvasAssignments.map(mapToPaletteAssignment);
   },

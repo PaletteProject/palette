@@ -44,7 +44,11 @@ export function AssignmentSelectionMenu({
       return <div>No assignments are available to display</div>;
 
     return (
-      <div className={"grid gap-2 my-4"}>
+      <div
+        className={
+          "grid gap-2 my-4 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
+        }
+      >
         <div className={"grid gap-2 mt-0.5"}>
           {assignments.map((assignment: Assignment) => (
             <div
