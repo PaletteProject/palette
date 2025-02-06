@@ -28,6 +28,97 @@ type GradedSubmission = {
   };
 };
 
+const RESULTS_PER_PAGE = 100;
+
+/**
+ * Helper for handling course pagination from the Canvas API.
+ */
+async function getAllCourses() {
+  let canvasCourses: CanvasCourse[] = [];
+  let page = 1;
+  let fetchedCourses: CanvasCourse[];
+
+  do {
+    fetchedCourses = await fetchAPI<CanvasCourse[]>(
+      `/courses?per_page=${RESULTS_PER_PAGE}&page=${page}`,
+    );
+
+    canvasCourses = canvasCourses.concat(fetchedCourses);
+    page++;
+  } while (fetchedCourses.length === RESULTS_PER_PAGE); // continue if we received a full page
+
+  return canvasCourses;
+}
+
+/**
+ * Helper for handling assignment pagination from the Canvas API.
+ */
+async function getAllAssignments(courseId: string) {
+  let canvasAssignments: CanvasAssignment[] = [];
+  let page = 1;
+  let fetchedAssignments: CanvasAssignment[];
+
+  do {
+    fetchedAssignments = await fetchAPI<CanvasAssignment[]>(
+      `/courses/${courseId}/assignments?per_page=${RESULTS_PER_PAGE}&page=${page}`,
+    );
+    canvasAssignments = canvasAssignments.concat(fetchedAssignments);
+    page++;
+  } while (fetchedAssignments.length === RESULTS_PER_PAGE);
+
+  return canvasAssignments;
+}
+
+/**
+ * Helper for handling submission pagination from the Canvas API.
+ */
+async function getAllSubmissions(courseId: string, assignmentId: string) {
+  let canvasSubmissions: CanvasSubmissionResponse[] = [];
+  let page = 1;
+  let fetchedSubmissions: CanvasSubmissionResponse[];
+
+  do {
+    fetchedSubmissions = await fetchAPI<CanvasSubmissionResponse[]>(
+      `/courses/${courseId}/assignments/${assignmentId}/submissions${SUBMISSION_QUERY_PARAMS}&per_page=${RESULTS_PER_PAGE}&page=${page}`,
+    );
+    canvasSubmissions = canvasSubmissions.concat(fetchedSubmissions);
+    page++;
+  } while (fetchedSubmissions.length === RESULTS_PER_PAGE);
+
+  return canvasSubmissions;
+}
+
+/**
+ * Helper to filter courses by enrollment type and start date (for now).
+ * @param canvasCourses
+ */
+function filterCourses(canvasCourses: CanvasCourse[]): CanvasCourse[] {
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  console.log(oneYearAgo);
+
+  // Step 1: Filter by valid enrollments (teacher or TA)
+  let filteredCourses = canvasCourses.filter((course) =>
+    course.enrollments?.some(
+      (enrollment) => enrollment.type === "teacher" || enrollment.type === "ta",
+    ),
+  );
+
+  // Step 2: Conditionally filter by start date if there are more than 5 courses
+  // todo: temp fix until custom filters are added
+  if (filteredCourses.length > 5) {
+    filteredCourses = filteredCourses.filter((course) => {
+      const startDate = course.start_at ? new Date(course.start_at) : null;
+      return startDate ? startDate >= oneYearAgo : false;
+    });
+  }
+
+  console.log("Filtered courses BELOW");
+  console.log(filteredCourses);
+
+  return filteredCourses;
+}
+
 /**
  * Defines CRUD operations for courses from the Canvas API.
  */
@@ -38,12 +129,9 @@ export const CoursesAPI = {
    * @returns Promise for a filtered array of course objects.
    */
   async getCourses(): Promise<Course[]> {
-    const canvasCourses = await fetchAPI<CanvasCourse[]>(
-      "/courses?enrollment_type=teacher&per_page=25",
-    );
+    const canvasCourses = await getAllCourses();
 
-    // map canvas courses to palette courses and filter out any null entries
-    return canvasCourses
+    return filterCourses(canvasCourses)
       .map(mapToPaletteCourse)
       .filter((course): course is Course => course !== null);
   },
@@ -52,9 +140,7 @@ export const CoursesAPI = {
     if (!courseId) {
       throw new Error("Course ID is undefined");
     }
-    const canvasAssignments = await fetchAPI<CanvasAssignment[]>(
-      `/courses/${courseId}/assignments?per_page=50`,
-    );
+    const canvasAssignments = await getAllAssignments(courseId);
     return canvasAssignments.map(mapToPaletteAssignment);
   },
 
@@ -73,9 +159,7 @@ export const CoursesAPI = {
     courseId: string,
     assignmentId: string,
   ): Promise<GroupedSubmissions> {
-    const canvasSubmissions = await fetchAPI<CanvasSubmissionResponse[]>(
-      `/courses/${courseId}/assignments/${assignmentId}/submissions${SUBMISSION_QUERY_PARAMS}`,
-    );
+    const canvasSubmissions = await getAllSubmissions(courseId, assignmentId);
 
     return transformSubmissions(canvasSubmissions);
   },
