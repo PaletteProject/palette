@@ -70,6 +70,56 @@ async function getAllAssignments(courseId: string) {
 }
 
 /**
+ * Helper for handling submission pagination from the Canvas API.
+ */
+async function getAllSubmissions(courseId: string, assignmentId: string) {
+  let canvasSubmissions: CanvasSubmissionResponse[] = [];
+  let page = 1;
+  let fetchedSubmissions: CanvasSubmissionResponse[];
+
+  do {
+    fetchedSubmissions = await fetchAPI<CanvasSubmissionResponse[]>(
+      `/courses/${courseId}/assignments/${assignmentId}/submissions${SUBMISSION_QUERY_PARAMS}&per_page=${RESULTS_PER_PAGE}&page=${page}`,
+    );
+    canvasSubmissions = canvasSubmissions.concat(fetchedSubmissions);
+    page++;
+  } while (fetchedSubmissions.length === RESULTS_PER_PAGE);
+
+  return canvasSubmissions;
+}
+
+/**
+ * Helper to filter courses by enrollment type and start date (for now).
+ * @param canvasCourses
+ */
+function filterCourses(canvasCourses: CanvasCourse[]): CanvasCourse[] {
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  console.log(oneYearAgo);
+
+  // Step 1: Filter by valid enrollments (teacher or TA)
+  let filteredCourses = canvasCourses.filter((course) =>
+    course.enrollments?.some(
+      (enrollment) => enrollment.type === "teacher" || enrollment.type === "ta",
+    ),
+  );
+
+  // Step 2: Conditionally filter by start date if there are more than 5 courses
+  // todo: temp fix until custom filters are added
+  if (filteredCourses.length > 5) {
+    filteredCourses = filteredCourses.filter((course) => {
+      const startDate = course.start_at ? new Date(course.start_at) : null;
+      return startDate ? startDate >= oneYearAgo : false;
+    });
+  }
+
+  console.log("Filtered courses BELOW");
+  console.log(filteredCourses);
+
+  return filteredCourses;
+}
+
+/**
  * Defines CRUD operations for courses from the Canvas API.
  */
 export const CoursesAPI = {
@@ -80,31 +130,8 @@ export const CoursesAPI = {
    */
   async getCourses(): Promise<Course[]> {
     const canvasCourses = await getAllCourses();
-    const oneYearAgo = new Date();
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-    console.log(oneYearAgo);
 
-    // Step 1: Filter by valid enrollments (teacher or TA)
-    let filteredCourses = canvasCourses.filter((course) =>
-      course.enrollments?.some(
-        (enrollment) =>
-          enrollment.type === "teacher" || enrollment.type === "ta",
-      ),
-    );
-
-    // Step 2: Conditionally filter by start date if there are more than 5 courses
-    // todo: temp fix until custom filters are added
-    if (filteredCourses.length > 5) {
-      filteredCourses = filteredCourses.filter((course) => {
-        const startDate = course.start_at ? new Date(course.start_at) : null;
-        return startDate ? startDate >= oneYearAgo : false;
-      });
-    }
-
-    console.log("Filtered courses BELOW");
-    console.log(filteredCourses);
-
-    return filteredCourses
+    return filterCourses(canvasCourses)
       .map(mapToPaletteCourse)
       .filter((course): course is Course => course !== null);
   },
@@ -132,9 +159,7 @@ export const CoursesAPI = {
     courseId: string,
     assignmentId: string,
   ): Promise<GroupedSubmissions> {
-    const canvasSubmissions = await fetchAPI<CanvasSubmissionResponse[]>(
-      `/courses/${courseId}/assignments/${assignmentId}/submissions${SUBMISSION_QUERY_PARAMS}`,
-    );
+    const canvasSubmissions = await getAllSubmissions(courseId, assignmentId);
 
     return transformSubmissions(canvasSubmissions);
   },
