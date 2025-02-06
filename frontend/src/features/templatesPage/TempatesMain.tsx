@@ -111,7 +111,7 @@ function TemplatesMainContent(): ReactElement {
         <div className="mx-10 rounded-lg flex flex-row">
           <button
             onClick={() => void handleCreateNewTemplate()}
-            className="bg-blue-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="bg-blue-500 text-white font-bold mb-6 rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Create Template
           </button>

@@ -1,5 +1,4 @@
-import { Template, Criteria } from "palette-types";
-import { Tag } from "palette-types/src/types/Tag";
+import { Template, Criteria, Tag } from "palette-types";
 import { v4 as uuid } from "uuid";
 
 export function createTemplate(
@@ -13,8 +12,8 @@ export function createTemplate(
   tags: Tag[] = [],
   points: number = criteria.reduce(
     (acc, criterion) => acc + criterion.pointsPossible,
-    0,
-  ),
+    0
+  )
 ): Template {
   return {
     title,

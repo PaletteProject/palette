@@ -53,8 +53,8 @@ const TemplatesWindow = () => {
           action: () => {
             setDeletingTemplates(
               selectedTemplates.map(
-                (key) => templates.find((t) => t.key === key) as Template,
-              ),
+                (key) => templates.find((t) => t.key === key) as Template
+              )
             );
             closeModal();
           },
@@ -70,7 +70,7 @@ const TemplatesWindow = () => {
 
   const handleBulkExport = () => {
     const selectedTemplatesToExport = templates.filter((t) =>
-      selectedTemplates.includes(t.key),
+      selectedTemplates.includes(t.key)
     );
 
     const exportData = JSON.stringify(selectedTemplatesToExport, null, 2);
@@ -108,9 +108,7 @@ const TemplatesWindow = () => {
                   className="px-2 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center gap-2"
                 >
                   <i className="fas fa-trash-alt" />
-                  Delete Selected ({
-                    selectedTemplates.length
-                  })
+                  Delete Selected ({selectedTemplates.length})
                 </button>
                 <button
                   onClick={handleBulkExport}
@@ -135,8 +133,8 @@ const TemplatesWindow = () => {
           .includes(searchQuery.toLowerCase());
         const matchesTags =
           selectedTagFilters.length === 0 ||
-          selectedTagFilters.every((tagId) =>
-            template.tags.some((tag) => tag.id === tagId),
+          selectedTagFilters.every((tagKey) =>
+            template.tags.some((tag) => tag.key === tagKey)
           );
         return matchesSearch && matchesTags;
       })
@@ -170,7 +168,7 @@ const TemplatesWindow = () => {
 
     if (selectedTemplates.includes(templateKey)) {
       const newSelected = selectedTemplates.filter(
-        (key) => key !== templateKey,
+        (key) => key !== templateKey
       );
       // console.log("New selected after removal:", newSelected);
       setSelectedTemplates(newSelected);

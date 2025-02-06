@@ -12,7 +12,7 @@ import { wildcardRouter } from "./routes/wildcardRouter.js";
 import courseRouter from "./routes/courseRouter.js";
 import userRouter from "./routes/userRouter.js";
 import templateRouter from "./routes/templateRouter.js";
-
+import tagRouter from "./routes/tagRouter.js";
 // Get the directory name
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -48,6 +48,7 @@ app.get("/health", (_req: Request, res: Response) => {
 app.use("/api/courses", courseRouter);
 app.use("/api/user", userRouter);
 app.use("/api/templates", templateRouter);
+app.use("/api/tags", tagRouter);
 app.get("*", wildcardRouter);
 
 // field validation error handling middleware
@@ -59,9 +60,9 @@ app.use(fallbackErrorHandler);
 // Start the server and listen on port defined in .env file
 app.listen(PORT, () => {
   console.log(
-    "\nPalette started!\n\nAccess the application at http://localhost:5173",
+    "\nPalette started!\n\nAccess the application at http://localhost:5173"
   );
   console.log(
-    `Swagger API documentation available at http://localhost:${PORT}/api-docs`,
+    `Swagger API documentation available at http://localhost:${PORT}/api-docs`
   );
 });

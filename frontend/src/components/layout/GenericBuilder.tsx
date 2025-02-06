@@ -36,6 +36,8 @@ export const GenericBuilder = ({
     viewOrEdit,
     setTagModalOpen,
     templates,
+    addingTagFromBuilder,
+    setAddingTagFromBuilder,
   } = useTemplatesContext();
 
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
@@ -50,11 +52,11 @@ export const GenericBuilder = ({
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   const handleDocumentTitleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     e.preventDefault();
 
@@ -84,7 +86,7 @@ export const GenericBuilder = ({
       criteria: newCriteria,
       points: newCriteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       ),
     };
     if (builderType === "template") {
@@ -107,7 +109,7 @@ export const GenericBuilder = ({
       const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
       updatedTemplate.points = updatedTemplate.criteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       );
       // console.log("updatedTemplate points", updatedTemplate.points);
       setEditingTemplate(updatedTemplate as Template);
@@ -206,7 +208,7 @@ export const GenericBuilder = ({
         criteria: newCriteria,
         points: newCriteria.reduce(
           (acc, criterion) => acc + criterion.pointsPossible,
-          0,
+          0
         ),
       };
       setEditingTemplate(updatedTemplate as Template);
@@ -259,7 +261,7 @@ export const GenericBuilder = ({
       const isDuplicateName = templates.some(
         (t) =>
           t.title.toLowerCase() === document?.title.toLowerCase() &&
-          t.key !== document?.key,
+          t.key !== document?.key
       );
       if (isDuplicateName) {
         setModal({
@@ -283,7 +285,7 @@ export const GenericBuilder = ({
   return (
     <>
       <form
-        className="h-full grid p-4 sm:p-6 w-full max-w-3xl my-3 gap-4 bg-gray-800 shadow-lg rounded-lg"
+        className="h-full grid p-4 sm:p-6 md:p-4 w-full max-w-3xl my-3 gap-4 bg-gray-800 shadow-lg rounded-lg"
         onSubmit={(event) => event.preventDefault()}
       >
         {viewOrEdit === "edit" ? (
@@ -311,11 +313,15 @@ export const GenericBuilder = ({
             {editingTemplate?.points}{" "}
             {editingTemplate?.points === 1 ? "Point" : "Points"}
           </h2>
+
           <div className="flex gap-2">
             <button
               className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-1 px-3
                        hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={() => setTagModalOpen(true)}
+              onClick={() => {
+                setAddingTagFromBuilder(true);
+                setTagModalOpen(true);
+              }}
             >
               Add Tag
             </button>

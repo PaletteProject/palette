@@ -236,6 +236,9 @@ export default function TemplateCard({
           isOpen={tagModalOpen}
           onClose={() => setTagModalOpen(false)}
           setAvailableTags={handleSetAvailableTags}
+          onCreateTags={() => {
+            setTagModalOpen(false);
+          }}
         />
       )}
     </>
