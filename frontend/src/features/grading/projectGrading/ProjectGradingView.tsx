@@ -137,7 +137,7 @@ export function ProjectGradingView({
     console.log(gradedSubmissions);
 
     /**
-     * Loop through graded submissions and send eachone to the backend.
+     * Loop through graded submissions and send each one to the backend.
      */
     for (const gradedSubmission of gradedSubmissions) {
       await submitGrades(gradedSubmission);
