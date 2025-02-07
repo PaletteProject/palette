@@ -23,11 +23,7 @@ export function SubmissionsDashboard({
           "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
         }
       >
-        {Object.entries(submissions).map(([groupId, groupSubmissions]) => {
-          // read group name from first entry
-          const groupName: string =
-            groupSubmissions[0]?.group?.name || "No Group";
-
+        {Object.entries(submissions).map(([groupName, groupSubmissions]) => {
           const calculateGradingProgress = () => {
             if (groupSubmissions.length === 0) return 0; // no submissions to grade
 
@@ -42,7 +38,7 @@ export function SubmissionsDashboard({
           };
           return (
             <GroupSubmissions
-              key={groupId}
+              key={`${groupName}}`}
               groupName={groupName}
               progress={calculateGradingProgress()}
               submissions={groupSubmissions}

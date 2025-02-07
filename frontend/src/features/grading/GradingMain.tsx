@@ -15,7 +15,7 @@ export function GradingMain(): ReactElement {
   // state
   const [rubric, setRubric] = useState<Rubric>();
   const [submissions, setSubmissions] = useState<GroupedSubmissions>({
-    "no-group": [],
+    "No Group": [],
   });
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -36,7 +36,7 @@ export function GradingMain(): ReactElement {
    */
   const resetState = () => {
     setRubric(undefined);
-    setSubmissions({ "no-group": [] });
+    setSubmissions({ "No Group": [] });
   };
 
   // fetch rubric and submissions when course or assignment change
