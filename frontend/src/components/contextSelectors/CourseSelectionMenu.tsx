@@ -61,7 +61,11 @@ export function CourseSelectionMenu({
     if (courses.length === 0) return <div>No courses available to display</div>;
 
     return (
-      <div className={"grid gap-2 my-1"}>
+      <div
+        className={
+          "grid gap-2 my-1 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
+        }
+      >
         Select the course you'd like to grade:
         <div>
           {courses.map((course: Course) => (

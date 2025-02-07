@@ -32,3 +32,4 @@ export * from "./types/Assignment";
 export * from "./types/Submission";
 export * from "./types/Settings";
 export * from "./types/GroupedSubmissions";
+export * from "./types/Tag";

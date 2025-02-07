@@ -13,7 +13,8 @@ import {
 } from "react";
 
 import CriteriaInput from "./CriteriaCard.tsx";
-import TemplateUpload from "./templates/TemplateUpload.tsx";
+import TemplateUpload from "./TemplateUpload.tsx";
+// import TemplateUpload from "./templates/TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
 import {

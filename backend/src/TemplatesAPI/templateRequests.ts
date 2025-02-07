@@ -42,6 +42,8 @@ export const TemplateService = {
       template.criteria = templateData.criteria;
       template.id = templateData.id;
       template.key = templateData.key;
+      template.tags = templateData.tags;
+      template.points = templateData.points;
       if (templateIndex === -1) {
         // only push if the template doesn't already exist
         localTemplates.push(template);
@@ -71,7 +73,7 @@ export const TemplateService = {
     const templateData = (await req.body) as Template | null;
     if (templateData) {
       const templateIndex = localTemplates.findIndex(
-        (tmplt: Template) => tmplt.title === templateData.title,
+        (tmplt: Template) => tmplt.key === templateData.key,
       );
       console.log("templateIndex", templateIndex);
       console.log("templateData", templateData);
@@ -96,15 +98,17 @@ export const TemplateService = {
   }),
 
   // DELETE REQUESTS (Templates Page Functions)
-  deleteTemplateByKey: asyncHandler(async (req: Request, res: Response) => {
+  deleteTemplateByKey: (req: Request, res: Response) => {
+    console.log("deleteTemplateByKey request", req.params);
     const templatesData = fs.readFileSync(templatesPath, "utf8");
     const localTemplates = JSON.parse(templatesData) as Template[];
-    const templateData = (await req.body) as Template | null;
-    const templateKey = templateData?.key;
+    const templateKey = req.params.key;
+    console.log("templateKey", templateKey);
     if (templateKey) {
       const templateIndex = localTemplates.findIndex(
         (tmplt: Template) => tmplt.key === templateKey,
       );
+      console.log("templateIndex", templateIndex);
       if (templateIndex !== -1) {
         localTemplates.splice(templateIndex, 1);
         fs.writeFileSync(
@@ -120,7 +124,7 @@ export const TemplateService = {
     };
 
     res.json(apiResponse);
-  }),
+  },
 
   deleteAllCriteriaByTitle: asyncHandler(
     async (req: Request, res: Response) => {
@@ -252,7 +256,6 @@ export const TemplateService = {
       const templateIndex = localTemplates.findIndex(
         (tmplt: Template) => tmplt.title === templateTitle,
       );
-      console.log("templateIndex in getTemplateByTitle", templateIndex);
       if (templateIndex !== -1) {
         const apiResponse: PaletteAPIResponse<Template> = {
           success: true,

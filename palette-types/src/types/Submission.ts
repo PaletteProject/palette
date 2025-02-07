@@ -9,9 +9,9 @@ export interface Submission {
     name: string;
     asurite: string; // stored as user.login_id in Canvas Submission response
   };
-  group?: {
+  group: {
     id: number;
-    name?: string;
+    name: string;
   };
   comments: {
     id: number;

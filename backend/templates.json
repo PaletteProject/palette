@@ -1,0 +1,602 @@
+[
+  {
+    "title": "ndghn",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "66e07e3b-547d-4fbe-90a2-80f5e6633ad8"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "073cc8fc-194f-46c1-8f5d-72659b01c285"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "c88ae20f-abea-4b8f-9d56-b9efb027a180",
+        "templateTitle": "",
+        "key": "14e7a65e-95ac-4a80-b0b0-7c0fdc84f9f4",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "02a857ef-f084-400e-b646-bedf49e50c82"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "59a2f6aa-ab82-4636-83c0-3843e862e72a"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "c88ae20f-abea-4b8f-9d56-b9efb027a180",
+        "templateTitle": "",
+        "key": "3ec604cf-2ccf-4438-847e-61b064960b7e",
+        "points": 5
+      }
+    ],
+    "key": "c88ae20f-abea-4b8f-9d56-b9efb027a180",
+    "description": "",
+    "createdAt": "2025-02-02T22:34:38.675Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 10
+  },
+  {
+    "title": "dfgsdfg",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "d97c6edd-45ab-4da7-beef-76e99ff9494e"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "6573c66c-4dd4-4edb-9a61-d7f04c2e3957"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "c9a5bf39-387e-4fb6-b996-c91db9b8cc2e",
+        "templateTitle": "",
+        "key": "d4c85755-ef08-47c5-bf9a-33022c412133",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "c20de1fa-178c-4a22-a574-60373eaa0304"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "44c62efd-4ef2-4b48-a1ec-ee92f6be1912"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "c9a5bf39-387e-4fb6-b996-c91db9b8cc2e",
+        "templateTitle": "",
+        "key": "b714b790-9d9c-4146-bfcf-6c8eb52eb485",
+        "points": 5
+      }
+    ],
+    "key": "c9a5bf39-387e-4fb6-b996-c91db9b8cc2e",
+    "description": "",
+    "createdAt": "2025-02-02T22:36:10.105Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 10
+  },
+  {
+    "title": "xyz",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "617743b2-7ff7-42d0-ac75-7ba4b16a7eaa"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "bc0d2d73-f4c8-47d9-a139-b7bdb0f71407"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "e9a0df2e-e5a9-4bf3-a28c-fc0a48193761",
+        "templateTitle": "",
+        "key": "386654ee-7499-4633-85f2-c2962567acb7",
+        "points": 5
+      }
+    ],
+    "key": "e9a0df2e-e5a9-4bf3-a28c-fc0a48193761",
+    "description": "",
+    "createdAt": "2025-02-02T22:36:21.617Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 5
+  },
+  {
+    "title": "ABC",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "bdd58b90-505c-4da0-9e08-7ad9868b5e6c"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "759bb632-76d2-46f5-a06a-5f8a6938c66e"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "14349bad-ce3c-41c4-8984-7161ee80c4e4",
+        "templateTitle": "",
+        "key": "1d6c4627-4685-485b-95ea-d31351a02b9e",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "4ec989b1-5a43-4f0e-a10d-c672d222253f"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "6948dbd3-ea54-438e-802b-a949f8ee25e8"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "14349bad-ce3c-41c4-8984-7161ee80c4e4",
+        "templateTitle": "",
+        "key": "0d5b183d-f734-4d7a-aa44-d2275dbd3fac",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "854df847-a7ca-4544-b74b-86d7675b875b"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "28bcbde1-3cab-4f46-b01f-066124bceb2a"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "14349bad-ce3c-41c4-8984-7161ee80c4e4",
+        "templateTitle": "",
+        "key": "330cefb8-c6bd-4a88-910f-0f4d0c2cdbb2",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "b1e8bc32-7f4a-4d2f-ac87-293fd105228a"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "221ae792-deb0-40ec-8193-437510ae9c5e"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "14349bad-ce3c-41c4-8984-7161ee80c4e4",
+        "templateTitle": "",
+        "key": "4ef89bd1-96be-4634-8529-7cf937d49b6e",
+        "points": 5
+      }
+    ],
+    "key": "14349bad-ce3c-41c4-8984-7161ee80c4e4",
+    "description": "",
+    "createdAt": "2025-02-05T01:09:25.681Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 20
+  },
+  {
+    "title": "Newwwwww",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "b19de91c-c0be-4f5d-94e3-3947ee036ecd"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "d4a6f0a8-ae81-48a7-aac5-90243c3ae6f9"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "a9b15564-d14b-4b7f-853e-1581fce3a39c",
+        "templateTitle": "",
+        "key": "eb69a58e-67ac-48c8-bd96-838d099e2216",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "98256879-0402-4a26-b532-9865a26e63be"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "76f72285-6bc6-47bc-bdca-d606649d240c"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "a9b15564-d14b-4b7f-853e-1581fce3a39c",
+        "templateTitle": "",
+        "key": "1042c781-5636-4dd9-a9ea-cadbcd6392fe",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "0f56c894-2c5e-445a-98fc-66b3b77fb46b"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "305dc0cd-bc38-4d3a-97aa-e5b2ca3e0e28"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "a9b15564-d14b-4b7f-853e-1581fce3a39c",
+        "templateTitle": "",
+        "key": "94714d03-9e84-4603-a177-a078f301b656",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "a917d0c2-ff29-4cbd-8ef7-b8c504323e2a"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "2e73582a-98b1-4596-b29c-7e472c40b0af"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "a9b15564-d14b-4b7f-853e-1581fce3a39c",
+        "templateTitle": "",
+        "key": "37d5fa4a-ec4f-494b-acfa-5088ac005c98",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "02cc6108-7c62-465a-b475-3004bd7a9e19"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "f6bf029c-b863-4edf-8054-7cbdbacae8e5"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "a9b15564-d14b-4b7f-853e-1581fce3a39c",
+        "templateTitle": "",
+        "key": "3736b4e1-cc0d-4000-99e7-9a3f9fc5b29b",
+        "points": 5
+      }
+    ],
+    "key": "a9b15564-d14b-4b7f-853e-1581fce3a39c",
+    "description": "",
+    "createdAt": "2025-02-05T01:13:58.478Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 25
+  },
+  {
+    "title": "fss",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "774d3a1e-b66f-4dd5-afa6-dee023d01c70"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "b21a9e09-9e9b-480e-be0c-c22e1a3eaade"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "767fcfc0-eb77-47d7-859d-b91ef7b2f3e4",
+        "templateTitle": "",
+        "key": "b797e546-e877-4743-bbdf-0c3ec7010512",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "39739031-dfe1-4865-83d9-4968cb588306"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "e4907c3d-0bfb-4ed4-ae69-77a6c40a2776"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "767fcfc0-eb77-47d7-859d-b91ef7b2f3e4",
+        "templateTitle": "",
+        "key": "2b0896fc-38f9-4a6a-8d00-41869ab33bb5",
+        "points": 5
+      }
+    ],
+    "key": "767fcfc0-eb77-47d7-859d-b91ef7b2f3e4",
+    "description": "",
+    "createdAt": "2025-02-05T01:15:00.916Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 10
+  },
+  {
+    "title": "sdfsdf",
+    "criteria": [
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "27c93e9d-b6fa-41dc-80bb-0a61d3efcd5a"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "ec8d688a-2c50-4184-8b65-073ba912d940"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "0c434a3f-112e-4eae-a3c3-a1e8235c26ad",
+        "templateTitle": "",
+        "key": "8ed5e4f9-5e80-4a60-b33d-a49b80fe8f0a",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "0501e0c8-b724-4b30-9296-05c39b0ca15a"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "95077e68-0ab5-4208-af58-a44c2081a85a"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "0c434a3f-112e-4eae-a3c3-a1e8235c26ad",
+        "templateTitle": "",
+        "key": "d433db4b-1b6a-41b1-bf81-aff9c1ebb195",
+        "points": 5
+      },
+      {
+        "ratings": [
+          {
+            "points": 5,
+            "description": "Well done",
+            "longDescription": "",
+            "id": "",
+            "key": "a01239e6-a7e5-4e21-9f71-c11cbfba75fb"
+          },
+          {
+            "points": 0,
+            "description": "Not included",
+            "longDescription": "",
+            "id": "",
+            "key": "f98340dc-9d7d-4f70-b36a-3c9d25da6644"
+          }
+        ],
+        "description": "",
+        "longDescription": "",
+        "pointsPossible": 5,
+        "id": "",
+        "template": "0c434a3f-112e-4eae-a3c3-a1e8235c26ad",
+        "templateTitle": "",
+        "key": "0037be87-553c-489b-b8a3-659d4df3f08f",
+        "points": 5
+      }
+    ],
+    "key": "0c434a3f-112e-4eae-a3c3-a1e8235c26ad",
+    "description": "",
+    "createdAt": "2025-02-05T01:16:48.861Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 15
+  },
+  {
+    "title": "asdfas",
+    "criteria": [],
+    "key": "d980afee-c23f-42de-a630-4c65cfd86ca2",
+    "description": "",
+    "createdAt": "2025-02-05T02:58:21.326Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 0
+  },
+  {
+    "title": "asdfasdf",
+    "criteria": [],
+    "key": "14497d83-6986-43ca-bbd0-2fe7ac8ed002",
+    "description": "",
+    "createdAt": "2025-02-05T02:59:09.025Z",
+    "lastUsed": null,
+    "usageCount": 0,
+    "tags": [],
+    "points": 0
+  }
+]

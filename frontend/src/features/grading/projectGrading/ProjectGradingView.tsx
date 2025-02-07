@@ -137,7 +137,7 @@ export function ProjectGradingView({
     console.log(gradedSubmissions);
 
     /**
-     * Loop through graded submissions and send eachone to the backend.
+     * Loop through graded submissions and send each one to the backend.
      */
     for (const gradedSubmission of gradedSubmissions) {
       await submitGrades(gradedSubmission);
@@ -215,6 +215,9 @@ export function ProjectGradingView({
             <tr key={submission.id}>
               <td className="border border-gray-500 px-4 py-2">
                 {`${submission.user.name} (${submission.user.asurite})`}
+                <span className={"ml-4 text-red-600 font-bold"}>
+                  No Submission
+                </span>
               </td>
               {rubric.criteria.map((criterion: Criteria) => (
                 <td
@@ -237,16 +240,10 @@ export function ProjectGradingView({
                     }
                   >
                     <option value="" disabled>
-                      {submission.workflowState === "unsubmitted"
-                        ? "Not Submitted"
-                        : "Select a Rating"}
+                      Select a Rating
                     </option>
                     {criterion.ratings.map((rating) => (
-                      <option
-                        value={rating.points}
-                        key={rating.key}
-                        disabled={submission.workflowState === "unsubmitted"}
-                      >
+                      <option value={rating.points} key={rating.key}>
                         {`${rating.description} - ${rating.points} Points`}
                       </option>
                     ))}
@@ -260,5 +257,7 @@ export function ProjectGradingView({
     );
   };
 
-  return <div>{renderGradingPopup()}</div>;
+  return (
+    <div className={"max-h-48 overflow-y-auto"}>{renderGradingPopup()}</div>
+  );
 }

@@ -21,7 +21,7 @@ describe("RubricCriterion", () => {
 
       expect(criterion.description).toBe("");
       expect(criterion.longDescription).toBe("");
-      expect(criterion.pointsPossible).toBe(0);
+      expect(criterion.pointsPossible).toBe(5);
       expect(criterion.ratings).toHaveLength(2);
       expect(criterion.id).toBe("");
       expect(criterion.key).toBe("test-uuid"); // Mocked UUID
@@ -35,8 +35,8 @@ describe("RubricCriterion", () => {
       const criterion = createCriterion(
         "Criterion Title",
         "Detailed description",
-        15,
         mockRatings,
+        15,
         "123",
       );
 
@@ -76,9 +76,11 @@ describe("RubricCriterion", () => {
       const criterion = createCriterion(
         "Criterion with Ratings",
         "Long Description",
-        0,
         ratings,
+        0,
       );
+
+      // Call updatePoints to update the points based on the ratings
 
       // Call updatePoints to update the points based on the ratings
       criterion.updatePoints();

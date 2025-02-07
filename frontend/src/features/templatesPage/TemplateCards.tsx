@@ -4,99 +4,51 @@ import {
   useEffect,
   useState,
 } from "react";
-import CriteriaCard from "../rubricBuilder/CriteriaCard.tsx";
 
-import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable"; // Import useSortable
+import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
-import { Criteria, Template } from "palette-types";
-import { createCriterion } from "@utils";
-import { createTemplate } from "../../utils/templateFactory.ts";
-import { AnimatePresence, motion } from "framer-motion";
+import { Tag, Template } from "palette-types";
+import { Dialog } from "@components";
+import TemplateTagCreator from "src/features/templatesPage/TemplateTagCreator.tsx";
+import { useTemplatesContext } from "./TemplateContext.tsx";
+
+import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
+
+interface TemplateCardProps {
+  template: Template;
+}
 
 export default function TemplateCard({
-  index,
-  activeTemplateIndex,
   template,
-  handleTemplateUpdate,
-  removeTemplate,
-  setActiveTemplateIndex,
-}: {
-  index: number;
-  activeTemplateIndex: number;
-  template: Template;
-  handleTemplateUpdate: (index: number, template: Template) => void;
-  removeTemplate: (index: number) => void;
-  setActiveTemplateIndex: (index: number) => void;
-}): ReactElement {
-  const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
-  // tracks which criterion card is displaying the detailed view (limited to one at a time)
-  const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
-  const [currentTemplate, setCurrentTemplate] = useState<Template>(
-    createTemplate() || null,
-  );
+}: TemplateCardProps): ReactElement {
+  const {
+    layoutStyle,
+    handleUpdateTemplate,
+    handleRemoveTemplate,
+    templates,
+    isNewTemplate,
+    index,
+    handleDuplicateTemplate,
+    setViewOrEdit,
+    editingTemplate,
+    setEditingTemplate,
+    focusedTemplateKey,
+    setFocusedTemplateKey,
+    setIsNewTemplate,
+    setShowBulkActions,
+    handleSubmitEditedTemplate,
+    setViewingTemplate,
+  } = useTemplatesContext();
+  const [tagModalOpen, setTagModalOpen] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
-  /**
-   * Whenever ratings change, recalculate criterion's max points
-   */
-  useEffect(() => {
-    if (!template) return;
-    const maxPoints = template.criteria.reduce((acc, criterion) => {
-      return acc + criterion.ratings.length;
-    }, 0);
-    setMaxPoints(maxPoints);
-  }, [currentTemplate]);
-
-  /**
-   * Criteria change functionality.
-   */
-
-  const handleRemoveTemplateButton = (
-    event: ReactMouseEvent,
-    index: number,
-  ) => {
-    event.preventDefault();
-    event.stopPropagation();
-    removeTemplate(index);
-  };
-
-  const handleExpandTemplate = () => {
-    setActiveTemplateIndex(index);
-  };
-
-  // update rubric state with new list of criteria
-  const handleAddCriteria = (event: ReactMouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    if (!template) return;
-    const newCriteria = [...template.criteria, createCriterion()];
-    setCurrentTemplate({ ...template, criteria: newCriteria });
-    handleTemplateUpdate(index, { ...template, criteria: newCriteria });
-    setActiveCriterionIndex(newCriteria.length - 1);
-  };
-
-  const handleRemoveCriterion = (index: number) => {
-    if (!template) return;
-    const newCriteria = [...template.criteria];
-    newCriteria.splice(index, 1); // remove the target criterion from the array
-    handleTemplateUpdate(index, { ...template, criteria: newCriteria });
-  };
-
-  // update criterion at given index
-  const handleUpdateCriterion = (index: number, criterion: Criteria) => {
-    if (!template) return;
-    const newCriteria = [...template.criteria];
-    newCriteria[index] = criterion; // update the criterion with changes;
-
-    handleTemplateUpdate(index, { ...template, criteria: newCriteria }); // update rubric to have new criteria
-  };
+  const [viewOrEditClicked, setViewOrEditClicked] = useState(false);
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
 
   // Use the useSortable hook to handle criteria ordering
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: template.key,
+      id: template?.key || "",
     });
 
   const style = {
@@ -104,126 +56,188 @@ export default function TemplateCard({
     transition,
   };
 
-  const renderCriteriaCards = () => {
-    if (!template) return;
-    return (
-      <SortableContext
-        items={template.criteria.map((criterion) => criterion.key)}
-        strategy={verticalListSortingStrategy}
-      >
-        <AnimatePresence>
-          {template.criteria.map((criterion, index) => (
-            <motion.div
-              key={criterion.key}
-              initial={{
-                opacity: 0,
-                y: 50,
-              }} // Starting state (entry animation)
-              animate={{
-                opacity: 1,
-                y: 0,
-              }} // Animate to this state when in the DOM
-              exit={{ opacity: 0, x: 50 }} // Ending state (exit animation)
-              transition={{ duration: 0.3 }} // Controls the duration of the animations
-              className="my-1"
-            >
-              <CriteriaCard
-                index={index}
-                activeCriterionIndex={activeCriterionIndex}
-                criterion={criterion}
-                handleCriteriaUpdate={handleUpdateCriterion}
-                removeCriterion={handleRemoveCriterion}
-                setActiveCriterionIndex={setActiveCriterionIndex}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </SortableContext>
-    );
+  const handleCondensedViewClick = (event: ReactMouseEvent, key: string) => {
+    event.preventDefault();
+    const templateToFocus = templates.find((t) => t.key === key) as Template;
+    setViewingTemplate(templateToFocus);
+    setEditingTemplate(templateToFocus);
+    // If clicking the currently focused template, unfocus it
+
+    if (focusedTemplateKey === key) {
+      setFocusedTemplateKey(null);
+      setIsFocused(false);
+    } else {
+      // Focus this template and unfocus others
+      setFocusedTemplateKey(key);
+      setIsFocused(true);
+    }
+  };
+
+  // Add effect to sync local focus state with global focused key
+  useEffect(() => {
+    setIsFocused(focusedTemplateKey === template?.key);
+  }, [focusedTemplateKey, template?.key]);
+
+  const handleSetAvailableTags = (tags: Tag[]) => {
+    const updatedTemplate = { ...editingTemplate, tags };
+    // console.log(updatedTemplate);
+    setEditingTemplate(updatedTemplate as Template);
+    handleUpdateTemplate(index, updatedTemplate as Template);
+  };
+
+  const submitTemplate = () => {
+    handleSubmitEditedTemplate();
+
+    setTemplateDialogOpen(false);
+    setIsNewTemplate(false);
+    setShowBulkActions(false);
+  };
+
+  const handleCloseModal = () => {
+    setTemplateDialogOpen(false);
+  };
+
+  const handleViewModeToggle = () => {
+    setViewOrEdit("edit");
+    setViewOrEditClicked(true);
+    setTemplateDialogOpen(true);
+  };
+
+  const copyTemplate = (key: string) => {
+    handleDuplicateTemplate(key);
+  };
+
+  const removeTemplate = (key: string) => {
+    console.log("removing template", key);
+    handleRemoveTemplate(key);
   };
 
   const renderCondensedView = () => {
     return (
       <div
-        ref={setNodeRef} // Set the ref here for the sortable functionality
-        style={style} // Apply the sortable style
-        {...attributes} // Spread the attributes
-        {...listeners} // Spread the listeners
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
         className={`hover:bg-gray-500 hover:cursor-pointer max-h-12 flex justify-between items-center border border-gray-700 shadow-xl p-6 rounded-lg w-full bg-gray-700
+          ${isFocused ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800" : ""}
+          ${layoutStyle === "grid" && isFocused ? "shadow-2xl shadow-gray-900/50" : ""}
         }`}
-        onDoubleClick={handleExpandTemplate}
+        title="Click to toggle expansion"
+        onClick={(event) => handleCondensedViewClick(event, template?.key)}
       >
         <div className="text-gray-300">
-          <strong>{template.title}</strong> - Max Points: {maxPoints}
-        </div>
-        <div className={"flex gap-3"}>
-          <button
-            onPointerDown={(
-              event: ReactMouseEvent, // Change to onPointerDown
-            ) => handleRemoveTemplateButton(event, index)}
-            type={"button"}
-            className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
-          >
-            Remove
-          </button>
-          <button
-            onPointerDown={handleExpandTemplate}
-            type={"button"}
-            className="transition-all ease-in-out duration-300 bg-emerald-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-emerald-700 focus:outline-none border-2 border-transparent"
-          >
-            Edit
-          </button>
+          <strong>{template?.title}</strong> - Points: {template?.points}
         </div>
       </div>
     );
   };
 
-  const renderDetailedView = () => {
+  const renderTemplateMetadata = () => {
     return (
-      <form
-        className="h-full self-center grid p-10 w-full max-w-3xl my-6 gap-6 bg-gray-800 shadow-lg rounded-lg"
-        onSubmit={(event) => event.preventDefault()}
+      <div
+        className={`bg-gradient-to-br from-gray-700 to-gray-600 p-4 border-4 border-gray-700 mt-4 rounded-lg w-full
+          ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800`}
       >
-        <h1 className="font-extrabold text-5xl mb-2 text-center">
-          {template.title}
-        </h1>
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-extrabold bg-green-600 text-black py-2 px-4 rounded-lg">
-            {maxPoints} {maxPoints === 1 ? "Point" : "Points"}
-          </h2>
-        </div>
+        <div className="flex-1">
+          <p className="text-gray-300 mt-2 line-clamp-2">
+            This is where the description goes. Will update this later in the
+            rubric builder later.
+          </p>
 
-        <div className="mt-6 flex flex-col gap-3 h-[35vh] max-h-[50vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
-          {renderCriteriaCards()}
-        </div>
+          {/* Template Statistics */}
+          <div className="text-sm text-gray-400 mt-4">
+            <p>
+              Created:{" "}
+              {template?.createdAt
+                ? new Date(template?.createdAt).toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "Never"}
+            </p>
+            <p>
+              Last Used:{" "}
+              {template?.lastUsed
+                ? new Date(template?.lastUsed).toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "Never"}
+            </p>
+            <p>Times Used: {template?.usageCount || 0}</p>
+            <p>
+              Tags:{" "}
+              {template?.tags?.length && template?.tags?.length > 0
+                ? template?.tags.map((tag) => tag.name).join(", ")
+                : "None"}
+            </p>
+            <p>Template Key: {template?.key}</p>
+          </div>
 
-        <div className="grid gap-4 mt-6">
-          <button
-            className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
-                     hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onClick={handleAddCriteria}
-            type={"button"}
-          >
-            Add Criteria
-          </button>
-          <button
-            className="transition-all ease-in-out duration-300 bg-green-600 text-white font-bold rounded-lg py-2 px-4
-                     hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
-            // onClick={(event) => void handleSubmitRubric(event)}
-            type={"button"}
-          >
-            Save Template
-          </button>
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={handleViewModeToggle}
+              className="transition-all ease-in-out duration-300 text-blue-400 hover:text-blue-500 focus:outline-none"
+            >
+              View
+            </button>
+            <button
+              onClick={() => copyTemplate(template?.key)}
+              className="transition-all ease-in-out duration-300 text-green-400 hover:text-green-500 focus:outline-none"
+            >
+              Copy
+            </button>
+            <button
+              onPointerDown={() => removeTemplate(template?.key)}
+              type="button"
+              className="transition-all ease-in-out duration-300 text-red-600 hover:text-red-700 focus:outline-none"
+            >
+              Remove
+            </button>
+          </div>
         </div>
-      </form>
+      </div>
     );
   };
 
   return (
     <>
-      {activeTemplateIndex === index
-        ? renderDetailedView()
-        : renderCondensedView()}
+      <div className={`w-full `}>
+        {renderCondensedView()}
+        {isFocused && renderTemplateMetadata()}
+      </div>
+      {(isNewTemplate || viewOrEditClicked) && (
+        <Dialog
+          isOpen={templateDialogOpen}
+          onClose={handleCloseModal}
+          title={""}
+          children={
+            <GenericBuilder
+              builderType="template"
+              document={editingTemplate as Template}
+              setDocument={(template) =>
+                setEditingTemplate(template as Template)
+              }
+              onSubmit={submitTemplate}
+            />
+          }
+        />
+      )}
+
+      {tagModalOpen && (
+        <TemplateTagCreator
+          isOpen={tagModalOpen}
+          onClose={() => setTagModalOpen(false)}
+          setAvailableTags={handleSetAvailableTags}
+        />
+      )}
     </>
   );
 }

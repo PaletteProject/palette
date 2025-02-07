@@ -5,15 +5,16 @@ import {
   useEffect,
   useState,
 } from "react";
-
+import { useLocation } from "react-router-dom";
 import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Rating } from "palette-types";
 import { createRating } from "@utils";
 import { RatingCard } from "./RatingCard.tsx";
-import TemplateSetter from "./templates/TemplateSetter.tsx";
+import TemplateSetter from "./TemplateSetter.tsx";
 import { Dialog, PaletteActionButton } from "@components";
 import { motion } from "framer-motion";
+import { useTemplatesContext } from "src/features/templatesPage/TemplateContext";
 
 export default function CriteriaCard({
   index,
@@ -30,6 +31,7 @@ export default function CriteriaCard({
   removeCriterion: (index: number, criterion: Criteria) => void;
   setActiveCriterionIndex: (index: number) => void;
 }): ReactElement {
+  const { viewOrEdit } = useTemplatesContext();
   const [ratings, setRatings] = useState<Rating[]>(criterion.ratings);
   const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
   const [templateSetterActive, setTemplateSetterActive] = useState(false); // file input display is open or not
@@ -38,6 +40,8 @@ export default function CriteriaCard({
   );
 
   const [templateTitle, setTemplateTitle] = useState(criterion.template || "");
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   /**
    * Whenever ratings change, recalculate criterion's max points
@@ -86,9 +90,23 @@ export default function CriteriaCard({
     const updatedRatings = ratings.map((rating, index) =>
       index === ratingIndex ? updatedRating : rating,
     );
+
+    // Calculate total points (sum of all rating points)
+    const totalPoints = updatedRatings.reduce(
+      (sum, rating) => sum + rating.points,
+      0,
+    );
+
     setRatings(updatedRatings);
-    criterion.ratings = updatedRatings;
-    handleCriteriaUpdate(index, criterion);
+    setMaxPoints(totalPoints);
+
+    // Update criterion with both new ratings and total points
+    const updatedCriterion = {
+      ...criterion,
+      ratings: updatedRatings,
+      pointsPossible: totalPoints,
+    };
+    handleCriteriaUpdate(index, updatedCriterion);
   };
 
   const handleSetTemplateTitle = (event: ChangeEvent<HTMLInputElement>) => {
@@ -146,8 +164,7 @@ export default function CriteriaCard({
     }
   };
 
-  const renderTemplateSetter = () => {
-    //console.log("Test");
+  const renderTemplateSetter = (): ReactElement | null => {
     if (templateSetterActive) {
       return (
         <TemplateSetter
@@ -157,6 +174,7 @@ export default function CriteriaCard({
         />
       );
     }
+    return null;
   };
 
   const handleCloseTemplateSetter = () => {
@@ -190,26 +208,27 @@ export default function CriteriaCard({
         >
           {criteriaDescription}
         </div>
-        <div
-          id={"rhs-condensed-view"}
-          className={"flex flex-col items-center gap-2"}
-        >
-          <div className={"flex gap-3"}>
-            <PaletteActionButton
-              color={"RED"}
-              title={"Remove"}
-              onPointerDown={(event: ReactMouseEvent) =>
-                handleRemoveCriteriaButton(event, index)
-              }
-            />
-
-            <PaletteActionButton
-              color={"GREEN"}
-              onPointerDown={handleExpandCriterion}
-              title={"Edit"}
-            />
-          </div>
-          <div className={"font-bold"}>{`Max Points: ${maxPoints}`}</div>
+        <div className={"flex gap-3"}>
+          {(viewOrEdit == "edit" || currentPath == "/rubric-builder") && (
+            <>
+              <button
+                onPointerDown={(
+                  event: ReactMouseEvent, // Change to onPointerDown
+                ) => handleRemoveCriteriaButton(event, index)}
+                type={"button"}
+                className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
+              >
+                Remove
+              </button>
+              <button
+                onPointerDown={handleExpandCriterion}
+                type={"button"}
+                className="transition-all ease-in-out duration-300 bg-emerald-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-emerald-700 focus:outline-none border-2 border-transparent"
+              >
+                Edit
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
@@ -252,32 +271,45 @@ export default function CriteriaCard({
           {renderRatingOptions()}
         </motion.div>
 
-        <div className="flex gap-2 items-center justify-center">
-          <PaletteActionButton
-            color={"PURPLE"}
-            onClick={(event) => handleAddRating(event, index)}
-            title={"Add Rating"}
-          />
+        <div
+          className={`flex gap-2 items-center ${currentPath === "/templates" ? "justify-start" : "justify-center"}`}
+        >
+          {viewOrEdit == "edit" && (
+            <>
+              <PaletteActionButton
+                color={"PURPLE"}
+                onClick={(event) => handleAddRating(event, index)}
+                title={"Add Rating"}
+              />
+            </>
+          )}
 
           <PaletteActionButton
             color={"YELLOW"}
             onPointerDown={() => setActiveCriterionIndex(-1)}
             title={"Collapse Card"}
           />
+          {viewOrEdit == "edit" && (
+            <>
+              <PaletteActionButton
+                color={"RED"}
+                onPointerDown={(event: ReactMouseEvent<HTMLButtonElement>) =>
+                  handleRemoveCriteriaButton(event, index)
+                }
+                title={"Remove Criterion"}
+              />
+            </>
+          )}
 
-          <PaletteActionButton
-            color={"RED"}
-            onPointerDown={(event: ReactMouseEvent<HTMLButtonElement>) =>
-              handleRemoveCriteriaButton(event, index)
-            }
-            title={"Remove Criterion"}
-          />
-
-          <PaletteActionButton
-            color={"BLUE"}
-            onClick={handleTemplateSetterPress}
-            title={"Add Template"}
-          />
+          {currentPath == "/rubric-builder" && (
+            <>
+              <PaletteActionButton
+                color={"BLUE"}
+                onClick={handleTemplateSetterPress}
+                title={"Add Template"}
+              />
+            </>
+          )}
           <Dialog
             isOpen={templateSetterActive}
             onClose={() => setTemplateSetterActive(false)}
