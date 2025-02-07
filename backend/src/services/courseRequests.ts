@@ -69,6 +69,39 @@ async function getAllAssignments(courseId: string) {
   return canvasAssignments;
 }
 
+export type Group = {
+  id: number;
+  name: string;
+};
+
+type User = {
+  id: number;
+};
+
+async function buildGroupLookupTable(courseId: string) {
+  // get all the groups for the active course
+  const groups: Group[] = await fetchAPI<Group[]>(
+    `/courses/${courseId}/groups`,
+  );
+
+  console.log("Here are the GROUPS cxx");
+  console.log(groups);
+
+  // build the lookup map
+  const userIdToGroupName = new Map<number, string>();
+
+  for (const group of groups) {
+    const roster: Partial<User>[] = await fetchAPI(`/groups/${group.id}/users`);
+    roster.forEach((student) => {
+      userIdToGroupName.set(student.id!, group.name);
+    });
+  }
+
+  console.log(userIdToGroupName);
+
+  return userIdToGroupName;
+}
+
 /**
  * Helper for handling submission pagination from the Canvas API.
  */
@@ -83,6 +116,8 @@ async function getAllSubmissions(courseId: string, assignmentId: string) {
     );
     canvasSubmissions = canvasSubmissions.concat(fetchedSubmissions);
     page++;
+    console.log("HEY");
+    console.log(fetchedSubmissions);
   } while (fetchedSubmissions.length === RESULTS_PER_PAGE);
 
   return canvasSubmissions;
@@ -161,7 +196,10 @@ export const CoursesAPI = {
   ): Promise<GroupedSubmissions> {
     const canvasSubmissions = await getAllSubmissions(courseId, assignmentId);
 
-    return transformSubmissions(canvasSubmissions);
+    return transformSubmissions(
+      canvasSubmissions,
+      await buildGroupLookupTable(courseId),
+    );
   },
 
   async putSubmission(

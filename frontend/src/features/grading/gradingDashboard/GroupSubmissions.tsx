@@ -1,7 +1,7 @@
 import { Rubric, Submission } from "palette-types";
 import { ProgressBar } from "@features";
 import { ProjectGradingView } from "../projectGrading/ProjectGradingView";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PaletteActionButton } from "@components";
 
 interface GroupSubmissionsProps {
@@ -32,6 +32,11 @@ export function GroupSubmissions({
     }
     setGradingViewOpen(true);
   };
+
+  useEffect(() => {
+    console.log(`Submissions for ${groupName}`);
+    console.log(submissions);
+  }, []);
 
   return (
     <div className="w-full">

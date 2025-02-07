@@ -15,7 +15,7 @@ export function GradingMain(): ReactElement {
   // state
   const [rubric, setRubric] = useState<Rubric>();
   const [submissions, setSubmissions] = useState<GroupedSubmissions>({
-    "no-group": [],
+    "No Group": [],
   });
   const [loading, setLoading] = useState<boolean>(false);
 
