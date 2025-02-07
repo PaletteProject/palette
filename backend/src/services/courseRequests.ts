@@ -69,6 +69,25 @@ async function getAllAssignments(courseId: string) {
   return canvasAssignments;
 }
 
+/**
+ * Helper for handling group pagination from the Canvas API.
+ */
+async function getAllGroups(courseId: string) {
+  let canvasGroups: Group[] = [];
+  let page = 1;
+  let fetchedGroups: Group[];
+
+  do {
+    fetchedGroups = await fetchAPI<Group[]>(
+      `/courses/${courseId}/groups?per_page=${RESULTS_PER_PAGE}&page=${page}`,
+    );
+    canvasGroups = canvasGroups.concat(fetchedGroups);
+    page++;
+  } while (fetchedGroups.length === RESULTS_PER_PAGE);
+
+  return canvasGroups;
+}
+
 export type Group = {
   id: number;
   name: string;
@@ -80,9 +99,7 @@ type User = {
 
 async function buildGroupLookupTable(courseId: string) {
   // get all the groups for the active course
-  const groups: Group[] = await fetchAPI<Group[]>(
-    `/courses/${courseId}/groups`,
-  );
+  const groups: Group[] = await getAllGroups(courseId);
 
   console.log("Here are the GROUPS cxx");
   console.log(groups);
