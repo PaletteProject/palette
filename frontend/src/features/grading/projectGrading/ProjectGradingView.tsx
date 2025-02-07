@@ -257,5 +257,7 @@ export function ProjectGradingView({
     );
   };
 
-  return <div>{renderGradingPopup()}</div>;
+  return (
+    <div className={"max-h-48 overflow-y-auto"}>{renderGradingPopup()}</div>
+  );
 }
