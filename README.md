@@ -8,22 +8,23 @@ An interactive rubric builder and grading assistant tool to improve the group pr
 
 ## Table of Contents
 
-* [Requirements](#requirements)
-    * [Docker](#docker)
-    * [Canvas API Token](#canvas-api-token)
-        * [Generating a personal token:](#generating-a-personal-token)
-        * [Using your Canvas token with Palette:](#using-your-canvas-token-with-palette)
-* [Startup Instructions - Easy](#startup-instructions---easy)
-    * [Update and Run](#update-and-run)
-    * [Run](#run)
+- [Requirements](#requirements)
+  - [Docker](#docker)
+  - [Canvas API Token](#canvas-api-token)
+    - [Generating a personal token:](#generating-a-personal-token)
+    - [Using your Canvas token with Palette:](#using-your-canvas-token-with-palette)
+- [Startup Instructions - Easy](#startup-instructions---easy)
 
-* [Startup Instructions - Advanced](#startup-instructions---advanced)
-    * [Option 1: Running with Docker](#option-1-running-with-docker)
-    * [Option 2: Running without Docker](#option-2-running-without-docker)
-* [Shutting Down](#shutting-down)
-    * [Stopping Containers](#stopping-containers)
-* [Usage](#usage)
-* [Troubleshooting](#troubleshooting)
+  - [Update and Run](#update-and-run)
+  - [Run](#run)
+
+- [Startup Instructions - Advanced](#startup-instructions---advanced)
+  - [Option 1: Running with Docker](#option-1-running-with-docker)
+  - [Option 2: Running without Docker](#option-2-running-without-docker)
+- [Shutting Down](#shutting-down)
+  - [Stopping Containers](#stopping-containers)
+- [Usage](#usage)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -121,7 +122,7 @@ Run `./start.sh` from the project root to start the container and run Palette.
    This will build and start the container on any OS.
 
 3. **Stopping the Containers**
-    - Use `CTRL + C` if in attached mode or `docker-compose down` if detached.
+   - Use `CTRL + C` if in attached mode or `docker-compose down` if detached.
 
 ### Option 2: Running without Docker
 
