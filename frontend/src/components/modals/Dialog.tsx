@@ -17,7 +17,7 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
 
   return createPortal(
     <div className="scroll-auto fixed z-80 inset-0 bg-black bg-opacity-75 flex justify-center items-center">
-      <div className="bg-gray-700 p-6 rounded shadow-lg relative w-2/5 max-w-4xl">
+      <div className="bg-gray-700 p-6 rounded shadow-lg relative w-full sm:w-3/4 md:w-2/5 max-w-4xl">
         <h2 className="text-xl text-white font-semibold">{title}</h2>
         <div className={"text-gray-100 flex items-center justify-center "}>
           {children}
@@ -30,7 +30,7 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
         </button>
       </div>
     </div>,
-    document.getElementById("portal-root") as HTMLElement, // render outside the primary DOM to ensure modals are in
+    document.getElementById("portal-root") as HTMLElement // render outside the primary DOM to ensure modals are in
     // front of everything else
   );
 }

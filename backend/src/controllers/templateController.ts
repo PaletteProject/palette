@@ -6,6 +6,11 @@ export const addTemplate = async (req: Request, res: Response) => {
   return response;
 };
 
+export const addTemplates = async (req: Request, res: Response) => {
+  const response = await TemplateService.addTemplates(req, res, () => {});
+  return response;
+};
+
 export const updateTemplate = async (req: Request, res: Response) => {
   const response = await TemplateService.updateTemplate(req, res, () => {});
   return response;
@@ -15,13 +20,18 @@ export const deleteTemplateByTitle = async (req: Request, res: Response) => {
   const response = await TemplateService.deleteTemplateByTitle(
     req,
     res,
-    () => {},
+    () => {}
   );
   return response;
 };
 
 export const deleteTemplateByKey = (req: Request, res: Response) => {
   const templateData = TemplateService.deleteTemplateByKey(req, res);
+  return templateData;
+};
+
+export const deleteTemplates = (req: Request, res: Response) => {
+  const templateData = TemplateService.deleteTemplates(req, res, () => {});
   return templateData;
 };
 

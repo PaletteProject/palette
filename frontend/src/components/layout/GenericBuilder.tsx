@@ -13,7 +13,8 @@ import {
 import { AnimatePresence } from "framer-motion";
 import CriteriaCard from "src/features/rubricBuilder/CriteriaCard";
 import { createCriterion } from "@utils";
-import { ModalChoiceDialog } from "@components";
+import { Dialog, ModalChoiceDialog } from "@components";
+import AllTags from "src/features/templatesPage/AllTags";
 interface GenericBuilderProps {
   builderType: "template" | "rubric";
   document: Template | Rubric;
@@ -41,7 +42,7 @@ export const GenericBuilder = ({
 
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
-
+  const [showDialog, setShowDialog] = useState(false);
   const [modal, setModal] = useState({
     isOpen: false,
     title: "",
@@ -51,11 +52,11 @@ export const GenericBuilder = ({
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   const handleDocumentTitleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     e.preventDefault();
 
@@ -85,7 +86,7 @@ export const GenericBuilder = ({
       criteria: newCriteria,
       points: newCriteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       ),
     };
     if (builderType === "template") {
@@ -108,7 +109,7 @@ export const GenericBuilder = ({
       const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
       updatedTemplate.points = updatedTemplate.criteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       );
       // console.log("updatedTemplate points", updatedTemplate.points);
       setEditingTemplate(updatedTemplate as Template);
@@ -207,7 +208,7 @@ export const GenericBuilder = ({
         criteria: newCriteria,
         points: newCriteria.reduce(
           (acc, criterion) => acc + criterion.pointsPossible,
-          0,
+          0
         ),
       };
       setEditingTemplate(updatedTemplate as Template);
@@ -222,10 +223,7 @@ export const GenericBuilder = ({
   const submitDocument = (event: ReactMouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
-    console.log("document", document);
-
     if (document?.title.trim() === "") {
-      console.log("document?.title", document?.title);
       setModal({
         isOpen: true,
         title: "Invalid Template",
@@ -241,7 +239,6 @@ export const GenericBuilder = ({
     }
 
     if (document?.criteria.length === 0) {
-      console.log("document?.criteria", document?.criteria);
       setModal({
         isOpen: true,
         title: "Invalid Template",
@@ -260,7 +257,7 @@ export const GenericBuilder = ({
       const isDuplicateName = templates.some(
         (t) =>
           t.title.toLowerCase() === document?.title.toLowerCase() &&
-          t.key !== document?.key,
+          t.key !== document?.key
       );
       if (isDuplicateName) {
         setModal({
@@ -318,8 +315,8 @@ export const GenericBuilder = ({
               className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-1 px-3
                        hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
               onClick={() => {
+                setShowDialog(true);
                 setAddingTagFromBuilder(true);
-                setTagModalOpen(true);
               }}
             >
               Add Tag
@@ -359,6 +356,13 @@ export const GenericBuilder = ({
         title={modal.title}
         message={modal.message}
         choices={modal.choices}
+      />
+
+      <Dialog
+        isOpen={showDialog}
+        onClose={() => setShowDialog(false)}
+        title={`Add Tag(s) to Template: "${editingTemplate?.title}"`}
+        children={<AllTags onSave={() => setShowDialog(false)} />}
       />
     </>
   );

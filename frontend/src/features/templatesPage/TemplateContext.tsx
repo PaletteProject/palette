@@ -84,6 +84,8 @@ interface TemplateContextType {
   setAvailableTags: (tags: Tag[]) => void;
   tagModalOpen: boolean;
   setTagModalOpen: (tagModalOpen: boolean) => void;
+  handleBulkCreateTemplates: () => void;
+  handleBulkDeleteTemplates: () => void;
 }
 
 const TemplatesContext = createContext<TemplateContextType>({
@@ -151,6 +153,8 @@ const TemplatesContext = createContext<TemplateContextType>({
   viewingTemplate: null,
   setViewingTemplate: () => {},
   tagModalOpen: false,
+  handleBulkCreateTemplates: () => {},
+  handleBulkDeleteTemplates: () => {},
 });
 
 export function useTemplatesContext() {
@@ -159,7 +163,7 @@ export function useTemplatesContext() {
 
 export function TemplateProvider({ children }: { children: ReactNode }) {
   const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
-    null,
+    null
   );
   const [tagModalOpen, setTagModalOpen] = useState(false);
   const [showBulkActions, setShowBulkActions] = useState(false);
@@ -168,14 +172,14 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([]);
   const [newTemplate, setNewTemplate] = useState<Template | null>(
-    createTemplate(),
+    createTemplate()
   );
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(
-    createTemplate(),
+    createTemplate()
   );
   const [isNewTemplate, setIsNewTemplate] = useState(false);
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
-    null,
+    null
   );
   const [index, setIndex] = useState(0);
   const [addingTagFromBuilder, setAddingTagFromBuilder] = useState(false);
@@ -190,7 +194,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
   const [duplicateTemplate, setDuplicateTemplate] = useState<Template | null>(
-    null,
+    null
   );
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [viewOrEdit, setViewOrEdit] = useState<"view" | "edit">("view");
@@ -204,7 +208,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
     {
       method: "DELETE",
-    },
+    }
   );
 
   const { fetchData: postTemplate } = useFetch("/templates", {
@@ -217,9 +221,19 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     body: JSON.stringify(editingTemplate),
   });
 
+  const { fetchData: deleteTemplates } = useFetch("/templates/bulk", {
+    method: "DELETE",
+    body: JSON.stringify(deletingTemplates),
+  });
+
+  const { fetchData: addTemplates } = useFetch("/templates/bulk", {
+    method: "POST",
+    body: JSON.stringify(editingTemplate),
+  });
+
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
   // object containing related modal state
   const [modal, setModal] = useState({
@@ -257,8 +271,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         if (response.success) {
           setTemplates(
             templates.filter(
-              (template) => template.key !== deletingTemplate.key,
-            ),
+              (template) => template.key !== deletingTemplate.key
+            )
           );
         }
       })();
@@ -304,6 +318,28 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     // setIndex(templates.length);
 
     setIsNewTemplate(true);
+  };
+
+  const handleBulkCreateTemplates = async () => {
+    const response = await addTemplates();
+    if (response.success) {
+      setTemplates(response.data as Template[]);
+    } else {
+      console.error("Failed to add templates:", response);
+    }
+  };
+
+  const handleBulkDeleteTemplates = async () => {
+    console.log(
+      "selectedTemplates in handleBulkDeleteTemplates",
+      deletingTemplates
+    );
+    const response = await deleteTemplates();
+    if (response.success) {
+      setTemplates(response.data as Template[]);
+    } else {
+      console.error("Failed to delete templates:", response);
+    }
   };
 
   const handleDuplicateTemplate = (key: string) => {
@@ -465,6 +501,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         setTagModalOpen,
         addingTagFromBuilder,
         setAddingTagFromBuilder,
+        handleBulkCreateTemplates,
+        handleBulkDeleteTemplates,
       }}
     >
       {children}

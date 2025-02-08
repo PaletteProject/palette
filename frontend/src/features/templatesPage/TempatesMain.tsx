@@ -2,7 +2,7 @@
  * Rubric Builder view.
  */
 
-import { ReactElement, useState } from "react";
+import { ReactElement, useState, useEffect } from "react";
 import { Dialog, MainPageTemplate } from "@components";
 import { TemplateProvider, useTemplatesContext } from "./TemplateContext.tsx";
 import TemplatesWindow from "./TemplatesWindow.tsx";
@@ -10,7 +10,6 @@ import TemplateSearch from "./TemplateSearch.tsx";
 import AddTemplateTag from "./AddTemplateTag.tsx";
 import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
 import { Template } from "palette-types";
-import TemplateMetrics from "./TemplateMetrics.tsx";
 
 export default function TemplatesMain(): ReactElement {
   return (
@@ -38,6 +37,11 @@ function TemplatesMainContent(): ReactElement {
 
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
 
+  useEffect(() => {
+    console.log("editingTemplate in TemplatesMain", editingTemplate);
+    setEditingTemplate(editingTemplate as Template);
+  }, [templateDialogOpen]);
+
   const handleCloseModal = () => {
     setTemplateDialogOpen(false);
   };
@@ -48,12 +52,13 @@ function TemplatesMainContent(): ReactElement {
     handleCreateTemplate();
   };
 
-  const handleNewTemplateSubmit = () => {
+  const handleTemplateSubmit = () => {
     // setTemplateDialogOpen(false);
     console.log("handleNewTemplateSubmit");
     handleSubmitNewTemplate();
     setIsNewTemplate(false);
     setShowBulkActions(false);
+    setTemplateDialogOpen(false);
   };
 
   // Update renderUserTemplates to use the new search component
@@ -76,7 +81,10 @@ function TemplatesMainContent(): ReactElement {
           setShowSuggestions={setShowSuggestions}
           onSearch={setSearchQuery}
         />
-
+        <p className="text-gray-400 text-sm mb-2">
+          Only tags with templates are shown here. Click gear icon to see all
+          tags!
+        </p>
         {/* Add tag filters */}
         <AddTemplateTag />
 
@@ -123,7 +131,7 @@ function TemplatesMainContent(): ReactElement {
           )}
         </div>
 
-        <TemplateMetrics />
+        {/* <TemplateMetrics /> */}
 
         <Dialog
           isOpen={templateDialogOpen}
@@ -136,7 +144,7 @@ function TemplatesMainContent(): ReactElement {
               setDocument={(template) =>
                 setEditingTemplate(template as Template)
               }
-              onSubmit={handleNewTemplateSubmit}
+              onSubmit={handleTemplateSubmit}
             />
           }
         />

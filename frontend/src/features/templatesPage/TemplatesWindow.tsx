@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import TemplateCard from "../templatesPage/TemplateCards.tsx";
 import { Template } from "palette-types";
 import TemplateManagementControls from "./TemplateManagementControls.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 import TemplateSorter from "./TemplateSorter.tsx";
+import { useFetch } from "src/hooks/useFetch.ts";
+import { ModalChoiceDialog } from "@components";
 const TemplatesWindow = () => {
   const {
     templates,
@@ -18,13 +20,24 @@ const TemplatesWindow = () => {
     selectAll,
     setSelectAll,
     setDeletingTemplates,
-    closeModal,
-    setModal,
+    handleBulkDeleteTemplates,
   } = useTemplatesContext();
 
   useEffect(() => {
     console.log("templates window rendered");
   }, []);
+
+  const [modal, setModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    choices: [] as { label: string; action: () => void }[],
+  });
+
+  const closeModal = useCallback(
+    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
+    []
+  );
 
   const handleSelectAll = () => {
     const newSelectAll = !selectAll;
@@ -41,7 +54,12 @@ const TemplatesWindow = () => {
     setShowBulkActions(true);
   };
 
-  const handleBulkDelete = () => {
+  const { fetchData: deleteTemplates } = useFetch("/templates/bulk", {
+    method: "DELETE",
+    body: JSON.stringify(selectedTemplates),
+  });
+
+  const handleBulkDelete = async () => {
     // console.log("selectedTemplates in handleBulkDelete", selectedTemplates);
     setModal({
       isOpen: true,
@@ -53,9 +71,14 @@ const TemplatesWindow = () => {
           action: () => {
             setDeletingTemplates(
               selectedTemplates.map(
-                (key) => templates.find((t) => t.key === key) as Template,
-              ),
+                (key) => templates.find((t) => t.key === key) as Template
+              )
             );
+            console.log(
+              "selectedTemplates in handleBulkDelete",
+              selectedTemplates
+            );
+            handleBulkDeleteTemplates();
             closeModal();
           },
         },
@@ -70,7 +93,7 @@ const TemplatesWindow = () => {
 
   const handleBulkExport = () => {
     const selectedTemplatesToExport = templates.filter((t) =>
-      selectedTemplates.includes(t.key),
+      selectedTemplates.includes(t.key)
     );
 
     const exportData = JSON.stringify(selectedTemplatesToExport, null, 2);
@@ -134,7 +157,7 @@ const TemplatesWindow = () => {
         const matchesTags =
           selectedTagFilters.length === 0 ||
           selectedTagFilters.every((tagKey) =>
-            template.tags.some((tag) => tag.key === tagKey),
+            template.tags.some((tag) => tag.key === tagKey)
           );
         return matchesSearch && matchesTags;
       })
@@ -170,7 +193,7 @@ const TemplatesWindow = () => {
 
     if (selectedTemplates.includes(templateKey)) {
       const newSelected = selectedTemplates.filter(
-        (key) => key !== templateKey,
+        (key) => key !== templateKey
       );
       // console.log("New selected after removal:", newSelected);
       setSelectedTemplates(newSelected);
@@ -227,16 +250,25 @@ const TemplatesWindow = () => {
   };
 
   return (
-    <div className="flex flex-col">
-      <div className="flex justify-between mb-4">
-        <div>{showBulkActions && renderBulkActions()}</div>
-        <div className="ml-auto flex items-center gap-4">
-          <TemplateManagementControls />
-          <TemplateSorter />
+    <>
+      <div className="flex flex-col">
+        <div className="flex justify-between mb-4">
+          <div>{showBulkActions && renderBulkActions()}</div>
+          <div className="ml-auto flex items-center gap-4">
+            <TemplateManagementControls />
+            <TemplateSorter />
+          </div>
         </div>
+        {renderAllTemplates()}
       </div>
-      {renderAllTemplates()}
-    </div>
+      <ModalChoiceDialog
+        show={modal.isOpen}
+        onHide={closeModal}
+        title={modal.title}
+        message={modal.message}
+        choices={modal.choices}
+      />
+    </>
   );
 };
 

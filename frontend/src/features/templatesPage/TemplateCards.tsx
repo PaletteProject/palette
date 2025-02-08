@@ -98,6 +98,16 @@ export default function TemplateCard({
   };
 
   const handleViewModeToggle = () => {
+    if (focusedTemplateKey) {
+      const focusedTemplate = templates.find(
+        (t) => t.key === focusedTemplateKey
+      );
+      if (focusedTemplate) {
+        setEditingTemplate(focusedTemplate);
+        console.log("focusedTemplate", focusedTemplate);
+        console.log("editingTemplate", editingTemplate);
+      }
+    }
     setViewOrEdit("edit");
     setViewOrEditClicked(true);
     setTemplateDialogOpen(true);
