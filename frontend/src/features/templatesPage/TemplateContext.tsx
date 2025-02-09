@@ -9,7 +9,7 @@ import React, {
 import { Tag, Template } from "palette-types";
 import { useFetch } from "src/hooks/useFetch";
 import { createTemplate } from "src/utils/templateFactory.ts";
-
+import { quickStartTemplates } from "./QuickStartTemplates";
 interface TemplateContextType {
   addingTagFromBuilder: boolean;
   setAddingTagFromBuilder: (addingTagFromBuilder: boolean) => void;
@@ -380,6 +380,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   };
 
   const handleQuickStart = () => {
+    setTemplates(quickStartTemplates);
     console.log("quick start");
   };
 

@@ -17,12 +17,6 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     templates,
   } = useTemplatesContext();
 
-  useEffect(() => {
-    console.log("availableTags in AllTags", availableTags);
-    console.log("editingTemplate in AllTags", editingTemplate?.tags);
-    setEditingTemplate(editingTemplate as Template);
-  }, [editingTemplate]);
-
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [statefulTemplates, setStatefulTemplates] = useState<Template[]>([]);
 
