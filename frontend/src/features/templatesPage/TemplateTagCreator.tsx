@@ -4,7 +4,6 @@ import { Tag } from "palette-types";
 import { useFetch } from "@hooks";
 import { createTag } from "@utils";
 import { useTemplatesContext } from "./TemplateContext";
-import { s } from "vite/dist/node/types.d-aGj9QkWt";
 interface TemplateTagCreatorProps {
   isOpen: boolean;
   onClose: () => void;
@@ -58,19 +57,14 @@ const TemplateTagCreator = ({
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
-  const {
-    addingTagFromBuilder,
-    editingTemplate,
-    setEditingTemplate,
-    handleUpdateTemplate,
-    availableTags,
-  } = useTemplatesContext();
+  const { addingTagFromBuilder, editingTemplate, setEditingTemplate } =
+    useTemplatesContext();
 
   // Add effect to rotate placeholders
   React.useEffect(() => {
     const interval = setInterval(() => {
       setCurrentPlaceholderIndex(
-        (prev) => (prev + 1) % placeholderSuggestions.length
+        (prev) => (prev + 1) % placeholderSuggestions.length,
       );
     }, 3000); // Change every 3 seconds
 
@@ -174,7 +168,7 @@ const TemplateTagCreator = ({
 
                       color:
                         tagColors[Math.floor(Math.random() * tagColors.length)],
-                    }))
+                    })),
                   );
                 }}
                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
@@ -198,7 +192,7 @@ const TemplateTagCreator = ({
                 <button
                   onClick={() => {
                     setStagedTags((prev) =>
-                      prev.filter((_, index) => index !== selectedTagIndex)
+                      prev.filter((_, index) => index !== selectedTagIndex),
                     );
                     setSelectedTagIndex(null);
                     setSelectedTag(null);
@@ -224,7 +218,7 @@ const TemplateTagCreator = ({
                   setSelectedColor(color);
                   if (selectedTagIndex !== null) {
                     const updatedTags = stagedTags.map((tag, index) =>
-                      index === selectedTagIndex ? { ...tag, color } : tag
+                      index === selectedTagIndex ? { ...tag, color } : tag,
                     );
                     setStagedTags(updatedTags);
                     setSelectedTag({ ...stagedTags[selectedTagIndex], color });

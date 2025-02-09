@@ -167,7 +167,7 @@ export function useTemplatesContext() {
 
 export function TemplateProvider({ children }: { children: ReactNode }) {
   const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
-    null
+    null,
   );
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [tagModalOpen, setTagModalOpen] = useState(false);
@@ -177,14 +177,14 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([]);
   const [newTemplate, setNewTemplate] = useState<Template | null>(
-    createTemplate()
+    createTemplate(),
   );
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(
-    createTemplate()
+    createTemplate(),
   );
   const [isNewTemplate, setIsNewTemplate] = useState(false);
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
-    null
+    null,
   );
   const [index, setIndex] = useState(0);
   const [addingTagFromBuilder, setAddingTagFromBuilder] = useState(false);
@@ -199,7 +199,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
   const [duplicateTemplate, setDuplicateTemplate] = useState<Template | null>(
-    null
+    null,
   );
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [viewOrEdit, setViewOrEdit] = useState<"view" | "edit">("view");
@@ -213,7 +213,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
     {
       method: "DELETE",
-    }
+    },
   );
 
   const { fetchData: postTemplate } = useFetch("/templates", {
@@ -238,7 +238,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
   // object containing related modal state
   const [modal, setModal] = useState({
@@ -276,8 +276,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         if (response.success) {
           setTemplates(
             templates.filter(
-              (template) => template.key !== deletingTemplate.key
-            )
+              (template) => template.key !== deletingTemplate.key,
+            ),
           );
         }
       })();
@@ -333,7 +333,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const handleBulkDeleteTemplates = async () => {
     console.log(
       "selectedTemplates in handleBulkDeleteTemplates",
-      deletingTemplates
+      deletingTemplates,
     );
     const response = await deleteTemplates();
     if (response.success) {
@@ -504,8 +504,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         setTagModalOpen,
         addingTagFromBuilder,
         setAddingTagFromBuilder,
-        handleBulkCreateTemplates,
-        handleBulkDeleteTemplates,
+        handleBulkCreateTemplates: () => void handleBulkCreateTemplates(),
+        handleBulkDeleteTemplates: () => void handleBulkDeleteTemplates(),
         hasUnsavedChanges,
         setHasUnsavedChanges,
       }}

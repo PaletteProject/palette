@@ -4,7 +4,6 @@ import { Template } from "palette-types";
 import TemplateManagementControls from "./TemplateManagementControls.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 import TemplateSorter from "./TemplateSorter.tsx";
-import { useFetch } from "src/hooks/useFetch.ts";
 import { ModalChoiceDialog } from "@components";
 const TemplatesWindow = () => {
   const {
@@ -36,7 +35,7 @@ const TemplatesWindow = () => {
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
 
   const handleSelectAll = () => {
@@ -54,12 +53,7 @@ const TemplatesWindow = () => {
     setShowBulkActions(true);
   };
 
-  const { fetchData: deleteTemplates } = useFetch("/templates/bulk", {
-    method: "DELETE",
-    body: JSON.stringify(selectedTemplates),
-  });
-
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     // console.log("selectedTemplates in handleBulkDelete", selectedTemplates);
     setModal({
       isOpen: true,
@@ -71,12 +65,12 @@ const TemplatesWindow = () => {
           action: () => {
             setDeletingTemplates(
               selectedTemplates.map(
-                (key) => templates.find((t) => t.key === key) as Template
-              )
+                (key) => templates.find((t) => t.key === key) as Template,
+              ),
             );
             console.log(
               "selectedTemplates in handleBulkDelete",
-              selectedTemplates
+              selectedTemplates,
             );
             handleBulkDeleteTemplates();
             closeModal();
@@ -93,7 +87,7 @@ const TemplatesWindow = () => {
 
   const handleBulkExport = () => {
     const selectedTemplatesToExport = templates.filter((t) =>
-      selectedTemplates.includes(t.key)
+      selectedTemplates.includes(t.key),
     );
 
     const exportData = JSON.stringify(selectedTemplatesToExport, null, 2);
@@ -157,7 +151,7 @@ const TemplatesWindow = () => {
         const matchesTags =
           selectedTagFilters.length === 0 ||
           selectedTagFilters.every((tagKey) =>
-            template.tags.some((tag) => tag.key === tagKey)
+            template.tags.some((tag) => tag.key === tagKey),
           );
         return matchesSearch && matchesTags;
       })
@@ -193,7 +187,7 @@ const TemplatesWindow = () => {
 
     if (selectedTemplates.includes(templateKey)) {
       const newSelected = selectedTemplates.filter(
-        (key) => key !== templateKey
+        (key) => key !== templateKey,
       );
       // console.log("New selected after removal:", newSelected);
       setSelectedTemplates(newSelected);

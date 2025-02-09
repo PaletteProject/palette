@@ -11,22 +11,22 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     setAvailableTags,
     editingTemplate,
     addingTagFromBuilder,
-    setAddingTagFromBuilder,
 
     setEditingTemplate,
     templates,
   } = useTemplatesContext();
 
-  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
-  const [statefulTemplates, setStatefulTemplates] = useState<Template[]>([]);
-
   useEffect(() => {
-    setStatefulTemplates(templates);
-  }, [templates]);
+    console.log("availableTags in AllTags", availableTags);
+    console.log("editingTemplate in AllTags", editingTemplate?.tags);
+    setEditingTemplate(editingTemplate as Template);
+  }, [editingTemplate]);
+
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
 
   // object containing related modal state
@@ -43,11 +43,6 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     body: JSON.stringify(selectedTags),
   });
 
-  const { fetchData: putTemplate } = useFetch("/templates", {
-    method: "PUT",
-    body: JSON.stringify({ template: editingTemplate }),
-  });
-
   const { fetchData: getAvailableTags } = useFetch("/tags", {
     method: "GET",
   });
@@ -59,25 +54,19 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   };
 
   const removeTags = async () => {
-    deleteTags()
-      .then(() => {
-        setSelectedTags([]);
-        getTags();
-      })
-      .catch((error) => {
-        console.error("error deleting tags", error);
-      });
+    try {
+      await deleteTags();
+      setSelectedTags([]);
+      await getTags();
+    } catch (error) {
+      console.error("error deleting tags", error);
+    }
   };
 
   const [removeMode, setRemoveMode] = useState(false);
 
-  const handleRemoveMode = () => {
-    setSelectedTags([]);
-    setRemoveMode((prevMode) => !prevMode);
-  };
-
   const [tempTagCounts, setTempTagCounts] = useState<Record<string, number>>(
-    {}
+    {},
   );
 
   // Function to initialize or update the temporary tag counts
@@ -85,11 +74,11 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     const counts = availableTags.reduce(
       (acc, tag) => {
         acc[tag.key] = templates.filter((t) =>
-          t.tags.some((tTag) => tTag.key === tag.key)
+          t.tags.some((tTag) => tTag.key === tag.key),
         ).length;
         return acc;
       },
-      {} as Record<string, number>
+      {} as Record<string, number>,
     );
     setTempTagCounts(counts);
   };
@@ -106,7 +95,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         message:
           "Are you sure you want to remove the selected tags? This will effect all templates that use these tags.",
         choices: [
-          { label: "Yes", action: () => removeTags() },
+          { label: "Yes", action: () => void removeTags() },
           { label: "No", action: closeModal },
         ],
       });
@@ -121,7 +110,9 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
             action: () => {
               const updatedTags = editingTemplate?.tags?.filter(
                 (t) =>
-                  !selectedTags.some((selectedTag) => selectedTag.key === t.key)
+                  !selectedTags.some(
+                    (selectedTag) => selectedTag.key === t.key,
+                  ),
               );
               const updatedTemplate = {
                 ...editingTemplate,
@@ -150,7 +141,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     }
   };
 
-  const handleAddTagsToTemplate = () => {
+  const handleAddTagsToTemplate = async () => {
     if (editingTemplate) {
       const updatedTemplate = {
         ...editingTemplate,
@@ -159,7 +150,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
       } as Template;
       setEditingTemplate(updatedTemplate);
       onSave();
-      getTags();
+      await getTags();
     }
     closeModal();
   };
@@ -167,7 +158,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const getTagsOnTemplate = () => {
     return (
       editingTemplate?.tags?.filter((t) =>
-        availableTags.some((t2) => t2.key === t.key)
+        availableTags.some((t2) => t2.key === t.key),
       ) || []
     );
   };
@@ -283,7 +274,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
                 (
                 {
                   templates.filter((t) =>
-                    t.tags.some((tTag) => tTag.key === tag.key)
+                    t.tags.some((tTag) => tTag.key === tag.key),
                   ).length
                 }
                 )
@@ -327,7 +318,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
 
             {addingTagFromBuilder && selectedTags.length > 0 && !removeMode && (
               <button
-                onClick={() => handleAddTagsToTemplate()}
+                onClick={() => void handleAddTagsToTemplate()}
                 className="bg-green-500 text-white font-bold rounded-lg py-2 px-4 hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 Add Tags
