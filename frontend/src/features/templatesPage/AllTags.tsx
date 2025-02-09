@@ -25,7 +25,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   // object containing related modal state
@@ -65,7 +65,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const [removeMode, setRemoveMode] = useState(false);
 
   const [tempTagCounts, setTempTagCounts] = useState<Record<string, number>>(
-    {},
+    {}
   );
 
   // Function to initialize or update the temporary tag counts
@@ -73,11 +73,11 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     const counts = availableTags.reduce(
       (acc, tag) => {
         acc[tag.key] = templates.filter((t) =>
-          t.tags.some((tTag) => tTag.key === tag.key),
+          t.tags.some((tTag) => tTag.key === tag.key)
         ).length;
         return acc;
       },
-      {} as Record<string, number>,
+      {} as Record<string, number>
     );
     setTempTagCounts(counts);
   };
@@ -110,9 +110,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
             action: () => {
               const updatedTags = editingTemplate?.tags?.filter(
                 (t) =>
-                  !selectedTags.some(
-                    (selectedTag) => selectedTag.key === t.key,
-                  ),
+                  !selectedTags.some((selectedTag) => selectedTag.key === t.key)
               );
               const updatedTemplate = {
                 ...editingTemplate,
@@ -159,7 +157,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const getTagsOnTemplate = () => {
     return (
       editingTemplate?.tags?.filter((t) =>
-        availableTags.some((t2) => t2.key === t.key),
+        availableTags.some((t2) => t2.key === t.key)
       ) || []
     );
   };
@@ -168,9 +166,9 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     return availableTags.filter((t) => !getTagsOnTemplate().includes(t));
   };
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="mt-4 border-gray-700 bg-gradient-to-br from-slate-900 to-gray-700 rounded-lg p-4 w-full">
+  const renderTags = () => {
+    return (
+      <>
         <div
           className="grid grid-cols-4 gap-4 gap-x-10 sm:gap-y-8 max-h-[500px]  rounded-lg overflow-auto 
           scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-4"
@@ -275,7 +273,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
                 (
                 {
                   templates.filter((t) =>
-                    t.tags.some((tTag) => tTag.key === tag.key),
+                    t.tags.some((tTag) => tTag.key === tag.key)
                   ).length
                 }
                 )
@@ -283,7 +281,38 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
             </span>
           ))}
         </div>
+      </>
+    );
+  };
+
+  const renderNoTags = () => {
+    return (
+      <div>
+        <p className="text-gray-300 text-md text-start">
+          No tags found.{" "}
+          <button
+            onClick={() => {
+              // Add your click handler logic here
+            }}
+            className="text-blue-500 underline hover:text-blue-700 focus:outline-none"
+          >
+            Add
+          </button>{" "}
+          some tags to the template to get started.
+        </p>
       </div>
+    );
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      {getTagsNotOnTemplate().length > 0 || getTagsOnTemplate().length > 0 ? (
+        <div className="mt-4 border-gray-700 bg-gradient-to-br from-slate-900 to-gray-700 rounded-lg p-4 w-full">
+          {renderTags()}
+        </div>
+      ) : (
+        renderNoTags()
+      )}
       <div className="flex justify-between gap-4">
         {(selectedTags.length > 0 || addingTagFromBuilder) && (
           <div className="flex justify-between w-full">
