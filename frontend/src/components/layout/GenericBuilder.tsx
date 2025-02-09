@@ -52,11 +52,11 @@ export const GenericBuilder = ({
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   const handleDocumentTitleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     e.preventDefault();
 
@@ -87,7 +87,7 @@ export const GenericBuilder = ({
       criteria: newCriteria,
       points: newCriteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       ),
     };
     if (builderType === "template") {
@@ -111,7 +111,7 @@ export const GenericBuilder = ({
       const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
       updatedTemplate.points = updatedTemplate.criteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       );
       // console.log("updatedTemplate points", updatedTemplate.points);
       setEditingTemplate(updatedTemplate as Template);
@@ -212,7 +212,7 @@ export const GenericBuilder = ({
         criteria: newCriteria,
         points: newCriteria.reduce(
           (acc, criterion) => acc + criterion.pointsPossible,
-          0,
+          0
         ),
       };
       setEditingTemplate(updatedTemplate as Template);
@@ -262,7 +262,7 @@ export const GenericBuilder = ({
       const isDuplicateName = templates.some(
         (t) =>
           t.title.toLowerCase() === document?.title.toLowerCase() &&
-          t.key !== document?.key,
+          t.key !== document?.key
       );
       if (isDuplicateName) {
         setModal({
@@ -314,7 +314,6 @@ export const GenericBuilder = ({
             {editingTemplate?.points}{" "}
             {editingTemplate?.points === 1 ? "Point" : "Points"}
           </h2>
-
           <div className="flex gap-2">
             <button
               className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-1 px-3

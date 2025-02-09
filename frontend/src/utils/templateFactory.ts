@@ -12,16 +12,15 @@ export function createTemplate(
   tags: Tag[] = [],
   points: number = criteria.reduce(
     (acc, criterion) => acc + criterion.pointsPossible,
-    0,
+    0
   ),
-  quickStart: boolean = false,
+  quickStart: boolean = false
 ): Template {
   return {
     title,
     criteria: criteria,
     id,
     key: uuid(),
-
     description,
     createdAt,
     lastUsed: typeof lastUsed === "string" ? new Date(lastUsed) : lastUsed,

@@ -40,7 +40,7 @@ function TemplatesMainContent(): ReactElement {
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   // object containing related modal state

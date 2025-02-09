@@ -30,7 +30,7 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
         </button>
       </div>
     </div>,
-    document.getElementById("portal-root") as HTMLElement, // render outside the primary DOM to ensure modals are in
+    document.getElementById("portal-root") as HTMLElement // render outside the primary DOM to ensure modals are in
     // front of everything else
   );
 }

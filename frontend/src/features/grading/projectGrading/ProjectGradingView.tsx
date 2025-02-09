@@ -2,7 +2,12 @@
  * Primary project grading view. Opens as a modal over the grading dashboard.
  */
 
-import { Criteria, Rubric, Submission } from "palette-types";
+import {
+  CanvasGradedSubmission,
+  Criteria,
+  Rubric,
+  Submission,
+} from "palette-types";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { PaletteActionButton } from "@components";
@@ -39,7 +44,7 @@ export function ProjectGradingView({
   /**
    * Wrapper to iteratively submit all graded submissions with existing use fetch hook.
    */
-  const submitGrades = async (gradedSubmission: GradedSubmission) => {
+  const submitGrades = async (gradedSubmission: CanvasGradedSubmission) => {
     /**
      * Fetch hook to submit graded rubric.
      */
@@ -58,8 +63,11 @@ export function ProjectGradingView({
       const initialRatings: { [key: string]: number | "" } = {};
 
       submissions.forEach((submission) => {
-        if (submission.graded) {
-          // non-graded assignments won't have a rubric assessment
+        /**
+         *  If a submission has a rubric assessment (already graded), load in grades from canvas to display.
+         *  Otherwise, rating options will render with the default empty value/color theme.
+         */
+        if (submission.rubricAssessment) {
           for (const [criterionId, assessment] of Object.entries(
             submission.rubricAssessment,
           )) {
@@ -88,16 +96,8 @@ export function ProjectGradingView({
     }));
   };
 
-  type GradedSubmission = {
-    submission_id: number;
-    user: { id: number; name: string; asurite: string };
-    rubric_assessment: {
-      [p: string]: { points: number; rating_id: string; comments: string };
-    };
-  };
-
   const handleSubmitGrades = async () => {
-    const gradedSubmissions: GradedSubmission[] = submissions.map(
+    const gradedSubmissions: CanvasGradedSubmission[] = submissions.map(
       (submission) => {
         // build rubric assessment object in Canvas format directly (reduces transformations needed later)
         const rubricAssessment: {
@@ -137,7 +137,7 @@ export function ProjectGradingView({
     console.log(gradedSubmissions);
 
     /**
-     * Loop through graded submissions and send eachone to the backend.
+     * Loop through graded submissions and send each one to the backend.
      */
     for (const gradedSubmission of gradedSubmissions) {
       await submitGrades(gradedSubmission);
@@ -211,54 +211,53 @@ export function ProjectGradingView({
         </thead>
         <tbody>
           {/*Only show submissions that have been submitted and/or graded. */}
-          {submissions
-            .filter(
-              (submission) =>
-                submission.workflowState === "submitted" ||
-                submission.workflowState === "graded",
-            )
-            .map((submission: Submission) => (
-              <tr key={submission.id}>
-                <td className="border border-gray-500 px-4 py-2">
-                  {`${submission.user.name} (${submission.user.asurite})`}
-                </td>
-                {rubric.criteria.map((criterion: Criteria) => (
-                  <td
-                    key={`${submission.id}-${criterion.id}`}
-                    className="border border-gray-500 px-4 py-2 text-center"
+          {submissions.map((submission: Submission) => (
+            <tr key={submission.id}>
+              <td className="border border-gray-500 px-4 py-2">
+                {`${submission.user.name} (${submission.user.asurite})`}
+                <span className={"ml-4 text-red-600 font-bold"}>
+                  No Submission
+                </span>
+              </td>
+              {rubric.criteria.map((criterion: Criteria) => (
+                <td
+                  key={`${submission.id}-${criterion.id}`}
+                  className="border border-gray-500 px-4 py-2 text-center"
+                >
+                  {/* Input field for grading */}
+                  <select
+                    className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
+                      ratings[`${submission.id}-${criterion.id}`] ?? "",
+                      criterion,
+                    )}`}
+                    value={ratings[`${submission.id}-${criterion.id}`] ?? ""}
+                    onChange={(e) =>
+                      handleRatingChange(
+                        submission.id,
+                        criterion.id,
+                        e.target.value,
+                      )
+                    }
                   >
-                    {/* Input field for grading */}
-                    <select
-                      className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
-                        ratings[`${submission.id}-${criterion.id}`] ?? "",
-                        criterion,
-                      )}`}
-                      value={ratings[`${submission.id}-${criterion.id}`] ?? ""}
-                      onChange={(e) =>
-                        handleRatingChange(
-                          submission.id,
-                          criterion.id,
-                          e.target.value,
-                        )
-                      }
-                    >
-                      <option value="" disabled>
-                        Select a rating
+                    <option value="" disabled>
+                      Select a Rating
+                    </option>
+                    {criterion.ratings.map((rating) => (
+                      <option value={rating.points} key={rating.key}>
+                        {`${rating.description} - ${rating.points} Points`}
                       </option>
-                      {criterion.ratings.map((rating) => (
-                        <option value={rating.points} key={rating.key}>
-                          {`${rating.description} - ${rating.points} Points`}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                ))}
-              </tr>
-            ))}
+                    ))}
+                  </select>
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
     );
   };
 
-  return <div>{renderGradingPopup()}</div>;
+  return (
+    <div className={"max-h-48 overflow-y-auto"}>{renderGradingPopup()}</div>
+  );
 }

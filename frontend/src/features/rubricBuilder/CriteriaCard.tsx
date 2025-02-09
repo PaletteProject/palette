@@ -199,12 +199,14 @@ export default function CriteriaCard({
         style={style} // Apply the sortable style
         {...attributes} // Spread the attributes
         {...listeners} // Spread the listeners
-        className={`hover:bg-gray-500 hover:cursor-pointer max-h-12 flex justify-between items-center border border-gray-700 shadow-xl p-6 rounded-lg w-full bg-gray-700
-        }`}
+        className={`hover:bg-gray-500 hover:cursor-pointer h-24 max-h-36 flex gap-2 justify-between items-center border border-gray-700 shadow-xl p-6 rounded-lg w-full bg-gray-700`}
         onDoubleClick={handleExpandCriterion}
       >
-        <div className="text-gray-300">
-          <strong>{criteriaDescription}</strong> - Max Points: {maxPoints}
+        <div
+          className="text-gray-300 max-w-1/2 break-words whitespace-normal overflow-hidden"
+          title={criteriaDescription} // show full text on hover
+        >
+          {criteriaDescription}
         </div>
         <div className={"flex gap-3"}>
           {(viewOrEdit == "edit" || currentPath == "/rubric-builder") && (

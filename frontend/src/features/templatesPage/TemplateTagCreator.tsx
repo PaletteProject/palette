@@ -64,7 +64,7 @@ const TemplateTagCreator = ({
   React.useEffect(() => {
     const interval = setInterval(() => {
       setCurrentPlaceholderIndex(
-        (prev) => (prev + 1) % placeholderSuggestions.length,
+        (prev) => (prev + 1) % placeholderSuggestions.length
       );
     }, 3000); // Change every 3 seconds
 
@@ -168,7 +168,7 @@ const TemplateTagCreator = ({
 
                       color:
                         tagColors[Math.floor(Math.random() * tagColors.length)],
-                    })),
+                    }))
                   );
                 }}
                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
@@ -192,7 +192,7 @@ const TemplateTagCreator = ({
                 <button
                   onClick={() => {
                     setStagedTags((prev) =>
-                      prev.filter((_, index) => index !== selectedTagIndex),
+                      prev.filter((_, index) => index !== selectedTagIndex)
                     );
                     setSelectedTagIndex(null);
                     setSelectedTag(null);
@@ -218,7 +218,7 @@ const TemplateTagCreator = ({
                   setSelectedColor(color);
                   if (selectedTagIndex !== null) {
                     const updatedTags = stagedTags.map((tag, index) =>
-                      index === selectedTagIndex ? { ...tag, color } : tag,
+                      index === selectedTagIndex ? { ...tag, color } : tag
                     );
                     setStagedTags(updatedTags);
                     setSelectedTag({ ...stagedTags[selectedTagIndex], color });
