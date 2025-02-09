@@ -8,6 +8,7 @@ import { Tag } from "palette-types";
 import { Dialog } from "../../components/modals/Dialog.tsx";
 import AllTags from "./AllTags";
 import { createTemplate } from "../../utils/templateFactory.ts";
+
 const AddTemplateTag = () => {
   const {
     templates,

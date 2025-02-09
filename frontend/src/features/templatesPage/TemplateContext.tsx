@@ -1,15 +1,16 @@
 import React, {
   createContext,
-  useState,
-  useContext,
-  useEffect,
   ReactNode,
   useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
 import { Tag, Template } from "palette-types";
 import { useFetch } from "src/hooks/useFetch";
 import { createTemplate } from "src/utils/templateFactory.ts";
 import { quickStartTemplates } from "./QuickStartTemplates";
+
 interface TemplateContextType {
   addingTagFromBuilder: boolean;
   setAddingTagFromBuilder: (addingTagFromBuilder: boolean) => void;

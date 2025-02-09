@@ -4,6 +4,7 @@ import { Tag } from "palette-types";
 import { useFetch } from "@hooks";
 import { createTag } from "@utils";
 import { useTemplatesContext } from "./TemplateContext";
+
 interface TemplateTagCreatorProps {
   isOpen: boolean;
   onClose: () => void;

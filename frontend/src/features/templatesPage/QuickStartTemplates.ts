@@ -1,6 +1,5 @@
 import { createTemplate } from "../../utils/templateFactory";
-import { createCriterion } from "../../utils/rubricFactory";
-import { createRating } from "../../utils/rubricFactory";
+import { createCriterion, createRating } from "../../utils/rubricFactory";
 
 // Template 1: Design Document
 
