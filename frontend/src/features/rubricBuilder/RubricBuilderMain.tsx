@@ -18,6 +18,7 @@ import TemplateUpload from "./TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
 import {
+  Choice,
   ChoiceDialog,
   Dialog,
   Footer,
@@ -86,8 +87,15 @@ export function RubricBuilderMain(): ReactElement {
     isOpen: false,
     title: "",
     message: "",
-    choices: [] as { label: string; action: () => void }[],
+    choices: [] as Choice[],
+    excludeCancel: false,
   });
+
+  const defaultChoice: Choice = {
+    label: "OK",
+    autoFocus: false,
+    action: () => alert("BUTTON CLICKED"),
+  };
 
   const closePopUp = useCallback(
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
@@ -160,10 +168,11 @@ export function RubricBuilderMain(): ReactElement {
 
     setModal({
       isOpen: true,
+      excludeCancel: true,
       title: "Build a New Rubric",
       message:
         "The active assignment does not have an associated rubric. Let's build one!",
-      choices: [{ label: "OK", action: closeModal }],
+      choices: [{ label: "OK", action: closeModal, autoFocus: true }],
     });
     setLoading(false);
     setHasExistingRubric(false);
@@ -240,11 +249,21 @@ export function RubricBuilderMain(): ReactElement {
 
     setModal({
       isOpen: true,
+      excludeCancel: true,
       title: "Existing Rubric Detected",
       message: `A rubric with the title "${rubric.title}" already exists for the active assignment. How would you like to proceed?`,
       choices: [
-        { label: "Edit Rubric", action: () => editRubric() },
-        { label: "Create New Rubric", action: () => startNewRubric() },
+        {
+          ...defaultChoice,
+          label: "Edit Rubric",
+          action: () => editRubric(),
+          autoFocus: true,
+        },
+        {
+          ...defaultChoice,
+          label: "Create New Rubric",
+          action: () => startNewRubric(),
+        },
       ],
     });
   };
@@ -300,28 +319,37 @@ export function RubricBuilderMain(): ReactElement {
 
       if (response.success) {
         setModal({
+          excludeCancel: true,
           isOpen: true,
           title: "Success!",
           message: `${rubric.title} ${isNewRubric ? "created" : "updated"}!`,
-          choices: [{ label: "Radical", action: () => closeModal() }],
+          choices: [
+            { ...defaultChoice, label: "Radical", action: () => closeModal() },
+          ],
         });
       } else {
         setModal({
+          excludeCancel: true,
           isOpen: true,
           title: "Error!",
           message: `An error occurred: ${response.error || "Unknown error"}`,
-          choices: [{ label: "Close", action: () => closeModal() }],
+          choices: [
+            { ...defaultChoice, label: "Close", action: () => closeModal() },
+          ],
         });
       }
     } catch (error) {
       console.error("Error handling rubric submission:", error);
       setModal({
+        excludeCancel: true,
         isOpen: true,
         title: "Error!",
         message: `An unexpected error occurred: ${
           error instanceof Error ? error.message : "unknown error"
         }`,
-        choices: [{ label: "Close", action: () => closeModal() }],
+        choices: [
+          { ...defaultChoice, label: "Close", action: () => closeModal() },
+        ],
       });
     } finally {
       setLoading(false);
@@ -385,11 +413,13 @@ export function RubricBuilderMain(): ReactElement {
     };
 
     setModal({
+      excludeCancel: false,
       isOpen: true,
       title: "Confirm Criterion Removal",
       message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
       choices: [
         {
+          ...defaultChoice,
           label: "Destroy it!",
           action: () => {
             deleteCriterion();
@@ -557,11 +587,13 @@ export function RubricBuilderMain(): ReactElement {
 
   const removeAllCriteria = () => {
     setModal({
+      excludeCancel: false,
       isOpen: true,
       title: "Clear All Criteria?",
       message: "Are you sure you want to remove all criteria on the form?",
       choices: [
         {
+          ...defaultChoice,
           label: "Purge Them All",
           action: () => {
             deleteAllCriteria();
@@ -681,7 +713,6 @@ export function RubricBuilderMain(): ReactElement {
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div className="min-h-screen justify-between flex flex-col w-screen bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
-        {/* Sticky Header with Gradient */}
         <Header />
         {renderContent()}
         {!isCanvasBypassed && renderBypassButton()}
@@ -693,6 +724,7 @@ export function RubricBuilderMain(): ReactElement {
           title={modal.title}
           message={modal.message}
           choices={modal.choices}
+          excludeCancel={modal.excludeCancel}
         />
 
         <PopUp
