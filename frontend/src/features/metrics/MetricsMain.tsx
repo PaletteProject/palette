@@ -1,4 +1,5 @@
 import React from "react";
+import { MainPageTemplate } from "../../components/layout/MainPageTemplate.tsx";
 
 const TemplateMetrics = () => {
   return (
