@@ -129,8 +129,8 @@ const TemplatesWindow = () => {
                 >
                   <i className="fas fa-trash-alt" />
                   Delete Selected ({
-                  selectedTemplates.length
-                })
+                    selectedTemplates.length
+                  })
                 </button>
                 <button
                   onClick={handleBulkExport}
@@ -206,10 +206,10 @@ const TemplatesWindow = () => {
       <div
         className={`
           ${
-          layoutStyle === "grid"
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            : "flex flex-col"
-        }
+            layoutStyle === "grid"
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              : "flex flex-col"
+          }
           max-h-[500px] bg-gray-600 border-2 border-black rounded-lg overflow-auto 
           scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-4
         `}
