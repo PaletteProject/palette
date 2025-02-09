@@ -18,11 +18,11 @@ import TemplateUpload from "./TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
 import {
+  ChoiceDialog,
   Dialog,
   Footer,
   Header,
   LoadingDots,
-  ModalChoiceDialog,
   NoAssignmentSelected,
   NoCourseSelected,
   PaletteActionButton,
@@ -686,8 +686,8 @@ export function RubricBuilderMain(): ReactElement {
         {renderContent()}
         {!isCanvasBypassed && renderBypassButton()}
 
-        {/* ModalChoiceDialog */}
-        <ModalChoiceDialog
+        {/* ChoiceDialog */}
+        <ChoiceDialog
           show={modal.isOpen}
           onHide={closeModal}
           title={modal.title}

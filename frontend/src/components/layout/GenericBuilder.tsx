@@ -1,19 +1,19 @@
-import { Template, Criteria, Rubric } from "palette-types";
+import { Criteria, Rubric, Template } from "palette-types";
 import { useTemplatesContext } from "../../features/templatesPage/TemplateContext";
 import React, {
+  MouseEvent as ReactMouseEvent,
   useCallback,
   useState,
-  MouseEvent as ReactMouseEvent,
 } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { AnimatePresence } from "framer-motion";
 import CriteriaCard from "src/features/rubricBuilder/CriteriaCard";
 import { createCriterion } from "@utils";
-import { ModalChoiceDialog } from "@components";
+import { ChoiceDialog } from "@components";
+
 interface GenericBuilderProps {
   builderType: "template" | "rubric";
   document: Template | Rubric;
@@ -348,7 +348,7 @@ export const GenericBuilder = ({
         )}
       </form>
 
-      <ModalChoiceDialog
+      <ChoiceDialog
         show={modal.isOpen}
         onHide={closeModal}
         title={modal.title}
