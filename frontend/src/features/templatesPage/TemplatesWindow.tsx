@@ -187,18 +187,14 @@ const TemplatesWindow = () => {
   }, [templates, searchQuery, selectedTagFilters, sortConfig]);
 
   const handleSelectTemplateBulkActions = (templateKey: string) => {
-    // console.log("Current selected:", selectedTemplates);
-    // console.log("Toggling template:", templateKey);
-
     if (selectedTemplates.includes(templateKey)) {
       const newSelected = selectedTemplates.filter(
         (key) => key !== templateKey,
       );
-      // console.log("New selected after removal:", newSelected);
+
       setSelectedTemplates(newSelected);
     } else {
       const newSelected = [...selectedTemplates, templateKey];
-      // console.log("New selected after addition:", newSelected);
       setSelectedTemplates(newSelected);
     }
     setSelectAll(false);
