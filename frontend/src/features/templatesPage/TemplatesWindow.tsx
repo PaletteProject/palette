@@ -128,9 +128,7 @@ const TemplatesWindow = () => {
                   className="px-2 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center gap-2"
                 >
                   <i className="fas fa-trash-alt" />
-                  Delete Selected ({
-                    selectedTemplates.length
-                  })
+                  Delete Selected ({selectedTemplates.length})
                 </button>
                 <button
                   onClick={handleBulkExport}
