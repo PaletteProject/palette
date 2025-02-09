@@ -35,9 +35,9 @@ export const GenericBuilder = ({
     setViewingTemplate,
     handleUpdateTemplate,
     viewOrEdit,
-    setTagModalOpen,
     templates,
     setAddingTagFromBuilder,
+    setHasUnsavedChanges,
   } = useTemplatesContext();
 
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
@@ -67,6 +67,7 @@ export const GenericBuilder = ({
         title: newTitle,
       } as Template;
       setDocument(updatedTemplate);
+      setHasUnsavedChanges(true);
     } else if (builderType === "rubric") {
       const updatedRubric = {
         ...document,
@@ -92,6 +93,7 @@ export const GenericBuilder = ({
     if (builderType === "template") {
       setEditingTemplate(updatedTemplate as Template);
       handleUpdateTemplate(index, updatedTemplate as Template);
+      // setHasUnsavedChanges(true);
     } else {
       setViewingTemplate(updatedTemplate as Template);
     }
@@ -114,12 +116,14 @@ export const GenericBuilder = ({
       // console.log("updatedTemplate points", updatedTemplate.points);
       setEditingTemplate(updatedTemplate as Template);
       handleUpdateTemplate(index, updatedTemplate as Template);
+      setHasUnsavedChanges(true);
     };
 
     const deleteRubricCriterion = () => {
       const newCriteria = [...document.criteria];
       newCriteria.splice(index, 1);
       setDocument({ ...document, criteria: newCriteria });
+      setHasUnsavedChanges(true);
     };
 
     if (builderType === "template") {
@@ -213,6 +217,7 @@ export const GenericBuilder = ({
       };
       setEditingTemplate(updatedTemplate as Template);
       setActiveCriterionIndex(newCriteria.length - 1);
+      setHasUnsavedChanges(true);
     } else {
       const newCriteria = [...document.criteria, createCriterion()];
       setDocument({ ...document, criteria: newCriteria });

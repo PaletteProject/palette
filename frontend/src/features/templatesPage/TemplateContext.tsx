@@ -86,6 +86,8 @@ interface TemplateContextType {
   setTagModalOpen: (tagModalOpen: boolean) => void;
   handleBulkCreateTemplates: () => void;
   handleBulkDeleteTemplates: () => void;
+  hasUnsavedChanges: boolean;
+  setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 }
 
 const TemplatesContext = createContext<TemplateContextType>({
@@ -155,6 +157,8 @@ const TemplatesContext = createContext<TemplateContextType>({
   tagModalOpen: false,
   handleBulkCreateTemplates: () => {},
   handleBulkDeleteTemplates: () => {},
+  hasUnsavedChanges: false,
+  setHasUnsavedChanges: () => {},
 });
 
 export function useTemplatesContext() {
@@ -165,6 +169,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
     null
   );
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [tagModalOpen, setTagModalOpen] = useState(false);
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
@@ -311,12 +316,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     template.lastUsed = "Never";
     template.usageCount = 23;
     template.key = crypto.randomUUID();
-    setTemplates([...templates, template]);
     setEditingTemplate(template);
-    // console.log("template", template);
     setViewOrEdit("edit");
-    // setIndex(templates.length);
-
     setIsNewTemplate(true);
   };
 
@@ -388,6 +389,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   };
 
   const handleSubmitNewTemplate = () => {
+    setTemplates([...templates, editingTemplate as Template]);
     void (async () => {
       try {
         const response = await postTemplate();
@@ -503,6 +505,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         setAddingTagFromBuilder,
         handleBulkCreateTemplates,
         handleBulkDeleteTemplates,
+        hasUnsavedChanges,
+        setHasUnsavedChanges,
       }}
     >
       {children}

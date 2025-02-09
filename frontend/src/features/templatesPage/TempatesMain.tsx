@@ -2,7 +2,7 @@
  * Rubric Builder view.
  */
 
-import { ReactElement, useState, useEffect } from "react";
+import { ReactElement, useState, useEffect, useCallback } from "react";
 import { Dialog, MainPageTemplate } from "@components";
 import { TemplateProvider, useTemplatesContext } from "./TemplateContext.tsx";
 import TemplatesWindow from "./TemplatesWindow.tsx";
@@ -10,6 +10,7 @@ import TemplateSearch from "./TemplateSearch.tsx";
 import AddTemplateTag from "./AddTemplateTag.tsx";
 import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
 import { Template } from "palette-types";
+import { ModalChoiceDialog } from "src/components/modals/ModalChoiceDialog.tsx";
 
 export default function TemplatesMain(): ReactElement {
   return (
@@ -33,9 +34,22 @@ function TemplatesMainContent(): ReactElement {
     setShowBulkActions,
     editingTemplate,
     setEditingTemplate,
+    hasUnsavedChanges,
   } = useTemplatesContext();
 
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+  const closeModal = useCallback(
+    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
+    []
+  );
+
+  // object containing related modal state
+  const [modal, setModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    choices: [] as { label: string; action: () => void }[],
+  });
 
   useEffect(() => {
     console.log("editingTemplate in TemplatesMain", editingTemplate);
@@ -43,7 +57,25 @@ function TemplatesMainContent(): ReactElement {
   }, [templateDialogOpen]);
 
   const handleCloseModal = () => {
-    setTemplateDialogOpen(false);
+    if (hasUnsavedChanges) {
+      setModal({
+        isOpen: true,
+        title: "Lose unsaved changes? Template main",
+        message:
+          "Are you sure you want to leave without saving your changes? Your changes will be lost.",
+        choices: [
+          {
+            label: "Yes",
+            action: () => {
+              closeModal();
+              setTemplateDialogOpen(false);
+            },
+          },
+        ],
+      });
+    } else {
+      setTemplateDialogOpen(false);
+    }
   };
 
   const handleCreateNewTemplate = () => {
@@ -147,6 +179,14 @@ function TemplatesMainContent(): ReactElement {
               onSubmit={handleTemplateSubmit}
             />
           }
+        />
+        {/* ModalChoiceDialog */}
+        <ModalChoiceDialog
+          show={modal.isOpen}
+          onHide={closeModal}
+          title={modal.title}
+          message={modal.message}
+          choices={modal.choices}
         />
       </div>
     );

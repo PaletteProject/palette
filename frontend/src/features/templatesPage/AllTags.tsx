@@ -24,6 +24,11 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   }, [editingTemplate]);
 
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [statefulTemplates, setStatefulTemplates] = useState<Template[]>([]);
+
+  useEffect(() => {
+    setStatefulTemplates(templates);
+  }, [templates]);
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
@@ -42,6 +47,11 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const { fetchData: deleteTags } = useFetch("/tags/bulk", {
     method: "DELETE",
     body: JSON.stringify(selectedTags),
+  });
+
+  const { fetchData: putTemplate } = useFetch("/templates", {
+    method: "PUT",
+    body: JSON.stringify({ template: editingTemplate }),
   });
 
   const { fetchData: getAvailableTags } = useFetch("/tags", {
@@ -72,26 +82,87 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     setRemoveMode((prevMode) => !prevMode);
   };
 
-  const handleRemoveTags = () => {
-    setModal({
-      isOpen: true,
-      title: "Remove Tags",
-      message:
-        "Are you sure you want to remove the selected tags? This will effect all templates that use these tags.",
+  const [tempTagCounts, setTempTagCounts] = useState<Record<string, number>>(
+    {}
+  );
 
-      choices: [
-        { label: "Yes", action: () => removeTags() },
-        { label: "No", action: closeModal },
-      ],
-    });
+  // Function to initialize or update the temporary tag counts
+  const initializeTempTagCounts = () => {
+    const counts = availableTags.reduce(
+      (acc, tag) => {
+        acc[tag.key] = templates.filter((t) =>
+          t.tags.some((tTag) => tTag.key === tag.key)
+        ).length;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+    setTempTagCounts(counts);
+  };
+
+  useEffect(() => {
+    initializeTempTagCounts();
+  }, [availableTags, templates]);
+
+  const handleRemoveTags = () => {
+    if (!addingTagFromBuilder) {
+      setModal({
+        isOpen: true,
+        title: "Remove Tags",
+        message:
+          "Are you sure you want to remove the selected tags? This will effect all templates that use these tags.",
+        choices: [
+          { label: "Yes", action: () => removeTags() },
+          { label: "No", action: closeModal },
+        ],
+      });
+    } else {
+      setModal({
+        isOpen: true,
+        title: "Remove Tags",
+        message: `Are you sure you want to remove the selected tag(s) from ${editingTemplate?.title}?`,
+        choices: [
+          {
+            label: "Yes",
+            action: () => {
+              const updatedTags = editingTemplate?.tags?.filter(
+                (t) =>
+                  !selectedTags.some((selectedTag) => selectedTag.key === t.key)
+              );
+              const updatedTemplate = {
+                ...editingTemplate,
+                tags: updatedTags || [],
+              } as Template;
+              setEditingTemplate(updatedTemplate);
+              setSelectedTags([]);
+              closeModal();
+
+              // Update temporary tag counts
+              const newTempTagCounts = { ...tempTagCounts };
+              selectedTags.forEach((tag) => {
+                if (newTempTagCounts[tag.key] > 0) {
+                  newTempTagCounts[tag.key] -= 1;
+                }
+              });
+              setTempTagCounts(newTempTagCounts);
+            },
+          },
+          {
+            label: "No",
+            action: closeModal,
+          },
+        ],
+      });
+    }
   };
 
   const handleAddTagsToTemplate = () => {
     if (editingTemplate) {
       const updatedTemplate = {
         ...editingTemplate,
+        title: editingTemplate.title || "",
         tags: [...editingTemplate.tags, ...selectedTags],
-      };
+      } as Template;
       setEditingTemplate(updatedTemplate);
       onSave();
       getTags();
@@ -131,7 +202,20 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
               style={{ backgroundColor: tag.color }}
               onClick={() => {
                 if (!editingTemplate?.tags.includes(tag)) {
-                  setSelectedTags([tag]);
+                  setSelectedTags((prevSelected) => {
+                    // Toggle selection of the tag
+                    if (prevSelected.includes(tag)) {
+                      return prevSelected.filter((t) => t !== tag);
+                    } else {
+                      const tagsOnTemplate = getTagsOnTemplate();
+                      if (
+                        prevSelected.some((t) => tagsOnTemplate.includes(t))
+                      ) {
+                        return [tag];
+                      }
+                      return [...prevSelected, tag];
+                    }
+                  });
                   setRemoveMode(false);
                 }
               }}
@@ -146,15 +230,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
                   ? `${tag.name.slice(0, 15)}...`
                   : tag.name}
               </span>
-              <span className="text-xs">
-                (
-                {
-                  templates.filter((t) =>
-                    t.tags.some((tTag) => tTag.key === tag.key)
-                  ).length
-                }
-                )
-              </span>
+              <span className="text-xs">({tempTagCounts[tag.key] || 0})</span>
             </span>
           ))}
         </div>
@@ -181,7 +257,20 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
               style={{ backgroundColor: tag.color }}
               onClick={() => {
                 if (editingTemplate?.tags.includes(tag)) {
-                  setSelectedTags([tag]);
+                  setSelectedTags((prevSelected) => {
+                    // Toggle selection of the tag
+                    if (prevSelected.includes(tag)) {
+                      return prevSelected.filter((t) => t !== tag);
+                    } else {
+                      const tagsNotOnTemplate = getTagsNotOnTemplate();
+                      if (
+                        prevSelected.some((t) => tagsNotOnTemplate.includes(t))
+                      ) {
+                        return [tag];
+                      }
+                      return [...prevSelected, tag];
+                    }
+                  });
                   setRemoveMode(true);
                 }
               }}
@@ -217,7 +306,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
                 <div className="flex gap-4">
                   {removeMode && (
                     <button
-                      onClick={handleRemoveMode}
+                      onClick={handleRemoveTags}
                       className="bg-red-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-red-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500"
                     >
                       Remove

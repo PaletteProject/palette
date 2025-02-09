@@ -3,12 +3,13 @@ import {
   ReactElement,
   useEffect,
   useState,
+  useCallback,
 } from "react";
 
 import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Tag, Template } from "palette-types";
-import { Dialog } from "@components";
+import { Dialog, ModalChoiceDialog } from "@components";
 import TemplateTagCreator from "src/features/templatesPage/TemplateTagCreator.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 
@@ -38,6 +39,8 @@ export default function TemplateCard({
     setShowBulkActions,
     handleSubmitEditedTemplate,
     setViewingTemplate,
+    hasUnsavedChanges,
+    setHasUnsavedChanges,
   } = useTemplatesContext();
   const [tagModalOpen, setTagModalOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -80,21 +83,53 @@ export default function TemplateCard({
 
   const handleSetAvailableTags = (tags: Tag[]) => {
     const updatedTemplate = { ...editingTemplate, tags };
-    // console.log(updatedTemplate);
     setEditingTemplate(updatedTemplate as Template);
     handleUpdateTemplate(index, updatedTemplate as Template);
+    // setHasUnsavedChanges(true);
   };
 
   const submitTemplate = () => {
     handleSubmitEditedTemplate();
-
     setTemplateDialogOpen(false);
     setIsNewTemplate(false);
     setShowBulkActions(false);
+    setHasUnsavedChanges(false);
   };
 
+  const closeModal = useCallback(
+    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
+    []
+  );
+
+  // object containing related modal state
+  const [modal, setModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    choices: [] as { label: string; action: () => void }[],
+  });
+
   const handleCloseModal = () => {
-    setTemplateDialogOpen(false);
+    if (hasUnsavedChanges) {
+      setModal({
+        isOpen: true,
+        title: "Lose unsaved changes?",
+        message:
+          "Are you sure you want to leave without saving your changes? Your changes will be lost.",
+        choices: [
+          {
+            label: "Yes",
+            action: () => {
+              closeModal();
+              setTemplateDialogOpen(false);
+              setHasUnsavedChanges(false);
+            },
+          },
+        ],
+      });
+    } else {
+      setTemplateDialogOpen(false);
+    }
   };
 
   const handleViewModeToggle = () => {
@@ -251,6 +286,15 @@ export default function TemplateCard({
           }}
         />
       )}
+
+      {/* ModalChoiceDialog */}
+      <ModalChoiceDialog
+        show={modal.isOpen}
+        onHide={closeModal}
+        title={modal.title}
+        message={modal.message}
+        choices={modal.choices}
+      />
     </>
   );
 }
