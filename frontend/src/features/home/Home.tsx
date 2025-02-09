@@ -1,7 +1,7 @@
 import { ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { randomColor } from "@utils";
-import { Header } from "@components";
+import { Footer, Header } from "@components";
 
 export function Home(): ReactElement {
   const [color, setColor] = useState("bg-red-500");
@@ -20,7 +20,7 @@ export function Home(): ReactElement {
   };
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black flex flex-col justify-between pt-0 pb-20">
+    <div className="h-screen w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black flex flex-col justify-between">
       <Header />
       {/* Main Content Section */}
       <div className="flex flex-col items-center justify-center text-white text-center -mt-20">
@@ -59,6 +59,7 @@ export function Home(): ReactElement {
           </button>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

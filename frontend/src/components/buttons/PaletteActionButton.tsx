@@ -18,10 +18,12 @@ type ActionButtonProps = {
    */
   title?: string;
 
+  autoFocus?: boolean;
+
   /**
    * The button color theme.
    */
-  color: "GREEN" | "RED" | "BLUE" | "YELLOW" | "PURPLE";
+  color: "GREEN" | "RED" | "BLUE" | "YELLOW" | "PURPLE" | "GRAY";
 };
 
 /**
@@ -35,6 +37,7 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
   onPointerDown,
   title = "Save",
   color,
+  autoFocus = false,
 }: ActionButtonProps): ReactElement => {
   const colorStyles = {
     GREEN: {
@@ -50,7 +53,7 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
     BLUE: {
       bg: "bg-blue-600",
       hover: "hover:bg-blue-700",
-      focus: "focus:ring-blue-500",
+      focus: "focus:ring-blue-400",
     },
     YELLOW: {
       bg: "bg-yellow-600",
@@ -62,6 +65,11 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
       hover: "hover:bg-purple-700",
       focus: "focus:ring-purple-500",
     },
+    GRAY: {
+      bg: "bg-gray-600",
+      hover: "hover:bg-gray-700",
+      focus: "focus:ring-gray-500",
+    },
   }[color];
 
   return (
@@ -69,12 +77,13 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
       className={`transition-transform duration-200 ease-in-out transform 
         ${colorStyles.bg} ${colorStyles.hover} 
         text-white font-bold rounded-lg py-2 px-4 
-        hover:scale-105 focus:outline-none focus:ring-2 ${colorStyles.focus}`}
+        hover:scale-105 focus:outline-none focus:ring-4 ${colorStyles.focus} focus:shadow-2xl`}
       onClick={onClick}
       onPointerDown={onPointerDown}
       type="button"
       title={title}
       aria-label={title}
+      autoFocus={autoFocus}
     >
       {title}
     </button>

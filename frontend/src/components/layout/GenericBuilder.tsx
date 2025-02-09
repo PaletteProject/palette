@@ -1,19 +1,18 @@
-import { Template, Criteria, Rubric } from "palette-types";
+import { Criteria, Rubric, Template } from "palette-types";
 import { useTemplatesContext } from "../../features/templatesPage/TemplateContext";
 import React, {
+  MouseEvent as ReactMouseEvent,
   useCallback,
   useState,
-  MouseEvent as ReactMouseEvent,
 } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { AnimatePresence } from "framer-motion";
 import CriteriaCard from "src/features/rubricBuilder/CriteriaCard";
 import { createCriterion } from "@utils";
-import { Dialog, ModalChoiceDialog } from "@components";
+import {Dialog, ChoiceDialog, Choice} from "@components";
 import AllTags from "src/features/templatesPage/AllTags";
 interface GenericBuilderProps {
   builderType: "template" | "rubric";
@@ -47,8 +46,18 @@ export const GenericBuilder = ({
     isOpen: false,
     title: "",
     message: "",
-    choices: [] as { label: string; action: () => void }[],
+    choices: [] as Choice[],
   });
+  
+  const defaultChoice: Choice =
+    {
+      label: "OK",
+      action: function (): void {
+        throw new Error("Function not implemented.");
+      },
+      autoFocus: true,
+    }
+  ;
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
@@ -93,7 +102,6 @@ export const GenericBuilder = ({
     if (builderType === "template") {
       setEditingTemplate(updatedTemplate as Template);
       handleUpdateTemplate(index, updatedTemplate as Template);
-      // setHasUnsavedChanges(true);
     } else {
       setViewingTemplate(updatedTemplate as Template);
     }
@@ -133,6 +141,7 @@ export const GenericBuilder = ({
         message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
         choices: [
           {
+            ...defaultChoice,
             label: "Destroy it!",
             action: () => {
               deleteTemplateCriterion();
@@ -148,6 +157,7 @@ export const GenericBuilder = ({
         message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
         choices: [
           {
+            ...defaultChoice,
             label: "Destroy it!",
             action: () => {
               deleteRubricCriterion();
@@ -235,7 +245,7 @@ export const GenericBuilder = ({
         message: "Please enter a title for your template before saving.",
         choices: [
           {
-            label: "OK",
+            ...defaultChoice,
             action: closeModal,
           },
         ],
@@ -250,7 +260,7 @@ export const GenericBuilder = ({
         message: "Please add at least one criterion before saving.",
         choices: [
           {
-            label: "OK",
+            ...defaultChoice,
             action: closeModal,
           },
         ],
@@ -272,7 +282,7 @@ export const GenericBuilder = ({
             "A template with this name already exists. Please choose a different name.",
           choices: [
             {
-              label: "OK",
+              ...defaultChoice,
               action: closeModal,
             },
           ],
@@ -354,12 +364,13 @@ export const GenericBuilder = ({
         )}
       </form>
 
-      <ModalChoiceDialog
+      <ChoiceDialog
         show={modal.isOpen}
         onHide={closeModal}
         title={modal.title}
         message={modal.message}
         choices={modal.choices}
+        excludeCancel={false}
       />
 
       <Dialog

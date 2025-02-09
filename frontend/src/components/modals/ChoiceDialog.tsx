@@ -1,32 +1,35 @@
 import React from "react";
+import { PaletteActionButton } from "../buttons/PaletteActionButton.tsx";
 
 /**
  * A choice is a button that the user can click to perform an action.
  */
-interface Choice {
+export interface Choice {
   label: string; // The text to display on the button
   action: () => void; // The function to call when the button is clicked
-  variant?: string; // The variant of the button (e.g., "primary", "secondary")
+  autoFocus: boolean; // whether the choice should be automatically focused on render
 }
 
 /**
  * This generic component is a modal dialog that presents a message and a set of choices.
  * The choices are rendered as buttons at the bottom of the dialog.
  */
-interface ModalChoiceDialogProps {
+interface ChoiceDialogProps {
   show: boolean; // Whether the dialog is visible
   onHide: () => void; // The function to call when the dialog is closed
   title: string; // The title of the dialog
   message: string; // The message to display in the dialog
   choices: Choice[]; // The button choices (not including cancel) to present to the user
+  excludeCancel: boolean; // option to exclude cancel button
 }
 
-export const ModalChoiceDialog: React.FC<ModalChoiceDialogProps> = ({
+export const ChoiceDialog: React.FC<ChoiceDialogProps> = ({
   show,
   onHide,
   title,
   message,
   choices,
+  excludeCancel = false,
 }) => {
   if (!show) {
     return null; // Don't render anything if the modal is not visible
@@ -49,25 +52,23 @@ export const ModalChoiceDialog: React.FC<ModalChoiceDialogProps> = ({
         {/* Buttons */}
         <div className="flex justify-around space-x-4">
           {choices.map((choice, index) => (
-            <button
+            <PaletteActionButton
+              color={"BLUE"}
               key={index}
-              autoFocus={index === 0} // autofocus the first option
-              className={`py-2 px-4 rounded text-white focus:outline-0 focus:ring-4 focus:ring-blue-400 transform transition-transform focus:scale-105  ${
-                choice.variant === "secondary"
-                  ? "bg-gray-500 hover:bg-gray-600"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
               onClick={choice.action}
-            >
-              {choice.label}
-            </button>
+              title={choice.label}
+              autoFocus={index === 0} // autofocus the first option
+            />
           ))}
-          <button
-            className="py-2 px-4 rounded bg-gray-500 hover:bg-gray-600 focus:outline-0 focus:ring-4 focus:ring-gray-400 text-white transform transition-transform focus:scale-105 "
-            onClick={onHide}
-          >
-            Cancel
-          </button>
+          {excludeCancel ? (
+            ""
+          ) : (
+            <PaletteActionButton
+              color={"GRAY"}
+              onClick={onHide}
+              title={"Cancel"}
+            />
+          )}
         </div>
       </div>
     </div>

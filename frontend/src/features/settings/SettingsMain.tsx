@@ -1,10 +1,6 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Settings } from "palette-types";
-import {
-  LoadingDots,
-  ModalChoiceDialog,
-  PaletteActionButton,
-} from "@components";
+import { ChoiceDialog, LoadingDots, PaletteActionButton } from "@components";
 import { useFetch } from "@hooks";
 
 export function SettingsMain(): ReactElement {
@@ -195,7 +191,7 @@ export function SettingsMain(): ReactElement {
       <main className="flex-1 flex justify-center items-center p-6">
         {renderContent()}
       </main>
-      <ModalChoiceDialog
+      <ChoiceDialog
         show={modal.isOpen}
         title={modal.title}
         message={modal.message}
