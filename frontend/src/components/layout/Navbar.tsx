@@ -32,6 +32,7 @@ export function Navbar() {
     "/templates": "Templates",
     "/rubric-builder": "Builder",
     "/grading": "Grading",
+    "/metrics": "Metrics",
   };
   const currentPath = location.pathname;
   const isActive = (path: string) => currentPath === path;

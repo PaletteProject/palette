@@ -18,7 +18,7 @@ import {
 } from "@features";
 import { AssignmentProvider, CourseProvider } from "@context"; // Defined a "root" div in index.html that we pull in here and then call the React render method.
 import TemplatesMain from "./features/templatesPage/TempatesMain.tsx";
-
+import MetricsMain from "./features/metrics/MetricsMain.tsx";
 // Defined a "root" div in index.html that we pull in here and then call the React render method.
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -32,6 +32,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/templates" element={<TemplatesMain />} />
             <Route path="/rubric-builder" element={<RubricBuilderMain />} />
             <Route path="/grading" element={<GradingMain />} />
+            <Route path="/metrics" element={<MetricsMain />} />
             <Route path="/settings" element={<SettingsMain />} />
             {/*Any route that doesn't match the routes defined above will go to the 404 page*/}
             <Route path={"*"} element={<NotFoundPage />} />
@@ -39,5 +40,5 @@ createRoot(document.getElementById("root")!).render(
         </Router>
       </AssignmentProvider>
     </CourseProvider>
-  </StrictMode>,
+  </StrictMode>
 );
