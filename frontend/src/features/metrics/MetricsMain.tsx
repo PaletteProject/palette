@@ -5,6 +5,9 @@ import CriteriaInput from "../../features/rubricBuilder/CriteriaCard.tsx";
 import { Template, Criteria } from "palette-types";
 import TemplateSearch from "../../features/templatesPage/TemplateSearch.tsx";
 import { useTemplatesContext } from "../../features/templatesPage/TemplateContext.tsx";
+import TemplateCard from "../templatesPage/TemplateCards.tsx";
+import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
+import { useSortable } from "@dnd-kit/sortable";
 
 const MetricsMain = () => {
   const [templatesExpanded, setTemplatesExpanded] = useState(false);
@@ -17,6 +20,16 @@ const MetricsMain = () => {
   } | null>(null);
   const { searchQuery, setSearchQuery, showSuggestions, setShowSuggestions } =
     useTemplatesContext();
+
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: selectedItem?.key || "",
+    });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   const renderTemplatesView = () => {
     return (
@@ -35,10 +48,10 @@ const MetricsMain = () => {
           >
             {quickStartTemplates.map((template) => (
               <div
-                className={`flex flex-col bg-gray-600 border-2 border-black rounded-lg px-4 py-2 m-10 ${
+                className={`flex flex-col bg-gray-600 border-2 border-black rounded-lg px-4 mb-4 mx-4 py-2 ${
                   selectedItem?.type === "template" &&
                   selectedItem.key === template.key
-                    ? "border-blue-600 border-4"
+                    ? "border-blue-500 border-4"
                     : ""
                 }`}
                 key={template.key}
@@ -50,7 +63,7 @@ const MetricsMain = () => {
                   }}
                   className="flex flex-col"
                 >
-                  <h3 className="text-white text-xl font-bold m-4 mr-0">
+                  <h3 className="text-white text-md font-bold">
                     {template.title}
                   </h3>
                   {expandedTemplates.has(template.key) && (
@@ -61,7 +74,7 @@ const MetricsMain = () => {
                             className={`hover:bg-gray-500 hover:cursor-pointer max-h-28 flex gap-1 justify-between items-center border mb-2 border-gray-700 shadow-lg rounded-lg w-full ${
                               selectedItem?.type === "criterion" &&
                               selectedItem.key === criterion.key
-                                ? "border-blue-600 border-4"
+                                ? "border-blue-500 border-4"
                                 : "bg-gray-700"
                             }`}
                             onClick={(e) => {
