@@ -267,5 +267,4 @@ const TemplatesWindow = () => {
     </>
   );
 };
-
 export default TemplatesWindow;
