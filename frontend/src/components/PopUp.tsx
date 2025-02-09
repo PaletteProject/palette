@@ -8,7 +8,8 @@ interface PopUpProps {
   show: boolean; // Whether the dialog is visible
   onHide: () => void; // The function to call when the dialog is closed
   title: string; // The title of the dialog
-  message: string; // The message to display in the dialog
+  message?: string; // The message to display in the dialog
+  children?: React.ReactNode; // Add this line
 }
 
 export const PopUp: React.FC<PopUpProps> = ({

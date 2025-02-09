@@ -11,7 +11,7 @@ import {
   Dialog,
 } from "@components";
 
-function Navbar() {
+export function Navbar() {
   const [userAnchor, setUserAnchor] = useState<null | HTMLElement>(null);
 
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
@@ -19,6 +19,8 @@ function Navbar() {
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  const selectCourseSectionAssignmentPaths = ["/rubric-builder", "/grading"];
 
   /**
    * Map paths to nav button labels.
@@ -71,56 +73,66 @@ function Navbar() {
   }
 
   return (
-    <div className="flex items-center h-16 mx-4 justify-between">
-      {renderNavButtons()}
+    <nav className="fixed top-0 left-0 right-0 bg-gradient-to-r from-red-500 via-green-500 to-purple-500 min-h-12 h-16 z-50">
+      <div className="flex items-center h-16 mx-4 justify-between">
+        {currentPath !== "/" && renderNavButtons()}
 
-      <div className={"flex items-center gap-10"}>
-        <div className={"hidden md:flex justify-around gap-4"}>
-          <ActiveCourseSelection setDialogOpen={setCourseDialogOpen} />
-          <ActiveAssignmentSelection setDialogOpen={setAssignmentDialogOpen} />
+        <div className={"flex items-center gap-10"}>
+          <div className={"hidden md:flex justify-around gap-4"}>
+            {selectCourseSectionAssignmentPaths.includes(currentPath) && (
+              <>
+                <ActiveCourseSelection setDialogOpen={setCourseDialogOpen} />
+                <ActiveAssignmentSelection
+                  setDialogOpen={setAssignmentDialogOpen}
+                />
+              </>
+            )}
+          </div>
+          {currentPath !== "/" && (
+            <button
+              className={`self-center px-5 py-1 h-12 bg-gray-500 text-white rounded-full font-semibold hover:bg-gray-600 transition duration-300 transform hover:scale-105`}
+              onClick={handleOpenUserMenu}
+            >
+              P
+            </button>
+          )}
         </div>
-        <button
-          className={`self-center px-5 py-1 h-12 bg-gray-500 text-white rounded-full font-semibold hover:bg-gray-600 transition duration-300 transform hover:scale-105`}
-          onClick={handleOpenUserMenu}
-        >
-          P
-        </button>
-      </div>
 
-      <Menu
-        sx={{ mt: "45px" }}
-        id="user-menu"
-        anchorEl={userAnchor}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        keepMounted
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        open={Boolean(userAnchor)}
-        onClose={handleCloseUserMenu}
-      >
-        <MenuItem onClick={handleSettingsClicked}>Settings</MenuItem>
-        <MenuItem onClick={handleLogoutClicked}>Logout</MenuItem>
-      </Menu>
-      <Dialog
-        isOpen={courseDialogOpen}
-        onClose={() => setCourseDialogOpen(false)}
-        title={"Course Selection"}
-      >
-        <CourseSelectionMenu onSelect={setCourseDialogOpen} />
-      </Dialog>
-      <Dialog
-        isOpen={assignmentDialogOpen}
-        onClose={() => setAssignmentDialogOpen(false)}
-        title={"Assignment Selection"}
-      >
-        <AssignmentSelectionMenu onSelect={setAssignmentDialogOpen} />
-      </Dialog>
-    </div>
+        <Menu
+          sx={{ mt: "45px" }}
+          id="user-menu"
+          anchorEl={userAnchor}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          keepMounted
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          open={Boolean(userAnchor)}
+          onClose={handleCloseUserMenu}
+        >
+          <MenuItem onClick={handleSettingsClicked}>Settings</MenuItem>
+          <MenuItem onClick={handleLogoutClicked}>Logout</MenuItem>
+        </Menu>
+        <Dialog
+          isOpen={courseDialogOpen}
+          onClose={() => setCourseDialogOpen(false)}
+          title={"Course Selection"}
+        >
+          <CourseSelectionMenu onSelect={setCourseDialogOpen} />
+        </Dialog>
+        <Dialog
+          isOpen={assignmentDialogOpen}
+          onClose={() => setAssignmentDialogOpen(false)}
+          title={"Assignment Selection"}
+        >
+          <AssignmentSelectionMenu onSelect={setAssignmentDialogOpen} />
+        </Dialog>
+      </div>
+    </nav>
   );
 }
 

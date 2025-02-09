@@ -13,7 +13,8 @@ import {
 } from "react";
 
 import CriteriaInput from "./CriteriaCard.tsx";
-import TemplateUpload from "./templates/TemplateUpload.tsx";
+import TemplateUpload from "./TemplateUpload.tsx";
+// import TemplateUpload from "./templates/TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
 import {
@@ -625,7 +626,7 @@ export function RubricBuilderMain(): ReactElement {
         </div>
 
         <div
-          className="mt-6 grid gap-4
+          className="mt-6 grid gap-1
     grid-cols-1
     auto-rows-min
     h-[40vh]

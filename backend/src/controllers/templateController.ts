@@ -20,13 +20,9 @@ export const deleteTemplateByTitle = async (req: Request, res: Response) => {
   return response;
 };
 
-export const deleteTemplateByKey = async (req: Request, res: Response) => {
-  const response = await TemplateService.deleteTemplateByKey(
-    req,
-    res,
-    () => {},
-  );
-  return response;
+export const deleteTemplateByKey = (req: Request, res: Response) => {
+  const templateData = TemplateService.deleteTemplateByKey(req, res);
+  return templateData;
 };
 
 export const getAllTemplates = async (req: Request, res: Response) => {
