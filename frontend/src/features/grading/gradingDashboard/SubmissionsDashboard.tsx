@@ -1,15 +1,17 @@
 import { GroupedSubmissions, Rubric } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
 
+type SubmissionDashboardProps = {
+  rubric: Rubric | undefined;
+  submissions: GroupedSubmissions;
+  fetchSubmissions: () => Promise<void>;
+};
+
 export function SubmissionsDashboard({
   rubric,
   submissions,
   fetchSubmissions,
-}: {
-  rubric: Rubric | undefined;
-  submissions: GroupedSubmissions;
-  fetchSubmissions: () => Promise<void>;
-}) {
+}: SubmissionDashboardProps) {
   return (
     <div className={"grid justify-start"}>
       <div className={"mb-4"}>
