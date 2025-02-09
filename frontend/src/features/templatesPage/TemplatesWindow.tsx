@@ -4,7 +4,8 @@ import { Template } from "palette-types";
 import TemplateManagementControls from "./TemplateManagementControls.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 import TemplateSorter from "./TemplateSorter.tsx";
-import { ModalChoiceDialog } from "@components";
+import { Choice, ChoiceDialog } from "@components";
+
 const TemplatesWindow = () => {
   const {
     templates,
@@ -30,7 +31,7 @@ const TemplatesWindow = () => {
     isOpen: false,
     title: "",
     message: "",
-    choices: [] as { label: string; action: () => void }[],
+    choices: [] as Choice[],
   });
 
   const closeModal = useCallback(
@@ -61,6 +62,7 @@ const TemplatesWindow = () => {
       message: `Are you sure you want to delete ${selectedTemplates.length} templates? This action cannot be undone.`,
       choices: [
         {
+          autoFocus: true,
           label: "Delete All Selected",
           action: () => {
             setDeletingTemplates(
@@ -79,6 +81,7 @@ const TemplatesWindow = () => {
         {
           label: "Cancel",
           action: closeModal,
+          autoFocus: false,
         },
       ],
     });
@@ -125,7 +128,9 @@ const TemplatesWindow = () => {
                   className="px-2 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center gap-2"
                 >
                   <i className="fas fa-trash-alt" />
-                  Delete Selected ({selectedTemplates.length})
+                  Delete Selected ({
+                    selectedTemplates.length
+                  })
                 </button>
                 <button
                   onClick={handleBulkExport}
@@ -255,12 +260,13 @@ const TemplatesWindow = () => {
         </div>
         {renderAllTemplates()}
       </div>
-      <ModalChoiceDialog
+      <ChoiceDialog
         show={modal.isOpen}
         onHide={closeModal}
         title={modal.title}
         message={modal.message}
         choices={modal.choices}
+        excludeCancel={false}
       />
     </>
   );

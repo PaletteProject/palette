@@ -1,15 +1,15 @@
 import {
   MouseEvent as ReactMouseEvent,
   ReactElement,
+  useCallback,
   useEffect,
   useState,
-  useCallback,
 } from "react";
 
 import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Tag, Template } from "palette-types";
-import { Dialog, ModalChoiceDialog } from "@components";
+import { Choice, ChoiceDialog, Dialog } from "@components";
 import TemplateTagCreator from "src/features/templatesPage/TemplateTagCreator.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 
@@ -106,7 +106,7 @@ export default function TemplateCard({
     isOpen: false,
     title: "",
     message: "",
-    choices: [] as { label: string; action: () => void }[],
+    choices: [] as Choice[],
   });
 
   const handleCloseModal = () => {
@@ -118,6 +118,7 @@ export default function TemplateCard({
           "Are you sure you want to leave without saving your changes? Your changes will be lost.",
         choices: [
           {
+            autoFocus: true,
             label: "Yes",
             action: () => {
               closeModal();
@@ -288,12 +289,13 @@ export default function TemplateCard({
       )}
 
       {/* ModalChoiceDialog */}
-      <ModalChoiceDialog
+      <ChoiceDialog
         show={modal.isOpen}
         onHide={closeModal}
         title={modal.title}
         message={modal.message}
         choices={modal.choices}
+        excludeCancel={false}
       />
     </>
   );

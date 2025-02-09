@@ -12,7 +12,7 @@ import {
 } from "@dnd-kit/sortable";
 import CriteriaCard from "src/features/rubricBuilder/CriteriaCard";
 import { createCriterion } from "@utils";
-import {Dialog, ChoiceDialog, Choice} from "@components";
+import { Dialog, ChoiceDialog, Choice } from "@components";
 import AllTags from "src/features/templatesPage/AllTags";
 interface GenericBuilderProps {
   builderType: "template" | "rubric";
@@ -48,17 +48,14 @@ export const GenericBuilder = ({
     message: "",
     choices: [] as Choice[],
   });
-  
-  const defaultChoice: Choice =
-    {
-      label: "OK",
-      action: function (): void {
-        throw new Error("Function not implemented.");
-      },
-      autoFocus: true,
-    }
-  ;
 
+  const defaultChoice: Choice = {
+    label: "OK",
+    action: function (): void {
+      throw new Error("Function not implemented.");
+    },
+    autoFocus: true,
+  };
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
     [],

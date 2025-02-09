@@ -2,15 +2,15 @@
  * Rubric Builder view.
  */
 
-import { ReactElement, useState, useEffect, useCallback } from "react";
-import { Dialog, MainPageTemplate } from "@components";
+import { ReactElement, useCallback, useEffect, useState } from "react";
+import { Choice, Dialog, MainPageTemplate } from "@components";
 import { TemplateProvider, useTemplatesContext } from "./TemplateContext.tsx";
 import TemplatesWindow from "./TemplatesWindow.tsx";
 import TemplateSearch from "./TemplateSearch.tsx";
 import AddTemplateTag from "./AddTemplateTag.tsx";
 import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
 import { Template } from "palette-types";
-import { ModalChoiceDialog } from "src/components/modals/ModalChoiceDialog.tsx";
+import { ChoiceDialog } from "src/components/modals/ChoiceDialog.tsx";
 
 export default function TemplatesMain(): ReactElement {
   return (
@@ -48,7 +48,7 @@ function TemplatesMainContent(): ReactElement {
     isOpen: false,
     title: "",
     message: "",
-    choices: [] as { label: string; action: () => void }[],
+    choices: [] as Choice[],
   });
 
   useEffect(() => {
@@ -70,6 +70,7 @@ function TemplatesMainContent(): ReactElement {
               closeModal();
               setTemplateDialogOpen(false);
             },
+            autoFocus: true,
           },
         ],
       });
@@ -181,12 +182,13 @@ function TemplatesMainContent(): ReactElement {
           }
         />
         {/* ModalChoiceDialog */}
-        <ModalChoiceDialog
+        <ChoiceDialog
           show={modal.isOpen}
           onHide={closeModal}
           title={modal.title}
           message={modal.message}
           choices={modal.choices}
+          excludeCancel={false}
         />
       </div>
     );

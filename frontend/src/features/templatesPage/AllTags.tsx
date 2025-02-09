@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTemplatesContext } from "./TemplateContext";
 import { Tag, Template } from "palette-types";
-import { useState } from "react";
 import { useFetch } from "../../hooks/useFetch";
-import { ModalChoiceDialog } from "@components";
+import { Choice, ChoiceDialog } from "@components";
 
 const AllTags = ({ onSave }: { onSave: () => void }) => {
   const {
@@ -35,7 +34,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     isOpen: false,
     title: "",
     message: "",
-    choices: [] as { label: string; action: () => void }[],
+    choices: [] as Choice[],
   });
 
   const { fetchData: deleteTags } = useFetch("/tags/bulk", {
@@ -95,8 +94,8 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         message:
           "Are you sure you want to remove the selected tags? This will effect all templates that use these tags.",
         choices: [
-          { label: "Yes", action: () => void removeTags() },
-          { label: "No", action: closeModal },
+          { label: "Yes", action: () => void removeTags(), autoFocus: true },
+          { label: "No", action: closeModal, autoFocus: false },
         ],
       });
     } else {
@@ -106,6 +105,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         message: `Are you sure you want to remove the selected tag(s) from ${editingTemplate?.title}?`,
         choices: [
           {
+            autoFocus: true,
             label: "Yes",
             action: () => {
               const updatedTags = editingTemplate?.tags?.filter(
@@ -133,6 +133,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
             },
           },
           {
+            autoFocus: false,
             label: "No",
             action: closeModal,
           },
@@ -329,12 +330,13 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
       </div>
 
       {/* ModalChoiceDialog */}
-      <ModalChoiceDialog
+      <ChoiceDialog
         show={modal.isOpen}
         onHide={closeModal}
         title={modal.title}
         message={modal.message}
         choices={modal.choices}
+        excludeCancel={false}
       />
     </div>
   );
