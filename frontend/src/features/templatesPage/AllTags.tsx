@@ -3,6 +3,7 @@ import { useTemplatesContext } from "./TemplateContext";
 import { Tag, Template } from "palette-types";
 import { useFetch } from "../../hooks/useFetch";
 import { Choice, ChoiceDialog } from "@components";
+import TemplateTagCreator from "./TemplateTagCreator";
 
 const AllTags = ({ onSave }: { onSave: () => void }) => {
   const {
@@ -10,7 +11,8 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     setAvailableTags,
     editingTemplate,
     addingTagFromBuilder,
-
+    setTagModalOpen,
+    tagModalOpen,
     setEditingTemplate,
     templates,
   } = useTemplatesContext();
@@ -218,69 +220,75 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
             </span>
           ))}
         </div>
-        <hr className="my-4 border-gray-600" />
-        <p className="text-gray-300 text-md  ">Tags on template</p>
-        <div
-          className="grid grid-cols-4 gap-4 gap-x-10 sm:gap-y-8 max-h-[500px]  rounded-lg overflow-auto 
+        {addingTagFromBuilder && (
+          <>
+            <hr className="my-4 border-gray-600" />
+            <p className="text-gray-300 text-md  ">Tags on template</p>
+            <div
+              className="grid grid-cols-4 gap-4 gap-x-10 sm:gap-y-8 max-h-[500px]  rounded-lg overflow-auto 
 
 
 
 
           scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-4"
-        >
-          {getTagsOnTemplate().map((tag, index) => (
-            <span
-              key={index}
-              className={`px-3 py-1 rounded-full text-sm transition-all ${
-                selectedTags.includes(tag) ? "ring-2 ring-white" : ""
-              } ${
-                !editingTemplate?.tags.includes(tag)
-                  ? "opacity-25 cursor-not-allowed"
-                  : "cursor-pointer"
-              }`}
-              style={{ backgroundColor: tag.color }}
-              onClick={() => {
-                if (editingTemplate?.tags.includes(tag)) {
-                  setSelectedTags((prevSelected) => {
-                    // Toggle selection of the tag
-                    if (prevSelected.includes(tag)) {
-                      return prevSelected.filter((t) => t !== tag);
-                    } else {
-                      const tagsNotOnTemplate = getTagsNotOnTemplate();
-                      if (
-                        prevSelected.some((t) => tagsNotOnTemplate.includes(t))
-                      ) {
-                        return [tag];
-                      }
-                      return [...prevSelected, tag];
-                    }
-                  });
-                  setRemoveMode(true);
-                }
-              }}
-              title={
-                editingTemplate?.tags.includes(tag)
-                  ? "This tag is already on the template"
-                  : ""
-              }
             >
-              <span title={tag.name.length > 15 ? tag.name : undefined}>
-                {tag.name.length > 15
-                  ? `${tag.name.slice(0, 15)}...`
-                  : tag.name}
-              </span>
-              <span className="text-xs">
-                (
-                {
-                  templates.filter((t) =>
-                    t.tags.some((tTag) => tTag.key === tag.key)
-                  ).length
-                }
-                )
-              </span>
-            </span>
-          ))}
-        </div>
+              {getTagsOnTemplate().map((tag, index) => (
+                <span
+                  key={index}
+                  className={`px-3 py-1 rounded-full text-sm transition-all ${
+                    selectedTags.includes(tag) ? "ring-2 ring-white" : ""
+                  } ${
+                    !editingTemplate?.tags.includes(tag)
+                      ? "opacity-25 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                  style={{ backgroundColor: tag.color }}
+                  onClick={() => {
+                    if (editingTemplate?.tags.includes(tag)) {
+                      setSelectedTags((prevSelected) => {
+                        // Toggle selection of the tag
+                        if (prevSelected.includes(tag)) {
+                          return prevSelected.filter((t) => t !== tag);
+                        } else {
+                          const tagsNotOnTemplate = getTagsNotOnTemplate();
+                          if (
+                            prevSelected.some((t) =>
+                              tagsNotOnTemplate.includes(t)
+                            )
+                          ) {
+                            return [tag];
+                          }
+                          return [...prevSelected, tag];
+                        }
+                      });
+                      setRemoveMode(true);
+                    }
+                  }}
+                  title={
+                    editingTemplate?.tags.includes(tag)
+                      ? "This tag is already on the template"
+                      : ""
+                  }
+                >
+                  <span title={tag.name.length > 15 ? tag.name : undefined}>
+                    {tag.name.length > 15
+                      ? `${tag.name.slice(0, 15)}...`
+                      : tag.name}
+                  </span>
+                  <span className="text-xs">
+                    (
+                    {
+                      templates.filter((t) =>
+                        t.tags.some((tTag) => tTag.key === tag.key)
+                      ).length
+                    }
+                    )
+                  </span>
+                </span>
+              ))}
+            </div>
+          </>
+        )}
       </>
     );
   };
@@ -292,7 +300,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
           No tags found.{" "}
           <button
             onClick={() => {
-              // Add your click handler logic here
+              setTagModalOpen(true);
             }}
             className="text-blue-500 underline hover:text-blue-700 focus:outline-none"
           >
@@ -366,6 +374,21 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         message={modal.message}
         choices={modal.choices}
         excludeCancel={false}
+      />
+      <TemplateTagCreator
+        isOpen={tagModalOpen}
+        onClose={() => setTagModalOpen(false)}
+        setAvailableTags={setAvailableTags}
+        onCreateTags={() => {
+          setTagModalOpen(false);
+          getTags()
+            .then(() => {
+              console.log("tags fetched");
+            })
+            .catch((error) => {
+              console.error("error fetching tags", error);
+            });
+        }}
       />
     </div>
   );
