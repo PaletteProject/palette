@@ -1,5 +1,8 @@
 import React from "react";
-import { ButtonColorOptions, PaletteActionButton } from "../buttons/PaletteActionButton.tsx";
+import {
+  ButtonColorOptions,
+  PaletteActionButton,
+} from "../buttons/PaletteActionButton.tsx";
 
 /**
  * A choice is a button that the user can click to perform an action.
