@@ -9,6 +9,7 @@ import { useFetch } from "@hooks";
 import { Course, PaletteAPIResponse } from "palette-types";
 import { useCourse } from "../../context/CourseProvider.tsx";
 import { PaletteActionButton } from "../buttons/PaletteActionButton.tsx";
+import { LoadingDots } from "../LoadingDots.tsx";
 
 export function CourseSelectionMenu({
   onSelect,
@@ -56,7 +57,7 @@ export function CourseSelectionMenu({
    * Render courses on the ui for user to select from.
    */
   const renderCourses = () => {
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <LoadingDots />;
     if (errorMessage)
       return <p className="text-red-500 font-normal">Error: {errorMessage}</p>;
     if (courses.length === 0) return <div>No courses available to display</div>;
