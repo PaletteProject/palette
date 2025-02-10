@@ -1,5 +1,5 @@
 import React from "react";
-import { PaletteActionButton } from "../buttons/PaletteActionButton.tsx";
+import { ButtonColorOptions, PaletteActionButton } from "../buttons/PaletteActionButton.tsx";
 
 /**
  * A choice is a button that the user can click to perform an action.
@@ -8,6 +8,7 @@ export interface Choice {
   label: string; // The text to display on the button
   action: () => void; // The function to call when the button is clicked
   autoFocus: boolean; // whether the choice should be automatically focused on render
+  color?: ButtonColorOptions; // optional color override
 }
 
 export interface Modal {
@@ -54,7 +55,7 @@ export const ChoiceDialog: React.FC<ChoiceDialogProps> = ({
         <div className="flex justify-around space-x-4">
           {modal.choices.map((choice, index) => (
             <PaletteActionButton
-              color={"BLUE"}
+              color={choice.color ?? "BLUE"}
               key={index}
               onClick={choice.action}
               title={choice.label}

@@ -37,10 +37,12 @@ export function AssignmentData({ rubric }: { rubric: Rubric | undefined }) {
         label: "I accept this risk",
         autoFocus: false,
         action: () => navigate("/rubric-builder"),
+        color: "RED",
       } as Choice,
       {
         label: "Back to safety",
         autoFocus: true,
+        color: "BLUE",
         action: () => closeModal(),
       } as Choice,
     ],
@@ -98,7 +100,7 @@ export function AssignmentData({ rubric }: { rubric: Rubric | undefined }) {
           )}
         </div>
       </div>
-      <ChoiceDialog modal={modal} />
+      <ChoiceDialog modal={modal} onHide={closeModal} />
     </div>
   );
 }
