@@ -12,8 +12,9 @@ import {
 } from "@dnd-kit/sortable";
 import CriteriaCard from "src/features/rubricBuilder/CriteriaCard";
 import { createCriterion } from "@utils";
-import { Dialog, ChoiceDialog, Choice } from "@components";
+import { Choice, ChoiceDialog, Dialog } from "@components";
 import AllTags from "src/features/templatesPage/AllTags";
+
 interface GenericBuilderProps {
   builderType: "template" | "rubric";
   document: Template | Rubric;
@@ -43,7 +44,7 @@ export const GenericBuilder = ({
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   const [showDialog, setShowDialog] = useState(false);
   const [modal, setModal] = useState({
-    isOpen: false,
+    show: false,
     title: "",
     message: "",
     choices: [] as Choice[],
@@ -57,7 +58,7 @@ export const GenericBuilder = ({
     autoFocus: true,
   };
   const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
+    () => setModal((prevModal) => ({ ...prevModal, show: false })),
     [],
   );
 
@@ -133,7 +134,7 @@ export const GenericBuilder = ({
 
     if (builderType === "template") {
       setModal({
-        isOpen: true,
+        show: true,
         title: "Confirm Criterion Removal",
         message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
         choices: [
@@ -149,7 +150,7 @@ export const GenericBuilder = ({
       });
     } else {
       setModal({
-        isOpen: true,
+        show: true,
         title: "Confirm Criterion Removal",
         message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
         choices: [
@@ -237,7 +238,7 @@ export const GenericBuilder = ({
 
     if (document?.title.trim() === "") {
       setModal({
-        isOpen: true,
+        show: true,
         title: "Invalid Template",
         message: "Please enter a title for your template before saving.",
         choices: [
@@ -252,7 +253,7 @@ export const GenericBuilder = ({
 
     if (document?.criteria.length === 0) {
       setModal({
-        isOpen: true,
+        show: true,
         title: "Invalid Template",
         message: "Please add at least one criterion before saving.",
         choices: [
@@ -273,7 +274,7 @@ export const GenericBuilder = ({
       );
       if (isDuplicateName) {
         setModal({
-          isOpen: true,
+          show: true,
           title: "Duplicate Template Name",
           message:
             "A template with this name already exists. Please choose a different name.",
@@ -361,14 +362,7 @@ export const GenericBuilder = ({
         )}
       </form>
 
-      <ChoiceDialog
-        show={modal.isOpen}
-        onHide={closeModal}
-        title={modal.title}
-        message={modal.message}
-        choices={modal.choices}
-        excludeCancel={false}
-      />
+      <ChoiceDialog modal={modal} onHide={closeModal} />
 
       <Dialog
         isOpen={showDialog}

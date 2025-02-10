@@ -31,7 +31,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   // object containing related modal state
 
   const [modal, setModal] = useState({
-    isOpen: false,
+    show: false,
     title: "",
     message: "",
     choices: [] as Choice[],
@@ -89,7 +89,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const handleRemoveTags = () => {
     if (!addingTagFromBuilder) {
       setModal({
-        isOpen: true,
+        show: true,
         title: "Remove Tags",
         message:
           "Are you sure you want to remove the selected tags? This will effect all templates that use these tags.",
@@ -100,7 +100,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
       });
     } else {
       setModal({
-        isOpen: true,
+        show: true,
         title: "Remove Tags",
         message: `Are you sure you want to remove the selected tag(s) from ${editingTemplate?.title}?`,
         choices: [
@@ -330,14 +330,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
       </div>
 
       {/* ModalChoiceDialog */}
-      <ChoiceDialog
-        show={modal.isOpen}
-        onHide={closeModal}
-        title={modal.title}
-        message={modal.message}
-        choices={modal.choices}
-        excludeCancel={false}
-      />
+      <ChoiceDialog modal={modal} onHide={closeModal} />
     </div>
   );
 };

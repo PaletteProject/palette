@@ -3,7 +3,7 @@
  */
 
 import { ReactElement, useCallback, useEffect, useState } from "react";
-import { Choice, Dialog, MainPageTemplate } from "@components";
+import { Choice, Dialog, MainPageTemplate, Modal } from "@components";
 import { TemplateProvider, useTemplatesContext } from "./TemplateContext.tsx";
 import TemplatesWindow from "./TemplatesWindow.tsx";
 import TemplateSearch from "./TemplateSearch.tsx";
@@ -39,17 +39,18 @@ function TemplatesMainContent(): ReactElement {
 
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
+    () => setModal((prevModal) => ({ ...prevModal, show: false })),
     [],
   );
 
   // object containing related modal state
   const [modal, setModal] = useState({
-    isOpen: false,
+    show: false,
     title: "",
     message: "",
     choices: [] as Choice[],
-  });
+    excludeCancel: false,
+  } as Modal);
 
   useEffect(() => {
     console.log("editingTemplate in TemplatesMain", editingTemplate);
@@ -59,7 +60,7 @@ function TemplatesMainContent(): ReactElement {
   const handleCloseModal = () => {
     if (hasUnsavedChanges) {
       setModal({
-        isOpen: true,
+        show: true,
         title: "Lose unsaved changes? Template main",
         message:
           "Are you sure you want to leave without saving your changes? Your changes will be lost.",
@@ -182,14 +183,7 @@ function TemplatesMainContent(): ReactElement {
           }
         />
         {/* ModalChoiceDialog */}
-        <ChoiceDialog
-          show={modal.isOpen}
-          onHide={closeModal}
-          title={modal.title}
-          message={modal.message}
-          choices={modal.choices}
-          excludeCancel={false}
-        />
+        <ChoiceDialog modal={modal} onHide={closeModal} />
       </div>
     );
   };

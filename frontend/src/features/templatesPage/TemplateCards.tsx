@@ -103,7 +103,7 @@ export default function TemplateCard({
 
   // object containing related modal state
   const [modal, setModal] = useState({
-    isOpen: false,
+    show: false,
     title: "",
     message: "",
     choices: [] as Choice[],
@@ -112,7 +112,7 @@ export default function TemplateCard({
   const handleCloseModal = () => {
     if (hasUnsavedChanges) {
       setModal({
-        isOpen: true,
+        show: true,
         title: "Lose unsaved changes?",
         message:
           "Are you sure you want to leave without saving your changes? Your changes will be lost.",
@@ -289,14 +289,7 @@ export default function TemplateCard({
       )}
 
       {/* ModalChoiceDialog */}
-      <ChoiceDialog
-        show={modal.isOpen}
-        onHide={closeModal}
-        title={modal.title}
-        message={modal.message}
-        choices={modal.choices}
-        excludeCancel={false}
-      />
+      <ChoiceDialog modal={modal} onHide={closeModal} />
     </>
   );
 }

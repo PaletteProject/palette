@@ -28,7 +28,7 @@ const TemplatesWindow = () => {
   }, []);
 
   const [modal, setModal] = useState({
-    isOpen: false,
+    show: false,
     title: "",
     message: "",
     choices: [] as Choice[],
@@ -57,7 +57,7 @@ const TemplatesWindow = () => {
   const handleBulkDelete = () => {
     // console.log("selectedTemplates in handleBulkDelete", selectedTemplates);
     setModal({
-      isOpen: true,
+      show: true,
       title: "Confirm Bulk Delete",
       message: `Are you sure you want to delete ${selectedTemplates.length} templates? This action cannot be undone.`,
       choices: [
@@ -254,14 +254,7 @@ const TemplatesWindow = () => {
         </div>
         {renderAllTemplates()}
       </div>
-      <ChoiceDialog
-        show={modal.isOpen}
-        onHide={closeModal}
-        title={modal.title}
-        message={modal.message}
-        choices={modal.choices}
-        excludeCancel={false}
-      />
+      <ChoiceDialog modal={modal} onHide={closeModal} />
     </>
   );
 };
