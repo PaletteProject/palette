@@ -106,6 +106,7 @@ export function CourseSelectionMenu({
           color={"BLUE"}
           title={"Refresh"}
           onClick={handleGetCourses}
+          autoFocus={true}
         />
       </div>
     </div>

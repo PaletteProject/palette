@@ -109,6 +109,7 @@ export function AssignmentSelectionMenu({
           color={"BLUE"}
           title={"Refresh"}
           onClick={handleGetAssignments}
+          autoFocus={true}
         />
       </div>
     </div>
