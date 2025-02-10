@@ -72,7 +72,7 @@ export function ProjectGradingView({
             submission.rubricAssessment,
           )) {
             initialRatings[`${submission.id}-${criterionId}`] =
-              assessment.points || "";
+              assessment.points ?? "";
           }
         }
       });
