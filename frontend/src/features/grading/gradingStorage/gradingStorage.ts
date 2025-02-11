@@ -10,15 +10,24 @@ export type LocalGrade = {
    * Get stored grades from local storage
    */
   export function getStoredGrades(): LocalGrade[] {
-    const grades = localStorage.getItem(STORAGE_KEY);
-    return grades ? JSON.parse(grades) : [];
+    try {
+      const grades = localStorage.getItem(STORAGE_KEY);
+      return grades ? JSON.parse(grades) : [];
+    } catch (error) {
+    console.error("Failed to parse local grades:", error);
+    return [];
+    }
   }
   
   /**
    * Save grades to local storage
    */
   export function saveGrades(grades: LocalGrade[]) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(grades));
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(grades));
+    }catch (error) {
+        console.error("Failed to save grades to local storage:", error);
+      }
   }
   
   /**
@@ -36,4 +45,24 @@ export type LocalGrade = {
   
     saveGrades(grades);
   }
+
+  /**
+ * Clear all grades from local storage
+ */
+export function clearGrades() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.error("Failed to clear grades from local storage:", error);
+  }
+}
+
+/**
+ * Get a specific grade for a user in a group
+ */
+export function getGrade(userId: string, groupId: string): number | undefined {
+  const grades = getStoredGrades();
+  const gradeEntry = grades.find((g) => g.userId === userId && g.groupId === groupId);
+  return gradeEntry ? gradeEntry.grade : undefined;
+}
   

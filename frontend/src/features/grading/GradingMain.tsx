@@ -3,6 +3,8 @@ import { GroupedSubmissions, PaletteAPIResponse, Rubric } from "palette-types";
 import { useFetch } from "@hooks";
 import { useAssignment, useCourse } from "@context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
+import { getStoredGrades, updateGrade } from "./gradingStorage/gradingStorage";
+
 import {
   LoadingDots,
   MainPageTemplate,
@@ -38,14 +40,16 @@ export function GradingMain(): ReactElement {
    */
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
-      if (file) {
+      if (file && activeCourse && activeAssignment) {
         try {
           const parsedStudents = await parseCSV(file);
-          setParsedStudents(parsedStudents);
-          alert("Student groups imported successfully!");
+          parsedStudents.forEach((student) => {
+            updateGrade(student.userId, student.groupName, 0); // Initialize grades to 0 for now
+          });
+          alert("CSV imported successfully!");
         } catch (error) {
           console.error("Error parsing CSV:", error);
-          alert("Failed to import student groups.");
+          alert("Failed to import CSV.");
         }
       }
     };
@@ -104,11 +108,17 @@ export function GradingMain(): ReactElement {
   const renderContent = () => {
     if (!loading && activeCourse && activeAssignment) {
       return (
-        <SubmissionsDashboard
-          submissions={submissions}
-          rubric={rubric}
-          fetchSubmissions={fetchSubmissions}
-        />
+        <>
+          <div className="mb-4">
+            <h2>Upload Grades CSV</h2>
+            <input type="file" accept=".csv" onChange={handleFileUpload} />
+          </div>
+          <SubmissionsDashboard 
+          submissions={submissions} 
+          rubric={rubric} 
+          fetchSubmissions={fetchSubmissions} 
+          />
+        </>
       );
     }
 
@@ -120,14 +130,6 @@ export function GradingMain(): ReactElement {
       </div>
     );
   };
-  return (
-    <MainPageTemplate>
-      <div className="mb-4">
-        <h2 className="text-2xl font-bold">Import Student Groups</h2>
-        <input type="file" accept=".csv" onChange={handleFileUpload} />
-      </div>
-      {renderContent()}
-    </MainPageTemplate>
-  );
-  return <MainPageTemplate children={renderContent()} />;
+
+  return <MainPageTemplate>{renderContent()}</MainPageTemplate>;
 }
