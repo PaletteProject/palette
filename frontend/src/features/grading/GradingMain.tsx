@@ -2,6 +2,7 @@ import { ReactElement, useEffect, useState } from "react";
 import { GroupedSubmissions, PaletteAPIResponse, Rubric } from "palette-types";
 import { useFetch } from "@hooks";
 import { useAssignment, useCourse } from "@context";
+import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
 import {
   LoadingDots,
   MainPageTemplate,
@@ -18,7 +19,8 @@ export function GradingMain(): ReactElement {
     "no-group": [],
   });
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [parsedStudents, setParsedStudents] = useState<ParsedStudent[]>([]);
+ 
   // context providers
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
@@ -31,6 +33,23 @@ export function GradingMain(): ReactElement {
   const { fetchData: getRubric } = useFetch(getRubricURL);
   const { fetchData: getSubmissions } = useFetch(fetchSubmissionsURL);
 
+    /**
+   * Handle CSV Upload for group data
+   */
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        try {
+          const parsedStudents = await parseCSV(file);
+          setParsedStudents(parsedStudents);
+          alert("Student groups imported successfully!");
+        } catch (error) {
+          console.error("Error parsing CSV:", error);
+          alert("Failed to import student groups.");
+        }
+      }
+    };
+  
   /**
    * Clear state prior to fetch operations.
    */
@@ -101,6 +120,14 @@ export function GradingMain(): ReactElement {
       </div>
     );
   };
-
+  return (
+    <MainPageTemplate>
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold">Import Student Groups</h2>
+        <input type="file" accept=".csv" onChange={handleFileUpload} />
+      </div>
+      {renderContent()}
+    </MainPageTemplate>
+  );
   return <MainPageTemplate children={renderContent()} />;
 }
