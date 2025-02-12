@@ -40,7 +40,7 @@ function TemplatesMainContent(): ReactElement {
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   // object containing related modal state
@@ -154,7 +154,7 @@ function TemplatesMainContent(): ReactElement {
           >
             Create Template
           </button>
-          {templates.length === 0 && (
+          {templates?.length === 0 && (
             <button
               onClick={() => void handleQuickStart()}
               className="bg-blue-500 text-white font-bold mb-6 rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
