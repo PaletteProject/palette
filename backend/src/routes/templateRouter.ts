@@ -10,6 +10,7 @@ import {
   deleteTemplateByKey,
   addTemplates,
   deleteTemplates,
+  updateTemplates,
 } from "../controllers/templateController.js";
 
 const router = express.Router();
@@ -210,4 +211,29 @@ router.delete("/byKey/:key", deleteTemplateByKey);
  *         description: Template not found.
  */
 router.delete("/bulk", deleteTemplates);
+
+/**
+ * @swagger
+ * /templates/bulk:
+ *   put:
+ *     summary: Update multiple templates
+ *     description: Update multiple templates in the system.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               templates:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *     responses:
+ *       200:
+ *         description: Templates updated.
+ *       400:
+ *         description: Invalid input.
+ */
+router.put("/bulk", updateTemplates);
 export default router;

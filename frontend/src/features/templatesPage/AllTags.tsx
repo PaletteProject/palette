@@ -15,6 +15,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     tagModalOpen,
     setEditingTemplate,
     templates,
+    setTemplates,
   } = useTemplatesContext();
 
   useEffect(() => {
@@ -24,11 +25,27 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   }, [editingTemplate]);
 
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [selectedTemplates, setSelectedTemplates] = useState<Template[]>([]);
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
     []
   );
+
+  useEffect(() => {
+    console.log("selectedTemplates in AllTags", selectedTemplates);
+    async function updateTemplates() {
+      const response = await putTemplates();
+      console.log("response from putTemplates", response);
+    }
+
+    async function fetchTemplates() {
+      const response = await getAllTemplates();
+      setTemplates(response.data as Template[]);
+    }
+    fetchTemplates();
+    updateTemplates();
+  }, [selectedTemplates]);
 
   // object containing related modal state
 
@@ -48,6 +65,15 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     method: "GET",
   });
 
+  const { fetchData: putTemplates } = useFetch("/templates/bulk", {
+    method: "PUT",
+    body: JSON.stringify(selectedTemplates),
+  });
+
+  const { fetchData: getAllTemplates } = useFetch("/templates", {
+    method: "GET",
+  });
+
   const getTags = async () => {
     const response = await getAvailableTags();
     const tags = response.data as Tag[];
@@ -58,7 +84,20 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     try {
       await deleteTags();
       setSelectedTags([]);
+
+      // Update all templates by removing the selected tags
+      const updatedTemplates = templates.map((template) => {
+        const updatedTags = template.tags.filter(
+          (tag) =>
+            !selectedTags.some((selectedTag) => selectedTag.key === tag.key)
+        );
+        return { ...template, tags: updatedTags };
+      });
+      console.log("updatedTemplates", updatedTemplates);
+      setSelectedTemplates(updatedTemplates);
       await getTags();
+      closeModal();
+      onSave();
     } catch (error) {
       console.error("error deleting tags", error);
     }
@@ -96,7 +135,11 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         message:
           "Are you sure you want to remove the selected tags? This will effect all templates that use these tags.",
         choices: [
-          { label: "Yes", action: () => void removeTags(), autoFocus: true },
+          {
+            label: "Yes",
+            action: () => void removeTags(),
+            autoFocus: true,
+          },
           { label: "No", action: closeModal, autoFocus: false },
         ],
       });

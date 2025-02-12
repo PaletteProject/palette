@@ -5,7 +5,6 @@ import TemplateManagementControls from "./TemplateManagementControls.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 import TemplateSorter from "./TemplateSorter.tsx";
 import { Choice, ChoiceDialog } from "@components";
-import { useFetch } from "@hooks";
 const TemplatesWindow = () => {
   const {
     templates,
@@ -35,7 +34,7 @@ const TemplatesWindow = () => {
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
 
   const handleSelectAll = () => {
@@ -65,7 +64,7 @@ const TemplatesWindow = () => {
           label: "Delete All Selected",
           action: () => {
             const templatesToDelete = selectedTemplates.map(
-              (key) => templates.find((t) => t.key === key) as Template
+              (key) => templates.find((t) => t.key === key) as Template,
             );
             handleBulkDeleteTemplates(templatesToDelete);
             closeModal();
@@ -83,7 +82,7 @@ const TemplatesWindow = () => {
 
   const handleBulkExport = () => {
     const selectedTemplatesToExport = templates.filter((t) =>
-      selectedTemplates.includes(t.key)
+      selectedTemplates.includes(t.key),
     );
 
     const exportData = JSON.stringify(selectedTemplatesToExport, null, 2);
@@ -147,7 +146,7 @@ const TemplatesWindow = () => {
         const matchesTags =
           selectedTagFilters.length === 0 ||
           selectedTagFilters.every((tagKey) =>
-            template.tags.some((tag) => tag.key === tagKey)
+            template.tags.some((tag) => tag.key === tagKey),
           );
         return matchesSearch && matchesTags;
       })
@@ -180,7 +179,7 @@ const TemplatesWindow = () => {
   const handleSelectTemplateBulkActions = (templateKey: string) => {
     if (selectedTemplates.includes(templateKey)) {
       const newSelected = selectedTemplates.filter(
-        (key) => key !== templateKey
+        (key) => key !== templateKey,
       );
 
       setSelectedTemplates(newSelected);
