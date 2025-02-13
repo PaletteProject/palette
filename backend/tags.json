@@ -1,1 +1,56 @@
-[]
+[
+  {
+    "key": "9389b70b-52c8-4ecb-82d4-69a93226b1cc",
+    "name": "New",
+    "color": "#C70039",
+    "description": "",
+    "createdAt": "2025-02-13T02:30:09.947Z",
+    "lastUsed": null,
+    "usageCount": 0
+  },
+  {
+    "key": "c8ef6b87-86b0-4d4f-babe-450793c972f5",
+    "name": "b",
+    "color": "#4338CA",
+    "description": "",
+    "createdAt": "2025-02-13T02:30:41.307Z",
+    "lastUsed": null,
+    "usageCount": 0
+  },
+  {
+    "key": "5393d665-c368-4ff1-9fe0-c1b0e63d797e",
+    "name": "c",
+    "color": "#F59E0B",
+    "description": "",
+    "createdAt": "2025-02-13T02:30:44.148Z",
+    "lastUsed": null,
+    "usageCount": 0
+  },
+  {
+    "key": "ee077f19-fd97-4c4f-99dd-0260b02d1740",
+    "name": "d",
+    "color": "#EC4899",
+    "description": "",
+    "createdAt": "2025-02-13T02:30:46.534Z",
+    "lastUsed": null,
+    "usageCount": 0
+  },
+  {
+    "key": "b1e09344-0fc0-4cb0-b00b-5256291d461c",
+    "name": "e",
+    "color": "#F472B6",
+    "description": "",
+    "createdAt": "2025-02-13T02:30:48.460Z",
+    "lastUsed": null,
+    "usageCount": 0
+  },
+  {
+    "key": "7050780b-15ae-400b-8f1e-3539c4f01b02",
+    "name": "g",
+    "color": "#10B981",
+    "description": "",
+    "createdAt": "2025-02-13T02:30:52.826Z",
+    "lastUsed": null,
+    "usageCount": 0
+  }
+]

@@ -16,13 +16,8 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     setEditingTemplate,
     templates,
     setTemplates,
+    setHasUnsavedChanges,
   } = useTemplatesContext();
-
-  useEffect(() => {
-    console.log("availableTags in AllTags", availableTags);
-    console.log("editingTemplate in AllTags", editingTemplate?.tags);
-    setEditingTemplate(editingTemplate as Template);
-  }, [editingTemplate]);
 
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [selectedTemplates, setSelectedTemplates] = useState<Template[]>([]);
@@ -43,8 +38,8 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
       const response = await getAllTemplates();
       setTemplates(response.data as Template[]);
     }
-    fetchTemplates();
-    updateTemplates();
+    // fetchTemplates();
+    // updateTemplates();
   }, [selectedTemplates]);
 
   // object containing related modal state
@@ -137,7 +132,10 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         choices: [
           {
             label: "Yes",
-            action: () => void removeTags(),
+            action: () => {
+              removeTags();
+              setHasUnsavedChanges(true);
+            },
             autoFocus: true,
           },
           { label: "No", action: closeModal, autoFocus: false },
@@ -200,20 +198,31 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   };
 
   const getTagsOnTemplate = () => {
-    return (
+    const tagsOnTemplate =
       editingTemplate?.tags?.filter((t) =>
         availableTags.some((t2) => t2.key === t.key)
-      ) || []
-    );
+      ) || [];
+    console.log("tagsOnTemplate", tagsOnTemplate);
+    return tagsOnTemplate;
   };
 
   const getTagsNotOnTemplate = () => {
-    return availableTags.filter((t) => !getTagsOnTemplate().includes(t));
+    const tagsOnTemplateKeys = new Set(getTagsOnTemplate().map((t) => t.key));
+    const tagsNotOnTemplate = availableTags.filter(
+      (t) => !tagsOnTemplateKeys.has(t.key)
+    );
+    console.log("tagsNotOnTemplate", tagsNotOnTemplate);
+    return tagsNotOnTemplate;
   };
 
   const renderTags = () => {
     return (
       <>
+        {addingTagFromBuilder && (
+          <p className="text-gray-300 text-md  ">
+            Tag(s) not on "{editingTemplate?.title}"
+          </p>
+        )}
         <div
           className="grid grid-cols-4 gap-4 gap-x-10 sm:gap-y-8 max-h-[500px]  rounded-lg overflow-auto 
           scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-4"
@@ -266,7 +275,9 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         {addingTagFromBuilder && (
           <>
             <hr className="my-4 border-gray-600" />
-            <p className="text-gray-300 text-md  ">Tags on template</p>
+            <p className="text-gray-300 text-md  ">
+              Tag(s) on "{editingTemplate?.title}"
+            </p>
             <div
               className="grid grid-cols-4 gap-4 gap-x-10 sm:gap-y-8 max-h-[500px]  rounded-lg overflow-auto 
 
@@ -339,15 +350,16 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const renderNoTags = () => {
     return (
       <div>
-        <p className="text-gray-300 text-md text-start">
+        <p className="text-gray-300 text-md text-start mt-4">
           No tags found.{" "}
           <button
             onClick={() => {
               setTagModalOpen(true);
+              onSave();
             }}
             className="text-blue-500 underline hover:text-blue-700 focus:outline-none"
           >
-            Add
+            Create
           </button>{" "}
           some tags to the template to get started.
         </p>
@@ -399,7 +411,10 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
 
             {addingTagFromBuilder && selectedTags.length > 0 && !removeMode && (
               <button
-                onClick={() => void handleAddTagsToTemplate()}
+                onClick={() => {
+                  handleAddTagsToTemplate();
+                  setHasUnsavedChanges(true);
+                }}
                 className="bg-green-500 text-white font-bold rounded-lg py-2 px-4 hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 Add Tags
@@ -423,7 +438,10 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         onClose={() => setTagModalOpen(false)}
         setAvailableTags={setAvailableTags}
         onCreateTags={() => {
+          console.log("onCreateTags");
+          onSave();
           setTagModalOpen(false);
+          closeModal();
           getTags()
             .then(() => {
               console.log("tags fetched");
