@@ -27,20 +27,20 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     []
   );
 
-  useEffect(() => {
-    console.log("selectedTemplates in AllTags", selectedTemplates);
-    async function updateTemplates() {
-      const response = await putTemplates();
-      console.log("response from putTemplates", response);
-    }
+  // useEffect(() => {
+  //   console.log("selectedTemplates in AllTags", selectedTemplates);
+  //   async function updateTemplates() {
+  //     const response = await putTemplates();
+  //     console.log("response from putTemplates", response);
+  //   }
 
-    async function fetchTemplates() {
-      const response = await getAllTemplates();
-      setTemplates(response.data as Template[]);
-    }
-    // fetchTemplates();
-    // updateTemplates();
-  }, [selectedTemplates]);
+  //   async function fetchTemplates() {
+  //     const response = await getAllTemplates();
+  //     setTemplates(response.data as Template[]);
+  //   }
+  //   // fetchTemplates();
+  //   // updateTemplates();
+  // }, [selectedTemplates]);
 
   // object containing related modal state
 
@@ -133,8 +133,13 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
           {
             label: "Yes",
             action: () => {
-              removeTags();
-              setHasUnsavedChanges(true);
+              removeTags()
+                .then(() => {
+                  setHasUnsavedChanges(true);
+                })
+                .catch((error) => {
+                  console.error("error removing tags", error);
+                });
             },
             autoFocus: true,
           },
@@ -412,8 +417,13 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
             {addingTagFromBuilder && selectedTags.length > 0 && !removeMode && (
               <button
                 onClick={() => {
-                  handleAddTagsToTemplate();
-                  setHasUnsavedChanges(true);
+                  handleAddTagsToTemplate()
+                    .then(() => {
+                      setHasUnsavedChanges(true);
+                    })
+                    .catch((error) => {
+                      console.error("error adding tags to template", error);
+                    });
                 }}
                 className="bg-green-500 text-white font-bold rounded-lg py-2 px-4 hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
               >
