@@ -1,9 +1,9 @@
-import { ReactElement, useEffect, useState } from "react";
+import { MouseEvent, ReactElement, useEffect, useState } from "react";
 import { Assignment, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@hooks";
 import { useCourse } from "@context";
 import { useAssignment } from "../../context/AssignmentProvider.tsx";
-import { LoadingDots } from "@components";
+import { LoadingDots, PaletteActionButton } from "@components";
 
 export function AssignmentSelectionMenu({
   onSelect,
@@ -46,7 +46,7 @@ export function AssignmentSelectionMenu({
     return (
       <div
         className={
-          "grid gap-2 my-4 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
+          "grid gap-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
         }
       >
         <div className={"grid gap-2 mt-0.5"}>
@@ -54,7 +54,7 @@ export function AssignmentSelectionMenu({
             <div
               key={assignment.id}
               className={
-                "flex gap-4 bg-gray-600 hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full text-2xl font-bold"
+                "flex gap-4 bg-gray-600 hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full text-lg font-bold"
               }
               onClick={() => handleAssignmentSelection(assignment)}
             >
@@ -95,19 +95,23 @@ export function AssignmentSelectionMenu({
     setLoading(false);
   };
 
+  const handleGetAssignments = (event: MouseEvent<HTMLButtonElement>): void => {
+    event.preventDefault();
+    void fetchAssignments();
+  };
+
   return (
-    <div className={"grid gap-2 text-2xl"}>
-      {activeCourse ? <p>Assignments for {activeCourse.name}</p> : null}
+    <div className={"grid gap-2 text-xl mt-2"}>
+      {activeCourse ? <p>{activeCourse.name}</p> : null}
       <div>{renderAssignments()}</div>
-      <button
-        onClick={void fetchAssignments}
-        className={
-          "justify-self-end text-2xl bg-blue-500 px-2 py-1 rounded-full hover:opacity-80 active:opacity-70"
-        }
-        type={"button"}
-      >
-        Refresh
-      </button>
+      <div className={"justify-self-end"}>
+        <PaletteActionButton
+          color={"BLUE"}
+          title={"Refresh"}
+          onClick={handleGetAssignments}
+          autoFocus={true}
+        />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import {
   MouseEvent as ReactMouseEvent,
   ReactElement,
+  useCallback,
   useEffect,
   useState,
 } from "react";
@@ -8,7 +9,7 @@ import {
 import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Tag, Template } from "palette-types";
-import { Dialog } from "@components";
+import { Choice, ChoiceDialog, Dialog } from "@components";
 import TemplateTagCreator from "src/features/templatesPage/TemplateTagCreator.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 
@@ -38,6 +39,8 @@ export default function TemplateCard({
     setShowBulkActions,
     handleSubmitEditedTemplate,
     setViewingTemplate,
+    hasUnsavedChanges,
+    setHasUnsavedChanges,
   } = useTemplatesContext();
   const [tagModalOpen, setTagModalOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -80,24 +83,67 @@ export default function TemplateCard({
 
   const handleSetAvailableTags = (tags: Tag[]) => {
     const updatedTemplate = { ...editingTemplate, tags };
-    // console.log(updatedTemplate);
     setEditingTemplate(updatedTemplate as Template);
     handleUpdateTemplate(index, updatedTemplate as Template);
+    // setHasUnsavedChanges(true);
   };
 
   const submitTemplate = () => {
     handleSubmitEditedTemplate();
-
     setTemplateDialogOpen(false);
     setIsNewTemplate(false);
     setShowBulkActions(false);
+    setHasUnsavedChanges(false);
   };
 
+  const closeModal = useCallback(
+    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
+    [],
+  );
+
+  // object containing related modal state
+  const [modal, setModal] = useState({
+    show: false,
+    title: "",
+    message: "",
+    choices: [] as Choice[],
+  });
+
   const handleCloseModal = () => {
-    setTemplateDialogOpen(false);
+    if (hasUnsavedChanges) {
+      setModal({
+        show: true,
+        title: "Lose unsaved changes?",
+        message:
+          "Are you sure you want to leave without saving your changes? Your changes will be lost.",
+        choices: [
+          {
+            autoFocus: true,
+            label: "Yes",
+            action: () => {
+              closeModal();
+              setTemplateDialogOpen(false);
+              setHasUnsavedChanges(false);
+            },
+          },
+        ],
+      });
+    } else {
+      setTemplateDialogOpen(false);
+    }
   };
 
   const handleViewModeToggle = () => {
+    if (focusedTemplateKey) {
+      const focusedTemplate = templates.find(
+        (t) => t.key === focusedTemplateKey,
+      );
+      if (focusedTemplate) {
+        setEditingTemplate(focusedTemplate);
+        console.log("focusedTemplate", focusedTemplate);
+        console.log("editingTemplate", editingTemplate);
+      }
+    }
     setViewOrEdit("edit");
     setViewOrEditClicked(true);
     setTemplateDialogOpen(true);
@@ -236,8 +282,14 @@ export default function TemplateCard({
           isOpen={tagModalOpen}
           onClose={() => setTagModalOpen(false)}
           setAvailableTags={handleSetAvailableTags}
+          onCreateTags={() => {
+            setTagModalOpen(false);
+          }}
         />
       )}
+
+      {/* ModalChoiceDialog */}
+      <ChoiceDialog modal={modal} onHide={closeModal} />
     </>
   );
 }

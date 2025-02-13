@@ -1,5 +1,4 @@
-import { Template, Criteria } from "palette-types";
-import { Tag } from "palette-types/src/types/Tag";
+import { Template, Criteria, Tag } from "palette-types";
 import { v4 as uuid } from "uuid";
 
 export function createTemplate(
@@ -15,6 +14,7 @@ export function createTemplate(
     (acc, criterion) => acc + criterion.pointsPossible,
     0,
   ),
+  quickStart: boolean = false,
 ): Template {
   return {
     title,
@@ -27,5 +27,6 @@ export function createTemplate(
     usageCount,
     tags,
     points,
+    quickStart,
   };
 }

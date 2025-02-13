@@ -73,6 +73,7 @@ export function GradingMain(): ReactElement {
   };
 
   const fetchSubmissions = async () => {
+    setLoading(true);
     try {
       const response =
         (await getSubmissions()) as PaletteAPIResponse<GroupedSubmissions>;

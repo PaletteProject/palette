@@ -1,43 +1,40 @@
 import React, { useState } from "react";
 import { Dialog } from "@components";
 import { Tag } from "palette-types";
+import { useFetch } from "@hooks";
+import { createTag } from "@utils";
+import { useTemplatesContext } from "./TemplateContext";
 
 interface TemplateTagCreatorProps {
   isOpen: boolean;
   onClose: () => void;
   setAvailableTags: (tags: Tag[]) => void;
+  onCreateTags: () => void;
 }
 
 const TemplateTagCreator = ({
   isOpen,
   onClose,
-  setAvailableTags,
+  onCreateTags,
 }: TemplateTagCreatorProps) => {
-  interface StagedTag {
-    name: string;
-    color: string;
-  }
-
   // Add state for tag creation modal
-  const [newTag, setNewTag] = useState<{
-    name: string;
-    workingColor: string;
-    stagedTags: StagedTag[];
-  }>({
-    name: "",
-    workingColor: "#3B82F6",
-    stagedTags: [],
-  });
+  const [newTag, setNewTag] = useState<Tag>(createTag());
+
+  const [stagedTags, setStagedTags] = useState<Tag[]>([]);
 
   // Add state for selected tag index
   const [selectedTagIndex, setSelectedTagIndex] = useState<number | null>(null);
+
+  const { fetchData: postTags } = useFetch("/tags/bulk", {
+    method: "POST",
+    body: JSON.stringify(stagedTags),
+  });
 
   // Predefined colors for tags
   const tagColors = [
     "#C70039", // crimson
     "#EF4444", // red
     "#FF5733", // new color 1 (orange-red)
-
     "#F59E0B", // yellow/orange
     "#10B981", // green
     "#14B8A6", // teal
@@ -49,7 +46,7 @@ const TemplateTagCreator = ({
     "#9CA3AF", // gray
   ];
 
-  // Add placeholder suggestions
+  // Placeholder suggestions
   const placeholderSuggestions = [
     "Enter tag name",
     "e.g. Sprint Planning",
@@ -59,6 +56,10 @@ const TemplateTagCreator = ({
   ];
 
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
+  const { addingTagFromBuilder, editingTemplate, setEditingTemplate } =
+    useTemplatesContext();
 
   // Add effect to rotate placeholders
   React.useEffect(() => {
@@ -71,53 +72,66 @@ const TemplateTagCreator = ({
     return () => clearInterval(interval);
   }, []);
 
-  const handleCreateTag = () => {
-    // Create new tags using the stored colors
-    const newTags = newTag.stagedTags.map((tag) => ({
-      id: crypto.randomUUID(),
-      name: tag.name,
-      color: tag.color,
-    }));
+  React.useEffect(() => {
+    if (!isOpen) {
+      setSelectedTag(null);
+      setSelectedTagIndex(null);
+      setStagedTags([]);
+    }
+  }, [isOpen]);
 
-    // Add new tags to availableTags
-    setAvailableTags([...newTags]);
-
-    // Reset form and close modal
-    setNewTag({
-      name: "",
-      workingColor: "#3B82F6",
-      stagedTags: [],
-    });
-    onClose();
+  const handleCreateTag = async () => {
+    // Loop through each tag and perform a POST request
+    console.log("addingTagFromBuilder", addingTagFromBuilder);
+    if (addingTagFromBuilder && editingTemplate) {
+      const updatedTags = [...editingTemplate.tags, ...stagedTags];
+      const updatedTemplate = { ...editingTemplate, tags: updatedTags };
+      setEditingTemplate(updatedTemplate);
+      console.log("editingTemplate", editingTemplate.tags);
+      onClose();
+    } else {
+      const response = await postTags();
+      if (response.success) {
+        console.log(response);
+        onCreateTags();
+        setSelectedTag(null);
+        setSelectedTagIndex(null);
+        setStagedTags([]);
+        onClose();
+      }
+    }
   };
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title="">
       <div className="flex flex-col gap-4">
+        {/* Tag Name Input Section */}
         <div className="flex flex-col gap-2 w-full">
-          <label className="block text-white mb-2">Tag Names</label>
+          <label className="block text-white mb">Tag Name</label>
+          <p className="text-gray-400 text-sm">Max 25 characters</p>
           <div className="flex gap-2">
             <input
               type="text"
               className="bg-gray-600 text-white rounded-lg p-2 flex-1"
               value={newTag.name}
               onChange={(e) => setNewTag({ ...newTag, name: e.target.value })}
-              placeholder={placeholderSuggestions[currentPlaceholderIndex]}
+              placeholder={
+                selectedTag === null
+                  ? placeholderSuggestions[currentPlaceholderIndex]
+                  : selectedTag.name
+              }
+              maxLength={25}
             />
             <button
               onClick={() => {
                 if (newTag.name.trim()) {
-                  setNewTag((prev) => ({
-                    ...prev,
-                    stagedTags: [
-                      ...prev.stagedTags,
-                      {
-                        name: prev.name.trim(),
-                        color: prev.workingColor,
-                      },
-                    ],
-                    name: "", // Clear the input after staging
-                  }));
+                  setStagedTags((prev) => {
+                    const updatedTags = [...prev, newTag];
+                    setSelectedTag(newTag);
+                    setSelectedTagIndex(updatedTags.length - 1);
+                    return updatedTags;
+                  });
+                  setNewTag(createTag()); // Clear the input field
                 }
               }}
               className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50"
@@ -128,28 +142,35 @@ const TemplateTagCreator = ({
           </div>
         </div>
 
-        {newTag.stagedTags.length > 0 && (
+        {/* Tag ActionButtons Section */}
+        {stagedTags.length > 0 && (
           <div className="flex justify-between gap-2 mt-4">
             <div className="flex gap-2">
               <button
                 onClick={() => {
-                  handleCreateTag();
+                  handleCreateTag()
+                    .then(() => {
+                      console.log("tags created");
+                    })
+                    .catch((error) => {
+                      console.error("error creating tags", error);
+                    });
                 }}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                disabled={newTag.stagedTags.length === 0}
+                disabled={stagedTags.length === 0}
               >
                 Create Tag(s)
               </button>
               <button
                 onClick={() => {
-                  setNewTag((prev) => ({
-                    ...prev,
-                    stagedTags: prev.stagedTags.map((tag) => ({
+                  setStagedTags((prev) =>
+                    prev.map((tag) => ({
                       ...tag,
+
                       color:
                         tagColors[Math.floor(Math.random() * tagColors.length)],
                     })),
-                  }));
+                  );
                 }}
                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
               >
@@ -158,14 +179,12 @@ const TemplateTagCreator = ({
 
               <button
                 onClick={() => {
-                  setNewTag((prev) => ({
-                    ...prev,
-                    stagedTags: [],
-                  }));
+                  setStagedTags([]);
                   setSelectedTagIndex(null);
+                  setSelectedTag(null);
                 }}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                disabled={newTag.stagedTags.length === 0}
+                disabled={stagedTags.length === 0}
               >
                 Clear All Tags
               </button>
@@ -173,13 +192,11 @@ const TemplateTagCreator = ({
               {selectedTagIndex !== null && (
                 <button
                   onClick={() => {
-                    setNewTag((prev) => ({
-                      ...prev,
-                      stagedTags: prev.stagedTags.filter(
-                        (_, i) => i !== selectedTagIndex,
-                      ),
-                    }));
+                    setStagedTags((prev) =>
+                      prev.filter((_, index) => index !== selectedTagIndex),
+                    );
                     setSelectedTagIndex(null);
+                    setSelectedTag(null);
                   }}
                   className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
                   disabled={selectedTagIndex === null}
@@ -191,23 +208,25 @@ const TemplateTagCreator = ({
           </div>
         )}
 
+        {/* Tag Colors Section */}
         <div className="flex flex-col gap-4 w-full">
           <label className="block text-white mb-4">Tag Colors</label>
-          <div className="grid grid-cols-6 gap-10 gap-x-28 w-full border-2 border-gray-700 rounded-lg bg-gradient-to-br from-gray-700 to-slate-900 p-10">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 sm:gap-14 lg:gap-x-20 xl:gap-x-24 w-full border-2 border-gray-700 rounded-lg bg-gradient-to-br from-gray-700 to-slate-900 p-4 sm:p-10">
             {tagColors.map((color) => (
               <button
                 key={color}
                 onClick={() => {
-                  setNewTag((prev) => ({
-                    ...prev,
-                    workingColor: color,
-                    stagedTags: prev.stagedTags.map((tag, i) =>
-                      i === selectedTagIndex ? { ...tag, color } : tag,
-                    ),
-                  }));
+                  setSelectedColor(color);
+                  if (selectedTagIndex !== null) {
+                    const updatedTags = stagedTags.map((tag, index) =>
+                      index === selectedTagIndex ? { ...tag, color } : tag,
+                    );
+                    setStagedTags(updatedTags);
+                    setSelectedTag({ ...stagedTags[selectedTagIndex], color });
+                  }
                 }}
                 className={`w-10 h-10 rounded-full ${
-                  newTag.workingColor === color ? "ring-2 ring-white" : ""
+                  selectedColor === color ? "ring-2 ring-white" : ""
                 }`}
                 style={{ backgroundColor: color }}
                 title={color}
@@ -217,11 +236,12 @@ const TemplateTagCreator = ({
         </div>
 
         {/* Preview section */}
-        {newTag.stagedTags.length > 0 && (
+        {stagedTags.length > 0 && (
           <div className="mt-4">
             <label className="block text-white mb-2">Preview:</label>
+
             <div className="flex flex-wrap gap-2">
-              {newTag.stagedTags.map((tag, index) => (
+              {stagedTags.map((tag, index) => (
                 <span
                   key={index}
                   className={`px-3 py-1 rounded-full text-sm cursor-pointer transition-all ${
@@ -231,12 +251,10 @@ const TemplateTagCreator = ({
                   onClick={() => {
                     if (selectedTagIndex === index) {
                       setSelectedTagIndex(null);
+                      setSelectedTag(null);
                     } else {
                       setSelectedTagIndex(index);
-                      setNewTag((prev) => ({
-                        ...prev,
-                        workingColor: tag.color,
-                      }));
+                      setSelectedTag(tag);
                     }
                   }}
                 >
@@ -246,8 +264,6 @@ const TemplateTagCreator = ({
             </div>
           </div>
         )}
-
-        {/* Update create button logic */}
       </div>
     </Dialog>
   );

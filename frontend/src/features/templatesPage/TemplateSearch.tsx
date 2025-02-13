@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useTemplatesContext } from "./TemplateContext.tsx";
+
 const TemplateSearch = ({
   searchQuery,
   setSearchQuery,

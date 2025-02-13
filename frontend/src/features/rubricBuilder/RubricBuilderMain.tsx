@@ -18,11 +18,13 @@ import TemplateUpload from "./TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
 import {
+  Choice,
+  ChoiceDialog,
   Dialog,
   Footer,
   Header,
   LoadingDots,
-  ModalChoiceDialog,
+  Modal,
   NoAssignmentSelected,
   NoCourseSelected,
   PaletteActionButton,
@@ -77,17 +79,24 @@ export function RubricBuilderMain(): ReactElement {
 
   // declared before, so it's initialized for the modal initial state. memoized for performance
   const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
+    () => setModal((prevModal) => ({ ...prevModal, show: false }) as Modal),
     [],
   );
 
   // object containing related modal state
   const [modal, setModal] = useState({
-    isOpen: false,
+    show: false,
     title: "",
     message: "",
-    choices: [] as { label: string; action: () => void }[],
-  });
+    choices: [] as Choice[],
+    excludeCancel: false,
+  } as Modal);
+
+  const defaultChoice: Choice = {
+    label: "OK",
+    autoFocus: false,
+    action: () => alert("BUTTON CLICKED"),
+  };
 
   const closePopUp = useCallback(
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
@@ -159,11 +168,12 @@ export function RubricBuilderMain(): ReactElement {
     setRubric(newRubric);
 
     setModal({
-      isOpen: true,
+      show: true,
+      excludeCancel: true,
       title: "Build a New Rubric",
       message:
         "The active assignment does not have an associated rubric. Let's build one!",
-      choices: [{ label: "OK", action: closeModal }],
+      choices: [{ label: "OK", action: closeModal, autoFocus: true }],
     });
     setLoading(false);
     setHasExistingRubric(false);
@@ -239,19 +249,27 @@ export function RubricBuilderMain(): ReactElement {
     if (!rubric) return;
 
     setModal({
-      isOpen: true,
+      show: true,
+      excludeCancel: true,
       title: "Existing Rubric Detected",
       message: `A rubric with the title "${rubric.title}" already exists for the active assignment. How would you like to proceed?`,
       choices: [
-        { label: "Edit Rubric", action: () => editRubric() },
-        { label: "Create New Rubric", action: () => startNewRubric() },
+        {
+          ...defaultChoice,
+          label: "Edit Rubric",
+          action: () => editRubric(),
+          autoFocus: true,
+        },
+        {
+          ...defaultChoice,
+          label: "Create New Rubric",
+          action: () => startNewRubric(),
+        },
       ],
     });
   };
 
   const handleUpdateAllTemplateCriteria = async (): Promise<void> => {
-    console.log("updating template criteria");
-    console.log(rubric?.criteria);
     const criteriaOnATemplate: Criteria[] = [];
     rubric?.criteria.forEach((criterion) => {
       if (criterion.template !== "") criteriaOnATemplate.push(criterion);
@@ -270,13 +288,11 @@ export function RubricBuilderMain(): ReactElement {
         existingTemplates.push(template);
       }
     }
-    console.log("existing templates");
-    console.log(existingTemplates);
 
     for (const template of existingTemplates) {
       setUpdatingTemplate(template);
       const response = await putTemplate();
-      console.log("response", response);
+
       if (response.success) {
         console.log("template updated successfully");
       } else {
@@ -300,28 +316,37 @@ export function RubricBuilderMain(): ReactElement {
 
       if (response.success) {
         setModal({
-          isOpen: true,
+          excludeCancel: true,
+          show: true,
           title: "Success!",
           message: `${rubric.title} ${isNewRubric ? "created" : "updated"}!`,
-          choices: [{ label: "Radical", action: () => closeModal() }],
+          choices: [
+            { ...defaultChoice, label: "Radical", action: () => closeModal() },
+          ],
         });
       } else {
         setModal({
-          isOpen: true,
+          excludeCancel: true,
+          show: true,
           title: "Error!",
           message: `An error occurred: ${response.error || "Unknown error"}`,
-          choices: [{ label: "Close", action: () => closeModal() }],
+          choices: [
+            { ...defaultChoice, label: "Close", action: () => closeModal() },
+          ],
         });
       }
     } catch (error) {
       console.error("Error handling rubric submission:", error);
       setModal({
-        isOpen: true,
+        excludeCancel: true,
+        show: true,
         title: "Error!",
         message: `An unexpected error occurred: ${
           error instanceof Error ? error.message : "unknown error"
         }`,
-        choices: [{ label: "Close", action: () => closeModal() }],
+        choices: [
+          { ...defaultChoice, label: "Close", action: () => closeModal() },
+        ],
       });
     } finally {
       setLoading(false);
@@ -385,11 +410,13 @@ export function RubricBuilderMain(): ReactElement {
     };
 
     setModal({
-      isOpen: true,
+      excludeCancel: false,
+      show: true,
       title: "Confirm Criterion Removal",
       message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
       choices: [
         {
+          ...defaultChoice,
           label: "Destroy it!",
           action: () => {
             deleteCriterion();
@@ -441,6 +468,22 @@ export function RubricBuilderMain(): ReactElement {
     }
   };
 
+  const updateTemplate = async (template: Template) => {
+    setUpdatingTemplate(template);
+    const updatedTemplate = {
+      ...template,
+      usageCount: template.usageCount + 1,
+      lastUsed: new Date().toISOString(),
+    };
+    setUpdatingTemplate(updatedTemplate);
+    const response = await putTemplate();
+    if (response.success) {
+      console.log("template updated successfully");
+    } else {
+      console.error("error updating template", response.error);
+    }
+  };
+
   const handleImportTemplate = (template: Template) => {
     console.log("import template in rubric builder main");
     if (!rubric) return;
@@ -486,13 +529,19 @@ export function RubricBuilderMain(): ReactElement {
       );
     }
 
-    setRubric(
-      (prevRubric) =>
-        ({
-          ...(prevRubric ?? createRubric()),
-          criteria: [...(prevRubric?.criteria ?? []), ...unique],
-        }) as Rubric,
-    );
+    updateTemplate(template)
+      .then(() => {
+        setRubric(
+          (prevRubric) =>
+            ({
+              ...(prevRubric ?? createRubric()),
+              criteria: [...(prevRubric?.criteria ?? []), ...unique],
+            }) as Rubric,
+        );
+      })
+      .catch((error) => {
+        console.error("error updating template", error);
+      });
   };
 
   /**
@@ -557,11 +606,13 @@ export function RubricBuilderMain(): ReactElement {
 
   const removeAllCriteria = () => {
     setModal({
-      isOpen: true,
+      excludeCancel: false,
+      show: true,
       title: "Clear All Criteria?",
       message: "Are you sure you want to remove all criteria on the form?",
       choices: [
         {
+          ...defaultChoice,
           label: "Purge Them All",
           action: () => {
             deleteAllCriteria();
@@ -681,19 +732,12 @@ export function RubricBuilderMain(): ReactElement {
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div className="min-h-screen justify-between flex flex-col w-screen bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
-        {/* Sticky Header with Gradient */}
         <Header />
         {renderContent()}
         {!isCanvasBypassed && renderBypassButton()}
 
-        {/* ModalChoiceDialog */}
-        <ModalChoiceDialog
-          show={modal.isOpen}
-          onHide={closeModal}
-          title={modal.title}
-          message={modal.message}
-          choices={modal.choices}
-        />
+        {/* ChoiceDialog */}
+        <ChoiceDialog modal={modal} onHide={closeModal} />
 
         <PopUp
           show={popUp.isOpen}

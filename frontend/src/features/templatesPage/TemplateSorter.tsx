@@ -21,6 +21,8 @@ const TemplateSorter = () => {
         <option value="title-desc">Title (Z-A)</option>
         <option value="dateCreated-desc">Newest First</option>
         <option value="dateCreated-asc">Oldest First</option>
+        <option value="usageCount-desc">Most Used First</option>
+        <option value="usageCount-asc">Least Used First</option>
       </select>
     </>
   );

@@ -1,15 +1,17 @@
 import { GroupedSubmissions, Rubric } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
 
+type SubmissionDashboardProps = {
+  rubric: Rubric | undefined;
+  submissions: GroupedSubmissions;
+  fetchSubmissions: () => Promise<void>;
+};
+
 export function SubmissionsDashboard({
   rubric,
   submissions,
   fetchSubmissions,
-}: {
-  rubric: Rubric | undefined;
-  submissions: GroupedSubmissions;
-  fetchSubmissions: () => Promise<void>;
-}) {
+}: SubmissionDashboardProps) {
   return (
     <div className={"grid justify-start"}>
       <div className={"mb-4"}>
@@ -34,7 +36,9 @@ export function SubmissionsDashboard({
               0, // initial value for counter
             );
 
-            return (gradedSubmissionCount / groupSubmissions.length) * 100;
+            return Math.floor(
+              (gradedSubmissionCount / groupSubmissions.length) * 100,
+            );
           };
           return (
             <GroupSubmissions

@@ -1,16 +1,19 @@
 import React, {
   createContext,
-  useState,
-  useContext,
-  useEffect,
   ReactNode,
   useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
 import { Tag, Template } from "palette-types";
 import { useFetch } from "src/hooks/useFetch";
 import { createTemplate } from "src/utils/templateFactory.ts";
+import { quickStartTemplates } from "./QuickStartTemplates";
 
 interface TemplateContextType {
+  addingTagFromBuilder: boolean;
+  setAddingTagFromBuilder: (addingTagFromBuilder: boolean) => void;
   newTemplate: Template | null;
   setNewTemplate: (template: Template) => void;
   deletingTemplate: Template | null;
@@ -38,12 +41,12 @@ interface TemplateContextType {
   setSelectAll: (select: boolean) => void;
   handleCreateTemplate: () => void;
   sortConfig: {
-    key: "title" | "dateCreated" | "lastModified";
+    key: "title" | "dateCreated" | "lastModified" | "usageCount";
     direction: "asc" | "desc";
   };
 
   setSortConfig: (config: {
-    key: "title" | "dateCreated" | "lastModified";
+    key: "title" | "dateCreated" | "lastModified" | "usageCount";
     direction: "asc" | "desc";
   }) => void;
   layoutStyle: "list" | "grid";
@@ -81,9 +84,15 @@ interface TemplateContextType {
   setAvailableTags: (tags: Tag[]) => void;
   tagModalOpen: boolean;
   setTagModalOpen: (tagModalOpen: boolean) => void;
+  handleBulkCreateTemplates: () => void;
+  handleBulkDeleteTemplates: () => void;
+  hasUnsavedChanges: boolean;
+  setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 }
 
 const TemplatesContext = createContext<TemplateContextType>({
+  addingTagFromBuilder: false,
+  setAddingTagFromBuilder: () => {},
   newTemplate: null,
   setNewTemplate: () => {},
   deletingTemplate: null,
@@ -145,6 +154,10 @@ const TemplatesContext = createContext<TemplateContextType>({
   viewingTemplate: null,
   setViewingTemplate: () => {},
   tagModalOpen: false,
+  handleBulkCreateTemplates: () => {},
+  handleBulkDeleteTemplates: () => {},
+  hasUnsavedChanges: false,
+  setHasUnsavedChanges: () => {},
 });
 
 export function useTemplatesContext() {
@@ -155,6 +168,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
     null,
   );
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [tagModalOpen, setTagModalOpen] = useState(false);
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
@@ -172,10 +186,12 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     null,
   );
   const [index, setIndex] = useState(0);
+  const [addingTagFromBuilder, setAddingTagFromBuilder] = useState(false);
   const [deletingTemplates, setDeletingTemplates] = useState<Template[]>([]);
   const [layoutStyle, setLayoutStyle] = useState<"list" | "grid">("list");
+
   const [sortConfig, setSortConfig] = useState<{
-    key: "title" | "dateCreated" | "lastModified";
+    key: "title" | "dateCreated" | "lastModified" | "usageCount";
     direction: "asc" | "desc";
   }>({ key: "title", direction: "asc" });
 
@@ -206,6 +222,16 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
   const { fetchData: putTemplate } = useFetch("/templates", {
     method: "PUT",
+    body: JSON.stringify(editingTemplate),
+  });
+
+  const { fetchData: deleteTemplates } = useFetch("/templates/bulk", {
+    method: "DELETE",
+    body: JSON.stringify(deletingTemplates),
+  });
+
+  const { fetchData: addTemplates } = useFetch("/templates/bulk", {
+    method: "POST",
     body: JSON.stringify(editingTemplate),
   });
 
@@ -289,13 +315,31 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     template.lastUsed = "Never";
     template.usageCount = 23;
     template.key = crypto.randomUUID();
-    setTemplates([...templates, template]);
     setEditingTemplate(template);
-    // console.log("template", template);
     setViewOrEdit("edit");
-    // setIndex(templates.length);
-
     setIsNewTemplate(true);
+  };
+
+  const handleBulkCreateTemplates = async () => {
+    const response = await addTemplates();
+    if (response.success) {
+      setTemplates(response.data as Template[]);
+    } else {
+      console.error("Failed to add templates:", response);
+    }
+  };
+
+  const handleBulkDeleteTemplates = async () => {
+    console.log(
+      "selectedTemplates in handleBulkDeleteTemplates",
+      deletingTemplates,
+    );
+    const response = await deleteTemplates();
+    if (response.success) {
+      setTemplates(response.data as Template[]);
+    } else {
+      console.error("Failed to delete templates:", response);
+    }
   };
 
   const handleDuplicateTemplate = (key: string) => {
@@ -335,6 +379,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   };
 
   const handleQuickStart = () => {
+    setTemplates(quickStartTemplates);
     console.log("quick start");
   };
 
@@ -344,6 +389,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   };
 
   const handleSubmitNewTemplate = () => {
+    setTemplates([...templates, editingTemplate as Template]);
     void (async () => {
       try {
         const response = await postTemplate();
@@ -455,6 +501,12 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         setAvailableTags,
         tagModalOpen,
         setTagModalOpen,
+        addingTagFromBuilder,
+        setAddingTagFromBuilder,
+        handleBulkCreateTemplates: () => void handleBulkCreateTemplates(),
+        handleBulkDeleteTemplates: () => void handleBulkDeleteTemplates(),
+        hasUnsavedChanges,
+        setHasUnsavedChanges,
       }}
     >
       {children}
