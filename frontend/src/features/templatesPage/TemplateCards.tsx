@@ -98,7 +98,7 @@ export default function TemplateCard({
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
 
   // object containing related modal state
@@ -136,7 +136,7 @@ export default function TemplateCard({
   const handleViewModeToggle = () => {
     if (focusedTemplateKey) {
       const focusedTemplate = templates.find(
-        (t) => t.key === focusedTemplateKey
+        (t) => t.key === focusedTemplateKey,
       );
       if (focusedTemplate) {
         setEditingTemplate(focusedTemplate);

@@ -25,7 +25,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -44,8 +44,19 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         setTemplates(response.data as Template[]);
       }
     }
-    updateTemplates();
-    fetchTemplates();
+    updateTemplates()
+      .then(() => {
+        fetchTemplates()
+          .then(() => {
+            console.log("templates fetched");
+          })
+          .catch((error) => {
+            console.error("error fetching templates", error);
+          });
+      })
+      .catch((error) => {
+        console.error("error updating templates", error);
+      });
   }, [selectedTemplates]);
 
   // object containing related modal state
@@ -90,7 +101,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
       const updatedTemplates = templates.map((template) => {
         const updatedTags = template.tags.filter(
           (tag) =>
-            !selectedTags.some((selectedTag) => selectedTag.key === tag.key)
+            !selectedTags.some((selectedTag) => selectedTag.key === tag.key),
         );
         return { ...template, tags: updatedTags };
       });
@@ -107,7 +118,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const [removeMode, setRemoveMode] = useState(false);
 
   const [tempTagCounts, setTempTagCounts] = useState<Record<string, number>>(
-    {}
+    {},
   );
 
   // Function to initialize or update the temporary tag counts
@@ -115,11 +126,11 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     const counts = availableTags.reduce(
       (acc, tag) => {
         acc[tag.key] = templates.filter((t) =>
-          t.tags.some((tTag) => tTag.key === tag.key)
+          t.tags.some((tTag) => tTag.key === tag.key),
         ).length;
         return acc;
       },
-      {} as Record<string, number>
+      {} as Record<string, number>,
     );
     setTempTagCounts(counts);
   };
@@ -164,7 +175,9 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
             action: () => {
               const updatedTags = editingTemplate?.tags?.filter(
                 (t) =>
-                  !selectedTags.some((selectedTag) => selectedTag.key === t.key)
+                  !selectedTags.some(
+                    (selectedTag) => selectedTag.key === t.key,
+                  ),
               );
               const updatedTemplate = {
                 ...editingTemplate,
@@ -211,7 +224,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const getTagsOnTemplate = () => {
     const tagsOnTemplate =
       editingTemplate?.tags?.filter((t) =>
-        availableTags.some((t2) => t2.key === t.key)
+        availableTags.some((t2) => t2.key === t.key),
       ) || [];
     return tagsOnTemplate;
   };
@@ -219,7 +232,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const getTagsNotOnTemplate = () => {
     const tagsOnTemplateKeys = new Set(getTagsOnTemplate().map((t) => t.key));
     const tagsNotOnTemplate = availableTags.filter(
-      (t) => !tagsOnTemplateKeys.has(t.key)
+      (t) => !tagsOnTemplateKeys.has(t.key),
     );
     return tagsNotOnTemplate;
   };
@@ -316,7 +329,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
                           const tagsNotOnTemplate = getTagsNotOnTemplate();
                           if (
                             prevSelected.some((t) =>
-                              tagsNotOnTemplate.includes(t)
+                              tagsNotOnTemplate.includes(t),
                             )
                           ) {
                             return [tag];
@@ -342,7 +355,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
                     (
                     {
                       templates.filter((t) =>
-                        t.tags.some((tTag) => tTag.key === tag.key)
+                        t.tags.some((tTag) => tTag.key === tag.key),
                       ).length
                     }
                     )

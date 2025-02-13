@@ -36,15 +36,15 @@ const AddTemplateTag = () => {
     const backendTags = response.data as Tag[];
 
     const templatesWithTags = templates.filter(
-      (template) => template.tags.length > 0
+      (template) => template.tags.length > 0,
     );
     const templateTags = templatesWithTags.flatMap((template) => template.tags);
 
     // Combine backend tags and template tags, removing duplicates
     const combinedTags = Array.from(
       new Map(
-        [...backendTags, ...templateTags].map((tag) => [tag.key, tag])
-      ).values()
+        [...backendTags, ...templateTags].map((tag) => [tag.key, tag]),
+      ).values(),
     );
 
     setAvailableTags(combinedTags);
@@ -71,8 +71,8 @@ const AddTemplateTag = () => {
         {availableTags
           .filter((tag) =>
             templates.some((template) =>
-              template.tags.some((tTag) => tTag.key === tag.key)
-            )
+              template.tags.some((tTag) => tTag.key === tag.key),
+            ),
           )
           .map((tag) => (
             <button
@@ -81,7 +81,7 @@ const AddTemplateTag = () => {
                 setSelectedTagFilters(
                   selectedTagFilters.includes(tag.key)
                     ? selectedTagFilters.filter((t) => t !== tag.key)
-                    : [...selectedTagFilters, tag.key]
+                    : [...selectedTagFilters, tag.key],
                 )
               }
               className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
@@ -97,7 +97,7 @@ const AddTemplateTag = () => {
                 (
                 {
                   templates.filter((t) =>
-                    t.tags.some((tTag) => tTag.key === tag.key)
+                    t.tags.some((tTag) => tTag.key === tag.key),
                   ).length
                 }
                 )
