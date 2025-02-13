@@ -1,6 +1,6 @@
 import { Rubric, Submission } from "palette-types";
 import { ProgressBar } from "@features";
-import { ProjectGradingView } from "../projectGrading/ProjectGradingView";
+import { ProjectGradingView } from "./ProjectGradingView.tsx";
 import { useEffect, useState } from "react";
 import { PaletteActionButton } from "@components";
 

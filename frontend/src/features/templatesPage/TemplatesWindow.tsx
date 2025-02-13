@@ -26,7 +26,7 @@ const TemplatesWindow = () => {
   }, []);
 
   const [modal, setModal] = useState({
-    isOpen: false,
+    show: false,
     title: "",
     message: "",
     choices: [] as Choice[],
@@ -34,7 +34,7 @@ const TemplatesWindow = () => {
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   const handleSelectAll = () => {
@@ -55,7 +55,7 @@ const TemplatesWindow = () => {
   const handleBulkDelete = () => {
     // console.log("selectedTemplates in handleBulkDelete", selectedTemplates);
     setModal({
-      isOpen: true,
+      show: true,
       title: "Confirm Bulk Delete",
       message: `Are you sure you want to delete ${selectedTemplates.length} templates? This action cannot be undone.`,
       choices: [
@@ -64,7 +64,7 @@ const TemplatesWindow = () => {
           label: "Delete All Selected",
           action: () => {
             const templatesToDelete = selectedTemplates.map(
-              (key) => templates.find((t) => t.key === key) as Template,
+              (key) => templates.find((t) => t.key === key) as Template
             );
             handleBulkDeleteTemplates(templatesToDelete);
             closeModal();
@@ -82,7 +82,7 @@ const TemplatesWindow = () => {
 
   const handleBulkExport = () => {
     const selectedTemplatesToExport = templates.filter((t) =>
-      selectedTemplates.includes(t.key),
+      selectedTemplates.includes(t.key)
     );
 
     const exportData = JSON.stringify(selectedTemplatesToExport, null, 2);
@@ -146,7 +146,7 @@ const TemplatesWindow = () => {
         const matchesTags =
           selectedTagFilters.length === 0 ||
           selectedTagFilters.every((tagKey) =>
-            template.tags.some((tag) => tag.key === tagKey),
+            template.tags.some((tag) => tag.key === tagKey)
           );
         return matchesSearch && matchesTags;
       })
@@ -179,7 +179,7 @@ const TemplatesWindow = () => {
   const handleSelectTemplateBulkActions = (templateKey: string) => {
     if (selectedTemplates.includes(templateKey)) {
       const newSelected = selectedTemplates.filter(
-        (key) => key !== templateKey,
+        (key) => key !== templateKey
       );
 
       setSelectedTemplates(newSelected);
@@ -246,14 +246,7 @@ const TemplatesWindow = () => {
         </div>
         {renderAllTemplates()}
       </div>
-      <ChoiceDialog
-        show={modal.isOpen}
-        onHide={closeModal}
-        title={modal.title}
-        message={modal.message}
-        choices={modal.choices}
-        excludeCancel={false}
-      />
+      <ChoiceDialog modal={modal} onHide={closeModal} />
     </>
   );
 };

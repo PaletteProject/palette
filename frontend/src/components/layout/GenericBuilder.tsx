@@ -43,7 +43,7 @@ export const GenericBuilder = ({
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   const [showDialog, setShowDialog] = useState(false);
   const [modal, setModal] = useState({
-    isOpen: false,
+    show: false,
     title: "",
     message: "",
     choices: [] as Choice[],
@@ -133,7 +133,7 @@ export const GenericBuilder = ({
 
     if (builderType === "template") {
       setModal({
-        isOpen: true,
+        show: true,
         title: "Confirm Criterion Removal",
         message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
         choices: [
@@ -149,7 +149,7 @@ export const GenericBuilder = ({
       });
     } else {
       setModal({
-        isOpen: true,
+        show: true,
         title: "Confirm Criterion Removal",
         message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
         choices: [
@@ -237,7 +237,7 @@ export const GenericBuilder = ({
 
     if (document?.title.trim() === "") {
       setModal({
-        isOpen: true,
+        show: true,
         title: "Invalid Template",
         message: "Please enter a title for your template before saving.",
         choices: [
@@ -252,7 +252,7 @@ export const GenericBuilder = ({
 
     if (document?.criteria.length === 0) {
       setModal({
-        isOpen: true,
+        show: true,
         title: "Invalid Template",
         message: "Please add at least one criterion before saving.",
         choices: [
@@ -273,7 +273,7 @@ export const GenericBuilder = ({
       );
       if (isDuplicateName) {
         setModal({
-          isOpen: true,
+          show: true,
           title: "Duplicate Template Name",
           message:
             "A template with this name already exists. Please choose a different name.",

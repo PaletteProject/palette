@@ -72,7 +72,7 @@ export function ProjectGradingView({
             submission.rubricAssessment,
           )) {
             initialRatings[`${submission.id}-${criterionId}`] =
-              assessment.points || "";
+              assessment.points ?? "";
           }
         }
       });
@@ -80,7 +80,7 @@ export function ProjectGradingView({
       setRatings(initialRatings);
       console.log(initialRatings);
     }
-  }, [isOpen, submissions]);
+  }, [isOpen, submissions, rubric]);
 
   /**
    * Update ratings state on changes.

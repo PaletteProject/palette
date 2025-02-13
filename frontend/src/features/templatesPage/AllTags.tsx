@@ -436,12 +436,14 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
 
       {/* ModalChoiceDialog */}
       <ChoiceDialog
-        show={modal.isOpen}
+        modal={{
+          show: modal.isOpen,
+          title: modal.title,
+          message: modal.message,
+          choices: modal.choices,
+          excludeCancel: false,
+        }}
         onHide={closeModal}
-        title={modal.title}
-        message={modal.message}
-        choices={modal.choices}
-        excludeCancel={false}
       />
       <TemplateTagCreator
         isOpen={tagModalOpen}

@@ -24,6 +24,7 @@ import {
   Footer,
   Header,
   LoadingDots,
+  Modal,
   NoAssignmentSelected,
   NoCourseSelected,
   PaletteActionButton,
@@ -78,18 +79,18 @@ export function RubricBuilderMain(): ReactElement {
 
   // declared before, so it's initialized for the modal initial state. memoized for performance
   const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
+    () => setModal((prevModal) => ({ ...prevModal, show: false }) as Modal),
     [],
   );
 
   // object containing related modal state
   const [modal, setModal] = useState({
-    isOpen: false,
+    show: false,
     title: "",
     message: "",
     choices: [] as Choice[],
     excludeCancel: false,
-  });
+  } as Modal);
 
   const defaultChoice: Choice = {
     label: "OK",
@@ -167,7 +168,7 @@ export function RubricBuilderMain(): ReactElement {
     setRubric(newRubric);
 
     setModal({
-      isOpen: true,
+      show: true,
       excludeCancel: true,
       title: "Build a New Rubric",
       message:
@@ -248,7 +249,7 @@ export function RubricBuilderMain(): ReactElement {
     if (!rubric) return;
 
     setModal({
-      isOpen: true,
+      show: true,
       excludeCancel: true,
       title: "Existing Rubric Detected",
       message: `A rubric with the title "${rubric.title}" already exists for the active assignment. How would you like to proceed?`,
@@ -269,8 +270,6 @@ export function RubricBuilderMain(): ReactElement {
   };
 
   const handleUpdateAllTemplateCriteria = async (): Promise<void> => {
-    console.log("updating template criteria");
-    console.log(rubric?.criteria);
     const criteriaOnATemplate: Criteria[] = [];
     rubric?.criteria.forEach((criterion) => {
       if (criterion.template !== "") criteriaOnATemplate.push(criterion);
@@ -289,13 +288,11 @@ export function RubricBuilderMain(): ReactElement {
         existingTemplates.push(template);
       }
     }
-    console.log("existing templates");
-    console.log(existingTemplates);
 
     for (const template of existingTemplates) {
       setUpdatingTemplate(template);
       const response = await putTemplate();
-      console.log("response", response);
+
       if (response.success) {
         console.log("template updated successfully");
       } else {
@@ -320,7 +317,7 @@ export function RubricBuilderMain(): ReactElement {
       if (response.success) {
         setModal({
           excludeCancel: true,
-          isOpen: true,
+          show: true,
           title: "Success!",
           message: `${rubric.title} ${isNewRubric ? "created" : "updated"}!`,
           choices: [
@@ -330,7 +327,7 @@ export function RubricBuilderMain(): ReactElement {
       } else {
         setModal({
           excludeCancel: true,
-          isOpen: true,
+          show: true,
           title: "Error!",
           message: `An error occurred: ${response.error || "Unknown error"}`,
           choices: [
@@ -342,7 +339,7 @@ export function RubricBuilderMain(): ReactElement {
       console.error("Error handling rubric submission:", error);
       setModal({
         excludeCancel: true,
-        isOpen: true,
+        show: true,
         title: "Error!",
         message: `An unexpected error occurred: ${
           error instanceof Error ? error.message : "unknown error"
@@ -414,7 +411,7 @@ export function RubricBuilderMain(): ReactElement {
 
     setModal({
       excludeCancel: false,
-      isOpen: true,
+      show: true,
       title: "Confirm Criterion Removal",
       message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
       choices: [
@@ -610,7 +607,7 @@ export function RubricBuilderMain(): ReactElement {
   const removeAllCriteria = () => {
     setModal({
       excludeCancel: false,
-      isOpen: true,
+      show: true,
       title: "Clear All Criteria?",
       message: "Are you sure you want to remove all criteria on the form?",
       choices: [
@@ -740,14 +737,7 @@ export function RubricBuilderMain(): ReactElement {
         {!isCanvasBypassed && renderBypassButton()}
 
         {/* ChoiceDialog */}
-        <ChoiceDialog
-          show={modal.isOpen}
-          onHide={closeModal}
-          title={modal.title}
-          message={modal.message}
-          choices={modal.choices}
-          excludeCancel={modal.excludeCancel}
-        />
+        <ChoiceDialog modal={modal} onHide={closeModal} />
 
         <PopUp
           show={popUp.isOpen}

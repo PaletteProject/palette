@@ -23,8 +23,16 @@ type ActionButtonProps = {
   /**
    * The button color theme.
    */
-  color: "GREEN" | "RED" | "BLUE" | "YELLOW" | "PURPLE" | "GRAY";
+  color: ButtonColorOptions;
 };
+
+export type ButtonColorOptions =
+  | "GREEN"
+  | "RED"
+  | "BLUE"
+  | "YELLOW"
+  | "PURPLE"
+  | "GRAY";
 
 /**
  * A button component that triggers the provided `onClick` function when clicked.

@@ -8,6 +8,8 @@ import { MouseEvent, ReactElement, useEffect, useState } from "react";
 import { useFetch } from "@hooks";
 import { Course, PaletteAPIResponse } from "palette-types";
 import { useCourse } from "../../context/CourseProvider.tsx";
+import { PaletteActionButton } from "../buttons/PaletteActionButton.tsx";
+import { LoadingDots } from "../LoadingDots.tsx";
 
 export function CourseSelectionMenu({
   onSelect,
@@ -55,7 +57,7 @@ export function CourseSelectionMenu({
    * Render courses on the ui for user to select from.
    */
   const renderCourses = () => {
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <LoadingDots />;
     if (errorMessage)
       return <p className="text-red-500 font-normal">Error: {errorMessage}</p>;
     if (courses.length === 0) return <div>No courses available to display</div>;
@@ -63,16 +65,15 @@ export function CourseSelectionMenu({
     return (
       <div
         className={
-          "grid gap-2 my-1 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
+          "grid gap-2 my-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
         }
       >
-        Select the course you'd like to grade:
         <div>
           {courses.map((course: Course) => (
             <div
               key={course.id}
               className={
-                "flex gap-4 bg-gray-600 hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full font-bold"
+                "flex gap-4 bg-gray-600 hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full font-bold text-lg"
               }
               onClick={() => handleCourseSelection(course)}
             >
@@ -100,14 +101,14 @@ export function CourseSelectionMenu({
   return (
     <div className={"grid gap-2 text-2xl"}>
       <div>{renderCourses()}</div>
-      <button
-        onClick={handleGetCourses}
-        className={
-          "justify-self-end bg-blue-500 px-2 py-1 rounded-full hover:opacity-80 active:opacity-70"
-        }
-      >
-        Refresh
-      </button>
+      <div className={"justify-self-end"}>
+        <PaletteActionButton
+          color={"BLUE"}
+          title={"Refresh"}
+          onClick={handleGetCourses}
+          autoFocus={true}
+        />
+      </div>
     </div>
   );
 }
