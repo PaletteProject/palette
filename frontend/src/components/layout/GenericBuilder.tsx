@@ -330,7 +330,7 @@ export const GenericBuilder = ({
                 setAddingTagFromBuilder(true);
               }}
             >
-              Add Tag
+              Tags
             </button>
           </div>
         </div>
@@ -361,19 +361,12 @@ export const GenericBuilder = ({
         )}
       </form>
 
-      <ChoiceDialog
-        show={modal.isOpen}
-        onHide={closeModal}
-        title={modal.title}
-        message={modal.message}
-        choices={modal.choices}
-        excludeCancel={false}
-      />
+      <ChoiceDialog modal={modal} onHide={closeModal} />
 
       <Dialog
         isOpen={showDialog}
         onClose={() => setShowDialog(false)}
-        title={`Add Tag(s) to Template: "${editingTemplate?.title}"`}
+        title={"Tag Management"}
         children={
           <AllTags
             onSave={() => {

@@ -21,26 +21,32 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
 
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [selectedTemplates, setSelectedTemplates] = useState<Template[]>([]);
+  const [updatingTemplates, setUpdatingTemplates] = useState(false);
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
     []
   );
 
-  // useEffect(() => {
-  //   console.log("selectedTemplates in AllTags", selectedTemplates);
-  //   async function updateTemplates() {
-  //     const response = await putTemplates();
-  //     console.log("response from putTemplates", response);
-  //   }
+  useEffect(() => {
+    async function updateTemplates() {
+      if (updatingTemplates) {
+        const response = await putTemplates();
+        if (response.success) {
+          console.log("templates updated");
+        }
+      }
+    }
 
-  //   async function fetchTemplates() {
-  //     const response = await getAllTemplates();
-  //     setTemplates(response.data as Template[]);
-  //   }
-  //   // fetchTemplates();
-  //   // updateTemplates();
-  // }, [selectedTemplates]);
+    async function fetchTemplates() {
+      if (updatingTemplates) {
+        const response = await getAllTemplates();
+        setTemplates(response.data as Template[]);
+      }
+    }
+    updateTemplates();
+    fetchTemplates();
+  }, [selectedTemplates]);
 
   // object containing related modal state
 
@@ -88,7 +94,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         );
         return { ...template, tags: updatedTags };
       });
-      console.log("updatedTemplates", updatedTemplates);
+      setUpdatingTemplates(true);
       setSelectedTemplates(updatedTemplates);
       await getTags();
       closeModal();
@@ -207,7 +213,6 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
       editingTemplate?.tags?.filter((t) =>
         availableTags.some((t2) => t2.key === t.key)
       ) || [];
-    console.log("tagsOnTemplate", tagsOnTemplate);
     return tagsOnTemplate;
   };
 
@@ -216,7 +221,6 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     const tagsNotOnTemplate = availableTags.filter(
       (t) => !tagsOnTemplateKeys.has(t.key)
     );
-    console.log("tagsNotOnTemplate", tagsNotOnTemplate);
     return tagsNotOnTemplate;
   };
 

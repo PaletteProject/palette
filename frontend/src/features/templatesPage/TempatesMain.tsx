@@ -10,7 +10,7 @@ import TemplateSearch from "./TemplateSearch.tsx";
 import AddTemplateTag from "./AddTemplateTag.tsx";
 import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
 import { Template } from "palette-types";
-import { ChoiceDialog } from "src/components/modals/ChoiceDialog.tsx";
+import { ChoiceDialog, Modal } from "src/components/modals/ChoiceDialog.tsx";
 
 export default function TemplatesMain(): ReactElement {
   return (
@@ -39,7 +39,7 @@ function TemplatesMainContent(): ReactElement {
 
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, show: false })),
+    () => setModal((prevModal: Modal) => ({ ...prevModal, show: false })),
     []
   );
 
