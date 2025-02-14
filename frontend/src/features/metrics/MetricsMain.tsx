@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { MainPageTemplate } from "../../components/layout/MainPageTemplate.tsx";
 import { quickStartTemplates } from "../../features/templatesPage/QuickStartTemplates.ts";
-import CriteriaInput from "../../features/rubricBuilder/CriteriaCard.tsx";
 import { Template, Criteria } from "palette-types";
 import TemplateSearch from "../../features/templatesPage/TemplateSearch.tsx";
 import { useTemplatesContext } from "../../features/templatesPage/TemplateContext.tsx";
-import TemplateCard from "../templatesPage/TemplateCards.tsx";
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { useSortable } from "@dnd-kit/sortable";
-
+import * as d3 from "d3";
+import { PieChart } from "@mui/x-charts/PieChart";
 const MetricsMain = () => {
   const [templatesExpanded, setTemplatesExpanded] = useState(false);
   const [expandedTemplates, setExpandedTemplates] = useState<Set<string>>(
@@ -31,6 +30,14 @@ const MetricsMain = () => {
     transition,
   };
 
+  const pie = d3.pie().value((d: any) => d.value);
+  const svg = d3
+    .select("body")
+    .append("pie-chart")
+    .attr("width", 400)
+    .attr("height", 400);
+  svg.append("rect").attr("width", 400).attr("height", 400).attr("fill", "red");
+
   const renderTemplatesView = () => {
     return (
       <div className="flex flex-row">
@@ -51,8 +58,13 @@ const MetricsMain = () => {
                 className={`flex flex-col bg-gray-600 border-2 border-black rounded-lg px-4 mb-4 mx-4 py-2 ${
                   selectedItem?.type === "template" &&
                   selectedItem.key === template.key
-                    ? "border-blue-500 border-4"
-                    : ""
+                    ? "border-blue-400 border-4"
+                    : selectedItem?.type === "criterion" &&
+                        template.criteria.some(
+                          (criterion) => criterion.key === selectedItem.key
+                        )
+                      ? "border-blue-400 border-4"
+                      : ""
                 }`}
                 key={template.key}
               >
@@ -63,7 +75,7 @@ const MetricsMain = () => {
                   }}
                   className="flex flex-col"
                 >
-                  <h3 className="text-white text-md font-bold">
+                  <h3 className="text-white text-md font-bold mb-2">
                     {template.title}
                   </h3>
                   {expandedTemplates.has(template.key) && (
@@ -74,8 +86,8 @@ const MetricsMain = () => {
                             className={`hover:bg-gray-500 hover:cursor-pointer max-h-28 flex gap-1 justify-between items-center border mb-2 border-gray-700 shadow-lg rounded-lg w-full ${
                               selectedItem?.type === "criterion" &&
                               selectedItem.key === criterion.key
-                                ? "border-blue-500 border-4"
-                                : "bg-gray-700"
+                                ? "border-blue-400 border-4"
+                                : ""
                             }`}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -126,7 +138,7 @@ const MetricsMain = () => {
                     </ul>
                   </>
                 ) : (
-                  <>
+                  <div>
                     <h2 className="text-white text-md font-bold">
                       Selected Criterion:{" "}
                       {
@@ -148,7 +160,19 @@ const MetricsMain = () => {
                           </li>
                         ))}
                     </ul>
-                  </>
+                    <p>
+                      {JSON.stringify(
+                        countOccurrences(
+                          quickStartTemplates
+                            .flatMap((template) => template.criteria)
+                            .find(
+                              (criterion) => criterion.key === selectedItem.key
+                            )?.scores
+                        )
+                      )}
+                    </p>
+                    {renderCharts(selectedItem.key)}
+                  </div>
                 )}
               </div>
             )}
@@ -204,15 +228,64 @@ const MetricsMain = () => {
 
   const renderContent = () => {
     return (
-      <>
+      <div>
         <div className="flex flex-row justify-between items-center">
           <h3 className="text-white text-2xl font-bold m-10 mr-0">
             How your classes are performing?
           </h3>
         </div>
         {renderTemplatesView()}
-      </>
+      </div>
     );
+  };
+
+  const renderCharts = (criterionKey: string) => {
+    const criterion = quickStartTemplates
+      .flatMap((template) => template.criteria)
+      .find((criterion) => criterion.key === criterionKey);
+
+    const occurrences = countOccurrences(criterion?.scores);
+    console.log("occurrences", occurrences);
+
+    if (!criterion) return null;
+
+    // Use the scores from the current criterion
+    const scores = criterion.scores;
+
+    return (
+      <div>
+        {/* Other chart rendering logic */}
+        <PieChart
+          colors={["red", "orange", "yellow", "green", "blue", "purple"]}
+          series={[
+            {
+              data: Object.entries(occurrences).map(([score, count]) => {
+                const rating = criterion.ratings.find(
+                  (rating) => rating.points === Number(score)
+                );
+                return {
+                  id: score,
+                  value: count / scores.length,
+                  label: rating?.description || score.toString(),
+                };
+              }),
+              highlightScope: { fade: "global", highlight: "item" },
+              faded: { innerRadius: 30, additionalRadius: -30, color: "gray" },
+            },
+          ]}
+          width={800}
+          height={200}
+        />
+      </div>
+    );
+  };
+
+  const countOccurrences = (data: number[] | undefined) => {
+    if (!data) return {};
+    return data.reduce((acc: Record<number, number>, curr: number) => {
+      acc[curr] = (acc[curr] || 0) + 1;
+      return acc;
+    }, {});
   };
 
   return <MainPageTemplate children={renderContent()} />;
