@@ -9,7 +9,13 @@ import "./index.css";
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import { GradingMain, Home, NotFoundPage, RubricBuilderMain, SettingsMain } from "@features";
+import {
+  GradingMain,
+  Home,
+  NotFoundPage,
+  RubricBuilderMain,
+  SettingsMain,
+} from "@features";
 import { AssignmentProvider, CourseProvider } from "@context"; // Defined a "root" div in index.html that we pull in here and then call the React render method.
 import TemplatesMain from "./features/templatesPage/TempatesMain.tsx";
 import { DialogProvider } from "./context/DialogContext.tsx";
