@@ -18,13 +18,10 @@ import TemplateUpload from "./TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
 
 import {
-  Choice,
   ChoiceDialog,
-  Dialog,
   Footer,
   Header,
   LoadingDots,
-  Modal,
   NoAssignmentSelected,
   NoCourseSelected,
   PaletteActionButton,

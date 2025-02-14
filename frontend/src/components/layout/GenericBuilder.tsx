@@ -12,7 +12,7 @@ import {
 } from "@dnd-kit/sortable";
 import CriteriaCard from "src/features/rubricBuilder/CriteriaCard";
 import { createCriterion } from "@utils";
-import { Choice, ChoiceDialog, Dialog } from "@components";
+import { Choice, ChoiceDialog } from "@components";
 import AllTags from "src/features/templatesPage/AllTags";
 
 interface GenericBuilderProps {

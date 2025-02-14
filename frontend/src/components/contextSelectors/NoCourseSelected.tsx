@@ -3,7 +3,7 @@
  * @constructor
  */
 import { useState } from "react";
-import { CourseSelectionMenu, Dialog } from "@components";
+import { CourseSelectionMenu } from "@components";
 
 export function NoCourseSelected() {
   const [courseMenuOpen, setCourseMenuOpen] = useState(false);

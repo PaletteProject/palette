@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Dialog } from "@components";
 import { Tag } from "palette-types";
 import { useFetch } from "@hooks";
 import { createTag } from "@utils";

@@ -3,7 +3,7 @@
  */
 
 import { ReactElement, useCallback, useEffect, useState } from "react";
-import { Choice, Dialog, MainPageTemplate, Modal } from "@components";
+import { Choice, ChoiceDialog, MainPageTemplate, Modal } from "@components";
 import { TemplateProvider, useTemplatesContext } from "./TemplateContext.tsx";
 import TemplatesWindow from "./TemplatesWindow.tsx";
 import TemplateSearch from "./TemplateSearch.tsx";
