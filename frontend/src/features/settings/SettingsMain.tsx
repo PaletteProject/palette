@@ -81,7 +81,7 @@ export function SettingsMain(): ReactElement {
       if (response.success) {
         openDialog({
           title: "Success",
-          message: "settings saved successfully!",
+          message: "Settings updated successfully!",
           buttons: [
             { label: "Nice!", action: () => closeDialog(), autoFocus: true },
           ],
@@ -100,8 +100,8 @@ export function SettingsMain(): ReactElement {
           ],
         });
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       openDialog({
         title: "Error",
         message: "An error occurred while saving settings.",
@@ -124,7 +124,7 @@ export function SettingsMain(): ReactElement {
    *
    * @returns {ReactElement} The rendered content.
    */
-  const renderContent = () => {
+  const renderContent = (): ReactElement => {
     if (loading) return <LoadingDots />;
     if (error) return <p className="text-red-500 text-center">{error}</p>;
     if (!settings) return <p className="text-center">No settings available</p>;
