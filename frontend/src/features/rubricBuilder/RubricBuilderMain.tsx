@@ -152,7 +152,7 @@ export function RubricBuilderMain(): ReactElement {
       title: "Build a New Rubric",
       message:
         "The active assignment does not have an associated rubric. Let's build one!",
-      buttons: [{ label: "OK", action: closeDialog, autoFocus: true }],
+      buttons: [{ label: "OK", action: () => closeDialog(), autoFocus: true }],
     });
     setLoading(false);
     setHasExistingRubric(false);
@@ -226,7 +226,7 @@ export function RubricBuilderMain(): ReactElement {
       buttons: [
         {
           label: "Edit Rubric",
-          action: () => closeDialog,
+          action: () => closeDialog(),
           autoFocus: true,
         },
         {

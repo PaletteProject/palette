@@ -12,7 +12,7 @@ type DialogConfig = {
   title: string;
   message: string;
   buttons: DialogButton[];
-  excludeCancel: boolean;
+  excludeCancel?: boolean;
 };
 
 type DialogContextType = {

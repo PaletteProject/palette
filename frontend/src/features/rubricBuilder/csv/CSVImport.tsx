@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { importCsv, VERSION_ONE, VERSION_TWO } from "@utils";
-import { ChoiceDialog, PaletteActionButton } from "@components";
+import { Dialog, PaletteActionButton } from "@components";
 import { Criteria, Rubric } from "palette-types";
 
 interface CSVUploadProps {

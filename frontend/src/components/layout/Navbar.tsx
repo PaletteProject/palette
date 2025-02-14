@@ -8,7 +8,7 @@ import {
   ActiveCourseSelection,
   AssignmentSelectionMenu,
   CourseSelectionMenu,
-  ChoiceDialog,
+  Dialog,
 } from "@components";
 
 export function Navbar() {

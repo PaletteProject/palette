@@ -3,7 +3,7 @@
  * @constructor
  */
 
-import { AssignmentSelectionMenu, ChoiceDialog } from "@components";
+import { AssignmentSelectionMenu, Dialog } from "@components";
 import { useState } from "react";
 
 export function NoAssignmentSelected() {
