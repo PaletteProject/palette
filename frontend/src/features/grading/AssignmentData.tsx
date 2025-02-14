@@ -2,7 +2,8 @@ import { useAssignment } from "../../context/AssignmentProvider.tsx";
 import { useNavigate } from "react-router-dom";
 import { MouseEvent, useEffect, useState } from "react";
 import { Rubric } from "palette-types";
-import { Choice, ChoiceDialog, Modal } from "@components";
+import { ChoiceDialog } from "@components";
+import { useChoiceDialog } from "../../context/DialogContext.tsx";
 
 export function AssignmentData({ rubric }: { rubric: Rubric | undefined }) {
   const { activeAssignment } = useAssignment();
@@ -17,38 +18,7 @@ export function AssignmentData({ rubric }: { rubric: Rubric | undefined }) {
     messageOptions.missing,
   );
 
-  function closeModal() {
-    setModal({
-      ...modal,
-      show: false,
-    });
-  }
-
-  const [modal, setModal] = useState({
-    show: false,
-    title: "Warning: Partial Data Loss Possible",
-    message:
-      "When an assignment rubric changes, Canvas preserves the existing score but overwrites the rubric" +
-      " assessment entirely. The application will show accurate grading progress, however rating options will all" +
-      " be" +
-      " reset in the grading view.",
-    choices: [
-      {
-        label: "I accept this risk",
-        autoFocus: false,
-        action: () => navigate("/rubric-builder"),
-        color: "RED",
-      } as Choice,
-      {
-        label: "Back to safety",
-        autoFocus: true,
-        color: "BLUE",
-        action: () => closeModal(),
-      } as Choice,
-    ],
-    excludeCancel: true,
-    onHide: closeModal,
-  } as Modal);
+  const { openDialog, closeDialog } = useChoiceDialog();
 
   useEffect(() => {
     if (rubric) {
@@ -60,9 +30,28 @@ export function AssignmentData({ rubric }: { rubric: Rubric | undefined }) {
 
   function handleEditRubricSelection(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
-    setModal({
-      ...modal,
-      show: true,
+    openDialog({
+      title: "Warning: Partial Data Loss Possible",
+      message:
+        "When an assignment rubric changes, Canvas preserves the existing score but overwrites the rubric" +
+        " assessment entirely. The application will show accurate grading progress, however rating options will all" +
+        " be" +
+        " reset in the grading view.",
+      buttons: [
+        {
+          label: "I accept this risk",
+          autoFocus: false,
+          action: () => navigate("/rubric-builder"),
+          color: "RED",
+        },
+        {
+          label: "Back to safety",
+          autoFocus: true,
+          color: "BLUE",
+          action: () => closeDialog(),
+        },
+      ],
+      excludeCancel: true,
     });
   }
 
@@ -100,7 +89,7 @@ export function AssignmentData({ rubric }: { rubric: Rubric | undefined }) {
           )}
         </div>
       </div>
-      <ChoiceDialog modal={modal} onHide={closeModal} />
+      <ChoiceDialog />
     </div>
   );
 }

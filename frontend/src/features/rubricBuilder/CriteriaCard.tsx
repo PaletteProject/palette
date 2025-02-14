@@ -12,7 +12,7 @@ import { Criteria, Rating } from "palette-types";
 import { createRating } from "@utils";
 import { RatingCard } from "./RatingCard.tsx";
 import TemplateSetter from "./TemplateSetter.tsx";
-import { ChoiceDialog, PaletteActionButton } from "@components";
+import { Dialog, PaletteActionButton } from "@components";
 import { motion } from "framer-motion";
 import { useTemplatesContext } from "src/features/templatesPage/TemplateContext";
 
