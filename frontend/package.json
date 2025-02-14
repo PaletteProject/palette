@@ -31,6 +31,7 @@
     "@mui/styled-engine-sc": "^6.1.4",
     "@typescript-eslint/eslint-plugin": "^8.11.0",
     "@typescript-eslint/parser": "^8.11.0",
+    "file-saver": "^2.0.5",
     "framer-motion": "^11.11.11",
     "http-status-codes": "^2.3.0",
     "papaparse": "^5.4.1",

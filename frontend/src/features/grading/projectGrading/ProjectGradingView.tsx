@@ -7,6 +7,8 @@ import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { PaletteActionButton } from "@components";
 import { useAssignment, useCourse } from "@context";
+import { exportToCSV } from "../csv/exportGrading";
+
 
 export function ProjectGradingView({
   groupName,
@@ -73,6 +75,10 @@ export function ProjectGradingView({
       console.log(initialRatings);
     }
   }, [isOpen, submissions]);
+
+  const handleExportGrades = () => {
+    exportToCSV(groupName, submissions, rubric);
+  };
 
   /**
    * Update ratings state on changes.
@@ -146,7 +152,7 @@ export function ProjectGradingView({
     await fetchSubmissions();
 
     onClose();
-  };
+  }
 
   /**
    * Dynamically calculates the drop-down background color.
@@ -186,6 +192,14 @@ export function ProjectGradingView({
               onClick={() => void handleSubmitGrades()}
               color={"GREEN"}
             />
+            <div className="flex gap-4 justify-end">
+            <button
+          className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+          onClick={handleExportGrades}
+        >
+          Export Grades
+        </button>
+        </div>
           </div>
         </div>
       </div>,
