@@ -101,7 +101,7 @@ export function GradingMain(): ReactElement {
 
     return (
       <>
-        <div className={"grid h-full pt-[522px]"}>
+        <div className={"grid h-full"}>
           {loading && <LoadingDots />}
           {!activeCourse && <NoCourseSelected />}
           {activeCourse && !activeAssignment && <NoAssignmentSelected />}

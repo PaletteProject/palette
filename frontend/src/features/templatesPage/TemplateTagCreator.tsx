@@ -3,6 +3,7 @@ import { Tag } from "palette-types";
 import { useFetch } from "@hooks";
 import { createTag } from "@utils";
 import { useTemplatesContext } from "./TemplateContext";
+import { Dialog } from "@components";
 
 interface TemplateTagCreatorProps {
   isOpen: boolean;
@@ -198,7 +199,7 @@ const TemplateTagCreator = ({
                     setSelectedTag(null);
                   }}
                   className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                  disabled={selectedTagIndex === null}
+                  disabled={!selectedTagIndex}
                 >
                   Delete Selected Tag
                 </button>
