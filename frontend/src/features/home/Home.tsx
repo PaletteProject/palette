@@ -2,7 +2,7 @@ import { ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { randomColor } from "@utils";
 import { Footer, Header } from "@components";
-
+import Paint from "./Paint";
 export function Home(): ReactElement {
   const [color, setColor] = useState("bg-red-500");
   const navigate = useNavigate();
@@ -20,18 +20,23 @@ export function Home(): ReactElement {
   };
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black flex flex-col justify-between">
+    <div className="h-screen w-full bg-gradient-to-br from-gray-800 via-gray-900 to-white flex flex-col justify-between">
       <Header />
+
+      {/* Logo */}
+      <Paint
+        color="#ffffff"
+        cursorBallColor="#ffffff"
+        cursorBallSize={2}
+        ballCount={15}
+        animationSize={30}
+        enableMouseInteraction={true}
+        hoverSmoothness={0.05}
+        clumpFactor={1}
+        speed={0.3}
+      />
       {/* Main Content Section */}
       <div className="flex flex-col items-center justify-center text-white text-center -mt-20">
-        {/* Logo */}
-        <img
-          src="/palette-2.webp"
-          alt="Palette Logo"
-          width={350}
-          className={"mb-2 rounded-full"}
-        />
-
         {/* Title */}
         <h1 className="text-6xl font-bold mb-4 tracking-wide">
           Welcome to Palette
