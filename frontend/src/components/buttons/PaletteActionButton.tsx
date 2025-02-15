@@ -44,7 +44,7 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
   onClick,
   onPointerDown,
   title = "Save",
-  color,
+  color = "BLUE",
   autoFocus = false,
 }: ActionButtonProps): ReactElement => {
   const colorStyles = {
