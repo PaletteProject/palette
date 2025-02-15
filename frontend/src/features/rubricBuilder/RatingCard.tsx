@@ -1,6 +1,7 @@
 import React, { ChangeEvent, ReactElement, useEffect, useState } from "react";
 import { Rating } from "palette-types";
 import { motion } from "framer-motion";
+import { Dialog } from "@components";
 
 export function RatingCard({
   ratingIndex,
