@@ -1,5 +1,5 @@
 import { saveAs } from "file-saver";  
-import { Criteria, Rubric, Submission } from "palette-types";
+import { Rubric, Submission } from "palette-types";
 
 export function exportToCSV(groupName: string, submissions: Submission[], rubric: Rubric) {
   const headers = [

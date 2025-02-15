@@ -4,6 +4,7 @@ import { useFetch } from "@hooks";
 import { useAssignment, useCourse } from "@context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
 import { getStoredGrades, updateGrade } from "./gradingStorage/gradingStorage";
+import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts"; // Import the export function
 
 import {
   LoadingDots,
@@ -53,7 +54,20 @@ export function GradingMain(): ReactElement {
         }
       }
     };
+    
+    /**
+   * Export all group submissions to a CSV
+   */
+    const handleExportAllGroups = () => {
+      if (rubric) {
+        exportAllGroupsCSV(submissions, rubric);
+      } else {
+        alert("Cannot export: Missing rubric.");
+      }
+    };
   
+  
+
   /**
    * Clear state prior to fetch operations.
    */
@@ -113,6 +127,12 @@ export function GradingMain(): ReactElement {
             <h2>Upload Grades CSV</h2>
             <input type="file" accept=".csv" onChange={handleFileUpload} />
           </div>
+          <button
+              className="bg-green-500 text-white font-bold py-2 px-4 rounded"
+              onClick={handleExportAllGroups}
+            >
+              Export All Groups to CSV
+            </button>
           <SubmissionsDashboard 
           submissions={submissions} 
           rubric={rubric} 
