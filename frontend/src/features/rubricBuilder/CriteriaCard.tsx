@@ -14,6 +14,15 @@ import TemplateSetter from "./TemplateSetter.tsx";
 import { Dialog, PaletteActionButton } from "@components";
 import { motion } from "framer-motion";
 
+type CriteriaCardProps = {
+  index: number;
+  activeCriterionIndex: number;
+  criterion: Criteria;
+  handleCriteriaUpdate: (index: number, criterion: Criteria) => void;
+  removeCriterion: (index: number, criterion: Criteria) => void;
+  setActiveCriterionIndex: (index: number) => void;
+};
+
 export default function CriteriaCard({
   index,
   activeCriterionIndex,
@@ -21,14 +30,7 @@ export default function CriteriaCard({
   handleCriteriaUpdate,
   removeCriterion,
   setActiveCriterionIndex,
-}: {
-  index: number;
-  activeCriterionIndex: number;
-  criterion: Criteria;
-  handleCriteriaUpdate: (index: number, criterion: Criteria) => void;
-  removeCriterion: (index: number, criterion: Criteria) => void;
-  setActiveCriterionIndex: (index: number) => void;
-}): ReactElement {
+}: CriteriaCardProps): ReactElement {
   const [ratings, setRatings] = useState<Rating[]>(criterion.ratings);
   const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
   const [templateSetterActive, setTemplateSetterActive] = useState(false); // file input display is open or not
