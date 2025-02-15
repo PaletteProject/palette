@@ -33,7 +33,14 @@ export function ProjectGradingView({
   }
 
   // ratings state to track and update background colors
-  const [ratings, setRatings] = useState<{ [key: string]: number | "" }>({});
+  const [ratings, setRatings] = useState<{ [key: string]: number | string }>(
+    {},
+  );
+
+  // group grading checkbox state
+  const [checkedCriteria, setCheckedCriteria] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
@@ -60,7 +67,7 @@ export function ProjectGradingView({
    */
   useEffect(() => {
     if (isOpen) {
-      const initialRatings: { [key: string]: number | "" } = {};
+      const initialRatings: { [key: string]: number | string } = {};
 
       submissions.forEach((submission) => {
         /**
@@ -89,10 +96,32 @@ export function ProjectGradingView({
     submissionId: number,
     criterionId: string,
     value: string,
+    applyToGroup: boolean,
   ) => {
-    setRatings((prev) => ({
+    setRatings((prev) => {
+      const updatedRatings = {
+        ...prev,
+        [`${submissionId}-${criterionId}`]: value === "" ? "" : Number(value),
+      };
+
+      if (applyToGroup) {
+        // iterate through all the ratings and updated the ones with same criterion id
+        Object.keys(prev).forEach((key) => {
+          const [, existingCriteriaId] = key.split("-"); // don't need the submission id
+          if (existingCriteriaId === criterionId) {
+            updatedRatings[key] = value === "" ? "" : Number(value);
+          }
+        });
+      }
+
+      return updatedRatings;
+    });
+  };
+
+  const handleCheckBoxChange = (criterionId: string) => {
+    setCheckedCriteria((prev) => ({
       ...prev,
-      [`${submissionId}-${criterionId}`]: value === "" ? "" : Number(value),
+      [criterionId]: !prev[criterionId], // toggle state
     }));
   };
 
@@ -152,7 +181,7 @@ export function ProjectGradingView({
    * Dynamically calculates the drop-down background color.
    */
   const getBackgroundColor = (
-    value: number | "",
+    value: number | string,
     criterion: Criteria,
   ): string => {
     if (value === "") return "bg-gray-800"; // Default background color
@@ -204,20 +233,29 @@ export function ProjectGradingView({
                 key={criterion.id}
                 className="border border-gray-500 px-4 py-2"
               >
-                {criterion.description}
+                <div className={"flex justify-between"}>
+                  <p>{criterion.description} </p>
+
+                  <label className={"flex gap-2 text-sm font-medium"}>
+                    Apply Ratings to Group
+                    <input
+                      type="checkbox"
+                      name={`${criterion.id}-checkbox}`}
+                      id={`${criterion.id}-checkbox}`}
+                      checked={checkedCriteria[criterion.id] || false}
+                      onChange={() => handleCheckBoxChange(criterion.id)}
+                    />
+                  </label>
+                </div>
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {/*Only show submissions that have been submitted and/or graded. */}
           {submissions.map((submission: Submission) => (
             <tr key={submission.id}>
-              <td className="border border-gray-500 px-4 py-2">
-                {`${submission.user.name} (${submission.user.asurite})`}
-                <span className={"ml-4 text-red-600 font-bold"}>
-                  No Submission
-                </span>
+              <td className="border border-gray-500 px-4 py-2 flex justify-between">
+                <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
               </td>
               {rubric.criteria.map((criterion: Criteria) => (
                 <td
@@ -236,6 +274,7 @@ export function ProjectGradingView({
                         submission.id,
                         criterion.id,
                         e.target.value,
+                        checkedCriteria[criterion.id],
                       )
                     }
                   >
