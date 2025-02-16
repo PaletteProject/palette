@@ -240,7 +240,13 @@ const MetaBalls = ({
     cursorBallSize,
   ]);
 
-  return <div ref={containerRef} style={{ backgroundColor: color }} />;
+  return (
+    <div
+      ref={containerRef}
+      className="mix-blend-difference w-full h-2/3 mb-10"
+      style={{ backgroundColor: color }}
+    />
+  );
 };
 
 export default MetaBalls;

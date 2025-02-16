@@ -20,7 +20,7 @@ export function Home(): ReactElement {
   };
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-gray-800 via-gray-900 to-white flex flex-col justify-between">
+    <div className="h-screen w-full bg-gradient-to-br from-gray-800 via-gray-900 to-gray-700 flex flex-col justify-between">
       <Header />
 
       {/* Logo */}
@@ -36,14 +36,14 @@ export function Home(): ReactElement {
         speed={0.3}
       />
       {/* Main Content Section */}
-      <div className="flex flex-col items-center justify-center text-white text-center -mt-20">
+      <div className="flex flex-col items-center justify-center text-white text-center -mt-44">
         {/* Title */}
         <h1 className="text-6xl font-bold mb-4 tracking-wide">
           Welcome to Palette
         </h1>
 
         {/* Subtitle */}
-        <p className="text-xl text-gray-400 mb-8 max-w-lg">
+        <p className="text-xl text-gray-400 mb-8 max-w-lg mt-1">
           Improve the Canvas project grading experience with the perfect rubric.
         </p>
 
