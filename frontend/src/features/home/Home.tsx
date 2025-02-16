@@ -7,6 +7,18 @@ export function Home(): ReactElement {
   const [color, setColor] = useState("bg-red-500");
   const navigate = useNavigate();
 
+  const blobColors = [
+    "#ff0000",
+    "#00ffc3",
+    "#0000ff",
+    "#ff00ff",
+    "#00ffff",
+    "#ff0000",
+    "#00ffc3",
+    "#0000ff",
+    "#ff00ff",
+    "#00ffff",
+  ];
   const handleMouseEnter = () => {
     setColor(randomColor());
   };
@@ -25,8 +37,10 @@ export function Home(): ReactElement {
 
       {/* Logo */}
       <Paint
-        color="#ffffff"
-        cursorBallColor="#ffffff"
+        color={blobColors[Math.floor(Math.random() * blobColors.length)]}
+        cursorBallColor={
+          blobColors[Math.floor(Math.random() * blobColors.length)]
+        }
         cursorBallSize={2}
         ballCount={15}
         animationSize={30}
