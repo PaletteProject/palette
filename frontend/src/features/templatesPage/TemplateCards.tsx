@@ -361,7 +361,6 @@ export default function TemplateCard({
           {scores.length} Submissions
         </h2>
         <PieChart
-          colors={["red", "orange", "yellow", "green", "blue", "purple"]}
           series={[
             {
               data: Object.entries(occurrences)
