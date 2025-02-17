@@ -1,5 +1,7 @@
 import { GroupedSubmissions, Rubric } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
+import { useState } from "react";
+import { PaletteActionButton } from "@components";
 
 type SubmissionDashboardProps = {
   rubric: Rubric | undefined;
@@ -12,11 +14,22 @@ export function SubmissionsDashboard({
   submissions,
   fetchSubmissions,
 }: SubmissionDashboardProps) {
+  // graded submissions to be sent to Canvas
+  const [gradedSubmissionCache, setGradedSubmissionCache] =
+    useState<GroupedSubmissions>({});
+
   return (
     <div className={"grid justify-start"}>
-      <div className={"mb-4"}>
-        <h1 className={"text-5xl font-bold p-4"}>Submission Dashboard</h1>
+      <div className={"grid gap-2 mb-4 p-4"}>
+        <h1 className={"text-5xl font-bold"}>Submission Dashboard</h1>
         <AssignmentData rubric={rubric} />
+        <div className={"flex"}>
+          <PaletteActionButton
+            color={"PURPLE"}
+            title={"Submit Grades to Canvas"}
+            onClick={() => alert("Submitting grades")}
+          />
+        </div>
       </div>
 
       <div
@@ -48,6 +61,7 @@ export function SubmissionsDashboard({
               submissions={groupSubmissions}
               rubric={rubric!}
               fetchSubmissions={fetchSubmissions}
+              setGradedSubmissionCache={setGradedSubmissionCache}
             />
           );
         })}

@@ -5,13 +5,24 @@
 import {
   CanvasGradedSubmission,
   Criteria,
+  GroupedSubmissions,
   Rubric,
   Submission,
 } from "palette-types";
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { PaletteActionButton } from "@components";
 import { useAssignment, useCourse } from "@context";
+
+type ProjectGradingViewProps = {
+  groupName: string;
+  submissions: Submission[];
+  rubric: Rubric;
+  isOpen: boolean;
+  onClose: () => void; // event handler defined in GroupSubmissions.tsx
+  fetchSubmissions: () => Promise<void>;
+  setGradedSubmissionCache: Dispatch<SetStateAction<GroupedSubmissions>>;
+};
 
 export function ProjectGradingView({
   groupName,
@@ -20,14 +31,8 @@ export function ProjectGradingView({
   isOpen,
   onClose,
   fetchSubmissions,
-}: {
-  groupName: string;
-  submissions: Submission[];
-  rubric: Rubric;
-  isOpen: boolean;
-  onClose: () => void; // event handler defined in GroupSubmissions.tsx
-  fetchSubmissions: () => Promise<void>;
-}) {
+  setGradedSubmissionCache,
+}: ProjectGradingViewProps) {
   if (!isOpen) {
     return null;
   }
@@ -125,7 +130,7 @@ export function ProjectGradingView({
     }));
   };
 
-  const handleSubmitGrades = async () => {
+  const handleSaveGrades = async () => {
     const gradedSubmissions: CanvasGradedSubmission[] = submissions.map(
       (submission) => {
         // build rubric assessment object in Canvas format directly (reduces transformations needed later)
@@ -164,6 +169,10 @@ export function ProjectGradingView({
 
     console.log("Submitting graded submissions: ");
     console.log(gradedSubmissions);
+
+    /**
+     * Store graded submissions in cache
+     */
 
     /**
      * Loop through graded submissions and send each one to the backend.
@@ -211,8 +220,8 @@ export function ProjectGradingView({
               color={"RED"}
             />
             <PaletteActionButton
-              title={"Submit Grades"}
-              onClick={() => void handleSubmitGrades()}
+              title={"Save Grades"}
+              onClick={() => void handleSaveGrades()}
               color={"GREEN"}
             />
           </div>

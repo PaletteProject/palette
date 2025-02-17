@@ -1,7 +1,7 @@
-import { Rubric, Submission } from "palette-types";
+import { GroupedSubmissions, Rubric, Submission } from "palette-types";
 import { ProgressBar } from "@features";
 import { ProjectGradingView } from "./ProjectGradingView.tsx";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { PaletteActionButton } from "@components";
 
 interface GroupSubmissionsProps {
@@ -10,6 +10,7 @@ interface GroupSubmissionsProps {
   submissions: Submission[];
   rubric: Rubric;
   fetchSubmissions: () => Promise<void>;
+  setGradedSubmissionCache: Dispatch<SetStateAction<GroupedSubmissions>>;
 }
 
 export function GroupSubmissions({
@@ -18,6 +19,7 @@ export function GroupSubmissions({
   submissions,
   rubric,
   fetchSubmissions,
+  setGradedSubmissionCache,
 }: GroupSubmissionsProps) {
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
 
@@ -64,6 +66,7 @@ export function GroupSubmissions({
         rubric={rubric}
         onClose={handleGradingViewClose}
         fetchSubmissions={fetchSubmissions}
+        setGradedSubmissionCache={setGradedSubmissionCache}
       />
     </div>
   );

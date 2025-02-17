@@ -17,6 +17,7 @@ export function GradingMain(): ReactElement {
   const [submissions, setSubmissions] = useState<GroupedSubmissions>({
     "No Group": [],
   });
+
   const [loading, setLoading] = useState<boolean>(false);
 
   // context providers
