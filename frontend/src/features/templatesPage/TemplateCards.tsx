@@ -1,7 +1,6 @@
 import {
   MouseEvent as ReactMouseEvent,
   ReactElement,
-  useCallback,
   useEffect,
   useState,
 } from "react";
@@ -9,11 +8,12 @@ import {
 import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Tag, Template } from "palette-types";
-import { Choice, ChoiceDialog, Dialog } from "@components";
+import { ChoiceDialog, Dialog } from "@components";
 import TemplateTagCreator from "src/features/templatesPage/TemplateTagCreator.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 
 import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
+import { useChoiceDialog } from "../../context/DialogContext.tsx";
 
 interface TemplateCardProps {
   template: Template;
@@ -96,32 +96,20 @@ export default function TemplateCard({
     setHasUnsavedChanges(false);
   };
 
-  const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
-  );
-
-  // object containing related modal state
-  const [modal, setModal] = useState({
-    show: false,
-    title: "",
-    message: "",
-    choices: [] as Choice[],
-  });
+  const { openDialog, closeDialog } = useChoiceDialog();
 
   const handleCloseModal = () => {
     if (hasUnsavedChanges) {
-      setModal({
-        show: true,
+      openDialog({
         title: "Lose unsaved changes?",
         message:
           "Are you sure you want to leave without saving your changes? Your changes will be lost.",
-        choices: [
+        buttons: [
           {
             autoFocus: true,
             label: "Yes",
             action: () => {
-              closeModal();
+              closeDialog();
               setTemplateDialogOpen(false);
               setHasUnsavedChanges(false);
             },
@@ -289,7 +277,7 @@ export default function TemplateCard({
       )}
 
       {/* ModalChoiceDialog */}
-      <ChoiceDialog modal={modal} onHide={closeModal} />
+      <ChoiceDialog />
     </>
   );
 }

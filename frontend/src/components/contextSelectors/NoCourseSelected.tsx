@@ -3,23 +3,18 @@
  * @constructor
  */
 import { useState } from "react";
-import { CourseSelectionMenu, Dialog } from "@components";
+import { CourseSelectionMenu, Dialog, PaletteActionButton } from "@components";
 
 export function NoCourseSelected() {
   const [courseMenuOpen, setCourseMenuOpen] = useState(false);
 
   return (
     <div className="text-5xl font-semibold self-center justify-self-center">
-      <p>
-        Select a{" "}
-        <button
-          className={"text-orange-400 hover:animate-pulse"}
-          type={"button"}
-          onClick={() => setCourseMenuOpen(true)}
-        >
-          Course
-        </button>
-      </p>
+      <PaletteActionButton
+        color={"YELLOW"}
+        title={"Select a Course"}
+        onClick={() => setCourseMenuOpen(true)}
+      />
       <Dialog
         isOpen={courseMenuOpen}
         onClose={() => setCourseMenuOpen(false)}

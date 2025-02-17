@@ -19,6 +19,9 @@ export function Home(): ReactElement {
     navigate("/signup");
   };
 
+  const baseButtonStyle =
+    "text-white rounded-lg px-8 py-3 font-semibold transition duration-300 transform hover:scale-105";
+
   return (
     <div className="h-screen w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black flex flex-col justify-between">
       <Header />
@@ -45,14 +48,14 @@ export function Home(): ReactElement {
         {/* Action Buttons */}
         <div className="flex gap-4">
           <button
-            className={`${color} text-white rounded-lg px-8 py-3 font-semibold hover:opacity-80 transition duration-300 transform hover:scale-105`}
+            className={`${color} ${baseButtonStyle}`}
             onMouseEnter={handleMouseEnter}
             onClick={handleLogin}
           >
             Log In
           </button>
           <button
-            className="bg-gray-600 text-white rounded-lg px-8 py-3 font-semibold hover:bg-gray-500 transition duration-300 transform hover:scale-105"
+            className={`bg-gray-600 ${baseButtonStyle} hover:bg-gray-500`}
             onClick={handleSignUp}
           >
             Sign Up

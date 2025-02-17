@@ -1,10 +1,6 @@
 import { Criteria, Rubric, Template } from "palette-types";
 import { useTemplatesContext } from "../../features/templatesPage/TemplateContext";
-import React, {
-  MouseEvent as ReactMouseEvent,
-  useCallback,
-  useState,
-} from "react";
+import React, { MouseEvent as ReactMouseEvent, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   SortableContext,
@@ -12,8 +8,9 @@ import {
 } from "@dnd-kit/sortable";
 import CriteriaCard from "src/features/rubricBuilder/CriteriaCard";
 import { createCriterion } from "@utils";
-import { Choice, ChoiceDialog, Dialog } from "@components";
+import { ChoiceDialog, Dialog } from "@components";
 import AllTags from "src/features/templatesPage/AllTags";
+import { useChoiceDialog } from "../../context/DialogContext.tsx";
 
 interface GenericBuilderProps {
   builderType: "template" | "rubric";
@@ -43,24 +40,8 @@ export const GenericBuilder = ({
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   const [showDialog, setShowDialog] = useState(false);
-  const [modal, setModal] = useState({
-    show: false,
-    title: "",
-    message: "",
-    choices: [] as Choice[],
-  });
 
-  const defaultChoice: Choice = {
-    label: "OK",
-    action: function (): void {
-      throw new Error("Function not implemented.");
-    },
-    autoFocus: true,
-  };
-  const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, show: false })),
-    [],
-  );
+  const { openDialog, closeDialog } = useChoiceDialog();
 
   const handleDocumentTitleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -133,33 +114,32 @@ export const GenericBuilder = ({
     };
 
     if (builderType === "template") {
-      setModal({
-        show: true,
+      openDialog({
         title: "Confirm Criterion Removal",
         message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
-        choices: [
+        buttons: [
           {
-            ...defaultChoice,
+            autoFocus: true,
             label: "Destroy it!",
             action: () => {
               deleteTemplateCriterion();
-              closeModal();
+              closeDialog();
             },
           },
         ],
+        excludeCancel: false,
       });
     } else {
-      setModal({
-        show: true,
+      openDialog({
         title: "Confirm Criterion Removal",
         message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
-        choices: [
+        buttons: [
           {
-            ...defaultChoice,
+            autoFocus: true,
             label: "Destroy it!",
             action: () => {
               deleteRubricCriterion();
-              closeModal();
+              closeDialog();
             },
           },
         ],
@@ -237,14 +217,14 @@ export const GenericBuilder = ({
     event.preventDefault();
 
     if (document?.title.trim() === "") {
-      setModal({
-        show: true,
+      openDialog({
         title: "Invalid Template",
         message: "Please enter a title for your template before saving.",
-        choices: [
+        buttons: [
           {
-            ...defaultChoice,
-            action: closeModal,
+            autoFocus: true,
+            action: () => closeDialog(),
+            label: "Got It",
           },
         ],
       });
@@ -252,14 +232,14 @@ export const GenericBuilder = ({
     }
 
     if (document?.criteria.length === 0) {
-      setModal({
-        show: true,
+      openDialog({
         title: "Invalid Template",
         message: "Please add at least one criterion before saving.",
-        choices: [
+        buttons: [
           {
-            ...defaultChoice,
-            action: closeModal,
+            autoFocus: true,
+            action: () => closeDialog(),
+            label: "Got It",
           },
         ],
       });
@@ -273,15 +253,15 @@ export const GenericBuilder = ({
           t.key !== document?.key,
       );
       if (isDuplicateName) {
-        setModal({
-          show: true,
-          title: "Duplicate Template Name",
+        openDialog({
+          title: "Duplicate Template Name Detected",
           message:
             "A template with this name already exists. Please choose a different name.",
-          choices: [
+          buttons: [
             {
-              ...defaultChoice,
-              action: closeModal,
+              autoFocus: true,
+              action: () => closeDialog(),
+              label: "Got It",
             },
           ],
         });
@@ -362,7 +342,7 @@ export const GenericBuilder = ({
         )}
       </form>
 
-      <ChoiceDialog modal={modal} onHide={closeModal} />
+      <ChoiceDialog />
 
       <Dialog
         isOpen={showDialog}

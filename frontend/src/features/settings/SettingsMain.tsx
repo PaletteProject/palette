@@ -1,27 +1,27 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Settings } from "palette-types";
-import { ChoiceDialog, LoadingDots, PaletteActionButton } from "@components";
+import {
+  ChoiceDialog,
+  Footer,
+  Header,
+  LoadingDots,
+  PaletteActionButton,
+} from "@components";
 import { useFetch } from "@hooks";
+import { useChoiceDialog } from "../../context/DialogContext.tsx";
 
 export function SettingsMain(): ReactElement {
   const [settings, setSettings] = useState<Settings | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [modal, setModal] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-    choices: [] as { label: string; action: () => void }[],
-  });
-
-  const closeModal = () =>
-    setModal((prevModal) => ({ ...prevModal, isOpen: false }));
 
   const { fetchData: getSettings } = useFetch("/user/settings");
   const { fetchData: updateSettings } = useFetch("/user/settings", {
     method: "PUT",
     body: JSON.stringify(settings),
   });
+
+  const { openDialog, closeDialog } = useChoiceDialog();
 
   // Effect to fetch user settings on component mount
   useEffect(() => {
@@ -79,27 +79,40 @@ export function SettingsMain(): ReactElement {
     try {
       const response = await updateSettings();
       if (response.success) {
-        setModal({
-          isOpen: true,
+        openDialog({
           title: "Success",
-          message: "settings saved successfully!",
-          choices: [{ label: "Close", action: closeModal }],
+          message: "Settings updated successfully!",
+          buttons: [
+            { label: "Nice!", action: () => closeDialog(), autoFocus: true },
+          ],
         });
       } else {
-        setModal({
-          isOpen: true,
+        openDialog({
           title: "Error",
           message: response.error || "Failed to save settings.",
-          choices: [{ label: "Ok", action: closeModal }],
+          buttons: [
+            {
+              label: "Got It",
+              action: () => closeDialog(),
+              autoFocus: true,
+              color: "RED",
+            },
+          ],
         });
       }
-    } catch (err) {
-      console.error(err);
-      setModal({
-        isOpen: true,
+    } catch (error) {
+      console.error(error);
+      openDialog({
         title: "Error",
         message: "An error occurred while saving settings.",
-        choices: [{ label: "Ok", action: closeModal }],
+        buttons: [
+          {
+            label: "Got It",
+            action: () => closeDialog(),
+            autoFocus: true,
+            color: "RED",
+          },
+        ],
       });
     } finally {
       setLoading(false);
@@ -111,7 +124,7 @@ export function SettingsMain(): ReactElement {
    *
    * @returns {ReactElement} The rendered content.
    */
-  const renderContent = () => {
+  const renderContent = (): ReactElement => {
     if (loading) return <LoadingDots />;
     if (error) return <p className="text-red-500 text-center">{error}</p>;
     if (!settings) return <p className="text-center">No settings available</p>;
@@ -188,16 +201,12 @@ export function SettingsMain(): ReactElement {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-700 text-white flex flex-col">
+      <Header />
       <main className="flex-1 flex justify-center items-center p-6">
         {renderContent()}
       </main>
-      <ChoiceDialog
-        show={modal.isOpen}
-        title={modal.title}
-        message={modal.message}
-        choices={modal.choices}
-        onHide={closeModal}
-      />
+      <Footer />
+      <ChoiceDialog />
     </div>
   );
 }

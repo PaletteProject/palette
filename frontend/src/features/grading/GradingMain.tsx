@@ -17,6 +17,7 @@ export function GradingMain(): ReactElement {
   const [submissions, setSubmissions] = useState<GroupedSubmissions>({
     "No Group": [],
   });
+
   const [loading, setLoading] = useState<boolean>(false);
 
   // context providers
@@ -51,11 +52,6 @@ export function GradingMain(): ReactElement {
     void fetchRubric();
     void fetchSubmissions();
   }, [activeCourse, activeAssignment]);
-
-  // Add new useEffect for scrolling to top
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []); // Empty dependency array means this runs once when component mounts
 
   const fetchRubric = async () => {
     if (!activeAssignment?.rubricId) return; // avoid fetch if assignment doesn't have an associated rubric
@@ -95,13 +91,14 @@ export function GradingMain(): ReactElement {
           submissions={submissions}
           rubric={rubric}
           fetchSubmissions={fetchSubmissions}
+          setLoading={setLoading}
         />
       );
     }
 
     return (
       <>
-        <div className={"grid h-full pt-[522px]"}>
+        <div className={"grid h-full"}>
           {loading && <LoadingDots />}
           {!activeCourse && <NoCourseSelected />}
           {activeCourse && !activeAssignment && <NoAssignmentSelected />}
