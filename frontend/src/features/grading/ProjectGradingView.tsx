@@ -18,8 +18,8 @@ type ProjectGradingViewProps = {
   rubric: Rubric;
   isOpen: boolean;
   onClose: () => void; // event handler defined in GroupSubmissions.tsx
-  fetchSubmissions: () => Promise<void>;
   setGradedSubmissionCache: Dispatch<SetStateAction<CanvasGradedSubmission[]>>;
+  gradedSubmissionCache: CanvasGradedSubmission[];
 };
 
 export function ProjectGradingView({
@@ -28,8 +28,8 @@ export function ProjectGradingView({
   rubric,
   isOpen,
   onClose,
-  fetchSubmissions,
   setGradedSubmissionCache,
+  gradedSubmissionCache,
 }: ProjectGradingViewProps) {
   if (!isOpen) {
     return null;
@@ -52,25 +52,43 @@ export function ProjectGradingView({
     if (isOpen) {
       const initialRatings: { [key: string]: number | string } = {};
 
-      submissions.forEach((submission) => {
-        /**
-         *  If a submission has a rubric assessment (already graded), load in grades from canvas to display.
-         *  Otherwise, rating options will render with the default empty value/color theme.
-         */
-        if (submission.rubricAssessment) {
+      console.log("THE CACHE");
+      console.log(gradedSubmissionCache);
+
+      // process the cached submissions, prioritizing the latest in progress grades over what Canvas current has saved.
+      gradedSubmissionCache.forEach((gradedSubmission) => {
+        const { submission_id, rubric_assessment } = gradedSubmission;
+
+        if (rubric_assessment) {
           for (const [criterionId, assessment] of Object.entries(
-            submission.rubricAssessment,
+            rubric_assessment,
           )) {
-            initialRatings[`${submission.id}-${criterionId}`] =
+            initialRatings[`${submission_id}-${criterionId}`] =
               assessment.points ?? "";
           }
         }
       });
 
+      // Process the submissions from canvas and merge with cached submissions to fill in missing data
+      submissions.forEach((submission) => {
+        if (submission.rubricAssessment) {
+          for (const [criterionId, assessment] of Object.entries(
+            submission.rubricAssessment,
+          )) {
+            // avoid overwriting data from cache
+            const key = `${submission.id}-${criterionId}`;
+            if (!(key in initialRatings)) {
+              initialRatings[`${submission.id}-${criterionId}`] =
+                assessment.points ?? "";
+            }
+          }
+        }
+      });
+
       setRatings(initialRatings);
-      console.log(initialRatings);
+      console.log("Initialized Ratings:", initialRatings);
     }
-  }, [isOpen, submissions, rubric]);
+  }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
   /**
    * Update ratings state on changes.
@@ -97,6 +115,8 @@ export function ProjectGradingView({
         });
       }
 
+      console.log("CHANGED RATINGS");
+      console.log(updatedRatings);
       return updatedRatings;
     });
   };
@@ -108,7 +128,7 @@ export function ProjectGradingView({
     }));
   };
 
-  const handleSaveGrades = async () => {
+  const handleSaveGrades = () => {
     const gradedSubmissions: CanvasGradedSubmission[] = submissions.map(
       (submission) => {
         // build rubric assessment object in Canvas format directly (reduces transformations needed later)
@@ -147,6 +167,7 @@ export function ProjectGradingView({
     /**
      * Store graded submissions in cache
      */
+
     setGradedSubmissionCache((prev) => prev.concat(gradedSubmissions));
     console.log("Caching submissions ");
     console.log(gradedSubmissions);

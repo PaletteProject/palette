@@ -42,7 +42,6 @@ export function SubmissionsDashboard({
         body: JSON.stringify(gradedSubmission),
       });
     }
-
     setLoading(true);
     await fetchSubmissions(); // refresh submissions
     setLoading(false);
@@ -56,7 +55,7 @@ export function SubmissionsDashboard({
         <AssignmentData rubric={rubric} />
         <div className={"flex"}>
           <PaletteActionButton
-            color={"PURPLE"}
+            color={"GREEN"}
             title={"Submit Grades to Canvas"}
             onClick={() => void submitGrades(gradedSubmissionCache)}
           />
@@ -93,6 +92,7 @@ export function SubmissionsDashboard({
               rubric={rubric!}
               fetchSubmissions={fetchSubmissions}
               setGradedSubmissionCache={setGradedSubmissionCache}
+              gradedSubmissionCache={gradedSubmissionCache}
             />
           );
         })}

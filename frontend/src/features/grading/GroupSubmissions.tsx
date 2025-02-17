@@ -11,6 +11,7 @@ interface GroupSubmissionsProps {
   rubric: Rubric;
   fetchSubmissions: () => Promise<void>;
   setGradedSubmissionCache: Dispatch<SetStateAction<CanvasGradedSubmission[]>>;
+  gradedSubmissionCache: CanvasGradedSubmission[];
 }
 
 export function GroupSubmissions({
@@ -18,8 +19,8 @@ export function GroupSubmissions({
   progress,
   submissions,
   rubric,
-  fetchSubmissions,
   setGradedSubmissionCache,
+  gradedSubmissionCache,
 }: GroupSubmissionsProps) {
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
 
@@ -60,8 +61,8 @@ export function GroupSubmissions({
         submissions={submissions}
         rubric={rubric}
         onClose={handleGradingViewClose}
-        fetchSubmissions={fetchSubmissions}
         setGradedSubmissionCache={setGradedSubmissionCache}
+        gradedSubmissionCache={gradedSubmissionCache}
       />
     </div>
   );
