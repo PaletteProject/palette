@@ -7,10 +7,10 @@ import {
   getTemplateByKey,
   getTemplateByTitle,
   deleteTemplateByTitle,
-  deleteTemplateByKey,
   addTemplates,
   deleteTemplates,
   updateTemplates,
+  deleteTemplate,
 } from "../controllers/templateController.js";
 
 const router = express.Router();
@@ -185,7 +185,7 @@ router.delete("/byTitle/:title", deleteTemplateByTitle);
  *       404:
  *         description: Template not found.
  */
-router.delete("/byKey/:key", deleteTemplateByKey);
+router.delete("/", deleteTemplate);
 
 /**
  * @swagger

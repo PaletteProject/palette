@@ -25,13 +25,13 @@ export const deleteTemplateByTitle = async (req: Request, res: Response) => {
   const response = await TemplateService.deleteTemplateByTitle(
     req,
     res,
-    () => {},
+    () => {}
   );
   return response;
 };
 
-export const deleteTemplateByKey = (req: Request, res: Response) => {
-  const templateData = TemplateService.deleteTemplateByKey(req, res);
+export const deleteTemplate = (req: Request, res: Response) => {
+  const templateData = TemplateService.deleteTemplate(req, res);
   return templateData;
 };
 

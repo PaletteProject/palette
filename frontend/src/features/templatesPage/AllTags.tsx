@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useTemplatesContext } from "./TemplateContext";
 import { Tag, Template } from "palette-types";
 import { useFetch } from "../../hooks/useFetch";
-import { Choice, ChoiceDialog } from "@components";
+import { ChoiceDialog } from "@components";
 import TemplateTagCreator from "./TemplateTagCreator";
+import { useChoiceDialog } from "src/context/DialogContext";
 
 const AllTags = ({ onSave }: { onSave: () => void }) => {
   const {
@@ -23,9 +24,11 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const [selectedTemplates, setSelectedTemplates] = useState<Template[]>([]);
   const [updatingTemplates, setUpdatingTemplates] = useState(false);
 
+  const { openDialog, closeDialog } = useChoiceDialog();
+
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
 
   useEffect(() => {
@@ -65,7 +68,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     isOpen: false,
     title: "",
     message: "",
-    choices: [] as Choice[],
+    choices: [] as [],
   });
 
   const { fetchData: deleteTags } = useFetch("/tags/bulk", {
@@ -101,7 +104,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
       const updatedTemplates = templates.map((template) => {
         const updatedTags = template.tags.filter(
           (tag) =>
-            !selectedTags.some((selectedTag) => selectedTag.key === tag.key),
+            !selectedTags.some((selectedTag) => selectedTag.key === tag.key)
         );
         return { ...template, tags: updatedTags };
       });
@@ -118,7 +121,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const [removeMode, setRemoveMode] = useState(false);
 
   const [tempTagCounts, setTempTagCounts] = useState<Record<string, number>>(
-    {},
+    {}
   );
 
   // Function to initialize or update the temporary tag counts
@@ -126,11 +129,11 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     const counts = availableTags.reduce(
       (acc, tag) => {
         acc[tag.key] = templates.filter((t) =>
-          t.tags.some((tTag) => tTag.key === tag.key),
+          t.tags.some((tTag) => tTag.key === tag.key)
         ).length;
         return acc;
       },
-      {} as Record<string, number>,
+      {} as Record<string, number>
     );
     setTempTagCounts(counts);
   };
@@ -141,12 +144,12 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
 
   const handleRemoveTags = () => {
     if (!addingTagFromBuilder) {
-      setModal({
-        isOpen: true,
+      openDialog({
         title: "Remove Tags",
         message:
           "Are you sure you want to remove the selected tags? This will effect all templates that use these tags.",
-        choices: [
+        excludeCancel: false,
+        buttons: [
           {
             label: "Yes",
             action: () => {
@@ -164,20 +167,18 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         ],
       });
     } else {
-      setModal({
-        isOpen: true,
+      openDialog({
         title: "Remove Tags",
         message: `Are you sure you want to remove the selected tag(s) from ${editingTemplate?.title}?`,
-        choices: [
+        excludeCancel: false,
+        buttons: [
           {
             autoFocus: true,
             label: "Yes",
             action: () => {
               const updatedTags = editingTemplate?.tags?.filter(
                 (t) =>
-                  !selectedTags.some(
-                    (selectedTag) => selectedTag.key === t.key,
-                  ),
+                  !selectedTags.some((selectedTag) => selectedTag.key === t.key)
               );
               const updatedTemplate = {
                 ...editingTemplate,
@@ -224,7 +225,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const getTagsOnTemplate = () => {
     const tagsOnTemplate =
       editingTemplate?.tags?.filter((t) =>
-        availableTags.some((t2) => t2.key === t.key),
+        availableTags.some((t2) => t2.key === t.key)
       ) || [];
     return tagsOnTemplate;
   };
@@ -232,7 +233,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const getTagsNotOnTemplate = () => {
     const tagsOnTemplateKeys = new Set(getTagsOnTemplate().map((t) => t.key));
     const tagsNotOnTemplate = availableTags.filter(
-      (t) => !tagsOnTemplateKeys.has(t.key),
+      (t) => !tagsOnTemplateKeys.has(t.key)
     );
     return tagsNotOnTemplate;
   };
@@ -329,7 +330,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
                           const tagsNotOnTemplate = getTagsNotOnTemplate();
                           if (
                             prevSelected.some((t) =>
-                              tagsNotOnTemplate.includes(t),
+                              tagsNotOnTemplate.includes(t)
                             )
                           ) {
                             return [tag];
@@ -355,7 +356,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
                     (
                     {
                       templates.filter((t) =>
-                        t.tags.some((tTag) => tTag.key === tag.key),
+                        t.tags.some((tTag) => tTag.key === tag.key)
                       ).length
                     }
                     )
@@ -452,16 +453,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
       </div>
 
       {/* ModalChoiceDialog */}
-      <ChoiceDialog
-        modal={{
-          show: modal.isOpen,
-          title: modal.title,
-          message: modal.message,
-          choices: modal.choices,
-          excludeCancel: false,
-        }}
-        onHide={closeModal}
-      />
+      <ChoiceDialog />
       <TemplateTagCreator
         isOpen={tagModalOpen}
         onClose={() => setTagModalOpen(false)}

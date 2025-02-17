@@ -4,7 +4,8 @@ import { Template } from "palette-types";
 import TemplateManagementControls from "./TemplateManagementControls.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 import TemplateSorter from "./TemplateSorter.tsx";
-import { Choice, ChoiceDialog } from "@components";
+import { ChoiceDialog } from "@components";
+import { useChoiceDialog } from "src/context/DialogContext";
 const TemplatesWindow = () => {
   const {
     templates,
@@ -21,21 +22,7 @@ const TemplatesWindow = () => {
     handleBulkDeleteTemplates,
   } = useTemplatesContext();
 
-  useEffect(() => {
-    console.log("templates window rendered");
-  }, []);
-
-  const [modal, setModal] = useState({
-    show: false,
-    title: "",
-    message: "",
-    choices: [] as Choice[],
-  });
-
-  const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
-  );
+  const { openDialog, closeDialog } = useChoiceDialog();
 
   const handleSelectAll = () => {
     const newSelectAll = !selectAll;
@@ -54,25 +41,24 @@ const TemplatesWindow = () => {
 
   const handleBulkDelete = () => {
     // console.log("selectedTemplates in handleBulkDelete", selectedTemplates);
-    setModal({
-      show: true,
+    openDialog({
       title: "Confirm Bulk Delete",
       message: `Are you sure you want to delete ${selectedTemplates.length} templates? This action cannot be undone.`,
-      choices: [
+      buttons: [
         {
           autoFocus: true,
           label: "Delete All Selected",
           action: () => {
             const templatesToDelete = selectedTemplates.map(
-              (key) => templates.find((t) => t.key === key) as Template,
+              (key) => templates.find((t) => t.key === key) as Template
             );
             handleBulkDeleteTemplates(templatesToDelete);
-            closeModal();
+            closeDialog();
           },
         },
         {
           label: "Cancel",
-          action: closeModal,
+          action: closeDialog,
           autoFocus: false,
         },
       ],
@@ -82,7 +68,7 @@ const TemplatesWindow = () => {
 
   const handleBulkExport = () => {
     const selectedTemplatesToExport = templates.filter((t) =>
-      selectedTemplates.includes(t.key),
+      selectedTemplates.includes(t.key)
     );
 
     const exportData = JSON.stringify(selectedTemplatesToExport, null, 2);
@@ -146,7 +132,7 @@ const TemplatesWindow = () => {
         const matchesTags =
           selectedTagFilters.length === 0 ||
           selectedTagFilters.every((tagKey) =>
-            template.tags.some((tag) => tag.key === tagKey),
+            template.tags.some((tag) => tag.key === tagKey)
           );
         return matchesSearch && matchesTags;
       })
@@ -179,7 +165,7 @@ const TemplatesWindow = () => {
   const handleSelectTemplateBulkActions = (templateKey: string) => {
     if (selectedTemplates.includes(templateKey)) {
       const newSelected = selectedTemplates.filter(
-        (key) => key !== templateKey,
+        (key) => key !== templateKey
       );
 
       setSelectedTemplates(newSelected);
@@ -246,7 +232,7 @@ const TemplatesWindow = () => {
         </div>
         {renderAllTemplates()}
       </div>
-      <ChoiceDialog modal={modal} onHide={closeModal} />
+      <ChoiceDialog />
     </>
   );
 };

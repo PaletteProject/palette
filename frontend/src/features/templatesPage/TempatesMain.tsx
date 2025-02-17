@@ -41,7 +41,7 @@ function TemplatesMainContent(): ReactElement {
   const { openDialog, closeDialog } = useChoiceDialog();
 
   useEffect(() => {
-    console.log("editingTemplate in TemplatesMain", editingTemplate);
+    // console.log("editingTemplate in TemplatesMain", editingTemplate);
     setEditingTemplate(editingTemplate as Template);
   }, [templateDialogOpen]);
 
