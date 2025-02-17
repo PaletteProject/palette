@@ -202,7 +202,9 @@ export default function TemplateCard({
                 className="text-gray-300 cursor-pointer hover:bg-gray-600"
                 onClick={() => handleCriterionSelect(criterion)}
               >
-                {criterion.description}
+                {criterion.description === ""
+                  ? "Description not set"
+                  : criterion.description}
               </li>
             ))}
           </ul>
