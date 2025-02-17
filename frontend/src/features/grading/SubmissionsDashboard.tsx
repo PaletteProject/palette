@@ -5,8 +5,9 @@ import {
 } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
 import { Dispatch, SetStateAction, useState } from "react";
-import { PaletteActionButton } from "@components";
+import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useAssignment, useCourse } from "@context";
+import { useChoiceDialog } from "../../context/DialogContext.tsx";
 
 type SubmissionDashboardProps = {
   rubric: Rubric | undefined;
@@ -28,6 +29,8 @@ export function SubmissionsDashboard({
 
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
+  const { openDialog, closeDialog } = useChoiceDialog();
+
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
 
@@ -48,6 +51,30 @@ export function SubmissionsDashboard({
     setGradedSubmissionCache([]); // clear submission cache
   };
 
+  const handleClickSubmitGrades = () => {
+    openDialog({
+      title: "Submit Grades to Canvas?",
+      message: "Clicking yes will post grades to Canvas.",
+      excludeCancel: true,
+      buttons: [
+        {
+          label: "Send them!",
+          action: () => {
+            void submitGrades(gradedSubmissionCache);
+            closeDialog();
+          },
+          autoFocus: true,
+        },
+        {
+          label: "Cancel",
+          action: () => closeDialog(),
+          autoFocus: false,
+          color: "RED",
+        },
+      ],
+    });
+  };
+
   return (
     <div className={"grid justify-start"}>
       <div className={"grid gap-2 mb-4 p-4"}>
@@ -57,7 +84,7 @@ export function SubmissionsDashboard({
           <PaletteActionButton
             color={"GREEN"}
             title={"Submit Grades to Canvas"}
-            onClick={() => void submitGrades(gradedSubmissionCache)}
+            onClick={() => handleClickSubmitGrades()}
           />
         </div>
       </div>
@@ -97,6 +124,7 @@ export function SubmissionsDashboard({
           );
         })}
       </div>
+      <ChoiceDialog />
     </div>
   );
 }

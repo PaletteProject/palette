@@ -10,7 +10,8 @@ import {
 } from "palette-types";
 import { createPortal } from "react-dom";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { PaletteActionButton } from "@components";
+import { ChoiceDialog, PaletteActionButton } from "@components";
+import { useChoiceDialog } from "../../context/DialogContext.tsx";
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -44,6 +45,8 @@ export function ProjectGradingView({
   const [checkedCriteria, setCheckedCriteria] = useState<{
     [key: string]: boolean;
   }>({});
+
+  const { openDialog, closeDialog } = useChoiceDialog();
 
   /**
    * Initialize ratings when grading modal opens. Maps criterion directly from rubric.
@@ -193,6 +196,35 @@ export function ProjectGradingView({
     return "bg-yellow-500"; // Yellow for anything in between
   };
 
+  const handleClickCloseButton = () => {
+    openDialog({
+      title: "Lose Grading Progress?",
+      message:
+        "Closing the grading view before saving will discard any changes made since the last save or" +
+        " submission.",
+      buttons: [
+        {
+          label: "Lose it all!",
+          action: () => {
+            onClose();
+            closeDialog();
+          },
+          autoFocus: true,
+          color: "RED",
+        },
+        {
+          label: "Save Progress",
+          action: () => {
+            handleSaveGrades();
+            closeDialog();
+          },
+          autoFocus: false,
+          color: "BLUE",
+        },
+      ],
+    });
+  };
+
   const renderGradingPopup = () => {
     return createPortal(
       <div
@@ -206,7 +238,7 @@ export function ProjectGradingView({
           <div className={"flex gap-4 justify-end"}>
             <PaletteActionButton
               title={"Close"}
-              onClick={onClose}
+              onClick={() => handleClickCloseButton()}
               color={"RED"}
             />
             <PaletteActionButton
@@ -296,6 +328,9 @@ export function ProjectGradingView({
   };
 
   return (
-    <div className={"max-h-48 overflow-y-auto"}>{renderGradingPopup()}</div>
+    <div className={"max-h-48 overflow-y-auto"}>
+      {renderGradingPopup()}
+      <ChoiceDialog />
+    </div>
   );
 }
