@@ -4,24 +4,50 @@ import {
   Rubric,
 } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { PaletteActionButton } from "@components";
+import { useAssignment, useCourse } from "@context";
 
 type SubmissionDashboardProps = {
   rubric: Rubric | undefined;
   submissions: GroupedSubmissions;
   fetchSubmissions: () => Promise<void>;
+  setLoading: Dispatch<SetStateAction<boolean>>;
 };
 
 export function SubmissionsDashboard({
   rubric,
   submissions,
   fetchSubmissions,
+  setLoading,
 }: SubmissionDashboardProps) {
   // graded submissions to be sent to Canvas
   const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
     CanvasGradedSubmission[]
   >([]);
+
+  const { activeCourse } = useCourse();
+  const { activeAssignment } = useAssignment();
+  const BASE_URL = "http://localhost:3000/api";
+  const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
+
+  /**
+   * Submit all graded submissions in the cache
+   */
+  const submitGrades = async (gradedSubmissions: CanvasGradedSubmission[]) => {
+    for (const gradedSubmission of gradedSubmissions) {
+      await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(gradedSubmission),
+      });
+    }
+
+    setLoading(true);
+    await fetchSubmissions(); // refresh submissions
+    setLoading(false);
+    setGradedSubmissionCache([]); // clear submission cache
+  };
 
   return (
     <div className={"grid justify-start"}>
@@ -32,7 +58,7 @@ export function SubmissionsDashboard({
           <PaletteActionButton
             color={"PURPLE"}
             title={"Submit Grades to Canvas"}
-            onClick={() => alert("Submitting grades")}
+            onClick={() => void submitGrades(gradedSubmissionCache)}
           />
         </div>
       </div>

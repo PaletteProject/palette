@@ -1,7 +1,7 @@
 import { CanvasGradedSubmission, Rubric, Submission } from "palette-types";
 import { ProgressBar } from "@features";
 import { ProjectGradingView } from "./ProjectGradingView.tsx";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { PaletteActionButton } from "@components";
 
 interface GroupSubmissionsProps {
@@ -34,11 +34,6 @@ export function GroupSubmissions({
     }
     setGradingViewOpen(true);
   };
-
-  useEffect(() => {
-    console.log(`Submissions for ${groupName}`);
-    console.log(submissions);
-  }, []);
 
   return (
     <div className="w-full">

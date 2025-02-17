@@ -53,11 +53,6 @@ export function GradingMain(): ReactElement {
     void fetchSubmissions();
   }, [activeCourse, activeAssignment]);
 
-  // Add new useEffect for scrolling to top
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []); // Empty dependency array means this runs once when component mounts
-
   const fetchRubric = async () => {
     if (!activeAssignment?.rubricId) return; // avoid fetch if assignment doesn't have an associated rubric
     try {
@@ -96,6 +91,7 @@ export function GradingMain(): ReactElement {
           submissions={submissions}
           rubric={rubric}
           fetchSubmissions={fetchSubmissions}
+          setLoading={setLoading}
         />
       );
     }

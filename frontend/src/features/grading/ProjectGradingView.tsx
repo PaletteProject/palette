@@ -11,7 +11,6 @@ import {
 import { createPortal } from "react-dom";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { PaletteActionButton } from "@components";
-import { useAssignment, useCourse } from "@context";
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -45,26 +44,6 @@ export function ProjectGradingView({
   const [checkedCriteria, setCheckedCriteria] = useState<{
     [key: string]: boolean;
   }>({});
-
-  const { activeCourse } = useCourse();
-  const { activeAssignment } = useAssignment();
-
-  const BASE_URL = "http://localhost:3000/api";
-  const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
-
-  /**
-   * Wrapper to iteratively submit all graded submissions with existing use fetch hook.
-   */
-  const submitGrades = async (gradedSubmission: CanvasGradedSubmission) => {
-    /**
-     * Fetch hook to submit graded rubric.
-     */
-    await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(gradedSubmission),
-    });
-  };
 
   /**
    * Initialize ratings when grading modal opens. Maps criterion directly from rubric.
@@ -142,7 +121,6 @@ export function ProjectGradingView({
         } = {};
 
         rubric.criteria.forEach((criterion) => {
-          console.log(criterion.id);
           const selectedPoints = ratings[`${submission.id}-${criterion.id}`];
           const selectedRating = criterion.ratings.find(
             (rating) => rating.points === selectedPoints,
@@ -166,21 +144,13 @@ export function ProjectGradingView({
       },
     );
 
-    console.log("Submitting graded submissions: ");
-    console.log(gradedSubmissions);
-
     /**
      * Store graded submissions in cache
      */
-
-    /**
-     * Loop through graded submissions and send each one to the backend.
-     */
-    for (const gradedSubmission of gradedSubmissions) {
-      await submitGrades(gradedSubmission);
-    }
-
-    await fetchSubmissions();
+    setGradedSubmissionCache((prev) => prev.concat(gradedSubmissions));
+    console.log("Caching submissions ");
+    console.log(gradedSubmissions);
+    console.log("end cache");
 
     onClose();
   };
