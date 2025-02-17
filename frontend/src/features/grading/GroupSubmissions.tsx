@@ -1,4 +1,4 @@
-import { GroupedSubmissions, Rubric, Submission } from "palette-types";
+import { CanvasGradedSubmission, Rubric, Submission } from "palette-types";
 import { ProgressBar } from "@features";
 import { ProjectGradingView } from "./ProjectGradingView.tsx";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -10,7 +10,7 @@ interface GroupSubmissionsProps {
   submissions: Submission[];
   rubric: Rubric;
   fetchSubmissions: () => Promise<void>;
-  setGradedSubmissionCache: Dispatch<SetStateAction<GroupedSubmissions>>;
+  setGradedSubmissionCache: Dispatch<SetStateAction<CanvasGradedSubmission[]>>;
 }
 
 export function GroupSubmissions({

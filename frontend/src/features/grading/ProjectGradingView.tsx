@@ -5,7 +5,6 @@
 import {
   CanvasGradedSubmission,
   Criteria,
-  GroupedSubmissions,
   Rubric,
   Submission,
 } from "palette-types";
@@ -21,7 +20,7 @@ type ProjectGradingViewProps = {
   isOpen: boolean;
   onClose: () => void; // event handler defined in GroupSubmissions.tsx
   fetchSubmissions: () => Promise<void>;
-  setGradedSubmissionCache: Dispatch<SetStateAction<GroupedSubmissions>>;
+  setGradedSubmissionCache: Dispatch<SetStateAction<CanvasGradedSubmission[]>>;
 };
 
 export function ProjectGradingView({

@@ -1,4 +1,8 @@
-import { GroupedSubmissions, Rubric } from "palette-types";
+import {
+  CanvasGradedSubmission,
+  GroupedSubmissions,
+  Rubric,
+} from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
 import { useState } from "react";
 import { PaletteActionButton } from "@components";
@@ -15,8 +19,9 @@ export function SubmissionsDashboard({
   fetchSubmissions,
 }: SubmissionDashboardProps) {
   // graded submissions to be sent to Canvas
-  const [gradedSubmissionCache, setGradedSubmissionCache] =
-    useState<GroupedSubmissions>({});
+  const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
+    CanvasGradedSubmission[]
+  >([]);
 
   return (
     <div className={"grid justify-start"}>
