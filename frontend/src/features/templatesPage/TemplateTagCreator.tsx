@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Dialog } from "@components";
 import { Tag } from "palette-types";
 import { useFetch } from "@hooks";
 import { createTag } from "@utils";
 import { useTemplatesContext } from "./TemplateContext";
+import { Dialog } from "@components";
 
 interface TemplateTagCreatorProps {
   isOpen: boolean;
@@ -82,12 +82,10 @@ const TemplateTagCreator = ({
 
   const handleCreateTag = async () => {
     // Loop through each tag and perform a POST request
-    console.log("addingTagFromBuilder", addingTagFromBuilder);
     if (addingTagFromBuilder && editingTemplate) {
       const updatedTags = [...editingTemplate.tags, ...stagedTags];
       const updatedTemplate = { ...editingTemplate, tags: updatedTags };
       setEditingTemplate(updatedTemplate);
-      console.log("editingTemplate", editingTemplate.tags);
       onClose();
     } else {
       const response = await postTags();
@@ -199,7 +197,7 @@ const TemplateTagCreator = ({
                     setSelectedTag(null);
                   }}
                   className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                  disabled={selectedTagIndex === null}
+                  disabled={!selectedTagIndex}
                 >
                   Delete Selected Tag
                 </button>

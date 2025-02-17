@@ -18,6 +18,7 @@ dist-ssr
 # local json files
 settings.json
 templates.json
+tags.json
 
 
 # Editor directories and files

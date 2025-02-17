@@ -5,7 +5,6 @@ import TemplateManagementControls from "./TemplateManagementControls.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 import TemplateSorter from "./TemplateSorter.tsx";
 import { Choice, ChoiceDialog } from "@components";
-
 const TemplatesWindow = () => {
   const {
     templates,
@@ -19,7 +18,6 @@ const TemplatesWindow = () => {
     setShowBulkActions,
     selectAll,
     setSelectAll,
-    setDeletingTemplates,
     handleBulkDeleteTemplates,
   } = useTemplatesContext();
 
@@ -28,7 +26,7 @@ const TemplatesWindow = () => {
   }, []);
 
   const [modal, setModal] = useState({
-    isOpen: false,
+    show: false,
     title: "",
     message: "",
     choices: [] as Choice[],
@@ -57,7 +55,7 @@ const TemplatesWindow = () => {
   const handleBulkDelete = () => {
     // console.log("selectedTemplates in handleBulkDelete", selectedTemplates);
     setModal({
-      isOpen: true,
+      show: true,
       title: "Confirm Bulk Delete",
       message: `Are you sure you want to delete ${selectedTemplates.length} templates? This action cannot be undone.`,
       choices: [
@@ -65,16 +63,10 @@ const TemplatesWindow = () => {
           autoFocus: true,
           label: "Delete All Selected",
           action: () => {
-            setDeletingTemplates(
-              selectedTemplates.map(
-                (key) => templates.find((t) => t.key === key) as Template,
-              ),
+            const templatesToDelete = selectedTemplates.map(
+              (key) => templates.find((t) => t.key === key) as Template,
             );
-            console.log(
-              "selectedTemplates in handleBulkDelete",
-              selectedTemplates,
-            );
-            handleBulkDeleteTemplates();
+            handleBulkDeleteTemplates(templatesToDelete);
             closeModal();
           },
         },
@@ -254,16 +246,8 @@ const TemplatesWindow = () => {
         </div>
         {renderAllTemplates()}
       </div>
-      <ChoiceDialog
-        show={modal.isOpen}
-        onHide={closeModal}
-        title={modal.title}
-        message={modal.message}
-        choices={modal.choices}
-        excludeCancel={false}
-      />
+      <ChoiceDialog modal={modal} onHide={closeModal} />
     </>
   );
 };
-
 export default TemplatesWindow;

@@ -5,7 +5,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useLocation } from "react-router-dom";
 import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Rating } from "palette-types";
@@ -14,7 +13,15 @@ import { RatingCard } from "./RatingCard.tsx";
 import TemplateSetter from "./TemplateSetter.tsx";
 import { Dialog, PaletteActionButton } from "@components";
 import { motion } from "framer-motion";
-import { useTemplatesContext } from "src/features/templatesPage/TemplateContext";
+
+type CriteriaCardProps = {
+  index: number;
+  activeCriterionIndex: number;
+  criterion: Criteria;
+  handleCriteriaUpdate: (index: number, criterion: Criteria) => void;
+  removeCriterion: (index: number, criterion: Criteria) => void;
+  setActiveCriterionIndex: (index: number) => void;
+};
 
 export default function CriteriaCard({
   index,
@@ -23,15 +30,7 @@ export default function CriteriaCard({
   handleCriteriaUpdate,
   removeCriterion,
   setActiveCriterionIndex,
-}: {
-  index: number;
-  activeCriterionIndex: number;
-  criterion: Criteria;
-  handleCriteriaUpdate: (index: number, criterion: Criteria) => void;
-  removeCriterion: (index: number, criterion: Criteria) => void;
-  setActiveCriterionIndex: (index: number) => void;
-}): ReactElement {
-  const { viewOrEdit } = useTemplatesContext();
+}: CriteriaCardProps): ReactElement {
   const [ratings, setRatings] = useState<Rating[]>(criterion.ratings);
   const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
   const [templateSetterActive, setTemplateSetterActive] = useState(false); // file input display is open or not
@@ -40,8 +39,6 @@ export default function CriteriaCard({
   );
 
   const [templateTitle, setTemplateTitle] = useState(criterion.template || "");
-  const location = useLocation();
-  const currentPath = location.pathname;
 
   /**
    * Whenever ratings change, recalculate criterion's max points
@@ -155,32 +152,6 @@ export default function CriteriaCard({
     setActiveCriterionIndex(index);
   };
 
-  const handleTemplateSetterPress = (
-    event: ReactMouseEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-    if (!templateSetterActive) {
-      setTemplateSetterActive(true);
-    }
-  };
-
-  const renderTemplateSetter = (): ReactElement | null => {
-    if (templateSetterActive) {
-      return (
-        <TemplateSetter
-          closeTemplateCard={handleCloseTemplateSetter}
-          handleSetTemplateTitle={handleSetTemplateTitle}
-          criterion={criterion}
-        />
-      );
-    }
-    return null;
-  };
-
-  const handleCloseTemplateSetter = () => {
-    setTemplateSetterActive(false); // hides the template setter
-  };
-
   // Use the useSortable hook to handle criteria ordering
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
@@ -209,26 +180,22 @@ export default function CriteriaCard({
           {criteriaDescription}
         </div>
         <div className={"flex gap-3"}>
-          {(viewOrEdit == "edit" || currentPath == "/rubric-builder") && (
-            <>
-              <button
-                onPointerDown={(
-                  event: ReactMouseEvent, // Change to onPointerDown
-                ) => handleRemoveCriteriaButton(event, index)}
-                type={"button"}
-                className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
-              >
-                Remove
-              </button>
-              <button
-                onPointerDown={handleExpandCriterion}
-                type={"button"}
-                className="transition-all ease-in-out duration-300 bg-emerald-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-emerald-700 focus:outline-none border-2 border-transparent"
-              >
-                Edit
-              </button>
-            </>
-          )}
+          <button
+            onPointerDown={(event: ReactMouseEvent) =>
+              handleRemoveCriteriaButton(event, index)
+            }
+            type={"button"}
+            className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
+          >
+            Remove
+          </button>
+          <button
+            onPointerDown={handleExpandCriterion}
+            type={"button"}
+            className="transition-all ease-in-out duration-300 bg-emerald-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-emerald-700 focus:outline-none border-2 border-transparent"
+          >
+            Edit
+          </button>
         </div>
       </div>
     );
@@ -271,45 +238,30 @@ export default function CriteriaCard({
           {renderRatingOptions()}
         </motion.div>
 
-        <div
-          className={`flex gap-2 items-center ${currentPath === "/templates" ? "justify-start" : "justify-center"}`}
-        >
-          {viewOrEdit == "edit" && (
-            <>
-              <PaletteActionButton
-                color={"PURPLE"}
-                onClick={(event) => handleAddRating(event, index)}
-                title={"Add Rating"}
-              />
-            </>
-          )}
-
+        <div className={`flex gap-2 items-center justify-center`}>
+          <PaletteActionButton
+            color={"PURPLE"}
+            onClick={(event) => handleAddRating(event, index)}
+            title={"Add Rating"}
+          />
           <PaletteActionButton
             color={"YELLOW"}
             onPointerDown={() => setActiveCriterionIndex(-1)}
             title={"Collapse Card"}
           />
-          {viewOrEdit == "edit" && (
-            <>
-              <PaletteActionButton
-                color={"RED"}
-                onPointerDown={(event: ReactMouseEvent<HTMLButtonElement>) =>
-                  handleRemoveCriteriaButton(event, index)
-                }
-                title={"Remove Criterion"}
-              />
-            </>
-          )}
+          <PaletteActionButton
+            color={"BLUE"}
+            onClick={() => setTemplateSetterActive(true)}
+            title={"Add Template"}
+          />
+          <PaletteActionButton
+            color={"RED"}
+            onPointerDown={(event: ReactMouseEvent<HTMLButtonElement>) =>
+              handleRemoveCriteriaButton(event, index)
+            }
+            title={"Remove Criterion"}
+          />
 
-          {currentPath == "/rubric-builder" && (
-            <>
-              <PaletteActionButton
-                color={"BLUE"}
-                onClick={handleTemplateSetterPress}
-                title={"Add Template"}
-              />
-            </>
-          )}
           <Dialog
             isOpen={templateSetterActive}
             onClose={() => setTemplateSetterActive(false)}
@@ -317,7 +269,11 @@ export default function CriteriaCard({
               "Add common criteria to a Template for faster building in the future!"
             }
           >
-            {renderTemplateSetter()}
+            <TemplateSetter
+              closeTemplateCard={() => setTemplateSetterActive(false)}
+              handleSetTemplateTitle={handleSetTemplateTitle}
+              criterion={criterion}
+            />
           </Dialog>
         </div>
         <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">

@@ -66,7 +66,7 @@ interface TemplateContextType {
   closeModal: () => void;
   handleRemoveTemplate: (key: string) => void;
   handleUpdateTemplate: (index: number, template: Template) => void;
-  handleQuickStart: () => void;
+  handleQuickStart: () => Promise<void>;
   isNewTemplate: boolean;
   setIsNewTemplate: (isNewTemplate: boolean) => void;
   index: number;
@@ -85,7 +85,7 @@ interface TemplateContextType {
   tagModalOpen: boolean;
   setTagModalOpen: (tagModalOpen: boolean) => void;
   handleBulkCreateTemplates: () => void;
-  handleBulkDeleteTemplates: () => void;
+  handleBulkDeleteTemplates: (deletingTemplates: Template[]) => void;
   hasUnsavedChanges: boolean;
   setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 }
@@ -105,7 +105,7 @@ const TemplatesContext = createContext<TemplateContextType>({
   handleSubmitEditedTemplate: () => {},
   focusedTemplateKey: null,
   setFocusedTemplateKey: () => {},
-  handleQuickStart: () => {},
+  handleQuickStart: () => Promise.resolve(),
   handleDuplicateTemplate: () => {},
   selectedTemplates: [],
   setSelectedTemplates: () => {},
@@ -207,14 +207,6 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   });
   const [viewingTemplate, setViewingTemplate] = useState<Template | null>(null);
 
-  const { fetchData: deleteTemplate } = useFetch(
-    `/templates/byKey/${deletingTemplate?.key}`,
-
-    {
-      method: "DELETE",
-    },
-  );
-
   const { fetchData: postTemplate } = useFetch("/templates", {
     method: "POST",
     body: JSON.stringify(editingTemplate), // use latest rubric data
@@ -232,7 +224,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
   const { fetchData: addTemplates } = useFetch("/templates/bulk", {
     method: "POST",
-    body: JSON.stringify(editingTemplate),
+    body: JSON.stringify(quickStartTemplates),
   });
 
   const closeModal = useCallback(
@@ -247,7 +239,27 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     choices: [] as { label: string; action: () => void }[],
   });
 
-  // Update the initial fetch useEffect
+  const deleteTemplatesAndFetch = async () => {
+    try {
+      await deleteTemplates();
+
+      const response = await getAllTemplates();
+      if (response.success) {
+        setTemplates(response.data as Template[]);
+      } else {
+        console.error("Failed to fetch templates:", response);
+      }
+    } catch (error) {
+      console.error("Error deleting templates:", error);
+    }
+  };
+
+  useEffect(() => {
+    // console.log("deleting templates", deletingTemplates);
+    if (deletingTemplates.length > 0) {
+      void deleteTemplatesAndFetch();
+    }
+  }, [deletingTemplates]);
 
   useEffect(() => {
     void (async () => {
@@ -266,48 +278,6 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
       }
     })();
   }, []);
-
-  useEffect(() => {
-    console.log("deletingTemplate changed", deletingTemplate);
-    if (deletingTemplate) {
-      void (async () => {
-        const response = await deleteTemplate();
-        if (response.success) {
-          setTemplates(
-            templates.filter(
-              (template) => template.key !== deletingTemplate.key,
-            ),
-          );
-        }
-      })();
-    }
-  }, [deletingTemplate]);
-
-  useEffect(() => {
-    if (deletingTemplates.length > 0) {
-      void (async () => {
-        try {
-          // Delete all templates in parallel
-
-          for (const template of deletingTemplates) {
-            console.log("deleting temoakte", deletingTemplates);
-            setDeletingTemplate(template);
-
-            await deleteTemplate();
-          }
-
-          const response = await getAllTemplates();
-          if (response.success) {
-            setTemplates(response.data as Template[]);
-          } else {
-            console.error("Failed to fetch templates:", response);
-          }
-        } catch (error) {
-          console.error("Error deleting templates:", error);
-        }
-      })();
-    }
-  }, [deletingTemplates]);
 
   const handleCreateTemplate = () => {
     const template = createTemplate();
@@ -329,11 +299,9 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const handleBulkDeleteTemplates = async () => {
-    console.log(
-      "selectedTemplates in handleBulkDeleteTemplates",
-      deletingTemplates,
-    );
+  const handleBulkDeleteTemplates = async (templatesToDelete: Template[]) => {
+    setDeletingTemplates(templatesToDelete);
+
     const response = await deleteTemplates();
     if (response.success) {
       setTemplates(response.data as Template[]);
@@ -378,9 +346,20 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     setIsNewTemplate(true);
   };
 
-  const handleQuickStart = () => {
+  const handleQuickStart = async () => {
     setTemplates(quickStartTemplates);
-    console.log("quick start");
+    const response = await addTemplates();
+    if (response.success) {
+      // Fetch all templates after adding quick start templates
+      const allTemplatesResponse = await getAllTemplates();
+      if (allTemplatesResponse.success) {
+        setTemplates(allTemplatesResponse.data as Template[]);
+      } else {
+        console.error("Failed to fetch templates:", allTemplatesResponse);
+      }
+    } else {
+      console.error("Failed to post templates:", response);
+    }
   };
 
   const handleUpdateTemplate = (index: number, template: Template) => {
@@ -504,7 +483,8 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         addingTagFromBuilder,
         setAddingTagFromBuilder,
         handleBulkCreateTemplates: () => void handleBulkCreateTemplates(),
-        handleBulkDeleteTemplates: () => void handleBulkDeleteTemplates(),
+        handleBulkDeleteTemplates: (deletingTemplates: Template[]) =>
+          void handleBulkDeleteTemplates(deletingTemplates),
         hasUnsavedChanges,
         setHasUnsavedChanges,
       }}

@@ -2,16 +2,18 @@ import { body, ValidationChain } from "express-validator";
 
 export const updateUserSettingsValidator: ValidationChain[] = [
   // body().custom(isValidSettingsObject),
-  body("userName").isString().withMessage("userName must be a string"),
+  body("userName").isString().withMessage("Username must be a string"),
   body("templateCriteria")
     .isArray()
     .withMessage("templateCriteria must be an array"),
   body("token")
     .isString()
-    .withMessage("token must be a string")
+    .withMessage("Canvas API token must be a string")
     .matches(/^[a-zA-Z0-9~]+$/)
-    .withMessage("token must be alphanumeric and can include the ~ character"),
-  body("preferences").isObject().withMessage("preferences must be an object"),
+    .withMessage(
+      "Canvas API token must be alphanumeric. It may include the ~ character.",
+    ),
+  body("preferences").isObject().withMessage("Preferences must be an object"),
   body("preferences.darkMode")
     .isBoolean()
     .withMessage("preferences.darkMode must be a boolean"),

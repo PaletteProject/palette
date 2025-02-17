@@ -1,10 +1,6 @@
 import { Criteria, Rubric, Template } from "palette-types";
 import { useTemplatesContext } from "../../features/templatesPage/TemplateContext";
-import React, {
-  MouseEvent as ReactMouseEvent,
-  useCallback,
-  useState,
-} from "react";
+import React, { MouseEvent as ReactMouseEvent, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   SortableContext,
@@ -12,8 +8,10 @@ import {
 } from "@dnd-kit/sortable";
 import CriteriaCard from "src/features/rubricBuilder/CriteriaCard";
 import { createCriterion } from "@utils";
-import { Dialog, ChoiceDialog, Choice } from "@components";
+import { ChoiceDialog, Dialog } from "@components";
 import AllTags from "src/features/templatesPage/AllTags";
+import { useChoiceDialog } from "../../context/DialogContext.tsx";
+
 interface GenericBuilderProps {
   builderType: "template" | "rubric";
   document: Template | Rubric;
@@ -42,27 +40,11 @@ export const GenericBuilder = ({
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   const [showDialog, setShowDialog] = useState(false);
-  const [modal, setModal] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-    choices: [] as Choice[],
-  });
 
-  const defaultChoice: Choice = {
-    label: "OK",
-    action: function (): void {
-      throw new Error("Function not implemented.");
-    },
-    autoFocus: true,
-  };
-  const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
-  );
+  const { openDialog, closeDialog } = useChoiceDialog();
 
   const handleDocumentTitleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     e.preventDefault();
 
@@ -93,7 +75,7 @@ export const GenericBuilder = ({
       criteria: newCriteria,
       points: newCriteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       ),
     };
     if (builderType === "template") {
@@ -116,7 +98,7 @@ export const GenericBuilder = ({
       const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
       updatedTemplate.points = updatedTemplate.criteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       );
       // console.log("updatedTemplate points", updatedTemplate.points);
       setEditingTemplate(updatedTemplate as Template);
@@ -132,33 +114,32 @@ export const GenericBuilder = ({
     };
 
     if (builderType === "template") {
-      setModal({
-        isOpen: true,
+      openDialog({
         title: "Confirm Criterion Removal",
         message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
-        choices: [
+        buttons: [
           {
-            ...defaultChoice,
+            autoFocus: true,
             label: "Destroy it!",
             action: () => {
               deleteTemplateCriterion();
-              closeModal();
+              closeDialog();
             },
           },
         ],
+        excludeCancel: false,
       });
     } else {
-      setModal({
-        isOpen: true,
+      openDialog({
         title: "Confirm Criterion Removal",
         message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
-        choices: [
+        buttons: [
           {
-            ...defaultChoice,
+            autoFocus: true,
             label: "Destroy it!",
             action: () => {
               deleteRubricCriterion();
-              closeModal();
+              closeDialog();
             },
           },
         ],
@@ -219,7 +200,7 @@ export const GenericBuilder = ({
         criteria: newCriteria,
         points: newCriteria.reduce(
           (acc, criterion) => acc + criterion.pointsPossible,
-          0,
+          0
         ),
       };
       setEditingTemplate(updatedTemplate as Template);
@@ -236,14 +217,14 @@ export const GenericBuilder = ({
     event.preventDefault();
 
     if (document?.title.trim() === "") {
-      setModal({
-        isOpen: true,
+      openDialog({
         title: "Invalid Template",
         message: "Please enter a title for your template before saving.",
-        choices: [
+        buttons: [
           {
-            ...defaultChoice,
-            action: closeModal,
+            autoFocus: true,
+            action: () => closeDialog(),
+            label: "Got It",
           },
         ],
       });
@@ -251,14 +232,14 @@ export const GenericBuilder = ({
     }
 
     if (document?.criteria.length === 0) {
-      setModal({
-        isOpen: true,
+      openDialog({
         title: "Invalid Template",
         message: "Please add at least one criterion before saving.",
-        choices: [
+        buttons: [
           {
-            ...defaultChoice,
-            action: closeModal,
+            autoFocus: true,
+            action: () => closeDialog(),
+            label: "Got It",
           },
         ],
       });
@@ -269,18 +250,18 @@ export const GenericBuilder = ({
       const isDuplicateName = templates.some(
         (t) =>
           t.title.toLowerCase() === document?.title.toLowerCase() &&
-          t.key !== document?.key,
+          t.key !== document?.key
       );
       if (isDuplicateName) {
-        setModal({
-          isOpen: true,
-          title: "Duplicate Template Name",
+        openDialog({
+          title: "Duplicate Template Name Detected",
           message:
             "A template with this name already exists. Please choose a different name.",
-          choices: [
+          buttons: [
             {
-              ...defaultChoice,
-              action: closeModal,
+              autoFocus: true,
+              action: () => closeDialog(),
+              label: "Got It",
             },
           ],
         });
@@ -330,7 +311,7 @@ export const GenericBuilder = ({
                 setAddingTagFromBuilder(true);
               }}
             >
-              Add Tag
+              Tags
             </button>
           </div>
         </div>
@@ -361,20 +342,20 @@ export const GenericBuilder = ({
         )}
       </form>
 
-      <ChoiceDialog
-        show={modal.isOpen}
-        onHide={closeModal}
-        title={modal.title}
-        message={modal.message}
-        choices={modal.choices}
-        excludeCancel={false}
-      />
+      <ChoiceDialog />
 
       <Dialog
         isOpen={showDialog}
         onClose={() => setShowDialog(false)}
-        title={`Add Tag(s) to Template: "${editingTemplate?.title}"`}
-        children={<AllTags onSave={() => setShowDialog(false)} />}
+        title={"Tag Management"}
+        children={
+          <AllTags
+            onSave={() => {
+              setShowDialog(false);
+              console.log("showDialog", showDialog);
+            }}
+          />
+        }
       />
     </>
   );

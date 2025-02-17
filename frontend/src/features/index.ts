@@ -3,11 +3,11 @@
  */
 
 // grading exports
-export * from "./grading/gradingDashboard/AssignmentData.tsx";
+export * from "./grading/AssignmentData.tsx";
 export * from "./grading/GradingMain";
-export * from "./grading/gradingDashboard/GroupSubmissions.tsx";
-export * from "./grading/gradingDashboard/ProgressBar.tsx";
-export * from "./grading/gradingDashboard/SubmissionsDashboard.tsx";
+export * from "./grading/GroupSubmissions.tsx";
+export * from "./grading/ProgressBar.tsx";
+export * from "./grading/SubmissionsDashboard.tsx";
 
 // rubric builder exports
 export * from "./rubricBuilder/CriteriaCard.tsx";
