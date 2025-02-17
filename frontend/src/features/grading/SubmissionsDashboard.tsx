@@ -1,22 +1,92 @@
-import { GroupedSubmissions, Rubric } from "palette-types";
+import {
+  CanvasGradedSubmission,
+  GroupedSubmissions,
+  Rubric,
+} from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
+import { Dispatch, SetStateAction, useState } from "react";
+import { ChoiceDialog, PaletteActionButton } from "@components";
+import { useAssignment, useCourse } from "@context";
+import { useChoiceDialog } from "../../context/DialogContext.tsx";
 
 type SubmissionDashboardProps = {
   rubric: Rubric | undefined;
   submissions: GroupedSubmissions;
   fetchSubmissions: () => Promise<void>;
+  setLoading: Dispatch<SetStateAction<boolean>>;
 };
 
 export function SubmissionsDashboard({
   rubric,
   submissions,
   fetchSubmissions,
+  setLoading,
 }: SubmissionDashboardProps) {
+  // graded submissions to be sent to Canvas
+  const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
+    CanvasGradedSubmission[]
+  >([]);
+
+  const { activeCourse } = useCourse();
+  const { activeAssignment } = useAssignment();
+  const { openDialog, closeDialog } = useChoiceDialog();
+
+  const BASE_URL = "http://localhost:3000/api";
+  const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
+
+  /**
+   * Submit all graded submissions in the cache
+   */
+  const submitGrades = async (gradedSubmissions: CanvasGradedSubmission[]) => {
+    for (const gradedSubmission of gradedSubmissions) {
+      await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(gradedSubmission),
+      });
+    }
+    setLoading(true);
+    await fetchSubmissions(); // refresh submissions
+    setLoading(false);
+    setGradedSubmissionCache([]); // clear submission cache
+  };
+
+  const handleClickSubmitGrades = () => {
+    openDialog({
+      title: "Submit Grades to Canvas?",
+      message: "Clicking yes will post grades to Canvas.",
+      excludeCancel: true,
+      buttons: [
+        {
+          label: "Send them!",
+          action: () => {
+            void submitGrades(gradedSubmissionCache);
+            closeDialog();
+          },
+          autoFocus: true,
+        },
+        {
+          label: "Cancel",
+          action: () => closeDialog(),
+          autoFocus: false,
+          color: "RED",
+        },
+      ],
+    });
+  };
+
   return (
     <div className={"grid justify-start"}>
-      <div className={"mb-4"}>
-        <h1 className={"text-5xl font-bold p-4"}>Submission Dashboard</h1>
+      <div className={"grid gap-2 mb-4 p-4"}>
+        <h1 className={"text-5xl font-bold"}>Submission Dashboard</h1>
         <AssignmentData rubric={rubric} />
+        <div className={"flex"}>
+          <PaletteActionButton
+            color={"GREEN"}
+            title={"Submit Grades to Canvas"}
+            onClick={() => handleClickSubmitGrades()}
+          />
+        </div>
       </div>
 
       <div
@@ -48,10 +118,13 @@ export function SubmissionsDashboard({
               submissions={groupSubmissions}
               rubric={rubric!}
               fetchSubmissions={fetchSubmissions}
+              setGradedSubmissionCache={setGradedSubmissionCache}
+              gradedSubmissionCache={gradedSubmissionCache}
             />
           );
         })}
       </div>
+      <ChoiceDialog />
     </div>
   );
 }

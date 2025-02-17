@@ -9,9 +9,19 @@ import {
   Submission,
 } from "palette-types";
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
-import { PaletteActionButton } from "@components";
-import { useAssignment, useCourse } from "@context";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { ChoiceDialog, PaletteActionButton } from "@components";
+import { useChoiceDialog } from "../../context/DialogContext.tsx";
+
+type ProjectGradingViewProps = {
+  groupName: string;
+  submissions: Submission[];
+  rubric: Rubric;
+  isOpen: boolean;
+  onClose: () => void; // event handler defined in GroupSubmissions.tsx
+  setGradedSubmissionCache: Dispatch<SetStateAction<CanvasGradedSubmission[]>>;
+  gradedSubmissionCache: CanvasGradedSubmission[];
+};
 
 export function ProjectGradingView({
   groupName,
@@ -19,68 +29,69 @@ export function ProjectGradingView({
   rubric,
   isOpen,
   onClose,
-  fetchSubmissions,
-}: {
-  groupName: string;
-  submissions: Submission[];
-  rubric: Rubric;
-  isOpen: boolean;
-  onClose: () => void; // event handler defined in GroupSubmissions.tsx
-  fetchSubmissions: () => Promise<void>;
-}) {
+  setGradedSubmissionCache,
+  gradedSubmissionCache,
+}: ProjectGradingViewProps) {
   if (!isOpen) {
     return null;
   }
 
   // ratings state to track and update background colors
-  const [ratings, setRatings] = useState<{ [key: string]: number | "" }>({});
+  const [ratings, setRatings] = useState<{ [key: string]: number | string }>(
+    {},
+  );
 
-  const { activeCourse } = useCourse();
-  const { activeAssignment } = useAssignment();
+  // group grading checkbox state
+  const [checkedCriteria, setCheckedCriteria] = useState<{
+    [key: string]: boolean;
+  }>({});
 
-  const BASE_URL = "http://localhost:3000/api";
-  const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
-
-  /**
-   * Wrapper to iteratively submit all graded submissions with existing use fetch hook.
-   */
-  const submitGrades = async (gradedSubmission: CanvasGradedSubmission) => {
-    /**
-     * Fetch hook to submit graded rubric.
-     */
-    await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(gradedSubmission),
-    });
-  };
+  const { openDialog, closeDialog } = useChoiceDialog();
 
   /**
    * Initialize ratings when grading modal opens. Maps criterion directly from rubric.
    */
   useEffect(() => {
     if (isOpen) {
-      const initialRatings: { [key: string]: number | "" } = {};
+      const initialRatings: { [key: string]: number | string } = {};
 
-      submissions.forEach((submission) => {
-        /**
-         *  If a submission has a rubric assessment (already graded), load in grades from canvas to display.
-         *  Otherwise, rating options will render with the default empty value/color theme.
-         */
-        if (submission.rubricAssessment) {
+      console.log("THE CACHE");
+      console.log(gradedSubmissionCache);
+
+      // process the cached submissions, prioritizing the latest in progress grades over what Canvas current has saved.
+      gradedSubmissionCache.forEach((gradedSubmission) => {
+        const { submission_id, rubric_assessment } = gradedSubmission;
+
+        if (rubric_assessment) {
           for (const [criterionId, assessment] of Object.entries(
-            submission.rubricAssessment,
+            rubric_assessment,
           )) {
-            initialRatings[`${submission.id}-${criterionId}`] =
+            initialRatings[`${submission_id}-${criterionId}`] =
               assessment.points ?? "";
           }
         }
       });
 
+      // Process the submissions from canvas and merge with cached submissions to fill in missing data
+      submissions.forEach((submission) => {
+        if (submission.rubricAssessment) {
+          for (const [criterionId, assessment] of Object.entries(
+            submission.rubricAssessment,
+          )) {
+            // avoid overwriting data from cache
+            const key = `${submission.id}-${criterionId}`;
+            if (!(key in initialRatings)) {
+              initialRatings[`${submission.id}-${criterionId}`] =
+                assessment.points ?? "";
+            }
+          }
+        }
+      });
+
       setRatings(initialRatings);
-      console.log(initialRatings);
+      console.log("Initialized Ratings:", initialRatings);
     }
-  }, [isOpen, submissions, rubric]);
+  }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
   /**
    * Update ratings state on changes.
@@ -89,14 +100,38 @@ export function ProjectGradingView({
     submissionId: number,
     criterionId: string,
     value: string,
+    applyToGroup: boolean,
   ) => {
-    setRatings((prev) => ({
+    setRatings((prev) => {
+      const updatedRatings = {
+        ...prev,
+        [`${submissionId}-${criterionId}`]: value === "" ? "" : Number(value),
+      };
+
+      if (applyToGroup) {
+        // iterate through all the ratings and updated the ones with same criterion id
+        Object.keys(prev).forEach((key) => {
+          const [, existingCriteriaId] = key.split("-"); // don't need the submission id
+          if (existingCriteriaId === criterionId) {
+            updatedRatings[key] = value === "" ? "" : Number(value);
+          }
+        });
+      }
+
+      console.log("CHANGED RATINGS");
+      console.log(updatedRatings);
+      return updatedRatings;
+    });
+  };
+
+  const handleCheckBoxChange = (criterionId: string) => {
+    setCheckedCriteria((prev) => ({
       ...prev,
-      [`${submissionId}-${criterionId}`]: value === "" ? "" : Number(value),
+      [criterionId]: !prev[criterionId], // toggle state
     }));
   };
 
-  const handleSubmitGrades = async () => {
+  const handleSaveGrades = () => {
     const gradedSubmissions: CanvasGradedSubmission[] = submissions.map(
       (submission) => {
         // build rubric assessment object in Canvas format directly (reduces transformations needed later)
@@ -109,7 +144,6 @@ export function ProjectGradingView({
         } = {};
 
         rubric.criteria.forEach((criterion) => {
-          console.log(criterion.id);
           const selectedPoints = ratings[`${submission.id}-${criterion.id}`];
           const selectedRating = criterion.ratings.find(
             (rating) => rating.points === selectedPoints,
@@ -133,17 +167,14 @@ export function ProjectGradingView({
       },
     );
 
-    console.log("Submitting graded submissions: ");
-    console.log(gradedSubmissions);
-
     /**
-     * Loop through graded submissions and send each one to the backend.
+     * Store graded submissions in cache
      */
-    for (const gradedSubmission of gradedSubmissions) {
-      await submitGrades(gradedSubmission);
-    }
 
-    await fetchSubmissions();
+    setGradedSubmissionCache((prev) => prev.concat(gradedSubmissions));
+    console.log("Caching submissions ");
+    console.log(gradedSubmissions);
+    console.log("end cache");
 
     onClose();
   };
@@ -152,7 +183,7 @@ export function ProjectGradingView({
    * Dynamically calculates the drop-down background color.
    */
   const getBackgroundColor = (
-    value: number | "",
+    value: number | string,
     criterion: Criteria,
   ): string => {
     if (value === "") return "bg-gray-800"; // Default background color
@@ -163,6 +194,35 @@ export function ProjectGradingView({
     if (value === highest) return "bg-green-500"; // Green for the highest score
     if (value === lowest) return "bg-red-500"; // Red for the lowest score (even if it's 0)
     return "bg-yellow-500"; // Yellow for anything in between
+  };
+
+  const handleClickCloseButton = () => {
+    openDialog({
+      title: "Lose Grading Progress?",
+      message:
+        "Closing the grading view before saving will discard any changes made since the last save or" +
+        " submission.",
+      buttons: [
+        {
+          label: "Lose it all!",
+          action: () => {
+            onClose();
+            closeDialog();
+          },
+          autoFocus: true,
+          color: "RED",
+        },
+        {
+          label: "Save Progress",
+          action: () => {
+            handleSaveGrades();
+            closeDialog();
+          },
+          autoFocus: false,
+          color: "BLUE",
+        },
+      ],
+    });
   };
 
   const renderGradingPopup = () => {
@@ -178,12 +238,12 @@ export function ProjectGradingView({
           <div className={"flex gap-4 justify-end"}>
             <PaletteActionButton
               title={"Close"}
-              onClick={onClose}
+              onClick={() => handleClickCloseButton()}
               color={"RED"}
             />
             <PaletteActionButton
-              title={"Submit Grades"}
-              onClick={() => void handleSubmitGrades()}
+              title={"Save Grades"}
+              onClick={() => void handleSaveGrades()}
               color={"GREEN"}
             />
           </div>
@@ -204,20 +264,29 @@ export function ProjectGradingView({
                 key={criterion.id}
                 className="border border-gray-500 px-4 py-2"
               >
-                {criterion.description}
+                <div className={"flex justify-between"}>
+                  <p>{criterion.description} </p>
+
+                  <label className={"flex gap-2 text-sm font-medium"}>
+                    Apply Ratings to Group
+                    <input
+                      type="checkbox"
+                      name={`${criterion.id}-checkbox}`}
+                      id={`${criterion.id}-checkbox}`}
+                      checked={checkedCriteria[criterion.id] || false}
+                      onChange={() => handleCheckBoxChange(criterion.id)}
+                    />
+                  </label>
+                </div>
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {/*Only show submissions that have been submitted and/or graded. */}
           {submissions.map((submission: Submission) => (
             <tr key={submission.id}>
-              <td className="border border-gray-500 px-4 py-2">
-                {`${submission.user.name} (${submission.user.asurite})`}
-                <span className={"ml-4 text-red-600 font-bold"}>
-                  No Submission
-                </span>
+              <td className="border border-gray-500 px-4 py-2 flex justify-between">
+                <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
               </td>
               {rubric.criteria.map((criterion: Criteria) => (
                 <td
@@ -236,6 +305,7 @@ export function ProjectGradingView({
                         submission.id,
                         criterion.id,
                         e.target.value,
+                        checkedCriteria[criterion.id],
                       )
                     }
                   >
@@ -258,6 +328,9 @@ export function ProjectGradingView({
   };
 
   return (
-    <div className={"max-h-48 overflow-y-auto"}>{renderGradingPopup()}</div>
+    <div className={"max-h-48 overflow-y-auto"}>
+      {renderGradingPopup()}
+      <ChoiceDialog />
+    </div>
   );
 }

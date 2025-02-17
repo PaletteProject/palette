@@ -42,7 +42,6 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
   });
 
   useEffect(() => {
-    console.log("useEffect");
     (async () => {
       const response = await getAllTemplates();
       if (response.success) {
@@ -54,8 +53,6 @@ const TemplateSetter: React.FC<TemplateSetterProps> = ({
   }, []);
 
   useEffect(() => {
-    console.log("useEffect template");
-    console.log("template", template);
     if (creatingNewTemplate) {
       (async () => {
         const postResponse = await postTemplate();
