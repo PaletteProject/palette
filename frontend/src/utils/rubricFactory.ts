@@ -39,7 +39,7 @@ export function createRubric(
   title: string = "",
   criteria: Criteria[] = populateDefaultCriteria(),
   id: string = "",
-  pointsPossible: number = 0,
+  pointsPossible: number = 0
 ): Rubric {
   return {
     title,
@@ -67,6 +67,7 @@ export function createCriterion(
   id: string = "",
   template: string = "",
   templateTitle: string = "",
+  scores: number[] = []
 ): Criteria {
   return {
     ratings,
@@ -80,6 +81,7 @@ export function createCriterion(
     updatePoints() {
       this.pointsPossible = Number(calcMaxPoints(this.ratings));
     },
+    scores,
   };
 }
 
@@ -91,7 +93,7 @@ export function createRating(
   points: number = 0,
   description: string = "",
   longDescription: string = "",
-  id: string = "",
+  id: string = ""
 ): Rating {
   return {
     points,
