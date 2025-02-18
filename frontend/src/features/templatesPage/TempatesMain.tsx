@@ -11,6 +11,7 @@ import AddTemplateTag from "./AddTemplateTag.tsx";
 import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
 import { Template } from "palette-types";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import TemplateCharts from "./TemplateCharts.tsx";
 
 export default function TemplatesMain(): ReactElement {
   return (
@@ -35,6 +36,7 @@ function TemplatesMainContent(): ReactElement {
     editingTemplate,
     setEditingTemplate,
     hasUnsavedChanges,
+    showMetrics,
   } = useTemplatesContext();
 
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
@@ -109,6 +111,9 @@ function TemplatesMainContent(): ReactElement {
 
         {/* Templates Container */}
         <TemplatesWindow />
+
+        {/* Bar Charts */}
+        {showMetrics && <TemplateCharts />}
       </div>
     );
   };
