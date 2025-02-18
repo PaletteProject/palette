@@ -16,5 +16,4 @@ export interface Criteria {
   templateTitle?: string;
   key: string;
   updatePoints: () => void;
-  scores: number[];
 }
