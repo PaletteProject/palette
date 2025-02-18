@@ -22,7 +22,6 @@
     "push": "npm run build:all && npm run prettier:check && npm run lint && npm run test && echo '\n\nLooks great, ready to push!'"
   },
   "devDependencies": {
-    "@types/d3": "^7.4.3",
     "concurrently": "^9.0.1"
   }
 }
