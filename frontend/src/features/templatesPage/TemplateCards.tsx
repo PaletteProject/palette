@@ -127,7 +127,7 @@ export default function TemplateCard({
   const handleViewModeToggle = () => {
     if (focusedTemplateKey) {
       const focusedTemplate = templates.find(
-        (t) => t.key === focusedTemplateKey
+        (t) => t.key === focusedTemplateKey,
       );
       if (focusedTemplate) {
         setEditingTemplate(focusedTemplate);
@@ -177,7 +177,7 @@ export default function TemplateCard({
                 style={{
                   width: `${calculatePerformance(template)}%`,
                   backgroundColor: interpolateColor(
-                    calculatePerformance(template)
+                    calculatePerformance(template),
                   ),
                 }}
               ></div>
@@ -190,7 +190,7 @@ export default function TemplateCard({
 
   const [criteriaDropdownOpen, setCriteriaDropdownOpen] = useState(false);
   const [selectedCriterion, setSelectedCriterion] = useState<Criteria | null>(
-    null
+    null,
   );
 
   const toggleCriteriaDropdown = () => {
@@ -384,7 +384,7 @@ export default function TemplateCard({
                 .sort(([scoreA], [scoreB]) => Number(scoreB) - Number(scoreA))
                 .map(([score, count]) => {
                   const rating = criterion.ratings.find(
-                    (rating) => rating.points === Number(score)
+                    (rating) => rating.points === Number(score),
                   );
                   return {
                     id: score,
@@ -435,7 +435,7 @@ export default function TemplateCard({
     if (!template.criteria || template.criteria.length === 0) return;
 
     const currentIndex = template.criteria.findIndex(
-      (criterion) => criterion.key === selectedCriterion?.key
+      (criterion) => criterion.key === selectedCriterion?.key,
     );
 
     const nextIndex = (currentIndex + 1) % template.criteria.length;

@@ -11,11 +11,11 @@ const TemplateCharts = () => {
 
   const metricViews = ["bar", "pie"];
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
-    templates[0]
+    templates[0],
   );
 
   const [selectedMetricView, setSelectedMetricView] = useState<string>(
-    metricViews[0]
+    metricViews[0],
   );
 
   const [currentViewIndex, setCurrentViewIndex] = useState<number>(0);
@@ -39,7 +39,7 @@ const TemplateCharts = () => {
               {
                 scaleType: "band",
                 data: template.criteria.map(
-                  (c) => `${c.description} (${c.pointsPossible} pts)`
+                  (c) => `${c.description} (${c.pointsPossible} pts)`,
                 ),
               },
             ]}
@@ -113,7 +113,7 @@ const TemplateCharts = () => {
           .sort(([scoreA], [scoreB]) => Number(scoreB) - Number(scoreA))
           .map(([score, count]) => {
             const rating = criterion.ratings.find(
-              (rating) => rating.points === Number(score)
+              (rating) => rating.points === Number(score),
             );
             return {
               id: score,
@@ -156,7 +156,7 @@ const TemplateCharts = () => {
             />
           </div>
         </div>
-      )
+      ),
     );
   };
 
