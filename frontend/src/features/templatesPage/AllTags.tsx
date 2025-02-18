@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTemplatesContext } from "./TemplateContext";
 import { Tag, Template } from "palette-types";
 import { useFetch } from "../../hooks/useFetch";
@@ -25,11 +25,6 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const [updatingTemplates, setUpdatingTemplates] = useState(false);
 
   const { openDialog, closeDialog } = useChoiceDialog();
-
-  const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
-  );
 
   useEffect(() => {
     async function updateTemplates() {
@@ -61,15 +56,6 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         console.error("error updating templates", error);
       });
   }, [selectedTemplates]);
-
-  // object containing related modal state
-
-  const [modal, setModal] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-    choices: [] as [],
-  });
 
   const { fetchData: deleteTags } = useFetch("/tags/bulk", {
     method: "DELETE",
@@ -104,14 +90,14 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
       const updatedTemplates = templates.map((template) => {
         const updatedTags = template.tags.filter(
           (tag) =>
-            !selectedTags.some((selectedTag) => selectedTag.key === tag.key)
+            !selectedTags.some((selectedTag) => selectedTag.key === tag.key),
         );
         return { ...template, tags: updatedTags };
       });
       setUpdatingTemplates(true);
       setSelectedTemplates(updatedTemplates);
       await getTags();
-      closeModal();
+      closeDialog();
       onSave();
     } catch (error) {
       console.error("error deleting tags", error);
@@ -121,7 +107,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const [removeMode, setRemoveMode] = useState(false);
 
   const [tempTagCounts, setTempTagCounts] = useState<Record<string, number>>(
-    {}
+    {},
   );
 
   // Function to initialize or update the temporary tag counts
@@ -129,11 +115,11 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
     const counts = availableTags.reduce(
       (acc, tag) => {
         acc[tag.key] = templates.filter((t) =>
-          t.tags.some((tTag) => tTag.key === tag.key)
+          t.tags.some((tTag) => tTag.key === tag.key),
         ).length;
         return acc;
       },
-      {} as Record<string, number>
+      {} as Record<string, number>,
     );
     setTempTagCounts(counts);
   };
@@ -163,7 +149,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
             },
             autoFocus: true,
           },
-          { label: "No", action: closeModal, autoFocus: false },
+          { label: "No", action: closeDialog, autoFocus: false },
         ],
       });
     } else {
@@ -178,7 +164,9 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
             action: () => {
               const updatedTags = editingTemplate?.tags?.filter(
                 (t) =>
-                  !selectedTags.some((selectedTag) => selectedTag.key === t.key)
+                  !selectedTags.some(
+                    (selectedTag) => selectedTag.key === t.key,
+                  ),
               );
               const updatedTemplate = {
                 ...editingTemplate,
@@ -186,7 +174,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
               } as Template;
               setEditingTemplate(updatedTemplate);
               setSelectedTags([]);
-              closeModal();
+              closeDialog();
 
               // Update temporary tag counts
               const newTempTagCounts = { ...tempTagCounts };
@@ -201,7 +189,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
           {
             autoFocus: false,
             label: "No",
-            action: closeModal,
+            action: closeDialog,
           },
         ],
       });
@@ -219,13 +207,13 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
       onSave();
       await getTags();
     }
-    closeModal();
+    closeDialog();
   };
 
   const getTagsOnTemplate = () => {
     const tagsOnTemplate =
       editingTemplate?.tags?.filter((t) =>
-        availableTags.some((t2) => t2.key === t.key)
+        availableTags.some((t2) => t2.key === t.key),
       ) || [];
     return tagsOnTemplate;
   };
@@ -233,7 +221,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
   const getTagsNotOnTemplate = () => {
     const tagsOnTemplateKeys = new Set(getTagsOnTemplate().map((t) => t.key));
     const tagsNotOnTemplate = availableTags.filter(
-      (t) => !tagsOnTemplateKeys.has(t.key)
+      (t) => !tagsOnTemplateKeys.has(t.key),
     );
     return tagsNotOnTemplate;
   };
@@ -330,7 +318,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
                           const tagsNotOnTemplate = getTagsNotOnTemplate();
                           if (
                             prevSelected.some((t) =>
-                              tagsNotOnTemplate.includes(t)
+                              tagsNotOnTemplate.includes(t),
                             )
                           ) {
                             return [tag];
@@ -356,7 +344,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
                     (
                     {
                       templates.filter((t) =>
-                        t.tags.some((tTag) => tTag.key === tag.key)
+                        t.tags.some((tTag) => tTag.key === tag.key),
                       ).length
                     }
                     )
@@ -407,7 +395,10 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
                 <div className="flex gap-4">
                   {removeMode && (
                     <button
-                      onClick={handleRemoveTags}
+                      onClick={() => {
+                        handleRemoveTags();
+                        setHasUnsavedChanges(true);
+                      }}
                       className="bg-red-500 text-white font-bold rounded-lg py-2 px-4 mr-4 hover:bg-red-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500"
                     >
                       Remove
@@ -462,7 +453,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
           console.log("onCreateTags");
           onSave();
           setTagModalOpen(false);
-          closeModal();
+          closeDialog();
           getTags()
             .then(() => {
               console.log("tags fetched");

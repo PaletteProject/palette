@@ -25,7 +25,7 @@ export const deleteTemplateByTitle = async (req: Request, res: Response) => {
   const response = await TemplateService.deleteTemplateByTitle(
     req,
     res,
-    () => {}
+    () => {},
   );
   return response;
 };

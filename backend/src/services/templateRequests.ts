@@ -15,12 +15,12 @@ export const TemplateService = {
     if (!fs.existsSync(templatesPath)) {
       fs.writeFileSync(
         templatesPath,
-        JSON.stringify(defaultTemplates, null, 2)
+        JSON.stringify(defaultTemplates, null, 2),
       );
       templates = defaultTemplates;
     } else {
       templates = JSON.parse(
-        fs.readFileSync(templatesPath, "utf-8")
+        fs.readFileSync(templatesPath, "utf-8"),
       ) as Template[];
     }
   },
@@ -36,7 +36,7 @@ export const TemplateService = {
     const templateData = (await req.body) as Template | null;
     if (templateData) {
       const templateIndex = localTemplates.findIndex(
-        (tmplt: Template) => tmplt.title === templateData.title
+        (tmplt: Template) => tmplt.title === templateData.title,
       );
       template.title = templateData.title;
       template.criteria = templateData.criteria;
@@ -75,7 +75,7 @@ export const TemplateService = {
     if (templatesToAdd) {
       for (const templateToAdd of templatesToAdd) {
         const templateIndex = localTemplates.findIndex(
-          (t: Template) => t.title === templateToAdd.title
+          (t: Template) => t.title === templateToAdd.title,
         );
         const template = createTemplate();
         template.title = templateToAdd.title;
@@ -116,7 +116,7 @@ export const TemplateService = {
     const templateData = (await req.body) as Template | null;
     if (templateData) {
       const templateIndex = localTemplates.findIndex(
-        (tmplt: Template) => tmplt.key === templateData.key
+        (tmplt: Template) => tmplt.key === templateData.key,
       );
       console.log("templateIndex", templateIndex);
       console.log("templateData", templateData);
@@ -127,7 +127,7 @@ export const TemplateService = {
         console.log("templates", templates);
         fs.writeFileSync(
           templatesPath,
-          JSON.stringify(localTemplates, null, 2)
+          JSON.stringify(localTemplates, null, 2),
         );
       }
     }
@@ -148,7 +148,7 @@ export const TemplateService = {
     if (templatesToUpdate) {
       for (const templateToUpdate of templatesToUpdate) {
         const templateIndex = localTemplates.findIndex(
-          (t: Template) => t.key === templateToUpdate.key
+          (t: Template) => t.key === templateToUpdate.key,
         );
         if (templateIndex !== -1) {
           localTemplates[templateIndex] = templateToUpdate;
@@ -170,18 +170,19 @@ export const TemplateService = {
     console.log("deleteTemplate request", req.body);
     const templatesData = fs.readFileSync(templatesPath, "utf8");
     const localTemplates = JSON.parse(templatesData) as Template[];
-    const templateKey = req.body.key;
+    const templateData = req.body as Template | null;
+    const templateKey = templateData?.key;
     console.log("templateKey", templateKey);
     if (templateKey) {
       const templateIndex = localTemplates.findIndex(
-        (tmplt: Template) => tmplt.key === templateKey
+        (tmplt: Template) => tmplt.key === templateKey,
       );
       console.log("templateIndex", templateIndex);
       if (templateIndex !== -1) {
         localTemplates.splice(templateIndex, 1);
         fs.writeFileSync(
           templatesPath,
-          JSON.stringify(localTemplates, null, 2)
+          JSON.stringify(localTemplates, null, 2),
         );
       }
     }
@@ -206,7 +207,7 @@ export const TemplateService = {
     if (templatesToDelete) {
       for (const templateToDelete of templatesToDelete) {
         const templateIndex = localTemplates.findIndex(
-          (t: Template) => t.title === templateToDelete.title
+          (t: Template) => t.title === templateToDelete.title,
         );
         const template = createTemplate();
         template.title = templateToDelete.title;
@@ -245,13 +246,13 @@ export const TemplateService = {
       const templateTitle = templateData?.title;
       if (templateTitle) {
         const templateIndex = localTemplates.findIndex(
-          (tmplt: Template) => tmplt.title === templateTitle
+          (tmplt: Template) => tmplt.title === templateTitle,
         );
         if (templateIndex !== -1) {
           localTemplates[templateIndex].criteria = [];
           fs.writeFileSync(
             templatesPath,
-            JSON.stringify(localTemplates, null, 2)
+            JSON.stringify(localTemplates, null, 2),
           );
         }
       }
@@ -262,7 +263,7 @@ export const TemplateService = {
       };
 
       res.json(apiResponse);
-    }
+    },
   ),
 
   deleteAllCriteriaByKey: asyncHandler(async (req: Request, res: Response) => {
@@ -272,13 +273,13 @@ export const TemplateService = {
     const templateKey = templateData?.key;
     if (templateKey) {
       const templateIndex = localTemplates.findIndex(
-        (tmplt: Template) => tmplt.key === templateKey
+        (tmplt: Template) => tmplt.key === templateKey,
       );
       if (templateIndex !== -1) {
         localTemplates[templateIndex].criteria = [];
         fs.writeFileSync(
           templatesPath,
-          JSON.stringify(localTemplates, null, 2)
+          JSON.stringify(localTemplates, null, 2),
         );
       }
     }
@@ -299,13 +300,13 @@ export const TemplateService = {
     const templateTitle = templateData?.title;
     if (templateTitle) {
       const templateIndex = localTemplates.findIndex(
-        (tmplt: Template) => tmplt.title === templateTitle
+        (tmplt: Template) => tmplt.title === templateTitle,
       );
       if (templateIndex !== -1) {
         localTemplates.splice(templateIndex, 1);
         fs.writeFileSync(
           templatesPath,
-          JSON.stringify(localTemplates, null, 2)
+          JSON.stringify(localTemplates, null, 2),
         );
       }
     }
@@ -347,7 +348,7 @@ export const TemplateService = {
     const templateKey = templateData?.key;
     if (templateKey) {
       const templateIndex = localTemplates.findIndex(
-        (tmplt: Template) => tmplt.key === templateKey
+        (tmplt: Template) => tmplt.key === templateKey,
       );
       if (templateIndex !== -1) {
         res.json(localTemplates[templateIndex]);
@@ -365,7 +366,7 @@ export const TemplateService = {
     const templateTitle = templateData?.title;
     if (templateTitle) {
       const templateIndex = localTemplates.findIndex(
-        (tmplt: Template) => tmplt.title === templateTitle
+        (tmplt: Template) => tmplt.title === templateTitle,
       );
       if (templateIndex !== -1) {
         const apiResponse: PaletteAPIResponse<Template> = {

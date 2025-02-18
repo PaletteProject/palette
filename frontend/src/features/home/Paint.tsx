@@ -97,6 +97,19 @@ void main() {
 }
 `;
 
+interface ProgramUniforms {
+  iTime: { value: number };
+  iResolution: { value: Vec3 };
+  iMouse: { value: Vec3 };
+  iColor: { value: Vec3 };
+  iCursorColor: { value: Vec3 };
+  iAnimationSize: { value: number };
+  iSpeed: { value: number };
+  iBallCount: { value: number };
+  iClumpFactor: { value: number };
+  iCursorBallSize: { value: number };
+}
+
 const MetaBalls = ({
   color = "#ffffff",
   speed = 0.3,
@@ -148,7 +161,7 @@ const MetaBalls = ({
         iBallCount: { value: ballCount },
         iClumpFactor: { value: clumpFactor },
         iCursorBallSize: { value: cursorBallSize },
-      },
+      } as ProgramUniforms,
     });
     const mesh = new Mesh(gl, { geometry, program });
     const scene = new Transform();
@@ -165,11 +178,12 @@ const MetaBalls = ({
       renderer.setSize(width * dpr, height * dpr);
       gl.canvas.style.width = width + "px";
       gl.canvas.style.height = height + "px";
-      program.uniforms.iResolution.value.set(
-        gl.canvas.width,
-        gl.canvas.height,
-        0
-      );
+      const typedUniforms = program.uniforms as {
+        iTime: { value: number };
+        iResolution: { value: Vec3 };
+        iMouse: { value: Vec3 };
+      };
+      typedUniforms.iResolution.value.set(gl.canvas.width, gl.canvas.height, 0);
     }
     window.addEventListener("resize", resize);
     resize();
@@ -198,7 +212,12 @@ const MetaBalls = ({
     function update(t: number) {
       animationFrameId = requestAnimationFrame(update);
       const elapsed = (t - startTime) * 0.001;
-      program.uniforms.iTime.value = elapsed;
+      const typedUniforms = program.uniforms as {
+        iTime: { value: number };
+        iResolution: { value: Vec3 };
+        iMouse: { value: Vec3 };
+      };
+      typedUniforms.iTime.value = elapsed;
       let targetX, targetY;
       if (pointerInside) {
         targetX = pointerX;
@@ -213,7 +232,7 @@ const MetaBalls = ({
       }
       mouseBallPos.x += (targetX - mouseBallPos.x) * hoverSmoothness;
       mouseBallPos.y += (targetY - mouseBallPos.y) * hoverSmoothness;
-      program.uniforms.iMouse.value.set(mouseBallPos.x, mouseBallPos.y, 0);
+      typedUniforms.iMouse.value.set(mouseBallPos.x, mouseBallPos.y, 0);
       renderer.render({ scene, camera });
     }
     animationFrameId = requestAnimationFrame(update);
@@ -227,7 +246,6 @@ const MetaBalls = ({
       container.removeChild(gl.canvas);
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     color,
     cursorBallColor,

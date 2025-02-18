@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import TemplateCard from "../templatesPage/TemplateCards.tsx";
 import { Template } from "palette-types";
 import TemplateManagementControls from "./TemplateManagementControls.tsx";
@@ -50,7 +50,7 @@ const TemplatesWindow = () => {
           label: "Delete All Selected",
           action: () => {
             const templatesToDelete = selectedTemplates.map(
-              (key) => templates.find((t) => t.key === key) as Template
+              (key) => templates.find((t) => t.key === key) as Template,
             );
             handleBulkDeleteTemplates(templatesToDelete);
             closeDialog();
@@ -68,7 +68,7 @@ const TemplatesWindow = () => {
 
   const handleBulkExport = () => {
     const selectedTemplatesToExport = templates.filter((t) =>
-      selectedTemplates.includes(t.key)
+      selectedTemplates.includes(t.key),
     );
 
     const exportData = JSON.stringify(selectedTemplatesToExport, null, 2);
@@ -132,7 +132,7 @@ const TemplatesWindow = () => {
         const matchesTags =
           selectedTagFilters.length === 0 ||
           selectedTagFilters.every((tagKey) =>
-            template.tags.some((tag) => tag.key === tagKey)
+            template.tags.some((tag) => tag.key === tagKey),
           );
         return matchesSearch && matchesTags;
       })
@@ -165,7 +165,7 @@ const TemplatesWindow = () => {
   const handleSelectTemplateBulkActions = (templateKey: string) => {
     if (selectedTemplates.includes(templateKey)) {
       const newSelected = selectedTemplates.filter(
-        (key) => key !== templateKey
+        (key) => key !== templateKey,
       );
 
       setSelectedTemplates(newSelected);

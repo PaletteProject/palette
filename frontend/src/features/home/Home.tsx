@@ -1,6 +1,5 @@
-import { ReactElement, useState, useRef } from "react";
+import { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
-import { randomColor } from "@utils";
 import { Footer, Header } from "@components";
 import Paint from "./Paint";
 
@@ -49,7 +48,7 @@ export function Home(): ReactElement {
   console.log("paintColor", paintColor);
   console.log(
     "hexToTailwindColor(cursorColor)",
-    hexToTailwindColor(cursorColor)
+    hexToTailwindColor(cursorColor),
   );
   console.log("hexToTailwindColor(paintColor)", hexToTailwindColor(paintColor));
   const handleLogin = () => {

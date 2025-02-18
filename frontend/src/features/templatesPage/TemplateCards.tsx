@@ -124,7 +124,7 @@ export default function TemplateCard({
   const handleViewModeToggle = () => {
     if (focusedTemplateKey) {
       const focusedTemplate = templates.find(
-        (t) => t.key === focusedTemplateKey
+        (t) => t.key === focusedTemplateKey,
       );
       if (focusedTemplate) {
         setEditingTemplate(focusedTemplate);
@@ -169,7 +169,7 @@ export default function TemplateCard({
 
   const [criteriaDropdownOpen, setCriteriaDropdownOpen] = useState(false);
   const [selectedCriterion, setSelectedCriterion] = useState<Criteria | null>(
-    null
+    null,
   );
 
   const toggleCriteriaDropdown = () => {
@@ -357,7 +357,7 @@ export default function TemplateCard({
                 .sort(([scoreA], [scoreB]) => Number(scoreB) - Number(scoreA))
                 .map(([score, count]) => {
                   const rating = criterion.ratings.find(
-                    (rating) => rating.points === Number(score)
+                    (rating) => rating.points === Number(score),
                   );
                   return {
                     id: score,
