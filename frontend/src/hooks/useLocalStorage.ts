@@ -15,7 +15,7 @@ function getStoredValue<T>(key: string, initialValue: T | (() => T)): T {
 // Custom hook to manage state with localStorage
 export function useLocalStorage<T>(
   key: string,
-  initialValue: T
+  initialValue: T,
 ): [T, (value: T) => void] {
   // Initialize state with the stored value or initial value
   const [value, setValue] = useState<T>(() => {
