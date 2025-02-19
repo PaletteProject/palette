@@ -11,6 +11,7 @@ import { createCriterion } from "@utils";
 import { ChoiceDialog, Dialog } from "@components";
 import AllTags from "src/features/templatesPage/AllTags";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { useLocalStorage, useUpdateLogger } from "@hooks";
 
 interface GenericBuilderProps {
   builderType: "template" | "rubric";
@@ -37,6 +38,11 @@ export const GenericBuilder = ({
     setHasUnsavedChanges,
   } = useTemplatesContext();
 
+  const [unsavedDocument, setUnsavedDocument] = useLocalStorage(
+    "unsavedDocument",
+    document
+  );
+
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   const [showDialog, setShowDialog] = useState(false);
@@ -44,7 +50,7 @@ export const GenericBuilder = ({
   const { openDialog, closeDialog } = useChoiceDialog();
 
   const handleDocumentTitleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     e.preventDefault();
 
@@ -55,6 +61,7 @@ export const GenericBuilder = ({
         title: newTitle,
       } as Template;
       setDocument(updatedTemplate);
+      setUnsavedDocument(updatedTemplate);
       setHasUnsavedChanges(true);
     } else if (builderType === "rubric") {
       const updatedRubric = {
@@ -62,6 +69,7 @@ export const GenericBuilder = ({
         title: newTitle,
       } as Rubric;
       setDocument(updatedRubric);
+      setUnsavedDocument(updatedRubric);
     }
   };
 
@@ -75,14 +83,16 @@ export const GenericBuilder = ({
       criteria: newCriteria,
       points: newCriteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       ),
     };
     if (builderType === "template") {
       setEditingTemplate(updatedTemplate as Template);
       handleUpdateTemplate(index, updatedTemplate as Template);
+      setUnsavedDocument(updatedTemplate);
     } else {
       setViewingTemplate(updatedTemplate as Template);
+      setUnsavedDocument(updatedTemplate);
     }
     // console.log("criterion updated");
   };
@@ -98,11 +108,12 @@ export const GenericBuilder = ({
       const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
       updatedTemplate.points = updatedTemplate.criteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       );
       // console.log("updatedTemplate points", updatedTemplate.points);
       setEditingTemplate(updatedTemplate as Template);
       handleUpdateTemplate(index, updatedTemplate as Template);
+      setUnsavedDocument(updatedTemplate);
       setHasUnsavedChanges(true);
     };
 
@@ -110,6 +121,7 @@ export const GenericBuilder = ({
       const newCriteria = [...document.criteria];
       newCriteria.splice(index, 1);
       setDocument({ ...document, criteria: newCriteria });
+      setUnsavedDocument({ ...document, criteria: newCriteria });
       setHasUnsavedChanges(true);
     };
 
@@ -200,16 +212,18 @@ export const GenericBuilder = ({
         criteria: newCriteria,
         points: newCriteria.reduce(
           (acc, criterion) => acc + criterion.pointsPossible,
-          0,
+          0
         ),
       };
       setEditingTemplate(updatedTemplate as Template);
       setActiveCriterionIndex(newCriteria.length - 1);
       setHasUnsavedChanges(true);
+      setUnsavedDocument(updatedTemplate);
     } else {
       const newCriteria = [...document.criteria, createCriterion()];
       setDocument({ ...document, criteria: newCriteria });
       setActiveCriterionIndex(newCriteria.length - 1);
+      setUnsavedDocument({ ...document, criteria: newCriteria });
     }
   };
 
@@ -250,7 +264,7 @@ export const GenericBuilder = ({
       const isDuplicateName = templates.some(
         (t) =>
           t.title.toLowerCase() === document?.title.toLowerCase() &&
-          t.key !== document?.key,
+          t.key !== document?.key
       );
       if (isDuplicateName) {
         openDialog({

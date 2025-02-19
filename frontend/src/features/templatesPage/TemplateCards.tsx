@@ -79,7 +79,6 @@ export default function TemplateCard({
     }
   };
 
-  // Add effect to sync local focus state with global focused key
   useEffect(() => {
     setIsFocused(focusedTemplateKey === template?.key);
   }, [focusedTemplateKey, template?.key]);
@@ -88,7 +87,6 @@ export default function TemplateCard({
     const updatedTemplate = { ...editingTemplate, tags };
     setEditingTemplate(updatedTemplate as Template);
     handleUpdateTemplate(index, updatedTemplate as Template);
-    // setHasUnsavedChanges(true);
   };
 
   const submitTemplate = () => {
@@ -127,7 +125,7 @@ export default function TemplateCard({
   const handleViewModeToggle = () => {
     if (focusedTemplateKey) {
       const focusedTemplate = templates.find(
-        (t) => t.key === focusedTemplateKey,
+        (t) => t.key === focusedTemplateKey
       );
       if (focusedTemplate) {
         setEditingTemplate(focusedTemplate);
@@ -177,7 +175,7 @@ export default function TemplateCard({
                 style={{
                   width: `${calculatePerformance(template)}%`,
                   backgroundColor: interpolateColor(
-                    calculatePerformance(template),
+                    calculatePerformance(template)
                   ),
                 }}
               ></div>
@@ -190,7 +188,7 @@ export default function TemplateCard({
 
   const [criteriaDropdownOpen, setCriteriaDropdownOpen] = useState(false);
   const [selectedCriterion, setSelectedCriterion] = useState<Criteria | null>(
-    null,
+    null
   );
 
   const toggleCriteriaDropdown = () => {
@@ -364,12 +362,10 @@ export default function TemplateCard({
 
     if (!criterion) return null;
 
-    // Use the scores from the current criterion
     const scores = criterion.scores;
 
     return (
       <div>
-        {/* Other chart rendering logic */}
         <h2
           className={`text-gray-300 text-lg font-bold ${
             layoutStyle === "grid" ? "ml-24" : "ml-72"
@@ -384,7 +380,7 @@ export default function TemplateCard({
                 .sort(([scoreA], [scoreB]) => Number(scoreB) - Number(scoreA))
                 .map(([score, count]) => {
                   const rating = criterion.ratings.find(
-                    (rating) => rating.points === Number(score),
+                    (rating) => rating.points === Number(score)
                   );
                   return {
                     id: score,
@@ -430,12 +426,11 @@ export default function TemplateCard({
     return `rgb(${red}, ${green}, 0)`;
   }
 
-  // Add this function to handle cycling to the next criterion
   const cycleToNextCriterion = () => {
     if (!template.criteria || template.criteria.length === 0) return;
 
     const currentIndex = template.criteria.findIndex(
-      (criterion) => criterion.key === selectedCriterion?.key,
+      (criterion) => criterion.key === selectedCriterion?.key
     );
 
     const nextIndex = (currentIndex + 1) % template.criteria.length;

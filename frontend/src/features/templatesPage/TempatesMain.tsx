@@ -155,8 +155,6 @@ function TemplatesMainContent(): ReactElement {
           )}
         </div>
 
-        {/* <TemplateMetrics /> */}
-
         <Dialog
           isOpen={templateDialogOpen}
           onClose={handleCloseModal}

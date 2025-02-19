@@ -17,14 +17,16 @@ const TemplateTagCreator = ({
   onClose,
   onCreateTags,
 }: TemplateTagCreatorProps) => {
-  // Add state for tag creation modal
+  // state for tag creation modal
   const [newTag, setNewTag] = useState<Tag>(createTag());
 
+  // state for staged tags
   const [stagedTags, setStagedTags] = useState<Tag[]>([]);
 
-  // Add state for selected tag index
+  // state for selected tag index
   const [selectedTagIndex, setSelectedTagIndex] = useState<number | null>(null);
 
+  // fetch data for post tags
   const { fetchData: postTags } = useFetch("/tags/bulk", {
     method: "POST",
     body: JSON.stringify(stagedTags),
@@ -55,23 +57,31 @@ const TemplateTagCreator = ({
     "e.g. Sprint Backlog",
   ];
 
+  // state for current placeholder index
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
+
+  // state for selected color
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+
+  // state for selected tag
   const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
+
+  // state for adding tag from builder
   const { addingTagFromBuilder, editingTemplate, setEditingTemplate } =
     useTemplatesContext();
 
-  // Add effect to rotate placeholders
+  // effect to rotate placeholders
   React.useEffect(() => {
     const interval = setInterval(() => {
       setCurrentPlaceholderIndex(
-        (prev) => (prev + 1) % placeholderSuggestions.length,
+        (prev) => (prev + 1) % placeholderSuggestions.length
       );
     }, 3000); // Change every 3 seconds
 
     return () => clearInterval(interval);
   }, []);
 
+  // effect to reset state when modal is closed
   React.useEffect(() => {
     if (!isOpen) {
       setSelectedTag(null);
@@ -80,6 +90,7 @@ const TemplateTagCreator = ({
     }
   }, [isOpen]);
 
+  // handle create tag
   const handleCreateTag = async () => {
     // Loop through each tag and perform a POST request
     if (addingTagFromBuilder && editingTemplate) {
@@ -100,6 +111,7 @@ const TemplateTagCreator = ({
     }
   };
 
+  // render tag creator modal
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title="">
       <div className="flex flex-col gap-4">
@@ -167,7 +179,7 @@ const TemplateTagCreator = ({
 
                       color:
                         tagColors[Math.floor(Math.random() * tagColors.length)],
-                    })),
+                    }))
                   );
                 }}
                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
@@ -191,7 +203,7 @@ const TemplateTagCreator = ({
                 <button
                   onClick={() => {
                     setStagedTags((prev) =>
-                      prev.filter((_, index) => index !== selectedTagIndex),
+                      prev.filter((_, index) => index !== selectedTagIndex)
                     );
                     setSelectedTagIndex(null);
                     setSelectedTag(null);
@@ -217,7 +229,7 @@ const TemplateTagCreator = ({
                   setSelectedColor(color);
                   if (selectedTagIndex !== null) {
                     const updatedTags = stagedTags.map((tag, index) =>
-                      index === selectedTagIndex ? { ...tag, color } : tag,
+                      index === selectedTagIndex ? { ...tag, color } : tag
                     );
                     setStagedTags(updatedTags);
                     setSelectedTag({ ...stagedTags[selectedTagIndex], color });
