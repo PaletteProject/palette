@@ -36,10 +36,7 @@ export function ProjectGradingView({
     return null;
   }
 
-  // ratings state to track and update background colors
-  const [ratings, setRatings] = useState<{ [key: string]: number | string }>(
-    {},
-  );
+  const [ratings, setRatings] = useState<Record<string, number | string>>({});
 
   // group grading checkbox state
   const [checkedCriteria, setCheckedCriteria] = useState<{
@@ -53,7 +50,7 @@ export function ProjectGradingView({
    */
   useEffect(() => {
     if (isOpen) {
-      const initialRatings: { [key: string]: number | string } = {};
+      const initialRatings: Record<string, number | string> = {};
 
       // process the cached submissions, prioritizing the latest in progress grades over what Canvas current has saved.
       gradedSubmissionCache.forEach((gradedSubmission) => {

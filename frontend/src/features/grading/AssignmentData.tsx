@@ -2,7 +2,7 @@ import { useAssignment } from "../../context/AssignmentProvider.tsx";
 import { useNavigate } from "react-router-dom";
 import { MouseEvent, useEffect, useState } from "react";
 import { Rubric } from "palette-types";
-import { ChoiceDialog } from "@components";
+import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 
 export function AssignmentData({ rubric }: { rubric: Rubric | undefined }) {
@@ -70,22 +70,20 @@ export function AssignmentData({ rubric }: { rubric: Rubric | undefined }) {
             {rubricMessage}{" "}
           </div>
           {!rubric && (
-            <button
-              className={"text-cyan-400 font-bold"}
-              type={"button"}
-              onClick={() => navigate("/rubric-builder")}
-            >
-              Build Rubric
-            </button>
+            <PaletteActionButton
+              onClick={() => {
+                navigate("/rubric-builder");
+              }}
+              title={"Build Rubric"}
+              color={"YELLOW"}
+            />
           )}
           {rubric && (
-            <button
-              className={"text-green-500 font-bold"}
-              type={"button"}
+            <PaletteActionButton
               onClick={handleEditRubricSelection}
-            >
-              Edit Rubric
-            </button>
+              title={"Edit Rubric"}
+              color={"PURPLE"}
+            />
           )}
         </div>
       </div>
