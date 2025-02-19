@@ -67,6 +67,7 @@ export function createCriterion(
   id: string = "",
   template: string = "",
   templateTitle: string = "",
+  scores: number[] = [],
 ): Criteria {
   return {
     ratings,
@@ -80,6 +81,7 @@ export function createCriterion(
     updatePoints() {
       this.pointsPossible = Number(calcMaxPoints(this.ratings));
     },
+    scores,
   };
 }
 

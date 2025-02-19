@@ -1,5 +1,5 @@
 import { Criteria, Rubric, Template } from "palette-types";
-import { useTemplatesContext } from "../../features/templatesPage/TemplateContext";
+import { useTemplatesContext } from "src/features/templatesPage/TemplateContext";
 import React, { MouseEvent as ReactMouseEvent, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -311,7 +311,7 @@ export const GenericBuilder = ({
                 setAddingTagFromBuilder(true);
               }}
             >
-              Add Tag
+              Tags
             </button>
           </div>
         </div>
@@ -347,8 +347,15 @@ export const GenericBuilder = ({
       <Dialog
         isOpen={showDialog}
         onClose={() => setShowDialog(false)}
-        title={`Add Tag(s) to Template: "${editingTemplate?.title}"`}
-        children={<AllTags onSave={() => setShowDialog(false)} />}
+        title={"Tag Management"}
+        children={
+          <AllTags
+            onSave={() => {
+              setShowDialog(false);
+              console.log("showDialog", showDialog);
+            }}
+          />
+        }
       />
     </>
   );
