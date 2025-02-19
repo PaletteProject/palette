@@ -1,12 +1,13 @@
 import { useAssignment } from "../../context/AssignmentProvider.tsx";
 import { useNavigate } from "react-router-dom";
 import { MouseEvent, useEffect, useState } from "react";
-import { Rubric } from "palette-types";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { useRubric } from "@context";
 
-export function AssignmentData({ rubric }: { rubric: Rubric | undefined }) {
+export function AssignmentData() {
   const { activeAssignment } = useAssignment();
+  const { activeRubric } = useRubric();
   const navigate = useNavigate();
 
   const messageOptions = {
@@ -21,12 +22,12 @@ export function AssignmentData({ rubric }: { rubric: Rubric | undefined }) {
   const { openDialog, closeDialog } = useChoiceDialog();
 
   useEffect(() => {
-    if (rubric) {
+    if (activeRubric) {
       setRubricMessage(messageOptions.present);
     } else {
       setRubricMessage(messageOptions.missing);
     }
-  }, [rubric]);
+  }, [activeRubric]);
 
   function handleEditRubricSelection(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
@@ -69,7 +70,7 @@ export function AssignmentData({ rubric }: { rubric: Rubric | undefined }) {
             {" "}
             {rubricMessage}{" "}
           </div>
-          {!rubric && (
+          {!activeRubric && (
             <PaletteActionButton
               onClick={() => {
                 navigate("/rubric-builder");
@@ -78,7 +79,7 @@ export function AssignmentData({ rubric }: { rubric: Rubric | undefined }) {
               color={"YELLOW"}
             />
           )}
-          {rubric && (
+          {activeRubric && (
             <PaletteActionButton
               onClick={handleEditRubricSelection}
               title={"Edit Rubric"}

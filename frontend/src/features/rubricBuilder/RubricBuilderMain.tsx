@@ -42,7 +42,7 @@ import { createCriterion, createRubric } from "@utils";
 import { Criteria, PaletteAPIResponse, Rubric, Template } from "palette-types";
 import { CSVExport, CSVImport } from "@features";
 import { AnimatePresence, motion } from "framer-motion";
-import { useAssignment, useCourse } from "@context";
+import { useAssignment, useCourse, useRubric } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 
 export function RubricBuilderMain(): ReactElement {
@@ -53,6 +53,10 @@ export function RubricBuilderMain(): ReactElement {
     const rubric = localStorage.getItem("rubric");
     return rubric ? (JSON.parse(rubric) as Rubric) : createRubric();
   };
+
+  // todo: refactor to to use rubric context
+  const { activeRubric, setActiveRubric } = useRubric();
+
   /**
    * Rubric Builder State
    */
