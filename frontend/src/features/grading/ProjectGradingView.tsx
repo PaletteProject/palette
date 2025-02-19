@@ -105,8 +105,6 @@ export function ProjectGradingView({
         ...prev,
         [`${submissionId}-${criterionId}`]: newValue,
       };
-      console.log("INITIAL UPDATED RATINGS");
-      console.table(updatedRatings);
 
       if (applyToGroup) {
         // iterate through all the ratings and updated the ones with same criterion id
@@ -117,8 +115,6 @@ export function ProjectGradingView({
         });
       }
 
-      console.log("CHANGED RATINGS");
-      console.table(updatedRatings);
       return updatedRatings;
     });
   };
@@ -171,9 +167,6 @@ export function ProjectGradingView({
      */
 
     setGradedSubmissionCache((prev) => prev.concat(gradedSubmissions));
-    console.log("Caching submissions ");
-    console.log(gradedSubmissions);
-    console.log("end cache");
 
     onClose();
   };
