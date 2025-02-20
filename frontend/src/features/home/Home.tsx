@@ -30,7 +30,7 @@ export function Home(): ReactElement {
     "#ff00ff", // pink
     "#00ffff", // cyan
     "#ffa500", // orange
-    "#800080", // purple
+    "#db1ddb", // purple
     "#008000", // green
     "#ffff00", // yellow
     "#ff1493", // deep pink
@@ -48,7 +48,7 @@ export function Home(): ReactElement {
   console.log("paintColor", paintColor);
   console.log(
     "hexToTailwindColor(cursorColor)",
-    hexToTailwindColor(cursorColor),
+    hexToTailwindColor(cursorColor)
   );
   console.log("hexToTailwindColor(paintColor)", hexToTailwindColor(paintColor));
   const handleLogin = () => {
