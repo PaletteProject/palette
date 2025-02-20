@@ -48,7 +48,7 @@ export function Home(): ReactElement {
   console.log("paintColor", paintColor);
   console.log(
     "hexToTailwindColor(cursorColor)",
-    hexToTailwindColor(cursorColor)
+    hexToTailwindColor(cursorColor),
   );
   console.log("hexToTailwindColor(paintColor)", hexToTailwindColor(paintColor));
   const handleLogin = () => {
