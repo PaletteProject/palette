@@ -70,8 +70,14 @@ export function RubricBuilderMain(): ReactElement {
 
   const [isCanvasBypassed, setIsCanvasBypassed] = useState(false);
 
+  // this template tracks the template that is currently being updated
   const [updatingTemplate, setUpdatingTemplate] = useState<Template | null>(
-    null,
+    null
+  );
+
+  // this template tracks the template that is currently being imported
+  const [importingTemplate, setImportingTemplate] = useState<Template | null>(
+    null
   );
 
   const [templateInputActive, setTemplateInputActive] = useState(false);
@@ -80,7 +86,7 @@ export function RubricBuilderMain(): ReactElement {
 
   const closePopUp = useCallback(
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
-    [],
+    []
   );
 
   const [popUp, setPopUp] = useState({
@@ -103,7 +109,7 @@ export function RubricBuilderMain(): ReactElement {
 
   // GET rubric from the active assignment.
   const { fetchData: getRubric } = useFetch(
-    `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}`,
+    `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}`
   );
 
   useEffect(() => {
@@ -120,7 +126,7 @@ export function RubricBuilderMain(): ReactElement {
     {
       method: "PUT",
       body: JSON.stringify(rubric),
-    },
+    }
   );
 
   const { fetchData: postRubric } = useFetch(
@@ -128,7 +134,7 @@ export function RubricBuilderMain(): ReactElement {
     {
       method: "POST",
       body: JSON.stringify(rubric),
-    },
+    }
   );
 
   /* this is for updating the existing templates with most
@@ -137,7 +143,7 @@ export function RubricBuilderMain(): ReactElement {
   */
   const { fetchData: putTemplate } = useFetch("/templates", {
     method: "PUT",
-    body: JSON.stringify(updatingTemplate),
+    body: JSON.stringify(importingTemplate),
   });
 
   /**
@@ -158,6 +164,22 @@ export function RubricBuilderMain(): ReactElement {
     setHasExistingRubric(false);
     setIsNewRubric(true);
   };
+
+  useEffect(() => {
+    const updateTemplate = async () => {
+      if (!importingTemplate) {
+        console.warn("No template provided for update.");
+        return;
+      }
+      const response = await putTemplate();
+      if (response.success) {
+        console.log("template usage count updated successfully");
+      } else {
+        console.error("error updating template", response.error);
+      }
+    };
+    void updateTemplate();
+  }, [importingTemplate]);
 
   /**
    * Effect hook to see if the active assignment has an existing rubric. Apply loading status while waiting to
@@ -247,7 +269,7 @@ export function RubricBuilderMain(): ReactElement {
     const existingTemplates: Template[] = [];
     for (const criterion of criteriaOnATemplate) {
       const exitingTemplateIndex = existingTemplates.findIndex(
-        (template) => template.key === criterion.template,
+        (template) => template.key === criterion.template
       );
       if (exitingTemplateIndex === -1) {
         const template = createTemplate();
@@ -322,9 +344,7 @@ export function RubricBuilderMain(): ReactElement {
   const handleRubricTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
     setRubric((prevRubric) =>
-      prevRubric
-        ? { ...prevRubric, title: event.target.value }
-        : createRubric(),
+      prevRubric ? { ...prevRubric, title: event.target.value } : createRubric()
     );
   };
 
@@ -343,7 +363,7 @@ export function RubricBuilderMain(): ReactElement {
           isNaN(criterion.pointsPossible)
             ? sum
             : sum + criterion.pointsPossible,
-        0, // init sum to 0
+        0 // init sum to 0
       ) ?? 0 // fallback value if criterion is undefined
     );
   }, [rubric?.criteria]);
@@ -419,10 +439,10 @@ export function RubricBuilderMain(): ReactElement {
     if (!rubric) return;
     if (event.over) {
       const oldIndex = rubric.criteria.findIndex(
-        (criterion) => criterion.key === event.active.id,
+        (criterion) => criterion.key === event.active.id
       );
       const newIndex = rubric.criteria.findIndex(
-        (criterion) => criterion.key === event.over!.id, // assert not null for type safety
+        (criterion) => criterion.key === event.over!.id // assert not null for type safety
       );
 
       const updatedCriteria = [...rubric.criteria];
@@ -433,24 +453,14 @@ export function RubricBuilderMain(): ReactElement {
     }
   };
 
-  const updateTemplate = async (template: Template) => {
-    setUpdatingTemplate(template);
+  const handleImportTemplate = (template: Template) => {
     const updatedTemplate = {
       ...template,
       usageCount: template.usageCount + 1,
       lastUsed: new Date().toISOString(),
     };
-    setUpdatingTemplate(updatedTemplate);
-    const response = await putTemplate();
-    if (response.success) {
-      console.log("template updated successfully");
-    } else {
-      console.error("error updating template", response.error);
-    }
-  };
 
-  const handleImportTemplate = (template: Template) => {
-    console.log("import template in rubric builder main");
+    setUpdatingTemplate(updatedTemplate);
     if (!rubric) return;
 
     const currentCriteria = rubric.criteria;
@@ -462,7 +472,6 @@ export function RubricBuilderMain(): ReactElement {
         title: "Oops!",
         message: `This template has no criteria`,
       });
-
       return;
     }
 
@@ -472,7 +481,7 @@ export function RubricBuilderMain(): ReactElement {
         const isDuplicate = currentCriteria.some(
           (existingCriterion) =>
             existingCriterion.key.trim().toLowerCase() ===
-            newCriterion.key.trim().toLowerCase(),
+            newCriterion.key.trim().toLowerCase()
         );
 
         if (isDuplicate) {
@@ -483,30 +492,24 @@ export function RubricBuilderMain(): ReactElement {
 
         return acc;
       },
-      { unique: [] as Criteria[], duplicates: [] as Criteria[] },
+      { unique: [] as Criteria[], duplicates: [] as Criteria[] }
     );
 
     // Log information about duplicates if any were found
     if (duplicates.length > 0) {
-      console.log(
-        `Found ${duplicates.length} duplicate criteria that were skipped:`,
-        duplicates.map((c) => c.description),
-      );
+      const duplicateDescriptions = duplicates
+        .map((criterion) => criterion.description)
+        .join(", ");
+      setPopUp({
+        isOpen: true,
+        title: "Oops!",
+        message: `Looks like you already imported this one. Duplicate criteria: ${duplicateDescriptions}`,
+      });
+      return;
     }
 
-    updateTemplate(template)
-      .then(() => {
-        setRubric(
-          (prevRubric) =>
-            ({
-              ...(prevRubric ?? createRubric()),
-              criteria: [...(prevRubric?.criteria ?? []), ...unique],
-            }) as Rubric,
-        );
-      })
-      .catch((error) => {
-        console.error("error updating template", error);
-      });
+    setRubric({ ...rubric, criteria: [...currentCriteria, ...unique] });
+    setImportingTemplate(updatedTemplate);
   };
 
   /**

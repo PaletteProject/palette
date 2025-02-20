@@ -44,7 +44,7 @@ export const GenericBuilder = ({
   const { openDialog, closeDialog } = useChoiceDialog();
 
   const handleDocumentTitleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     e.preventDefault();
 
@@ -75,7 +75,7 @@ export const GenericBuilder = ({
       criteria: newCriteria,
       points: newCriteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       ),
     };
     if (builderType === "template") {
@@ -98,7 +98,7 @@ export const GenericBuilder = ({
       const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
       updatedTemplate.points = updatedTemplate.criteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       );
       // console.log("updatedTemplate points", updatedTemplate.points);
       setEditingTemplate(updatedTemplate as Template);
@@ -200,7 +200,7 @@ export const GenericBuilder = ({
         criteria: newCriteria,
         points: newCriteria.reduce(
           (acc, criterion) => acc + criterion.pointsPossible,
-          0,
+          0
         ),
       };
       setEditingTemplate(updatedTemplate as Template);
@@ -250,7 +250,7 @@ export const GenericBuilder = ({
       const isDuplicateName = templates.some(
         (t) =>
           t.title.toLowerCase() === document?.title.toLowerCase() &&
-          t.key !== document?.key,
+          t.key !== document?.key
       );
       if (isDuplicateName) {
         openDialog({
@@ -274,7 +274,7 @@ export const GenericBuilder = ({
   return (
     <>
       <form
-        className="h-full grid p-4 sm:p-6 md:p-4 w-full max-w-3xl my-3 gap-4 bg-gray-800 shadow-lg rounded-lg"
+        className="h-full grid p-4 sm:p-6 md:p-4 w-full max-w-3xl my-3 gap-4 bg-gray-800 shadow-lg rounded-lg items-center"
         onSubmit={(event) => event.preventDefault()}
       >
         {viewOrEdit === "edit" ? (
