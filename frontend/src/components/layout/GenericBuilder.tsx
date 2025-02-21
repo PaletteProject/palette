@@ -44,7 +44,7 @@ export const GenericBuilder = ({
   const { openDialog, closeDialog } = useChoiceDialog();
 
   const handleDocumentTitleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     e.preventDefault();
 
@@ -75,7 +75,7 @@ export const GenericBuilder = ({
       criteria: newCriteria,
       points: newCriteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       ),
     };
     if (builderType === "template") {
@@ -98,7 +98,7 @@ export const GenericBuilder = ({
       const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
       updatedTemplate.points = updatedTemplate.criteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       );
       // console.log("updatedTemplate points", updatedTemplate.points);
       setEditingTemplate(updatedTemplate as Template);
@@ -200,7 +200,7 @@ export const GenericBuilder = ({
         criteria: newCriteria,
         points: newCriteria.reduce(
           (acc, criterion) => acc + criterion.pointsPossible,
-          0,
+          0
         ),
       };
       setEditingTemplate(updatedTemplate as Template);
@@ -250,7 +250,7 @@ export const GenericBuilder = ({
       const isDuplicateName = templates.some(
         (t) =>
           t.title.toLowerCase() === document?.title.toLowerCase() &&
-          t.key !== document?.key,
+          t.key !== document?.key
       );
       if (isDuplicateName) {
         openDialog({
@@ -273,90 +273,92 @@ export const GenericBuilder = ({
 
   return (
     <>
-      <form
-        className="h-full grid p-4 sm:p-6 md:p-4 w-full max-w-3xl my-3 gap-4 bg-gray-800 shadow-lg rounded-lg items-center"
-        onSubmit={(event) => event.preventDefault()}
-      >
-        {viewOrEdit === "edit" ? (
-          <input
-            type="text"
-            value={editingTemplate?.title}
-            required={true}
-            onChange={(e) => handleDocumentTitleChange(e)}
-            className="rounded p-2 mb-2 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-lg truncate whitespace-nowrap"
-            placeholder={
-              builderType === "template" ? "Template title" : "Rubric title"
-            }
-          />
-        ) : (
-          <h1 className="font-extrabold text-3xl sm:text-4xl mb-2 text-center">
-            {builderType === "template" ? (
-              viewingTemplate?.title
-            ) : (
-              <>Rubric: {viewingTemplate?.title}</>
-            )}
-          </h1>
-        )}
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-extrabold bg-green-600 text-black py-1 px-3 rounded-lg">
-            {editingTemplate?.points}{" "}
-            {editingTemplate?.points === 1 ? "Point" : "Points"}
-          </h2>
-          <div className="flex gap-2">
-            <button
-              className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-1 px-3
-                       hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={() => {
-                setShowDialog(true);
-                setAddingTagFromBuilder(true);
+      <div className="flex justify-center items-center min-w-full h-full bg-gray-900 my-3 mr-3 rounded-lg">
+        <form
+          className="flex flex-col h-full w-3/5 p-4 sm:p-6 md:p-4 my-3 gap-4 bg-gray-800 shadow-lg rounded-lg"
+          onSubmit={(event) => event.preventDefault()}
+        >
+          {viewOrEdit === "edit" ? (
+            <input
+              type="text"
+              value={editingTemplate?.title}
+              required={true}
+              onChange={(e) => handleDocumentTitleChange(e)}
+              className="rounded p-2 mb-2 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-lg truncate whitespace-nowrap"
+              placeholder={
+                builderType === "template" ? "Template title" : "Rubric title"
+              }
+            />
+          ) : (
+            <h1 className="font-extrabold text-3xl sm:text-4xl mb-2 text-center">
+              {builderType === "template" ? (
+                viewingTemplate?.title
+              ) : (
+                <>Rubric: {viewingTemplate?.title}</>
+              )}
+            </h1>
+          )}
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-extrabold bg-green-600 text-black py-1 px-3 rounded-lg">
+              {editingTemplate?.points}{" "}
+              {editingTemplate?.points === 1 ? "Point" : "Points"}
+            </h2>
+            <div className="flex gap-2">
+              <button
+                className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-1 px-3
+                         hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onClick={() => {
+                  setShowDialog(true);
+                  setAddingTagFromBuilder(true);
+                }}
+              >
+                Tags
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-3 flex flex-col gap-2 h-[30vh] sm:h-[35vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
+            {renderCriteriaCards()}
+          </div>
+
+          {viewOrEdit === "edit" && (
+            <div className="grid gap-2 mt-3">
+              <button
+                className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
+                         hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onClick={handleAddCriteria}
+                type={"button"}
+              >
+                Add Criteria
+              </button>
+              <button
+                className="transition-all ease-in-out duration-300 bg-green-600 text-white font-bold rounded-lg py-2 px-4
+                         hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
+                onClick={(event) => submitDocument(event)}
+                type={"button"}
+              >
+                Save Template
+              </button>
+            </div>
+          )}
+        </form>
+
+        <ChoiceDialog />
+
+        <Dialog
+          isOpen={showDialog}
+          onClose={() => setShowDialog(false)}
+          title={"Tag Management"}
+          children={
+            <AllTags
+              onSave={() => {
+                setShowDialog(false);
+                console.log("showDialog", showDialog);
               }}
-            >
-              Tags
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-3 flex flex-col gap-2 h-[30vh] sm:h-[35vh] overflow-y-auto overflow-hidden scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
-          {renderCriteriaCards()}
-        </div>
-
-        {viewOrEdit === "edit" && (
-          <div className="grid gap-2 mt-3">
-            <button
-              className="transition-all ease-in-out duration-300 bg-blue-600 text-white font-bold rounded-lg py-2 px-4
-                       hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={handleAddCriteria}
-              type={"button"}
-            >
-              Add Criteria
-            </button>
-            <button
-              className="transition-all ease-in-out duration-300 bg-green-600 text-white font-bold rounded-lg py-2 px-4
-                       hover:bg-green-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500"
-              onClick={(event) => submitDocument(event)}
-              type={"button"}
-            >
-              Save Template
-            </button>
-          </div>
-        )}
-      </form>
-
-      <ChoiceDialog />
-
-      <Dialog
-        isOpen={showDialog}
-        onClose={() => setShowDialog(false)}
-        title={"Tag Management"}
-        children={
-          <AllTags
-            onSave={() => {
-              setShowDialog(false);
-              console.log("showDialog", showDialog);
-            }}
-          />
-        }
-      />
+            />
+          }
+        />
+      </div>
     </>
   );
 };

@@ -44,21 +44,18 @@ import { CSVExport, CSVImport } from "@features";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAssignment, useCourse } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { useLocalStorage } from "@hooks";
 
 export function RubricBuilderMain(): ReactElement {
   /**
    * Get initial rubric from local storage or create a new one if none exists
    */
-  const getInitialRubric = () => {
-    const rubric = localStorage.getItem("rubric");
-    return rubric ? (JSON.parse(rubric) as Rubric) : createRubric();
-  };
+
+  const [rubric, setRubric] = useLocalStorage("rubric", createRubric());
   /**
    * Rubric Builder State
    */
 
-  // active rubric being edited
-  const [rubric, setRubric] = useState<Rubric>(getInitialRubric());
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   // result of hook checking if active assignment has an existing rubric
@@ -72,12 +69,12 @@ export function RubricBuilderMain(): ReactElement {
 
   // this template tracks the template that is currently being updated
   const [updatingTemplate, setUpdatingTemplate] = useState<Template | null>(
-    null,
+    null
   );
 
   // this template tracks the template that is currently being imported
   const [importingTemplate, setImportingTemplate] = useState<Template | null>(
-    null,
+    null
   );
 
   const [templateInputActive, setTemplateInputActive] = useState(false);
@@ -86,7 +83,7 @@ export function RubricBuilderMain(): ReactElement {
 
   const closePopUp = useCallback(
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
-    [],
+    []
   );
 
   const [popUp, setPopUp] = useState({
@@ -109,7 +106,7 @@ export function RubricBuilderMain(): ReactElement {
 
   // GET rubric from the active assignment.
   const { fetchData: getRubric } = useFetch(
-    `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}`,
+    `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}`
   );
 
   useEffect(() => {
@@ -126,7 +123,7 @@ export function RubricBuilderMain(): ReactElement {
     {
       method: "PUT",
       body: JSON.stringify(rubric),
-    },
+    }
   );
 
   const { fetchData: postRubric } = useFetch(
@@ -134,7 +131,7 @@ export function RubricBuilderMain(): ReactElement {
     {
       method: "POST",
       body: JSON.stringify(rubric),
-    },
+    }
   );
 
   /* this is for updating the existing templates with most
@@ -269,7 +266,7 @@ export function RubricBuilderMain(): ReactElement {
     const existingTemplates: Template[] = [];
     for (const criterion of criteriaOnATemplate) {
       const exitingTemplateIndex = existingTemplates.findIndex(
-        (template) => template.key === criterion.template,
+        (template) => template.key === criterion.template
       );
       if (exitingTemplateIndex === -1) {
         const template = createTemplate();
@@ -343,10 +340,8 @@ export function RubricBuilderMain(): ReactElement {
 
   const handleRubricTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
-    setRubric((prevRubric) =>
-      prevRubric
-        ? { ...prevRubric, title: event.target.value }
-        : createRubric(),
+    setRubric((prevRubric: Rubric) =>
+      prevRubric ? { ...prevRubric, title: event.target.value } : createRubric()
     );
   };
 
@@ -365,7 +360,7 @@ export function RubricBuilderMain(): ReactElement {
           isNaN(criterion.pointsPossible)
             ? sum
             : sum + criterion.pointsPossible,
-        0, // init sum to 0
+        0 // init sum to 0
       ) ?? 0 // fallback value if criterion is undefined
     );
   }, [rubric?.criteria]);
@@ -378,6 +373,7 @@ export function RubricBuilderMain(): ReactElement {
     event.preventDefault();
     if (!rubric) return;
     const newCriteria = [...rubric.criteria, createCriterion()];
+    console.log("new criteria", newCriteria);
     setRubric({ ...rubric, criteria: newCriteria });
     setActiveCriterionIndex(newCriteria.length - 1);
   };
@@ -441,10 +437,10 @@ export function RubricBuilderMain(): ReactElement {
     if (!rubric) return;
     if (event.over) {
       const oldIndex = rubric.criteria.findIndex(
-        (criterion) => criterion.key === event.active.id,
+        (criterion) => criterion.key === event.active.id
       );
       const newIndex = rubric.criteria.findIndex(
-        (criterion) => criterion.key === event.over!.id, // assert not null for type safety
+        (criterion) => criterion.key === event.over!.id // assert not null for type safety
       );
 
       const updatedCriteria = [...rubric.criteria];
@@ -483,7 +479,7 @@ export function RubricBuilderMain(): ReactElement {
         const isDuplicate = currentCriteria.some(
           (existingCriterion) =>
             existingCriterion.key.trim().toLowerCase() ===
-            newCriterion.key.trim().toLowerCase(),
+            newCriterion.key.trim().toLowerCase()
         );
 
         if (isDuplicate) {
@@ -494,7 +490,7 @@ export function RubricBuilderMain(): ReactElement {
 
         return acc;
       },
-      { unique: [] as Criteria[], duplicates: [] as Criteria[] },
+      { unique: [] as Criteria[], duplicates: [] as Criteria[] }
     );
 
     // Log information about duplicates if any were found
