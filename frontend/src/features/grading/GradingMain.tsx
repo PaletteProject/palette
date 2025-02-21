@@ -179,13 +179,7 @@ export function GradingMain(): ReactElement {
           fetchSubmissions={fetchSubmissions} 
           />
         </>
-        <SubmissionsDashboard
-          submissions={submissions}
-          rubric={rubric}
-          fetchSubmissions={fetchSubmissions}
-          setLoading={setLoading}
-        />
-      );
+                      );
     }
 
     return (
