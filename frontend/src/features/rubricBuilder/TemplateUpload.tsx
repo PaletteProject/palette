@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Template } from "palette-types";
-import { useFetch } from "../../../hooks/useFetch.ts";
+import { useFetch } from "@hooks";
 
 interface TemplateUploadProps {
   closeImportCard: () => void; // callback to close the template import card
@@ -47,18 +47,20 @@ const TemplateUpload: React.FC<TemplateUploadProps> = ({
   };
 
   return (
-    <div className="mt-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 h-60">
-      {templates.map((t, tKey) => {
-        return (
-          <div
-            key={tKey}
-            onClick={(event) => void handleImportTemplate(event)}
-            className="text-center border border-gray-600 rounded-lg p-2 hover:bg-gray-600"
-          >
-            {t.title}
-          </div>
-        );
-      })}
+    <div className="flex flex-col h-full w-full items-center justify-center">
+      <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 w-full">
+        {templates.map((t, tKey) => {
+          return (
+            <div
+              key={tKey}
+              onClick={(event) => void handleImportTemplate(event)}
+              className="text-center border border-gray-600 rounded-lg p-2 hover:bg-gray-600 w-full cursor-pointer"
+            >
+              {t.title}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

@@ -62,8 +62,8 @@ export function createRubric(
 export function createCriterion(
   description: string = "",
   longDescription: string = "",
-  points: number = 0,
   ratings: Rating[] = populateDefaultRatings(),
+  points: number = ratings.reduce((sum, rating) => sum + rating.points, 0),
   id: string = "",
   template: string = "",
   templateTitle: string = "",

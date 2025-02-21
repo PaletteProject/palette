@@ -3,24 +3,23 @@
  * @constructor
  */
 
-import { AssignmentSelectionMenu, Dialog } from "@components";
+import {
+  AssignmentSelectionMenu,
+  Dialog,
+  PaletteActionButton,
+} from "@components";
 import { useState } from "react";
 
 export function NoAssignmentSelected() {
   const [assignmentMenuOpen, setAssignmentMenuOpen] = useState(false);
 
   return (
-    <div className="text-5xl font-semibold self-center justify-self-center">
-      <p>
-        Select an{" "}
-        <button
-          className={"text-green-400 hover:animate-pulse"}
-          type={"button"}
-          onClick={() => setAssignmentMenuOpen(true)}
-        >
-          Assignment
-        </button>
-      </p>
+    <div className="text-5xl font-semibold self-center justify-self-center mt-10">
+      <PaletteActionButton
+        color={"GREEN"}
+        title={"Select an Assignment"}
+        onClick={() => setAssignmentMenuOpen(true)}
+      />
       <Dialog
         isOpen={assignmentMenuOpen}
         onClose={() => setAssignmentMenuOpen(false)}

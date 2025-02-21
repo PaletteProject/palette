@@ -1,6 +1,7 @@
 import { ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { randomColor } from "@utils";
+import { Footer, Header } from "@components";
 
 export function Home(): ReactElement {
   const [color, setColor] = useState("bg-red-500");
@@ -18,13 +19,14 @@ export function Home(): ReactElement {
     navigate("/signup");
   };
 
+  const baseButtonStyle =
+    "text-white rounded-lg px-8 py-3 font-semibold transition duration-300 transform hover:scale-105";
+
   return (
     <div className="h-screen w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black flex flex-col justify-between">
-      {/* Header Bar */}
-      <div className="min-h-12 h-16 bg-gradient-to-r from-red-500 via-green-500 to-purple-500"></div>
-
+      <Header />
       {/* Main Content Section */}
-      <div className="flex flex-col items-center justify-center text-white text-center">
+      <div className="flex flex-col items-center justify-center text-white text-center -mt-20">
         {/* Logo */}
         <img
           src="/palette-2.webp"
@@ -46,23 +48,21 @@ export function Home(): ReactElement {
         {/* Action Buttons */}
         <div className="flex gap-4">
           <button
-            className={`${color} text-white rounded-lg px-8 py-3 font-semibold hover:opacity-80 transition duration-300 transform hover:scale-105`}
+            className={`${color} ${baseButtonStyle}`}
             onMouseEnter={handleMouseEnter}
             onClick={handleLogin}
           >
             Log In
           </button>
           <button
-            className="bg-gray-600 text-white rounded-lg px-8 py-3 font-semibold hover:bg-gray-500 transition duration-300 transform hover:scale-105"
+            className={`bg-gray-600 ${baseButtonStyle} hover:bg-gray-500`}
             onClick={handleSignUp}
           >
             Sign Up
           </button>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="h-12 bg-gradient-to-r from-red-500 via-green-500 to-purple-500"></div>
+      <Footer />
     </div>
   );
 }

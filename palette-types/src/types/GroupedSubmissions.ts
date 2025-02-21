@@ -1,3 +1,3 @@
 import { Submission } from "./Submission";
 
-export type GroupedSubmissions = Record<number | "no-group", Submission[]>;
+export type GroupedSubmissions = Record<string, Submission[]>;

@@ -15,7 +15,7 @@ export * from "./canvasTypes/CanvasRubric";
 export * from "./canvasTypes/RubricObjectHash";
 export * from "./canvasTypes/CanvasCourse";
 export * from "./canvasTypes/CanvasAssignment";
-export * from "./canvasTypes/CanvasSubmission";
+export * from "./canvasTypes/CanvasGradedSubmission";
 
 // Export everything from protocol
 export * from "./protocol/PaletteAPIErrorData";
@@ -32,3 +32,4 @@ export * from "./types/Assignment";
 export * from "./types/Submission";
 export * from "./types/Settings";
 export * from "./types/GroupedSubmissions";
+export * from "./types/Tag";

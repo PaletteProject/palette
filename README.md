@@ -8,12 +8,23 @@ An interactive rubric builder and grading assistant tool to improve the group pr
 
 ## Table of Contents
 
-1. [Requirements](#requirements)
-2. [Startup Instructions](#startup-instructions)
-   - [Running with Docker](#running-with-docker)
-   - [Running without Docker](#running-without-docker)
-3. [Shutting Down](#shutting-down)
-4. [Troubleshooting](#troubleshooting)
+- [Requirements](#requirements)
+  - [Docker](#docker)
+  - [Canvas API Token](#canvas-api-token)
+    - [Generating a personal token:](#generating-a-personal-token)
+    - [Using your Canvas token with Palette:](#using-your-canvas-token-with-palette)
+- [Startup Instructions - Easy](#startup-instructions---easy)
+
+  - [Update and Run](#update-and-run)
+  - [Run](#run)
+
+- [Startup Instructions - Advanced](#startup-instructions---advanced)
+  - [Option 1: Running with Docker](#option-1-running-with-docker)
+  - [Option 2: Running without Docker](#option-2-running-without-docker)
+- [Shutting Down](#shutting-down)
+  - [Stopping Containers](#stopping-containers)
+- [Usage](#usage)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -66,9 +77,33 @@ A token is required to interact with the Canvas API.
 
 ---
 
-## Startup Instructions
+## Startup Instructions - Easy
 
-### Running with Docker
+Two scripts have been provided to update and run the application without worrying about Docker commands.
+
+### Update and Run
+
+From the project root, run `./update.sh` to pull the latest content from GitHub, shutdown any running instances of
+the application in Docker, rebuild the container with the latest changes, and start the container.
+
+> [!IMPORTANT]
+> Run this script if there's a new update to pull. If the application has any errors, try running this first as
+> Docker caching sometimes causes issues.
+
+### Run
+
+When you just want to run the application, this is the fastest method.
+
+Run `./start.sh` from the project root to start the container and run Palette.
+
+> [!IMPORTANT]
+> If the application has any errors, try running `update.sh` first as Docker caching can sometimes cause issues.
+
+###
+
+## Startup Instructions - Advanced
+
+### Option 1: Running with Docker
 
 1. Clone the repository and navigate to the root folder:
 
@@ -84,24 +119,19 @@ A token is required to interact with the Canvas API.
    docker-compose up -d     # Detached mode
    ```
 
-   This will build and start the container, including a **PostgreSQL** database, on any OS.
+   This will build and start the container on any OS.
 
 3. **Stopping the Containers**
    - Use `CTRL + C` if in attached mode or `docker-compose down` if detached.
 
-### Running without Docker
+### Option 2: Running without Docker
 
-If you have [Node.js](https://nodejs.org/en) (version 18+) and [PostgreSQL](https://www.postgresql.org/) installed:
+If you have [Node.js](https://nodejs.org/en) (version 18+) installed:
 
 1. After cloning the repo, run:
 
    ```bash
    npm install && npm run dev
-   ```
-
-2. For local PostgreSQL, create a `.env` file:
-   ```bash
-   echo "DATABASE_URL=postgres://<username>:<password>@localhost:5432/<database_name>" > backend/.env
    ```
 
 ---

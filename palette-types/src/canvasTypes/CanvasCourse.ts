@@ -39,14 +39,14 @@ export interface CanvasCourse {
   template: boolean;
   sis_course_id?: string;
   integration_id?: string | null;
-  enrollments?: Array<{
+  enrollments: {
     type: "student" | "teacher" | "ta" | "observer" | "designer";
     role: string;
     role_id: number;
     user_id: number;
     enrollment_state: "active" | "invited" | "inactive";
     limit_privileges_to_course_section?: boolean;
-  }>;
+  }[];
   hide_final_grades: boolean;
   workflow_state: "unpublished" | "available" | "completed" | "deleted";
   course_format: "online" | "on_campus" | "blended";

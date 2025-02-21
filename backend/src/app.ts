@@ -12,7 +12,7 @@ import { wildcardRouter } from "./routes/wildcardRouter.js";
 import courseRouter from "./routes/courseRouter.js";
 import userRouter from "./routes/userRouter.js";
 import templateRouter from "./routes/templateRouter.js";
-
+import tagRouter from "./routes/tagRouter.js";
 // Get the directory name
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -48,6 +48,7 @@ app.get("/health", (_req: Request, res: Response) => {
 app.use("/api/courses", courseRouter);
 app.use("/api/user", userRouter);
 app.use("/api/templates", templateRouter);
+app.use("/api/tags", tagRouter);
 app.get("*", wildcardRouter);
 
 // field validation error handling middleware

@@ -42,6 +42,8 @@ export const TemplateService = {
       template.criteria = templateData.criteria;
       template.id = templateData.id;
       template.key = templateData.key;
+      template.tags = templateData.tags;
+      template.points = templateData.points;
       if (templateIndex === -1) {
         // only push if the template doesn't already exist
         localTemplates.push(template);
@@ -61,6 +63,49 @@ export const TemplateService = {
     res.json(apiResponse);
   }),
 
+  addTemplates: asyncHandler(async (req: Request, res: Response) => {
+    if (templates === null) {
+      TemplateService.initializeTemplates();
+    }
+
+    const templatesData = fs.readFileSync(templatesPath, "utf8");
+    const localTemplates = JSON.parse(templatesData) as Template[];
+    const templatesToAdd = (await req.body) as Template[] | null;
+
+    if (templatesToAdd) {
+      for (const templateToAdd of templatesToAdd) {
+        const templateIndex = localTemplates.findIndex(
+          (t: Template) => t.title === templateToAdd.title,
+        );
+        const template = createTemplate();
+        template.title = templateToAdd.title;
+        template.criteria = templateToAdd.criteria;
+        template.id = templateToAdd.id;
+        template.key = templateToAdd.key;
+        template.tags = templateToAdd.tags;
+        template.points = templateToAdd.points;
+
+        template.lastUsed = templateToAdd.lastUsed;
+        template.usageCount = templateToAdd.usageCount;
+
+        if (templateIndex === -1) {
+          localTemplates.push(template);
+        } else {
+          console.log("Template already exists!");
+        }
+      }
+
+      fs.writeFileSync(templatesPath, JSON.stringify(localTemplates, null, 2));
+    }
+
+    const apiResponse: PaletteAPIResponse<unknown> = {
+      success: true,
+      message: "Templates created successfully!",
+    };
+
+    res.json(apiResponse);
+  }),
+
   updateTemplate: asyncHandler(async (req: Request, res: Response) => {
     if (templates === null) {
       TemplateService.initializeTemplates();
@@ -71,7 +116,7 @@ export const TemplateService = {
     const templateData = (await req.body) as Template | null;
     if (templateData) {
       const templateIndex = localTemplates.findIndex(
-        (tmplt: Template) => tmplt.title === templateData.title,
+        (tmplt: Template) => tmplt.key === templateData.key,
       );
       console.log("templateIndex", templateIndex);
       console.log("templateData", templateData);
@@ -96,15 +141,17 @@ export const TemplateService = {
   }),
 
   // DELETE REQUESTS (Templates Page Functions)
-  deleteTemplateByKey: asyncHandler(async (req: Request, res: Response) => {
+  deleteTemplateByKey: (req: Request, res: Response) => {
+    console.log("deleteTemplateByKey request", req.params);
     const templatesData = fs.readFileSync(templatesPath, "utf8");
     const localTemplates = JSON.parse(templatesData) as Template[];
-    const templateData = (await req.body) as Template | null;
-    const templateKey = templateData?.key;
+    const templateKey = req.params.key;
+    console.log("templateKey", templateKey);
     if (templateKey) {
       const templateIndex = localTemplates.findIndex(
         (tmplt: Template) => tmplt.key === templateKey,
       );
+      console.log("templateIndex", templateIndex);
       if (templateIndex !== -1) {
         localTemplates.splice(templateIndex, 1);
         fs.writeFileSync(
@@ -117,6 +164,49 @@ export const TemplateService = {
     const apiResponse: PaletteAPIResponse<unknown> = {
       success: true,
       message: "Template deleted successfully!",
+    };
+
+    res.json(apiResponse);
+  },
+
+  deleteTemplates: asyncHandler(async (req: Request, res: Response) => {
+    if (templates === null) {
+      TemplateService.initializeTemplates();
+    }
+
+    const templatesData = fs.readFileSync(templatesPath, "utf8");
+    const localTemplates = JSON.parse(templatesData) as Template[];
+    const templatesToDelete = (await req.body) as Template[] | null;
+
+    if (templatesToDelete) {
+      for (const templateToDelete of templatesToDelete) {
+        const templateIndex = localTemplates.findIndex(
+          (t: Template) => t.title === templateToDelete.title,
+        );
+        const template = createTemplate();
+        template.title = templateToDelete.title;
+        template.criteria = templateToDelete.criteria;
+        template.id = templateToDelete.id;
+        template.key = templateToDelete.key;
+        template.tags = templateToDelete.tags;
+        template.points = templateToDelete.points;
+
+        template.lastUsed = templateToDelete.lastUsed;
+        template.usageCount = templateToDelete.usageCount;
+
+        if (templateIndex !== -1) {
+          localTemplates.splice(templateIndex, 1);
+        } else {
+          console.log("Template not found!");
+        }
+      }
+
+      fs.writeFileSync(templatesPath, JSON.stringify(localTemplates, null, 2));
+    }
+
+    const apiResponse: PaletteAPIResponse<unknown> = {
+      success: true,
+      message: "Templates deleted successfully!",
     };
 
     res.json(apiResponse);
@@ -252,7 +342,6 @@ export const TemplateService = {
       const templateIndex = localTemplates.findIndex(
         (tmplt: Template) => tmplt.title === templateTitle,
       );
-      console.log("templateIndex in getTemplateByTitle", templateIndex);
       if (templateIndex !== -1) {
         const apiResponse: PaletteAPIResponse<Template> = {
           success: true,

@@ -5,7 +5,7 @@
 export * from "./modals/Dialog.tsx";
 export * from "./layout/Footer.tsx";
 export * from "./layout/Header.tsx";
-export * from "./modals/ModalChoiceDialog.tsx";
+export * from "./modals/ChoiceDialog.tsx";
 export * from "./modals/Dialog.tsx";
 export * from "./layout/Navbar.tsx";
 export * from "../features/errorPages/NotFoundPage.tsx";
@@ -20,3 +20,4 @@ export * from "./contextSelectors/ActiveCourseSelection.tsx";
 export * from "./contextSelectors/CourseSelectionMenu.tsx";
 export * from "./contextSelectors/AssignmentSelectionMenu.tsx";
 export * from "./PopUp.tsx";
+export * from "./layout/GenericBuilder.tsx";

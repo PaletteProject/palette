@@ -3,13 +3,11 @@
  */
 
 // grading exports
-export * from "./grading/gradingDashboard/AssignmentData.tsx";
+export * from "./grading/AssignmentData.tsx";
 export * from "./grading/GradingMain";
-export * from "./grading/gradingDashboard/GroupSubmissions.tsx";
-export * from "./grading/gradingDashboard/IndividualSubmission.tsx";
-export * from "./grading/gradingDashboard/ProgressBar.tsx";
-export * from "./grading/gradingDashboard/StatusIcons.tsx";
-export * from "./grading/gradingDashboard/SubmissionsDashboard.tsx";
+export * from "./grading/GroupSubmissions.tsx";
+export * from "./grading/ProgressBar.tsx";
+export * from "./grading/SubmissionsDashboard.tsx";
 
 // rubric builder exports
 export * from "./rubricBuilder/CriteriaCard.tsx";
@@ -23,9 +21,5 @@ export * from "./home/Home";
 
 // settings exports
 export * from "./settings/SettingsMain";
-
-// user exports
-export * from "./user/UserClusters";
-export * from "./user/UserRubrics";
 
 export * from "./errorPages/NotFoundPage";

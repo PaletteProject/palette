@@ -21,8 +21,9 @@ export function GradingMain(): ReactElement {
   // state
   const [rubric, setRubric] = useState<Rubric>();
   const [submissions, setSubmissions] = useState<GroupedSubmissions>({
-    "no-group": [],
+    "No Group": [],
   });
+
   const [loading, setLoading] = useState<boolean>(false);
   const [parsedStudents, setParsedStudents] = useState<ParsedStudent[]>([]);
  
@@ -102,7 +103,7 @@ export function GradingMain(): ReactElement {
    */
   const resetState = () => {
     setRubric(undefined);
-    setSubmissions({ "no-group": [] });
+    setSubmissions({ "No Group": [] });
   };
 
   // fetch rubric and submissions when course or assignment change
@@ -134,6 +135,7 @@ export function GradingMain(): ReactElement {
   };
 
   const fetchSubmissions = async () => {
+    setLoading(true);
     try {
       const response =
         (await getSubmissions()) as PaletteAPIResponse<GroupedSubmissions>;
@@ -177,15 +179,23 @@ export function GradingMain(): ReactElement {
           fetchSubmissions={fetchSubmissions} 
           />
         </>
+        <SubmissionsDashboard
+          submissions={submissions}
+          rubric={rubric}
+          fetchSubmissions={fetchSubmissions}
+          setLoading={setLoading}
+        />
       );
     }
 
     return (
-      <div className={"grid h-full"}>
-        {loading && <LoadingDots />}
-        {!activeCourse && <NoCourseSelected />}
-        {activeCourse && !activeAssignment && <NoAssignmentSelected />}
-      </div>
+      <>
+        <div className={"grid h-full"}>
+          {loading && <LoadingDots />}
+          {!activeCourse && <NoCourseSelected />}
+          {activeCourse && !activeAssignment && <NoAssignmentSelected />}
+        </div>
+      </>
     );
   };
 

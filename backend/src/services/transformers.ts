@@ -80,8 +80,6 @@ const mapToPaletteSubmission = (
     });
   };
 
-  console.log("attempting to transform: ", canvasResponse);
-
   return {
     id: canvasResponse.id,
     user: {
@@ -91,7 +89,7 @@ const mapToPaletteSubmission = (
     },
     group: {
       id: canvasResponse.group?.id,
-      name: canvasResponse.group?.name || "No Group",
+      name: canvasResponse.group?.name || "",
     },
     comments: transformComments(),
     rubricAssessment: canvasResponse.rubric_assessment,
@@ -106,7 +104,14 @@ const mapToPaletteSubmission = (
 
 export const transformSubmissions = (
   canvasResponse: CanvasSubmissionResponse[],
+  groupMap: Map<number, string>,
 ) => {
+  const lookUpGroup = (userId: number) => {
+    const groupName = groupMap.get(userId);
+
+    return groupName ? groupName : "No Group";
+  };
+
   if (!canvasResponse)
     throw new Error("Invalid canvas submission.. cannot transform.");
 
@@ -115,20 +120,21 @@ export const transformSubmissions = (
 
   // key value object to organize group submissions and is serializable
   const groupedSubmissions: GroupedSubmissions = {
-    "no-group": [],
+    "No Group": [],
   };
 
   transformedSubmissions.forEach((submission) => {
-    console.log("submission: ", submission);
-
-    const groupId = submission.group?.id || "no-group";
+    const groupName =
+      submission.group.name !== ""
+        ? submission.group.name
+        : lookUpGroup(submission.user.id);
 
     // initialize group if it doesn't already exist
-    if (!groupedSubmissions[groupId]) {
-      groupedSubmissions[groupId] = [];
+    if (!groupedSubmissions[groupName]) {
+      groupedSubmissions[groupName] = [];
     }
 
-    groupedSubmissions[groupId].push(submission);
+    groupedSubmissions[groupName].push(submission);
   });
 
   return groupedSubmissions;
