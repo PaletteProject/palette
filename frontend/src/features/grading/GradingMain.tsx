@@ -5,6 +5,8 @@ import { useAssignment, useCourse } from "@context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
 import { getStoredGrades, updateGrade } from "./gradingStorage/gradingStorage";
 import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts"; // Import the export function
+import  GradingUI  from "./gradingStorage/gradingUI";
+
 
 import {
   LoadingDots,
@@ -37,17 +39,42 @@ export function GradingMain(): ReactElement {
   const { fetchData: getSubmissions } = useFetch(fetchSubmissionsURL);
 
     /**
+   * Load students from local storage on component mount
+   */
+    useEffect(() => {
+      if (activeCourse && activeAssignment) {
+        const storageKey = `parsedStudents_${activeCourse.id}_${activeAssignment.id}`;
+        const storedStudents = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    
+        console.log(`Retrieved students for ${activeAssignment.id}:`, storedStudents);
+        setParsedStudents(storedStudents);
+      }
+    }, [activeCourse, activeAssignment]);
+    
+
+    /**
    * Handle CSV Upload for group data
    */
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
+    
       if (file && activeCourse && activeAssignment) {
         try {
+          console.log("Uploading file:", file.name);
+    
           const parsedStudents = await parseCSV(file);
-          parsedStudents.forEach((student) => {
-            updateGrade(student.userId, student.groupName, 0); // Initialize grades to 0 for now
-          });
-          alert("CSV imported successfully!");
+          console.log("Parsed Students:", parsedStudents);
+    
+          if (parsedStudents.length > 0) {
+            // Save parsed students under a unique key per assignment
+            const storageKey = `parsedStudents_${activeCourse.id}_${activeAssignment.id}`;
+            localStorage.setItem(storageKey, JSON.stringify(parsedStudents));
+    
+            console.log("Saved parsedStudents to localStorage under key:", storageKey);
+            setParsedStudents(parsedStudents);
+          } else {
+            console.warn("Parsed students list is empty, not saving.");
+          }
         } catch (error) {
           console.error("Error parsing CSV:", error);
           alert("Failed to import CSV.");
@@ -55,6 +82,8 @@ export function GradingMain(): ReactElement {
       }
     };
     
+    
+  
     /**
    * Export all group submissions to a CSV
    */
@@ -123,16 +152,25 @@ export function GradingMain(): ReactElement {
     if (!loading && activeCourse && activeAssignment) {
       return (
         <>
-          <div className="mb-4">
-            <h2>Upload Grades CSV</h2>
-            <input type="file" accept=".csv" onChange={handleFileUpload} />
-          </div>
+       
+        <div className="flex gap-4 items-center mb-4">
+          <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded cursor-pointer">
+            Upload Grades CSV
+            <input 
+              type="file" 
+              accept=".csv" 
+              onChange={handleFileUpload} 
+              className="hidden"
+            />
+          </label>
+
           <button
-              className="bg-green-500 text-white font-bold py-2 px-4 rounded"
-              onClick={handleExportAllGroups}
-            >
-              Export All Groups to CSV
-            </button>
+            className="bg-green-500 text-white font-bold py-2 px-4 rounded"
+            onClick={handleExportAllGroups}
+          >
+            Export All Groups to CSV
+          </button>
+        </div>
           <SubmissionsDashboard 
           submissions={submissions} 
           rubric={rubric} 
