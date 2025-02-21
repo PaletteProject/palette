@@ -11,6 +11,7 @@ import AddTemplateTag from "./AddTemplateTag.tsx";
 import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
 import { Template } from "palette-types";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import TemplateCharts from "./TemplateCharts.tsx";
 
 export default function TemplatesMain(): ReactElement {
   return (
@@ -35,13 +36,14 @@ function TemplatesMainContent(): ReactElement {
     editingTemplate,
     setEditingTemplate,
     hasUnsavedChanges,
+    showMetrics,
   } = useTemplatesContext();
 
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const { openDialog, closeDialog } = useChoiceDialog();
 
   useEffect(() => {
-    console.log("editingTemplate in TemplatesMain", editingTemplate);
+    // console.log("editingTemplate in TemplatesMain", editingTemplate);
     setEditingTemplate(editingTemplate as Template);
   }, [templateDialogOpen]);
 
@@ -109,6 +111,9 @@ function TemplatesMainContent(): ReactElement {
 
         {/* Templates Container */}
         <TemplatesWindow />
+
+        {/* Bar Charts */}
+        {showMetrics && <TemplateCharts />}
       </div>
     );
   };
@@ -140,7 +145,7 @@ function TemplatesMainContent(): ReactElement {
           >
             Create Template
           </button>
-          {templates.length === 0 && (
+          {templates?.length === 0 && (
             <button
               onClick={() => void handleQuickStart()}
               className="bg-blue-500 text-white font-bold mb-6 rounded-lg py-2 px-4 mr-4 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -149,8 +154,6 @@ function TemplatesMainContent(): ReactElement {
             </button>
           )}
         </div>
-
-        {/* <TemplateMetrics /> */}
 
         <Dialog
           isOpen={templateDialogOpen}

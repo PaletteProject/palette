@@ -44,21 +44,18 @@ import { CSVExport, CSVImport } from "@features";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAssignment, useCourse } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { useLocalStorage } from "@hooks";
 
 export function RubricBuilderMain(): ReactElement {
   /**
    * Get initial rubric from local storage or create a new one if none exists
    */
-  const getInitialRubric = () => {
-    const rubric = localStorage.getItem("rubric");
-    return rubric ? (JSON.parse(rubric) as Rubric) : createRubric();
-  };
+
+  const [rubric, setRubric] = useLocalStorage("rubric", createRubric());
   /**
    * Rubric Builder State
    */
 
-  // active rubric being edited
-  const [rubric, setRubric] = useState<Rubric>(getInitialRubric());
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   // result of hook checking if active assignment has an existing rubric
@@ -70,7 +67,13 @@ export function RubricBuilderMain(): ReactElement {
 
   const [isCanvasBypassed, setIsCanvasBypassed] = useState(false);
 
+  // this template tracks the template that is currently being updated
   const [updatingTemplate, setUpdatingTemplate] = useState<Template | null>(
+    null,
+  );
+
+  // this template tracks the template that is currently being imported
+  const [importingTemplate, setImportingTemplate] = useState<Template | null>(
     null,
   );
 
@@ -137,7 +140,7 @@ export function RubricBuilderMain(): ReactElement {
   */
   const { fetchData: putTemplate } = useFetch("/templates", {
     method: "PUT",
-    body: JSON.stringify(updatingTemplate),
+    body: JSON.stringify(importingTemplate),
   });
 
   /**
@@ -158,6 +161,22 @@ export function RubricBuilderMain(): ReactElement {
     setHasExistingRubric(false);
     setIsNewRubric(true);
   };
+
+  useEffect(() => {
+    const updateTemplate = async () => {
+      if (!importingTemplate) {
+        console.warn("No template provided for update.");
+        return;
+      }
+      const response = await putTemplate();
+      if (response.success) {
+        console.log("template usage count updated successfully");
+      } else {
+        console.error("error updating template", response.error);
+      }
+    };
+    void updateTemplate();
+  }, [importingTemplate]);
 
   /**
    * Effect hook to see if the active assignment has an existing rubric. Apply loading status while waiting to
@@ -263,7 +282,7 @@ export function RubricBuilderMain(): ReactElement {
       const response = await putTemplate();
 
       if (response.success) {
-        console.log("template updated successfully");
+        console.log("template updated successfully", updatingTemplate);
       } else {
         console.error("error updating template", response.error);
       }
@@ -321,7 +340,7 @@ export function RubricBuilderMain(): ReactElement {
 
   const handleRubricTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
-    setRubric((prevRubric) =>
+    setRubric((prevRubric: Rubric) =>
       prevRubric
         ? { ...prevRubric, title: event.target.value }
         : createRubric(),
@@ -356,6 +375,7 @@ export function RubricBuilderMain(): ReactElement {
     event.preventDefault();
     if (!rubric) return;
     const newCriteria = [...rubric.criteria, createCriterion()];
+    console.log("new criteria", newCriteria);
     setRubric({ ...rubric, criteria: newCriteria });
     setActiveCriterionIndex(newCriteria.length - 1);
   };
@@ -433,24 +453,14 @@ export function RubricBuilderMain(): ReactElement {
     }
   };
 
-  const updateTemplate = async (template: Template) => {
-    setUpdatingTemplate(template);
+  const handleImportTemplate = (template: Template) => {
     const updatedTemplate = {
       ...template,
       usageCount: template.usageCount + 1,
       lastUsed: new Date().toISOString(),
     };
-    setUpdatingTemplate(updatedTemplate);
-    const response = await putTemplate();
-    if (response.success) {
-      console.log("template updated successfully");
-    } else {
-      console.error("error updating template", response.error);
-    }
-  };
 
-  const handleImportTemplate = (template: Template) => {
-    console.log("import template in rubric builder main");
+    setUpdatingTemplate(updatedTemplate);
     if (!rubric) return;
 
     const currentCriteria = rubric.criteria;
@@ -462,7 +472,6 @@ export function RubricBuilderMain(): ReactElement {
         title: "Oops!",
         message: `This template has no criteria`,
       });
-
       return;
     }
 
@@ -488,25 +497,19 @@ export function RubricBuilderMain(): ReactElement {
 
     // Log information about duplicates if any were found
     if (duplicates.length > 0) {
-      console.log(
-        `Found ${duplicates.length} duplicate criteria that were skipped:`,
-        duplicates.map((c) => c.description),
-      );
+      const duplicateDescriptions = duplicates
+        .map((criterion) => criterion.description)
+        .join(", ");
+      setPopUp({
+        isOpen: true,
+        title: "Oops!",
+        message: `Looks like you already imported this one. Duplicate criteria: ${duplicateDescriptions}`,
+      });
+      return;
     }
 
-    updateTemplate(template)
-      .then(() => {
-        setRubric(
-          (prevRubric) =>
-            ({
-              ...(prevRubric ?? createRubric()),
-              criteria: [...(prevRubric?.criteria ?? []), ...unique],
-            }) as Rubric,
-        );
-      })
-      .catch((error) => {
-        console.error("error updating template", error);
-      });
+    setRubric({ ...rubric, criteria: [...currentCriteria, ...unique] });
+    setImportingTemplate(updatedTemplate);
   };
 
   /**

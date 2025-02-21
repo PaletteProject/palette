@@ -11,6 +11,7 @@ export interface Criteria {
   pointsGraded?: number;
   ratings: Rating[];
   pointsPossible: number;
+  scores: number[];
   template?: string; // placeholder
   templateTitle?: string;
   key: string;

@@ -7,7 +7,10 @@ import {
   getTemplateByKey,
   getTemplateByTitle,
   deleteTemplateByTitle,
-  deleteTemplateByKey,
+  addTemplates,
+  deleteTemplates,
+  updateTemplates,
+  deleteTemplate,
 } from "../controllers/templateController.js";
 
 const router = express.Router();
@@ -96,6 +99,31 @@ router.post("/", addTemplate);
 
 /**
  * @swagger
+ * /templates/bulk:
+ *   post:
+ *     summary: Add multiple templates
+ *     description: Create multiple templates in the system.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Template created.
+ *       400:
+ *         description: Invalid input.
+ */
+router.post("/bulk", addTemplates);
+
+/**
+ * @swagger
  * /templates:
  *   put:
  *     summary: Update an existing template
@@ -157,5 +185,55 @@ router.delete("/byTitle/:title", deleteTemplateByTitle);
  *       404:
  *         description: Template not found.
  */
-router.delete("/byKey/:key", deleteTemplateByKey);
+router.delete("/", deleteTemplate);
+
+/**
+ * @swagger
+ * /templates/bulk:
+ *   delete:
+ *     summary: Delete multiple templates
+ *     description: Remove multiple templates using their keys.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               keys:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: Templates deleted.
+ *       404:
+ *         description: Template not found.
+ */
+router.delete("/bulk", deleteTemplates);
+
+/**
+ * @swagger
+ * /templates/bulk:
+ *   put:
+ *     summary: Update multiple templates
+ *     description: Update multiple templates in the system.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               templates:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *     responses:
+ *       200:
+ *         description: Templates updated.
+ *       400:
+ *         description: Invalid input.
+ */
+router.put("/bulk", updateTemplates);
 export default router;

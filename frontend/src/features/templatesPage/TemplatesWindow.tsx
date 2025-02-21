@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import TemplateCard from "../templatesPage/TemplateCards.tsx";
 import { Template } from "palette-types";
 import TemplateManagementControls from "./TemplateManagementControls.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 import TemplateSorter from "./TemplateSorter.tsx";
-import { Choice, ChoiceDialog } from "@components";
-
+import { ChoiceDialog } from "@components";
+import { useChoiceDialog } from "src/context/DialogContext";
 const TemplatesWindow = () => {
   const {
     templates,
@@ -19,25 +19,10 @@ const TemplatesWindow = () => {
     setShowBulkActions,
     selectAll,
     setSelectAll,
-    setDeletingTemplates,
     handleBulkDeleteTemplates,
   } = useTemplatesContext();
 
-  useEffect(() => {
-    console.log("templates window rendered");
-  }, []);
-
-  const [modal, setModal] = useState({
-    show: false,
-    title: "",
-    message: "",
-    choices: [] as Choice[],
-  });
-
-  const closeModal = useCallback(
-    () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
-  );
+  const { openDialog, closeDialog } = useChoiceDialog();
 
   const handleSelectAll = () => {
     const newSelectAll = !selectAll;
@@ -56,31 +41,24 @@ const TemplatesWindow = () => {
 
   const handleBulkDelete = () => {
     // console.log("selectedTemplates in handleBulkDelete", selectedTemplates);
-    setModal({
-      show: true,
+    openDialog({
       title: "Confirm Bulk Delete",
       message: `Are you sure you want to delete ${selectedTemplates.length} templates? This action cannot be undone.`,
-      choices: [
+      buttons: [
         {
           autoFocus: true,
           label: "Delete All Selected",
           action: () => {
-            setDeletingTemplates(
-              selectedTemplates.map(
-                (key) => templates.find((t) => t.key === key) as Template,
-              ),
+            const templatesToDelete = selectedTemplates.map(
+              (key) => templates.find((t) => t.key === key) as Template,
             );
-            console.log(
-              "selectedTemplates in handleBulkDelete",
-              selectedTemplates,
-            );
-            handleBulkDeleteTemplates();
-            closeModal();
+            handleBulkDeleteTemplates(templatesToDelete);
+            closeDialog();
           },
         },
         {
           label: "Cancel",
-          action: closeModal,
+          action: closeDialog,
           autoFocus: false,
         },
       ],
@@ -254,7 +232,7 @@ const TemplatesWindow = () => {
         </div>
         {renderAllTemplates()}
       </div>
-      <ChoiceDialog modal={modal} onHide={closeModal} />
+      <ChoiceDialog />
     </>
   );
 };
