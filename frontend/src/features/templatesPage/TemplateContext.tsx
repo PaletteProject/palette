@@ -10,7 +10,7 @@ import { Tag, Template } from "palette-types";
 import { useFetch } from "src/hooks/useFetch";
 import { createTemplate } from "src/utils/templateFactory.ts";
 import { quickStartTemplates } from "./QuickStartTemplates";
-
+import { v4 as uuidv4 } from "uuid";
 interface TemplateContextType {
   addingTagFromBuilder: boolean;
   setAddingTagFromBuilder: (addingTagFromBuilder: boolean) => void;
@@ -170,7 +170,7 @@ export function useTemplatesContext() {
 
 export function TemplateProvider({ children }: { children: ReactNode }) {
   const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
-    null,
+    null
   );
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [tagModalOpen, setTagModalOpen] = useState(false);
@@ -180,14 +180,14 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([]);
   const [newTemplate, setNewTemplate] = useState<Template | null>(
-    createTemplate(),
+    createTemplate()
   );
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(
-    createTemplate(),
+    createTemplate()
   );
   const [isNewTemplate, setIsNewTemplate] = useState(false);
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
-    null,
+    null
   );
   const [index, setIndex] = useState(0);
   const [addingTagFromBuilder, setAddingTagFromBuilder] = useState(false);
@@ -202,7 +202,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
   const [duplicateTemplate, setDuplicateTemplate] = useState<Template | null>(
-    null,
+    null
   );
   const [showMetrics, setShowMetrics] = useState(false);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
@@ -239,7 +239,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    [],
+    []
   );
   // object containing related modal state
   const [modal, setModal] = useState({
@@ -312,12 +312,9 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
   const handleCreateTemplate = () => {
     const template = createTemplate();
-    template.createdAt = new Date();
-    template.lastUsed = "Never";
-    template.usageCount = 23;
-    template.key = crypto.randomUUID();
     setEditingTemplate(template);
     setViewOrEdit("edit");
+    console.log("template", template);
     setIsNewTemplate(true);
   };
 
