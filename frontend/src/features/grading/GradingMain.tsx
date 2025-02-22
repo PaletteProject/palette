@@ -1,7 +1,7 @@
 import { ReactElement, useEffect, useState } from "react";
 import { GroupedSubmissions, PaletteAPIResponse, Rubric } from "palette-types";
 import { useFetch } from "@hooks";
-import { useAssignment, useCourse } from "@context";
+import { useAssignment, useCourse, useRubric } from "@context";
 import {
   LoadingDots,
   MainPageTemplate,
@@ -13,7 +13,6 @@ import { SubmissionsDashboard } from "@features";
 
 export function GradingMain(): ReactElement {
   // state
-  const [rubric, setRubric] = useState<Rubric>();
   const [submissions, setSubmissions] = useState<GroupedSubmissions>({
     "No Group": [],
   });
@@ -23,6 +22,7 @@ export function GradingMain(): ReactElement {
   // context providers
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
+  const { setActiveRubric } = useRubric();
 
   // url string constants
   const fetchSubmissionsURL = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions`;
@@ -36,7 +36,7 @@ export function GradingMain(): ReactElement {
    * Clear state prior to fetch operations.
    */
   const resetState = () => {
-    setRubric(undefined);
+    setActiveRubric(null);
     setSubmissions({ "No Group": [] });
   };
 
@@ -59,7 +59,7 @@ export function GradingMain(): ReactElement {
       const response = (await getRubric()) as PaletteAPIResponse<Rubric>;
 
       if (response.success) {
-        setRubric(response.data);
+        setActiveRubric(response.data ?? null);
       }
     } catch (error) {
       console.error("An error occurred while getting rubric: ", error);
@@ -89,7 +89,6 @@ export function GradingMain(): ReactElement {
       return (
         <SubmissionsDashboard
           submissions={submissions}
-          rubric={rubric}
           fetchSubmissions={fetchSubmissions}
           setLoading={setLoading}
         />
