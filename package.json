@@ -23,8 +23,5 @@
   },
   "devDependencies": {
     "concurrently": "^9.0.1"
-  },
-  "dependencies": {
-    "file-saver": "^2.0.5"
   }
 }
