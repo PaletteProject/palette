@@ -12,7 +12,6 @@ import { TemplateBuilder } from "src/features/templatesPage/TemplateBuilder.tsx"
 import { Template } from "palette-types";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 import TemplateCharts from "./TemplateCharts.tsx";
-import { createTemplate } from "../../utils/templateFactory.ts";
 export default function TemplatesMain(): ReactElement {
   return (
     <TemplateProvider>

@@ -10,7 +10,7 @@ function getStoredValue<T>(key: string, initialValue: T | (() => T)): T {
     } catch {
       // If parsing fails, return the initial value
       console.warn(
-        `Failed to parse stored value for key "${key}". Using initial value.`
+        `Failed to parse stored value for key "${key}". Using initial value.`,
       );
     }
   }
@@ -24,7 +24,7 @@ function getStoredValue<T>(key: string, initialValue: T | (() => T)): T {
 // Custom hook to manage state with localStorage
 export function useLocalStorage<T>(
   key: string,
-  initialValue: T
+  initialValue: T,
 ): [T, React.Dispatch<React.SetStateAction<T>>] {
   // Initialize state with the stored value or initial value
   const [value, setValue] = useState<T>(() => {

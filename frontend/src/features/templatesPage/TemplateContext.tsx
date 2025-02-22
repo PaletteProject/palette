@@ -171,7 +171,7 @@ export function useTemplatesContext() {
 
 export function TemplateProvider({ children }: { children: ReactNode }) {
   const [focusedTemplateKey, setFocusedTemplateKey] = useState<string | null>(
-    null
+    null,
   );
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [tagModalOpen, setTagModalOpen] = useState(false);
@@ -181,14 +181,14 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([]);
   const [newTemplate, setNewTemplate] = useState<Template | null>(
-    createTemplate()
+    createTemplate(),
   );
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(
-    createTemplate()
+    createTemplate(),
   );
   const [isNewTemplate, setIsNewTemplate] = useState(false);
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(
-    null
+    null,
   );
   const [index, setIndex] = useState(0);
   const [addingTagFromBuilder, setAddingTagFromBuilder] = useState(false);
@@ -203,7 +203,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
   const [duplicateTemplate, setDuplicateTemplate] = useState<Template | null>(
-    null
+    null,
   );
   const [showMetrics, setShowMetrics] = useState(false);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
@@ -240,7 +240,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
-    []
+    [],
   );
   const { openDialog, closeDialog } = useChoiceDialog();
   // object containing related modal state
@@ -253,7 +253,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
 
   const [localTemplate, setLocalTemplate] = useLocalStorage(
     "localTemplate",
-    createTemplate()
+    createTemplate(),
   );
 
   const deleteTemplatesAndFetch = async () => {
@@ -321,12 +321,12 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const handleCreateTemplate = () => {
-    const localTemplate = localStorage.getItem("localTemplate");
     console.log("localTemplate", localTemplate);
-    if (localTemplate !== null) {
+    const localStorageTemplate = localStorage.getItem("localTemplate");
+    console.log("localTemplate", localTemplate);
+    if (localStorageTemplate !== null) {
       console.log("localTemplate", localTemplate);
-
-      const savedTemplate = JSON.parse(localTemplate);
+      const savedTemplate = JSON.parse(localStorageTemplate) as Template;
       if (savedTemplate.saved === false) {
         openDialog({
           title: "Restore lost template?",

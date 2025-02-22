@@ -44,13 +44,17 @@ export const TemplateBuilder = ({
   const [showDialog, setShowDialog] = useState(false);
   const [localTemplate, setLocalTemplate] = useLocalStorage(
     "localTemplate",
-    document
+    document,
   );
 
   const { openDialog, closeDialog } = useChoiceDialog();
 
+  useEffect(() => {
+    console.log("localTemplate", localTemplate);
+  }, []);
+
   const handleDocumentTitleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     e.preventDefault();
 
@@ -74,7 +78,7 @@ export const TemplateBuilder = ({
       criteria: newCriteria,
       points: newCriteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0
+        0,
       ),
     };
 
@@ -93,7 +97,7 @@ export const TemplateBuilder = ({
       const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
       updatedTemplate.points = updatedTemplate.criteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0
+        0,
       );
       // console.log("updatedTemplate points", updatedTemplate.points);
       setEditingTemplate(updatedTemplate as Template);
@@ -169,7 +173,7 @@ export const TemplateBuilder = ({
       criteria: newCriteria,
       points: newCriteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0
+        0,
       ),
     };
     setEditingTemplate(updatedTemplate as Template);
@@ -215,7 +219,7 @@ export const TemplateBuilder = ({
     const isDuplicateName = templates.some(
       (t) =>
         t.title.toLowerCase() === document?.title.toLowerCase() &&
-        t.key !== document?.key
+        t.key !== document?.key,
     );
     if (isDuplicateName) {
       openDialog({
