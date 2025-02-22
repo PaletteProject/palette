@@ -112,7 +112,7 @@ export function SubmissionsDashboard({
               groupName={groupName}
               progress={calculateGradingProgress()}
               submissions={groupSubmissions}
-              rubric={activeRubric!}
+              rubric={activeRubric}
               fetchSubmissions={fetchSubmissions}
               setGradedSubmissionCache={setGradedSubmissionCache}
               gradedSubmissionCache={gradedSubmissionCache}
