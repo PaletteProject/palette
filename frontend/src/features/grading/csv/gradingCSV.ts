@@ -12,26 +12,26 @@ export type ParsedStudent = {
 
 export function parseCSV(file: File): Promise<ParsedStudent[]> {
   return new Promise((resolve, reject) => {
-    Papa.parse(file, {
-      header: true, // Uses first row as column headers
+    Papa.parse<{ [key: string]: string }>(file, {
+      header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        console.log("Raw Parsed CSV Data:", results.data); 
+        console.log("Raw Parsed CSV Data:", results.data);
 
         if (results.errors.length) {
           console.error("CSV Parsing Errors:", results.errors);
-          reject(results.errors);
+          reject(new Error("CSV parsing failed"));
         } else {
           resolve(
-            results.data.map((row: any) => ({
-              name: row["Student Name"], 
-              canvasUserId: row["ASURITE ID"], 
-              userId: row["User ID"], 
-              loginId: row["Login ID"], 
-              section: row["Section"], 
-              groupName: row["Group Name"] || "No Group", 
-              canvasGroupId: row["Group ID"] || "N/A", 
-            }))
+            results.data.map((row) => ({
+              name: row["Student Name"] || "Unknown",
+              canvasUserId: row["ASURITE ID"] || "N/A",
+              userId: row["User ID"] || "N/A",
+              loginId: row["Login ID"] || "N/A",
+              section: row["Section"] || "N/A",
+              groupName: row["Group Name"] || "No Group",
+              canvasGroupId: row["Group ID"] || "N/A",
+            })),
           );
         }
       },

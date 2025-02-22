@@ -8,8 +8,6 @@ import { useEffect, useState } from "react";
 import { PaletteActionButton } from "@components";
 import { useAssignment, useCourse } from "@context";
 
-
-
 export function ProjectGradingView({
   groupName,
   submissions,
@@ -148,7 +146,7 @@ export function ProjectGradingView({
     await fetchSubmissions();
 
     onClose();
-  }
+  };
 
   /**
    * Dynamically calculates the drop-down background color.

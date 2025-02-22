@@ -3,10 +3,7 @@ import { GroupedSubmissions, PaletteAPIResponse, Rubric } from "palette-types";
 import { useFetch } from "@hooks";
 import { useAssignment, useCourse } from "@context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
-import { getStoredGrades, updateGrade } from "./gradingStorage/gradingStorage";
 import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts"; // Import the export function
-import  GradingUI  from "./gradingStorage/gradingUI";
-
 
 import {
   LoadingDots,
@@ -25,8 +22,7 @@ export function GradingMain(): ReactElement {
   });
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [parsedStudents, setParsedStudents] = useState<ParsedStudent[]>([]);
- 
+
   // context providers
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
@@ -39,64 +35,76 @@ export function GradingMain(): ReactElement {
   const { fetchData: getRubric } = useFetch(getRubricURL);
   const { fetchData: getSubmissions } = useFetch(fetchSubmissionsURL);
 
-    /**
+  /**
    * Load students from local storage on component mount
    */
-    useEffect(() => {
-      if (activeCourse && activeAssignment) {
-        const storageKey = `parsedStudents_${activeCourse.id}_${activeAssignment.id}`;
-        const storedStudents = JSON.parse(localStorage.getItem(storageKey) || "[]");
-    
-        console.log(`Retrieved students for ${activeAssignment.id}:`, storedStudents);
-        setParsedStudents(storedStudents);
-      }
-    }, [activeCourse, activeAssignment]);
-    
+  useEffect(() => {
+    if (activeCourse && activeAssignment) {
+      const storageKey = `parsedStudents_${activeCourse.id}_${activeAssignment.id}`;
+      const storedStudentsString = localStorage.getItem(storageKey);
 
-    /**
+      if (storedStudentsString) {
+        try {
+          const storedStudentsRaw = localStorage.getItem(storageKey);
+          const storedStudents: ParsedStudent[] = storedStudentsRaw
+            ? (JSON.parse(storedStudentsRaw) as ParsedStudent[]) // ✅ Type assertion
+            : [];
+          console.log(
+            `Retrieved students for ${activeAssignment.id}:`,
+            storedStudents,
+          );
+        } catch (error) {
+          console.error(
+            "Error parsing stored students from localStorage:",
+            error,
+          );
+        }
+      }
+    }
+  }, [activeCourse, activeAssignment]);
+
+  /**
    * Handle CSV Upload for group data
    */
-    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-    
-      if (file && activeCourse && activeAssignment) {
-        try {
-          console.log("Uploading file:", file.name);
-    
-          const parsedStudents = await parseCSV(file);
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file && activeCourse && activeAssignment) {
+      console.log("📂 Uploading file:", file.name);
+
+      parseCSV(file)
+        .then((parsedStudents) => {
           console.log("Parsed Students:", parsedStudents);
-    
+
           if (parsedStudents.length > 0) {
-            // Save parsed students under a unique key per assignment
             const storageKey = `parsedStudents_${activeCourse.id}_${activeAssignment.id}`;
             localStorage.setItem(storageKey, JSON.stringify(parsedStudents));
-    
-            console.log("Saved parsedStudents to localStorage under key:", storageKey);
-            setParsedStudents(parsedStudents);
+
+            console.log(
+              "Saved parsedStudents to localStorage under key:",
+              storageKey,
+            );
           } else {
             console.warn("Parsed students list is empty, not saving.");
           }
-        } catch (error) {
-          console.error("Error parsing CSV:", error);
+        })
+        .catch((error) => {
+          console.error(" Error parsing CSV:", error);
           alert("Failed to import CSV.");
-        }
-      }
-    };
-    
-    
-  
-    /**
+        });
+    }
+  };
+
+  /**
    * Export all group submissions to a CSV
    */
-    const handleExportAllGroups = () => {
-      if (rubric) {
-        exportAllGroupsCSV(submissions, rubric);
-      } else {
-        alert("Cannot export: Missing rubric.");
-      }
-    };
-  
-  
+  const handleExportAllGroups = () => {
+    if (rubric) {
+      exportAllGroupsCSV(submissions, rubric);
+    } else {
+      alert("Cannot export: Missing rubric.");
+    }
+  };
 
   /**
    * Clear state prior to fetch operations.
@@ -154,32 +162,31 @@ export function GradingMain(): ReactElement {
     if (!loading && activeCourse && activeAssignment) {
       return (
         <>
-       
-        <div className="flex gap-4 items-center mb-4">
-          <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded cursor-pointer">
-            Upload Grades CSV
-            <input 
-              type="file" 
-              accept=".csv" 
-              onChange={handleFileUpload} 
-              className="hidden"
-            />
-          </label>
+          <div className="flex gap-4 items-center mb-4">
+            <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded cursor-pointer">
+              Upload Grades CSV
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
 
-          <button
-            className="bg-green-500 text-white font-bold py-2 px-4 rounded"
-            onClick={handleExportAllGroups}
-          >
-            Export All Groups to CSV
-          </button>
-        </div>
-          <SubmissionsDashboard 
-          submissions={submissions} 
-          rubric={rubric} 
-          fetchSubmissions={fetchSubmissions} 
+            <button
+              className="bg-green-500 text-white font-bold py-2 px-4 rounded"
+              onClick={handleExportAllGroups}
+            >
+              Export All Groups to CSV
+            </button>
+          </div>
+          <SubmissionsDashboard
+            submissions={submissions}
+            rubric={rubric}
+            fetchSubmissions={fetchSubmissions}
           />
         </>
-                      );
+      );
     }
 
     return (
