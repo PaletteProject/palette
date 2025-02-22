@@ -1,7 +1,7 @@
 import { ReactElement, useEffect, useState } from "react";
-import { GroupedSubmissions, PaletteAPIResponse, Rubric } from "palette-types";
+import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@hooks";
-import { useAssignment, useCourse, useRubric } from "@context";
+import { useAssignment, useCourse } from "@context";
 import {
   LoadingDots,
   MainPageTemplate,
@@ -22,23 +22,11 @@ export function GradingMain(): ReactElement {
   // context providers
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
-  const { setActiveRubric } = useRubric();
 
   // url string constants
   const fetchSubmissionsURL = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions`;
-  const getRubricURL = `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}`;
 
-  // define fetch hooks
-  const { fetchData: getRubric } = useFetch(getRubricURL);
   const { fetchData: getSubmissions } = useFetch(fetchSubmissionsURL);
-
-  /**
-   * Clear state prior to fetch operations.
-   */
-  const resetState = () => {
-    setActiveRubric(null);
-    setSubmissions({ "No Group": [] });
-  };
 
   // fetch rubric and submissions when course or assignment change
   useEffect(() => {
@@ -46,27 +34,9 @@ export function GradingMain(): ReactElement {
       // prevent effect if either course or assignment is not selected
       return;
     }
-
-    resetState();
     setLoading(true);
-    void fetchRubric();
     void fetchSubmissions();
   }, [activeCourse, activeAssignment]);
-
-  const fetchRubric = async () => {
-    if (!activeAssignment?.rubricId) return; // avoid fetch if assignment doesn't have an associated rubric
-    try {
-      const response = (await getRubric()) as PaletteAPIResponse<Rubric>;
-
-      if (response.success) {
-        setActiveRubric(response.data ?? null);
-      }
-    } catch (error) {
-      console.error("An error occurred while getting rubric: ", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const fetchSubmissions = async () => {
     setLoading(true);

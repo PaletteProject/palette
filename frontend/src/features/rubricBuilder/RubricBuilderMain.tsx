@@ -113,7 +113,7 @@ export function RubricBuilderMain(): ReactElement {
 
   /* this is for updating the existing templates with most
   recent version of the criteria before saving the rubric
-  in case any criterion are updated after intial template selection
+  in case any criterion are updated after initial template selection
   */
   const { fetchData: putTemplate } = useFetch("/templates", {
     method: "PUT",
