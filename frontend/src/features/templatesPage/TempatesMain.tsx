@@ -8,11 +8,11 @@ import { TemplateProvider, useTemplatesContext } from "./TemplateContext.tsx";
 import TemplatesWindow from "./TemplatesWindow.tsx";
 import TemplateSearch from "./TemplateSearch.tsx";
 import AddTemplateTag from "./AddTemplateTag.tsx";
-import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
+import { TemplateBuilder } from "src/features/templatesPage/TemplateBuilder.tsx";
 import { Template } from "palette-types";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 import TemplateCharts from "./TemplateCharts.tsx";
-
+import { createTemplate } from "../../utils/templateFactory.ts";
 export default function TemplatesMain(): ReactElement {
   return (
     <TemplateProvider>
@@ -46,6 +46,11 @@ function TemplatesMainContent(): ReactElement {
     // console.log("editingTemplate in TemplatesMain", editingTemplate);
     setEditingTemplate(editingTemplate as Template);
   }, [templateDialogOpen]);
+
+  useEffect(() => {
+    console.log("setting localTemplate to null");
+    localStorage.setItem("localTemplate", JSON.stringify(null));
+  }, []);
 
   const handleCloseModal = () => {
     if (hasUnsavedChanges) {
@@ -160,8 +165,7 @@ function TemplatesMainContent(): ReactElement {
           onClose={handleCloseModal}
           title={""}
           children={
-            <GenericBuilder
-              builderType="template"
+            <TemplateBuilder
               document={editingTemplate as Template}
               setDocument={(template) =>
                 setEditingTemplate(template as Template)

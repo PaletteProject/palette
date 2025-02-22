@@ -10,7 +10,8 @@ import { Tag, Template } from "palette-types";
 import { useFetch } from "src/hooks/useFetch";
 import { createTemplate } from "src/utils/templateFactory.ts";
 import { quickStartTemplates } from "./QuickStartTemplates";
-import { v4 as uuidv4 } from "uuid";
+import { useChoiceDialog } from "src/context/DialogContext";
+import { useLocalStorage } from "src/hooks/useLocalStorage";
 interface TemplateContextType {
   addingTagFromBuilder: boolean;
   setAddingTagFromBuilder: (addingTagFromBuilder: boolean) => void;
@@ -241,6 +242,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
     []
   );
+  const { openDialog, closeDialog } = useChoiceDialog();
   // object containing related modal state
   const [modal, setModal] = useState({
     isOpen: false,
@@ -248,6 +250,11 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     message: "",
     choices: [] as { label: string; action: () => void }[],
   });
+
+  const [localTemplate, setLocalTemplate] = useLocalStorage(
+    "localTemplate",
+    createTemplate()
+  );
 
   const deleteTemplatesAndFetch = async () => {
     try {
@@ -293,6 +300,9 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   }, [deletingTemplate]);
 
   useEffect(() => {
+    const newTemplate = createTemplate();
+    localStorage.setItem("localTemplate", JSON.stringify(newTemplate));
+    console.log("newTemplate", newTemplate);
     void (async () => {
       try {
         const response = await getAllTemplates();
@@ -311,11 +321,72 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const handleCreateTemplate = () => {
-    const template = createTemplate();
-    setEditingTemplate(template);
-    setViewOrEdit("edit");
-    console.log("template", template);
-    setIsNewTemplate(true);
+    const localTemplate = localStorage.getItem("localTemplate");
+    console.log("localTemplate", localTemplate);
+    if (localTemplate !== null) {
+      console.log("localTemplate", localTemplate);
+
+      const savedTemplate = JSON.parse(localTemplate);
+      if (savedTemplate.saved === false) {
+        openDialog({
+          title: "Restore lost template?",
+          message:
+            "Looks like you have an unsaved template in local storage. Would you like to restore it?",
+          buttons: [
+            {
+              autoFocus: true,
+              label: "Yes",
+              action: () => {
+                setEditingTemplate(savedTemplate);
+                setViewOrEdit("edit");
+                setIsNewTemplate(false);
+                closeDialog();
+              },
+            },
+            {
+              autoFocus: false,
+              label: "No",
+              action: () => {
+                openDialog({
+                  title: "Are you sure?",
+                  message:
+                    "This template will be lost. Are you sure you want to continue?",
+                  buttons: [
+                    {
+                      autoFocus: true,
+                      label: "Yes",
+                      action: () => {
+                        const newTemplate = createTemplate();
+                        setEditingTemplate(newTemplate);
+                        setViewOrEdit("edit");
+                        setIsNewTemplate(true);
+                        closeDialog();
+                      },
+                    },
+                  ],
+                  excludeCancel: false,
+                });
+              },
+            },
+          ],
+          excludeCancel: true,
+        });
+      } else {
+        console.log("creating new template");
+        const newTemplate = createTemplate();
+        setEditingTemplate(newTemplate);
+        setViewOrEdit("edit");
+        setIsNewTemplate(true);
+        closeDialog();
+      }
+    } else {
+      // Handle the case where localTemplate is null
+      console.log("No local template found, creating a new template");
+      const newTemplate = createTemplate();
+      setEditingTemplate(newTemplate);
+      setViewOrEdit("edit");
+      setIsNewTemplate(true);
+    }
   };
 
   const handleBulkCreateTemplates = async () => {
@@ -396,6 +467,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   };
 
   const handleSubmitNewTemplate = () => {
+    setLocalTemplate({ ...editingTemplate, saved: true } as Template);
     setTemplates([...templates, editingTemplate as Template]);
     void (async () => {
       try {
@@ -421,6 +493,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   };
 
   const handleSubmitEditedTemplate = () => {
+    setLocalTemplate({ ...editingTemplate, saved: true } as Template);
     void (async () => {
       try {
         const response = await putTemplate();

@@ -12,7 +12,7 @@ import { ChoiceDialog, Dialog } from "@components";
 import TemplateTagCreator from "src/features/templatesPage/TemplateTagCreator.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 import { PieChart } from "@mui/x-charts/PieChart";
-import { GenericBuilder } from "src/components/layout/GenericBuilder.tsx";
+import { TemplateBuilder } from "src/features/templatesPage/TemplateBuilder.tsx";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
@@ -125,7 +125,7 @@ export default function TemplateCard({
   const handleViewModeToggle = () => {
     if (focusedTemplateKey) {
       const focusedTemplate = templates.find(
-        (t) => t.key === focusedTemplateKey,
+        (t) => t.key === focusedTemplateKey
       );
       if (focusedTemplate) {
         setEditingTemplate(focusedTemplate);
@@ -175,7 +175,7 @@ export default function TemplateCard({
                 style={{
                   width: `${calculatePerformance(template)}%`,
                   backgroundColor: interpolateColor(
-                    calculatePerformance(template),
+                    calculatePerformance(template)
                   ),
                 }}
               ></div>
@@ -188,7 +188,7 @@ export default function TemplateCard({
 
   const [criteriaDropdownOpen, setCriteriaDropdownOpen] = useState(false);
   const [selectedCriterion, setSelectedCriterion] = useState<Criteria | null>(
-    null,
+    null
   );
 
   const toggleCriteriaDropdown = () => {
@@ -380,7 +380,7 @@ export default function TemplateCard({
                 .sort(([scoreA], [scoreB]) => Number(scoreB) - Number(scoreA))
                 .map(([score, count]) => {
                   const rating = criterion.ratings.find(
-                    (rating) => rating.points === Number(score),
+                    (rating) => rating.points === Number(score)
                   );
                   return {
                     id: score,
@@ -430,7 +430,7 @@ export default function TemplateCard({
     if (!template.criteria || template.criteria.length === 0) return;
 
     const currentIndex = template.criteria.findIndex(
-      (criterion) => criterion.key === selectedCriterion?.key,
+      (criterion) => criterion.key === selectedCriterion?.key
     );
 
     const nextIndex = (currentIndex + 1) % template.criteria.length;
@@ -449,8 +449,7 @@ export default function TemplateCard({
           onClose={handleCloseModal}
           title={""}
           children={
-            <GenericBuilder
-              builderType="template"
+            <TemplateBuilder
               document={editingTemplate as Template}
               setDocument={(template) =>
                 setEditingTemplate(template as Template)

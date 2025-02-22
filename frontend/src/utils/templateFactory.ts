@@ -14,7 +14,8 @@ export function createTemplate(
     (acc, criterion) => acc + criterion.pointsPossible,
     0
   ),
-  quickStart: boolean = false
+  quickStart: boolean = false,
+  saved: boolean | null = null
 ): Template {
   return {
     title,
@@ -23,10 +24,11 @@ export function createTemplate(
     key: uuid(),
     description,
     createdAt,
-    lastUsed: typeof lastUsed === "string" ? new Date(lastUsed) : lastUsed,
+    lastUsed: "Never",
     usageCount,
     tags,
     points,
     quickStart,
+    saved: saved || false,
   };
 }

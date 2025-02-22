@@ -1,6 +1,10 @@
 import { Criteria, Rubric, Template } from "palette-types";
 import { useTemplatesContext } from "src/features/templatesPage/TemplateContext";
-import React, { MouseEvent as ReactMouseEvent, useState } from "react";
+import React, {
+  MouseEvent as ReactMouseEvent,
+  useState,
+  useEffect,
+} from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   SortableContext,
@@ -11,25 +15,23 @@ import { createCriterion } from "@utils";
 import { ChoiceDialog, Dialog } from "@components";
 import AllTags from "src/features/templatesPage/AllTags";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { useLocalStorage } from "@hooks";
 
-interface GenericBuilderProps {
-  builderType: "template" | "rubric";
+interface TemplateBuilderProps {
   document: Template | Rubric;
   setDocument: (document: Template | Rubric) => void;
   onSubmit: () => void;
 }
 
-export const GenericBuilder = ({
-  builderType,
+export const TemplateBuilder = ({
   document,
   setDocument,
   onSubmit,
-}: GenericBuilderProps) => {
+}: TemplateBuilderProps) => {
   const {
     editingTemplate,
     setEditingTemplate,
     viewingTemplate,
-    setViewingTemplate,
     handleUpdateTemplate,
     viewOrEdit,
     templates,
@@ -40,29 +42,26 @@ export const GenericBuilder = ({
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   const [showDialog, setShowDialog] = useState(false);
+  const [localTemplate, setLocalTemplate] = useLocalStorage(
+    "localTemplate",
+    document
+  );
 
   const { openDialog, closeDialog } = useChoiceDialog();
 
   const handleDocumentTitleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     e.preventDefault();
 
     const newTitle = e.target.value;
-    if (builderType === "template" && editingTemplate) {
-      const updatedTemplate = {
-        ...document,
-        title: newTitle,
-      } as Template;
-      setDocument(updatedTemplate);
-      setHasUnsavedChanges(true);
-    } else if (builderType === "rubric") {
-      const updatedRubric = {
-        ...document,
-        title: newTitle,
-      } as Rubric;
-      setDocument(updatedRubric);
-    }
+    const updatedTemplate = {
+      ...document,
+      title: newTitle,
+    } as Template;
+    setDocument(updatedTemplate);
+    setHasUnsavedChanges(true);
+    setLocalTemplate(updatedTemplate);
   };
 
   // update criterion at given index
@@ -75,20 +74,16 @@ export const GenericBuilder = ({
       criteria: newCriteria,
       points: newCriteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       ),
     };
-    if (builderType === "template") {
-      setEditingTemplate(updatedTemplate as Template);
-      handleUpdateTemplate(index, updatedTemplate as Template);
-    } else {
-      setViewingTemplate(updatedTemplate as Template);
-    }
-    // console.log("criterion updated");
+
+    setEditingTemplate(updatedTemplate as Template);
+    handleUpdateTemplate(index, updatedTemplate as Template);
+    setLocalTemplate(updatedTemplate);
   };
 
   const handleRemoveCriterion = (index: number, criterion: Criteria) => {
-    // if (!template) return;
     if (!document) return;
 
     const deleteTemplateCriterion = () => {
@@ -98,53 +93,29 @@ export const GenericBuilder = ({
       const updatedTemplate = { ...editingTemplate, criteria: newCriteria };
       updatedTemplate.points = updatedTemplate.criteria.reduce(
         (acc, criterion) => acc + criterion.pointsPossible,
-        0,
+        0
       );
       // console.log("updatedTemplate points", updatedTemplate.points);
       setEditingTemplate(updatedTemplate as Template);
       handleUpdateTemplate(index, updatedTemplate as Template);
       setHasUnsavedChanges(true);
+      setLocalTemplate(updatedTemplate as Template);
     };
-
-    const deleteRubricCriterion = () => {
-      const newCriteria = [...document.criteria];
-      newCriteria.splice(index, 1);
-      setDocument({ ...document, criteria: newCriteria });
-      setHasUnsavedChanges(true);
-    };
-
-    if (builderType === "template") {
-      openDialog({
-        title: "Confirm Criterion Removal",
-        message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
-        buttons: [
-          {
-            autoFocus: true,
-            label: "Destroy it!",
-            action: () => {
-              deleteTemplateCriterion();
-              closeDialog();
-            },
+    openDialog({
+      title: "Confirm Criterion Removal",
+      message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
+      buttons: [
+        {
+          autoFocus: true,
+          label: "Destroy it!",
+          action: () => {
+            deleteTemplateCriterion();
+            closeDialog();
           },
-        ],
-        excludeCancel: false,
-      });
-    } else {
-      openDialog({
-        title: "Confirm Criterion Removal",
-        message: `Are you sure you want to remove ${criterion.description}? This action is (currently) not reversible.`,
-        buttons: [
-          {
-            autoFocus: true,
-            label: "Destroy it!",
-            action: () => {
-              deleteRubricCriterion();
-              closeDialog();
-            },
-          },
-        ],
-      });
-    }
+        },
+      ],
+      excludeCancel: false,
+    });
   };
 
   const renderCriteriaCards = () => {
@@ -189,28 +160,23 @@ export const GenericBuilder = ({
   const handleAddCriteria = (event: ReactMouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!document) return;
+    const newCriterion = createCriterion();
+    newCriterion.template = document.key;
+    const newCriteria = [...document.criteria, newCriterion];
 
-    if (builderType === "template") {
-      const newCriterion = createCriterion();
-      newCriterion.template = document.key;
-      const newCriteria = [...document.criteria, newCriterion];
-
-      const updatedTemplate = {
-        ...document,
-        criteria: newCriteria,
-        points: newCriteria.reduce(
-          (acc, criterion) => acc + criterion.pointsPossible,
-          0,
-        ),
-      };
-      setEditingTemplate(updatedTemplate as Template);
-      setActiveCriterionIndex(newCriteria.length - 1);
-      setHasUnsavedChanges(true);
-    } else {
-      const newCriteria = [...document.criteria, createCriterion()];
-      setDocument({ ...document, criteria: newCriteria });
-      setActiveCriterionIndex(newCriteria.length - 1);
-    }
+    const updatedTemplate = {
+      ...document,
+      criteria: newCriteria,
+      points: newCriteria.reduce(
+        (acc, criterion) => acc + criterion.pointsPossible,
+        0
+      ),
+    };
+    setEditingTemplate(updatedTemplate as Template);
+    setActiveCriterionIndex(newCriteria.length - 1);
+    setHasUnsavedChanges(true);
+    setLocalTemplate(updatedTemplate);
+    setDocument(updatedTemplate);
   };
 
   const submitDocument = (event: ReactMouseEvent<HTMLButtonElement>) => {
@@ -246,28 +212,27 @@ export const GenericBuilder = ({
       return;
     }
 
-    if (builderType === "template") {
-      const isDuplicateName = templates.some(
-        (t) =>
-          t.title.toLowerCase() === document?.title.toLowerCase() &&
-          t.key !== document?.key,
-      );
-      if (isDuplicateName) {
-        openDialog({
-          title: "Duplicate Template Name Detected",
-          message:
-            "A template with this name already exists. Please choose a different name.",
-          buttons: [
-            {
-              autoFocus: true,
-              action: () => closeDialog(),
-              label: "Got It",
-            },
-          ],
-        });
-        return;
-      }
+    const isDuplicateName = templates.some(
+      (t) =>
+        t.title.toLowerCase() === document?.title.toLowerCase() &&
+        t.key !== document?.key
+    );
+    if (isDuplicateName) {
+      openDialog({
+        title: "Duplicate Template Name Detected",
+        message:
+          "A template with this name already exists. Please choose a different name.",
+        buttons: [
+          {
+            autoFocus: true,
+            action: () => closeDialog(),
+            label: "Got It",
+          },
+        ],
+      });
+      return;
     }
+
     onSubmit();
   };
 
@@ -285,17 +250,11 @@ export const GenericBuilder = ({
               required={true}
               onChange={(e) => handleDocumentTitleChange(e)}
               className="rounded p-2 mb-2 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-lg truncate whitespace-nowrap"
-              placeholder={
-                builderType === "template" ? "Template title" : "Rubric title"
-              }
+              placeholder={"Template title"}
             />
           ) : (
             <h1 className="font-extrabold text-3xl sm:text-4xl mb-2 text-center">
-              {builderType === "template" ? (
-                viewingTemplate?.title
-              ) : (
-                <>Rubric: {viewingTemplate?.title}</>
-              )}
+              {viewingTemplate?.title}
             </h1>
           )}
           <div className="flex justify-between items-center">
