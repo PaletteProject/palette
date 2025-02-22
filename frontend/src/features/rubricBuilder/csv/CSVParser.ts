@@ -56,8 +56,8 @@ export const parseVersionOne = (
       const criterion: Criteria = createCriterion(
         criterionTitle,
         "",
-        maxPoints,
         [],
+        maxPoints,
       );
       let hasValidRating = false;
       for (let i = 1; i < row.length; i += 2) {
@@ -97,8 +97,8 @@ export const parseVersionTwo = (
       const criterion: Criteria = createCriterion(
         criterionTitle,
         longDescription || "",
-        maxPoints,
         [],
+        maxPoints,
       );
 
       for (let i = 3; i < row.length; i++) {
