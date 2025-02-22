@@ -23,7 +23,7 @@ type ActionButtonProps = {
   /**
    * The button color theme.
    */
-  color: ButtonColorOptions;
+  color?: ButtonColorOptions;
 };
 
 export type ButtonColorOptions =

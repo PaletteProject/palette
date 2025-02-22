@@ -1,23 +1,17 @@
-import {
-  CanvasGradedSubmission,
-  GroupedSubmissions,
-  Rubric,
-} from "palette-types";
+import { CanvasGradedSubmission, GroupedSubmissions } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
 import { Dispatch, SetStateAction, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
-import { useAssignment, useCourse } from "@context";
+import { useAssignment, useCourse, useRubric } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 
 type SubmissionDashboardProps = {
-  rubric: Rubric | undefined;
   submissions: GroupedSubmissions;
   fetchSubmissions: () => Promise<void>;
   setLoading: Dispatch<SetStateAction<boolean>>;
 };
 
 export function SubmissionsDashboard({
-  rubric,
   submissions,
   fetchSubmissions,
   setLoading,
@@ -29,6 +23,8 @@ export function SubmissionsDashboard({
 
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
+  const { activeRubric } = useRubric();
+
   const { openDialog, closeDialog } = useChoiceDialog();
 
   const BASE_URL = "http://localhost:3000/api";
@@ -79,7 +75,7 @@ export function SubmissionsDashboard({
     <div className={"grid justify-start"}>
       <div className={"grid gap-2 mb-4 p-4"}>
         <h1 className={"text-5xl font-bold"}>Submission Dashboard</h1>
-        <AssignmentData rubric={rubric} />
+        <AssignmentData />
         <div className={"flex"}>
           <PaletteActionButton
             color={"GREEN"}
@@ -116,7 +112,7 @@ export function SubmissionsDashboard({
               groupName={groupName}
               progress={calculateGradingProgress()}
               submissions={groupSubmissions}
-              rubric={rubric!}
+              rubric={activeRubric}
               fetchSubmissions={fetchSubmissions}
               setGradedSubmissionCache={setGradedSubmissionCache}
               gradedSubmissionCache={gradedSubmissionCache}

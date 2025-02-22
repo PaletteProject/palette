@@ -36,10 +36,7 @@ export function ProjectGradingView({
     return null;
   }
 
-  // ratings state to track and update background colors
-  const [ratings, setRatings] = useState<{ [key: string]: number | string }>(
-    {},
-  );
+  const [ratings, setRatings] = useState<Record<string, number | string>>({});
 
   // group grading checkbox state
   const [checkedCriteria, setCheckedCriteria] = useState<{
@@ -53,10 +50,7 @@ export function ProjectGradingView({
    */
   useEffect(() => {
     if (isOpen) {
-      const initialRatings: { [key: string]: number | string } = {};
-
-      console.log("THE CACHE");
-      console.log(gradedSubmissionCache);
+      const initialRatings: Record<string, number | string> = {};
 
       // process the cached submissions, prioritizing the latest in progress grades over what Canvas current has saved.
       gradedSubmissionCache.forEach((gradedSubmission) => {
@@ -89,7 +83,6 @@ export function ProjectGradingView({
       });
 
       setRatings(initialRatings);
-      console.log("Initialized Ratings:", initialRatings);
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
@@ -103,23 +96,22 @@ export function ProjectGradingView({
     applyToGroup: boolean,
   ) => {
     setRatings((prev) => {
+      const newValue = value === "" ? "" : Number(value);
+
       const updatedRatings = {
         ...prev,
-        [`${submissionId}-${criterionId}`]: value === "" ? "" : Number(value),
+        [`${submissionId}-${criterionId}`]: newValue,
       };
 
       if (applyToGroup) {
         // iterate through all the ratings and updated the ones with same criterion id
-        Object.keys(prev).forEach((key) => {
-          const [, existingCriteriaId] = key.split("-"); // don't need the submission id
-          if (existingCriteriaId === criterionId) {
-            updatedRatings[key] = value === "" ? "" : Number(value);
-          }
+        submissions.forEach((submission) => {
+          // iterate over submissions directly rather than existing ratings to ensure we include the entries that
+          // haven't been graded yet
+          updatedRatings[`${submission.id}-${criterionId}`] = newValue;
         });
       }
 
-      console.log("CHANGED RATINGS");
-      console.log(updatedRatings);
       return updatedRatings;
     });
   };
@@ -172,9 +164,6 @@ export function ProjectGradingView({
      */
 
     setGradedSubmissionCache((prev) => prev.concat(gradedSubmissions));
-    console.log("Caching submissions ");
-    console.log(gradedSubmissions);
-    console.log("end cache");
 
     onClose();
   };
