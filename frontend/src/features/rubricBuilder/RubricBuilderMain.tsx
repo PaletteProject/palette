@@ -579,22 +579,17 @@ export function RubricBuilderMain(): ReactElement {
           Canvas Rubric Builder
         </h1>
         <div className="flex justify-between items-center">
-          {/* Import CSV */}
+          {/* Import/Export CSV */}
           <div className={"flex gap-2 items-center"}>
             <CSVImport />
-
-            {/* Export CSV */}
             <CSVExport />
-            <button
-              className="transition-all ease-in-out duration-300 bg-yellow-600 text-white font-bold rounded-lg py-2 px-4 hover:bg-yellow-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            <PaletteActionButton
+              title={"Templates"}
               onClick={handleOpenTemplateImport}
-              type={"button"}
-            >
-              Templates
-            </button>
+            />
           </div>
 
-          <h2 className="text-2xl font-extrabold bg-green-600 text-black py-2 px-4 rounded-lg">
+          <h2 className="text-2xl font-extrabold bg-blue-600 text-white py-2 px-4 rounded-lg">
             {maxPoints} {maxPoints === 1 ? "Point" : "Points"}
           </h2>
         </div>
