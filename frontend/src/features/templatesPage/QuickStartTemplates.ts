@@ -2,6 +2,36 @@ import { createTemplate } from "../../utils/templateFactory";
 import { createCriterion, createRating } from "../../utils/rubricFactory";
 
 // Template 1: Design Document
+function generateRandomScores(
+  count: number,
+  possibleScores: number[],
+): number[] {
+  const scores = [];
+  for (let i = 0; i < count; i++) {
+    const randomIndex = Math.floor(Math.random() * possibleScores.length);
+    scores.push(possibleScores[randomIndex]);
+  }
+  return scores;
+}
+
+function generatePerfectScores(
+  count: number,
+  possibleScores: number[],
+): number[] {
+  const scores = [];
+  for (let i = 0; i < count; i++) {
+    scores.push(possibleScores[0]);
+  }
+  return scores;
+}
+
+function generateBadScores(count: number, possibleScores: number[]): number[] {
+  const scores = [];
+  for (let i = 0; i < count; i++) {
+    scores.push(possibleScores[possibleScores.length - 1]);
+  }
+  return scores;
+}
 
 const clarityRatings = [
   createRating(
@@ -66,6 +96,10 @@ const clarityCriterion = createCriterion(
   "",
   "Ensure requirements are well-defined and unambiguous.",
   "Requirements Clarity",
+  generatePerfectScores(
+    50,
+    clarityRatings.map((rating) => rating.points),
+  ),
 );
 
 const architectureCriterion = createCriterion(
@@ -76,6 +110,10 @@ const architectureCriterion = createCriterion(
   "",
   "Include an architecture diagram and component breakdown.",
   "System Architecture",
+  generatePerfectScores(
+    50,
+    architectureRatings.map((rating) => rating.points),
+  ),
 );
 
 const scalabilityCriterion = createCriterion(
@@ -86,6 +124,10 @@ const scalabilityCriterion = createCriterion(
   "",
   "Mention how the design can scale with increased usage.",
   "Scalability",
+  generatePerfectScores(
+    50,
+    scalabilityRatings.map((rating) => rating.points),
+  ),
 );
 
 export const designDocumentTemplate = createTemplate(
@@ -165,6 +207,10 @@ const coverageCriterion = createCriterion(
   "",
   "Ensure at least 80% code coverage with meaningful tests.",
   "Test Coverage",
+  generateBadScores(
+    50,
+    coverageRatings.map((rating) => rating.points),
+  ),
 );
 
 const readabilityCriterion = createCriterion(
@@ -175,6 +221,10 @@ const readabilityCriterion = createCriterion(
   "",
   "Write clean, modular test cases with clear assertions.",
   "Test Readability",
+  generateBadScores(
+    50,
+    readabilityRatings.map((rating) => rating.points),
+  ),
 );
 
 const automationCriterion = createCriterion(
@@ -185,6 +235,10 @@ const automationCriterion = createCriterion(
   "",
   "Ensure tests run in CI/CD and block builds on failure.",
   "CI Integration",
+  generateRandomScores(
+    50,
+    automationRatings.map((rating) => rating.points),
+  ),
 );
 
 export const unitTestingTemplate = createTemplate(
@@ -261,6 +315,10 @@ const codeQualityCriterion = createCriterion(
   "",
   "Ensure clean, well-structured, and efficient code.",
   "Code Quality",
+  generateRandomScores(
+    50,
+    codeQualityRatings.map((rating) => rating.points),
+  ),
 );
 
 const bugIdentificationCriterion = createCriterion(
@@ -271,6 +329,10 @@ const bugIdentificationCriterion = createCriterion(
   "",
   "Identify and report potential logical or security issues.",
   "Bug Detection",
+  generateRandomScores(
+    50,
+    bugIdentificationRatings.map((rating) => rating.points),
+  ),
 );
 
 const feedbackCriterion = createCriterion(
@@ -281,6 +343,10 @@ const feedbackCriterion = createCriterion(
   "",
   "Provide clear, respectful, and actionable feedback.",
   "Review Feedback",
+  generateRandomScores(
+    50,
+    feedbackRatings.map((rating) => rating.points),
+  ),
 );
 
 export const codeReviewTemplate = createTemplate(
@@ -354,12 +420,16 @@ const engagementRatings = [
 
 const teamReflectionCriterion = createCriterion(
   "Reflection on Team Performance",
-  "Evaluates what went well and what didn’t.",
+  "Evaluates what went well and what didn't.",
   teamReflectionRatings,
   10,
   "",
   "Highlight achievements and areas needing improvement.",
   "Team Reflection",
+  generateRandomScores(
+    50,
+    teamReflectionRatings.map((rating) => rating.points),
+  ),
 );
 
 const improvementPlanCriterion = createCriterion(
@@ -370,6 +440,10 @@ const improvementPlanCriterion = createCriterion(
   "",
   "Suggest concrete steps to enhance the workflow.",
   "Improvement Plan",
+  generateRandomScores(
+    50,
+    improvementPlanRatings.map((rating) => rating.points),
+  ),
 );
 
 const engagementCriterion = createCriterion(
@@ -380,6 +454,10 @@ const engagementCriterion = createCriterion(
   "",
   "Ensure everyone contributes to the discussion.",
   "Team Engagement",
+  generateRandomScores(
+    50,
+    engagementRatings.map((rating) => rating.points),
+  ),
 );
 
 export const sprintRetrospectiveTemplate = createTemplate(
@@ -452,6 +530,10 @@ const sprintGoalCriterion = createCriterion(
   "",
   "Define clear and realistic sprint objectives.",
   "Sprint Goals",
+  generateRandomScores(
+    50,
+    sprintGoalRatings.map((rating) => rating.points),
+  ),
 );
 
 const taskBreakdownCriterion = createCriterion(
@@ -462,6 +544,10 @@ const taskBreakdownCriterion = createCriterion(
   "",
   "Break work into tasks with estimated effort.",
   "Task Breakdown",
+  generateRandomScores(
+    50,
+    taskBreakdownRatings.map((rating) => rating.points),
+  ),
 );
 
 const workloadCriterion = createCriterion(
@@ -472,6 +558,10 @@ const workloadCriterion = createCriterion(
   "",
   "Ensure tasks are distributed fairly among team members.",
   "Workload Balancing",
+  generateRandomScores(
+    50,
+    workloadRatings.map((rating) => rating.points),
+  ),
 );
 
 export const sprintPlanningTemplate = createTemplate(

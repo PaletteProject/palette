@@ -28,5 +28,6 @@ export function createTemplate(
     tags,
     points,
     quickStart,
+    saved: false,
   };
 }
