@@ -25,7 +25,7 @@ export function GradingMain(): ReactElement {
   // context providers
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
-  const {activeRubric} = useRubric();
+  const { activeRubric } = useRubric();
 
   // url string constants
   const fetchSubmissionsURL = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions`;
@@ -103,8 +103,6 @@ export function GradingMain(): ReactElement {
     }
   };
 
-
-
   // fetch rubric and submissions when course or assignment change
   useEffect(() => {
     if (!activeCourse || !activeAssignment) {
@@ -134,7 +132,6 @@ export function GradingMain(): ReactElement {
   const renderContent = () => {
     if (!loading && activeCourse && activeAssignment) {
       return (
-
         <>
           <div className="flex gap-4 items-center mb-4">
             <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded cursor-pointer">
