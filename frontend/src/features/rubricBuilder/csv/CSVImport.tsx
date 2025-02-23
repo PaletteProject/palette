@@ -2,13 +2,11 @@ import React, { useRef, useState } from "react";
 import { importCsv, VERSION_ONE, VERSION_TWO } from "@utils";
 import { Dialog, PaletteActionButton } from "@components";
 import { Criteria, Rubric } from "palette-types";
+import { useRubric } from "@context";
 
-interface CSVUploadProps {
-  rubric: Rubric;
-  setRubric: React.Dispatch<React.SetStateAction<Rubric>>;
-}
+export const CSVImport = () => {
+  const { activeRubric, setActiveRubric } = useRubric();
 
-export const CSVImport: React.FC<CSVUploadProps> = ({ setRubric }) => {
   const [showVersionModal, setShowVersionModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -46,36 +44,40 @@ export const CSVImport: React.FC<CSVUploadProps> = ({ setRubric }) => {
       ),
     );
 
+  const handleImportError = (error: string) => {
+    setErrorMessage(error);
+  };
+
   const handleImportSuccess = (newCriteria: Criteria[]) => {
-    setRubric((prevRubric) => {
-      const existingDescriptions = buildCriteriaDescriptionSet(prevRubric);
+    const existingDescriptions = buildCriteriaDescriptionSet(activeRubric);
 
-      const hasDuplicates = newCriteria.some((criterion) =>
-        existingDescriptions.has(criterion.description.trim().toLowerCase()),
+    const hasDuplicates = newCriteria.some((criterion) =>
+      existingDescriptions.has(criterion.description.trim().toLowerCase()),
+    );
+    const uniqueCriteria = newCriteria.filter(
+      (criterion) =>
+        !existingDescriptions.has(criterion.description.trim().toLowerCase()),
+    );
+
+    if (hasDuplicates) {
+      setErrorMessage(
+        "Some criteria were not imported because they already exist in the rubric.",
       );
-      const uniqueCriteria = newCriteria.filter(
-        (criterion) =>
-          !existingDescriptions.has(criterion.description.trim().toLowerCase()),
-      );
+    }
 
-      if (hasDuplicates) {
-        setErrorMessage(
-          "Some criteria were not imported because they already exist in the rubric.",
-        );
-      }
-
-      return prevRubric
-        ? {
-            ...prevRubric,
-            criteria: [...prevRubric.criteria, ...uniqueCriteria],
+    const buildNewRubric = () => {
+      return activeRubric
+        ? ({
+            ...activeRubric,
+            criteria: [...activeRubric.criteria, ...uniqueCriteria],
             pointsPossible:
-              prevRubric.pointsPossible +
+              activeRubric.pointsPossible +
               uniqueCriteria.reduce(
                 (sum, criterion) => sum + criterion.pointsPossible,
                 0,
               ),
-          }
-        : {
+          } as Rubric)
+        : ({
             title: "Imported Rubric",
             criteria: uniqueCriteria,
             pointsPossible: uniqueCriteria.reduce(
@@ -84,12 +86,10 @@ export const CSVImport: React.FC<CSVUploadProps> = ({ setRubric }) => {
             ),
             key: "placeholder-key", // Placeholder
             id: "placeholder-id",
-          };
-    });
-  };
+          } as Rubric);
+    };
 
-  const handleImportError = (error: string) => {
-    setErrorMessage(error);
+    setActiveRubric(buildNewRubric());
   };
 
   return (

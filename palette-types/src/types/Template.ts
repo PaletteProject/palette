@@ -13,4 +13,5 @@ export interface Template {
   tags: Tag[];
   points: number;
   quickStart: boolean;
+  saved: boolean;
 }

@@ -1,16 +1,16 @@
 import Papa from "papaparse";
-import { Rating, Rubric } from "palette-types";
-import { FC } from "react";
+import { Rating } from "palette-types";
 import { PaletteActionButton } from "@components";
+import { useRubric } from "@context";
 
-interface CSVExportProps {
-  rubric: Rubric;
-}
+export const CSVExport = () => {
+  const { activeRubric } = useRubric();
 
-export const CSVExport: FC<CSVExportProps> = ({ rubric }) => {
   const updatedExportToCSV = () => {
+    if (!activeRubric) return;
+
     const maxRatings = Math.max(
-      ...rubric.criteria.map((criterion) => criterion.ratings.length),
+      ...activeRubric.criteria.map((criterion) => criterion.ratings.length),
     );
 
     const header = ["Criteria", "Long description", "Max points"];
@@ -18,7 +18,7 @@ export const CSVExport: FC<CSVExportProps> = ({ rubric }) => {
       header.push(`Rating ${i + 1}`);
     }
     // Prepare CSV data
-    const data = rubric.criteria.map((criterion) => {
+    const data = activeRubric.criteria.map((criterion) => {
       // Initialize row with the criterion description, long description, and max points
       const row = [
         criterion.description,
@@ -53,7 +53,7 @@ export const CSVExport: FC<CSVExportProps> = ({ rubric }) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `${rubric.title || "Rubric"}.csv`);
+    link.setAttribute("download", `${activeRubric.title || "Rubric"}.csv`);
     link.click();
   };
 

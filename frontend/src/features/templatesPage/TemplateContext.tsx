@@ -10,7 +10,8 @@ import { Tag, Template } from "palette-types";
 import { useFetch } from "src/hooks/useFetch";
 import { createTemplate } from "src/utils/templateFactory.ts";
 import { quickStartTemplates } from "./QuickStartTemplates";
-
+import { useChoiceDialog } from "src/context/DialogContext";
+import { useLocalStorage } from "src/hooks/useLocalStorage";
 interface TemplateContextType {
   addingTagFromBuilder: boolean;
   setAddingTagFromBuilder: (addingTagFromBuilder: boolean) => void;
@@ -66,7 +67,7 @@ interface TemplateContextType {
   closeModal: () => void;
   handleRemoveTemplate: (key: string) => void;
   handleUpdateTemplate: (index: number, template: Template) => void;
-  handleQuickStart: () => void;
+  handleQuickStart: () => Promise<void>;
   isNewTemplate: boolean;
   setIsNewTemplate: (isNewTemplate: boolean) => void;
   index: number;
@@ -85,9 +86,11 @@ interface TemplateContextType {
   tagModalOpen: boolean;
   setTagModalOpen: (tagModalOpen: boolean) => void;
   handleBulkCreateTemplates: () => void;
-  handleBulkDeleteTemplates: () => void;
+  handleBulkDeleteTemplates: (deletingTemplates: Template[]) => void;
   hasUnsavedChanges: boolean;
   setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
+  showMetrics: boolean;
+  setShowMetrics: (showMetrics: boolean) => void;
 }
 
 const TemplatesContext = createContext<TemplateContextType>({
@@ -105,7 +108,7 @@ const TemplatesContext = createContext<TemplateContextType>({
   handleSubmitEditedTemplate: () => {},
   focusedTemplateKey: null,
   setFocusedTemplateKey: () => {},
-  handleQuickStart: () => {},
+  handleQuickStart: () => Promise.resolve(),
   handleDuplicateTemplate: () => {},
   selectedTemplates: [],
   setSelectedTemplates: () => {},
@@ -158,6 +161,8 @@ const TemplatesContext = createContext<TemplateContextType>({
   handleBulkDeleteTemplates: () => {},
   hasUnsavedChanges: false,
   setHasUnsavedChanges: () => {},
+  showMetrics: false,
+  setShowMetrics: () => {},
 });
 
 export function useTemplatesContext() {
@@ -200,20 +205,13 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const [duplicateTemplate, setDuplicateTemplate] = useState<Template | null>(
     null,
   );
+  const [showMetrics, setShowMetrics] = useState(false);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [viewOrEdit, setViewOrEdit] = useState<"view" | "edit">("view");
   const { fetchData: getAllTemplates } = useFetch("/templates", {
     method: "GET",
   });
   const [viewingTemplate, setViewingTemplate] = useState<Template | null>(null);
-
-  const { fetchData: deleteTemplate } = useFetch(
-    `/templates/byKey/${deletingTemplate?.key}`,
-
-    {
-      method: "DELETE",
-    },
-  );
 
   const { fetchData: postTemplate } = useFetch("/templates", {
     method: "POST",
@@ -230,15 +228,21 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     body: JSON.stringify(deletingTemplates),
   });
 
+  const { fetchData: deleteTemplate } = useFetch("/templates", {
+    method: "DELETE",
+    body: JSON.stringify(deletingTemplate),
+  });
+
   const { fetchData: addTemplates } = useFetch("/templates/bulk", {
     method: "POST",
-    body: JSON.stringify(editingTemplate),
+    body: JSON.stringify(quickStartTemplates),
   });
 
   const closeModal = useCallback(
     () => setModal((prevModal) => ({ ...prevModal, isOpen: false })),
     [],
   );
+  const { openDialog, closeDialog } = useChoiceDialog();
   // object containing related modal state
   const [modal, setModal] = useState({
     isOpen: false,
@@ -247,16 +251,65 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     choices: [] as { label: string; action: () => void }[],
   });
 
-  // Update the initial fetch useEffect
+  const [localTemplate, setLocalTemplate] = useLocalStorage(
+    "localTemplate",
+    createTemplate(),
+  );
+
+  const deleteTemplatesAndFetch = async () => {
+    try {
+      await deleteTemplates();
+
+      const response = await getAllTemplates();
+      if (response.success) {
+        setTemplates(response.data as Template[]);
+      } else {
+        console.error("Failed to fetch templates:", response);
+      }
+    } catch (error) {
+      console.error("Error deleting templates:", error);
+    }
+  };
+
+  const deleteTemplateAndFetch = async () => {
+    try {
+      await deleteTemplate();
+      const response = await getAllTemplates();
+      if (response.success) {
+        setTemplates(response.data as Template[]);
+      } else {
+        console.error("Failed to fetch templates:", response);
+      }
+    } catch (error) {
+      console.error("Error deleting template:", error);
+    }
+  };
 
   useEffect(() => {
+    // console.log("deleting templates", deletingTemplates);
+    if (deletingTemplates.length > 0) {
+      void deleteTemplatesAndFetch();
+    }
+  }, [deletingTemplates]);
+
+  useEffect(() => {
+    // console.log("deleting template", deletingTemplate);
+    if (deletingTemplate) {
+      void deleteTemplateAndFetch();
+    }
+  }, [deletingTemplate]);
+
+  useEffect(() => {
+    const newTemplate = createTemplate();
+    localStorage.setItem("localTemplate", JSON.stringify(newTemplate));
+    console.log("newTemplate", newTemplate);
     void (async () => {
       try {
         const response = await getAllTemplates();
         setShowBulkActions(false); // this needs to be here to prevent bulk actions from being shown when the page is loaded in case the last thing that was done was a bulk delete
 
         if (response.success) {
-          console.log("template provider response", response.data);
+          // console.log("template provider response", response.data);
           setTemplates(response.data as Template[]);
         } else {
           console.error("Failed to fetch templates:", response);
@@ -267,57 +320,73 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  useEffect(() => {
-    console.log("deletingTemplate changed", deletingTemplate);
-    if (deletingTemplate) {
-      void (async () => {
-        const response = await deleteTemplate();
-        if (response.success) {
-          setTemplates(
-            templates.filter(
-              (template) => template.key !== deletingTemplate.key,
-            ),
-          );
-        }
-      })();
-    }
-  }, [deletingTemplate]);
-
-  useEffect(() => {
-    if (deletingTemplates.length > 0) {
-      void (async () => {
-        try {
-          // Delete all templates in parallel
-
-          for (const template of deletingTemplates) {
-            console.log("deleting temoakte", deletingTemplates);
-            setDeletingTemplate(template);
-
-            await deleteTemplate();
-          }
-
-          const response = await getAllTemplates();
-          if (response.success) {
-            setTemplates(response.data as Template[]);
-          } else {
-            console.error("Failed to fetch templates:", response);
-          }
-        } catch (error) {
-          console.error("Error deleting templates:", error);
-        }
-      })();
-    }
-  }, [deletingTemplates]);
-
   const handleCreateTemplate = () => {
-    const template = createTemplate();
-    template.createdAt = new Date();
-    template.lastUsed = "Never";
-    template.usageCount = 23;
-    template.key = crypto.randomUUID();
-    setEditingTemplate(template);
-    setViewOrEdit("edit");
-    setIsNewTemplate(true);
+    console.log("localTemplate", localTemplate);
+    const localStorageTemplate = localStorage.getItem("localTemplate");
+    console.log("localTemplate", localTemplate);
+    if (localStorageTemplate !== null) {
+      console.log("localTemplate", localTemplate);
+      const savedTemplate = JSON.parse(localStorageTemplate) as Template;
+      if (savedTemplate.saved === false) {
+        openDialog({
+          title: "Restore lost template?",
+          message:
+            "Looks like you have an unsaved template in local storage. Would you like to restore it?",
+          buttons: [
+            {
+              autoFocus: true,
+              label: "Yes",
+              action: () => {
+                setEditingTemplate(savedTemplate);
+                setViewOrEdit("edit");
+                setIsNewTemplate(false);
+                closeDialog();
+              },
+            },
+            {
+              autoFocus: false,
+              label: "No",
+              action: () => {
+                openDialog({
+                  title: "Are you sure?",
+                  message:
+                    "This template will be lost. Are you sure you want to continue?",
+                  buttons: [
+                    {
+                      autoFocus: true,
+                      label: "Yes",
+                      action: () => {
+                        const newTemplate = createTemplate();
+                        setEditingTemplate(newTemplate);
+                        setViewOrEdit("edit");
+                        setIsNewTemplate(true);
+                        closeDialog();
+                      },
+                    },
+                  ],
+                  excludeCancel: false,
+                });
+              },
+            },
+          ],
+          excludeCancel: true,
+        });
+      } else {
+        console.log("creating new template");
+        const newTemplate = createTemplate();
+        setEditingTemplate(newTemplate);
+        setViewOrEdit("edit");
+        setIsNewTemplate(true);
+        closeDialog();
+      }
+    } else {
+      // Handle the case where localTemplate is null
+      console.log("No local template found, creating a new template");
+      const newTemplate = createTemplate();
+      setEditingTemplate(newTemplate);
+      setViewOrEdit("edit");
+      setIsNewTemplate(true);
+    }
   };
 
   const handleBulkCreateTemplates = async () => {
@@ -329,11 +398,9 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const handleBulkDeleteTemplates = async () => {
-    console.log(
-      "selectedTemplates in handleBulkDeleteTemplates",
-      deletingTemplates,
-    );
+  const handleBulkDeleteTemplates = async (templatesToDelete: Template[]) => {
+    setDeletingTemplates(templatesToDelete);
+
     const response = await deleteTemplates();
     if (response.success) {
       setTemplates(response.data as Template[]);
@@ -378,9 +445,20 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     setIsNewTemplate(true);
   };
 
-  const handleQuickStart = () => {
+  const handleQuickStart = async () => {
     setTemplates(quickStartTemplates);
-    console.log("quick start");
+    const response = await addTemplates();
+    if (response.success) {
+      // Fetch all templates after adding quick start templates
+      const allTemplatesResponse = await getAllTemplates();
+      if (allTemplatesResponse.success) {
+        setTemplates(allTemplatesResponse.data as Template[]);
+      } else {
+        console.error("Failed to fetch templates:", allTemplatesResponse);
+      }
+    } else {
+      console.error("Failed to post templates:", response);
+    }
   };
 
   const handleUpdateTemplate = (index: number, template: Template) => {
@@ -389,6 +467,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   };
 
   const handleSubmitNewTemplate = () => {
+    setLocalTemplate({ ...editingTemplate, saved: true } as Template);
     setTemplates([...templates, editingTemplate as Template]);
     void (async () => {
       try {
@@ -414,6 +493,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   };
 
   const handleSubmitEditedTemplate = () => {
+    setLocalTemplate({ ...editingTemplate, saved: true } as Template);
     void (async () => {
       try {
         const response = await putTemplate();
@@ -504,9 +584,12 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         addingTagFromBuilder,
         setAddingTagFromBuilder,
         handleBulkCreateTemplates: () => void handleBulkCreateTemplates(),
-        handleBulkDeleteTemplates: () => void handleBulkDeleteTemplates(),
+        handleBulkDeleteTemplates: (deletingTemplates: Template[]) =>
+          void handleBulkDeleteTemplates(deletingTemplates),
         hasUnsavedChanges,
         setHasUnsavedChanges,
+        showMetrics,
+        setShowMetrics,
       }}
     >
       {children}

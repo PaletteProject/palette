@@ -1,7 +1,6 @@
 /**
  * Rubric Builder view.
  */
-
 import {
   ChangeEvent,
   MouseEvent,
@@ -11,12 +10,9 @@ import {
   useMemo,
   useState,
 } from "react";
-
 import CriteriaInput from "./CriteriaCard.tsx";
 import TemplateUpload from "./TemplateUpload.tsx";
-// import TemplateUpload from "./templates/TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
-
 import {
   ChoiceDialog,
   Dialog,
@@ -28,37 +24,26 @@ import {
   PaletteActionButton,
   PopUp,
 } from "@components";
-
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-
 import { useFetch } from "@hooks";
-
 import { createCriterion, createRubric } from "@utils";
-
 import { Criteria, PaletteAPIResponse, Rubric, Template } from "palette-types";
 import { CSVExport, CSVImport } from "@features";
 import { AnimatePresence, motion } from "framer-motion";
-import { useAssignment, useCourse } from "@context";
+import { useAssignment, useCourse, useRubric } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 
 export function RubricBuilderMain(): ReactElement {
-  /**
-   * Get initial rubric from local storage or create a new one if none exists
-   */
-  const getInitialRubric = () => {
-    const rubric = localStorage.getItem("rubric");
-    return rubric ? (JSON.parse(rubric) as Rubric) : createRubric();
-  };
+  const { activeRubric, setActiveRubric, getRubric } = useRubric();
+
   /**
    * Rubric Builder State
    */
 
-  // active rubric being edited
-  const [rubric, setRubric] = useState<Rubric>(getInitialRubric());
   // tracks which criterion card is displaying the detailed view (limited to one at a time)
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
   // result of hook checking if active assignment has an existing rubric
@@ -70,7 +55,13 @@ export function RubricBuilderMain(): ReactElement {
 
   const [isCanvasBypassed, setIsCanvasBypassed] = useState(false);
 
+  // this template tracks the template that is currently being updated
   const [updatingTemplate, setUpdatingTemplate] = useState<Template | null>(
+    null,
+  );
+
+  // this template tracks the template that is currently being imported
+  const [importingTemplate, setImportingTemplate] = useState<Template | null>(
     null,
   );
 
@@ -101,11 +92,6 @@ export function RubricBuilderMain(): ReactElement {
    * See PaletteAPIRequest for options structure.
    */
 
-  // GET rubric from the active assignment.
-  const { fetchData: getRubric } = useFetch(
-    `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}`,
-  );
-
   useEffect(() => {
     if (!activeCourse || !activeAssignment) return;
     if (hasExistingRubric) handleExistingRubric();
@@ -119,7 +105,7 @@ export function RubricBuilderMain(): ReactElement {
     `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}/${activeAssignment?.id}`,
     {
       method: "PUT",
-      body: JSON.stringify(rubric),
+      body: JSON.stringify(activeRubric),
     },
   );
 
@@ -127,17 +113,17 @@ export function RubricBuilderMain(): ReactElement {
     `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.id}`,
     {
       method: "POST",
-      body: JSON.stringify(rubric),
+      body: JSON.stringify(activeRubric),
     },
   );
 
   /* this is for updating the existing templates with most
   recent version of the criteria before saving the rubric
-  in case any criterion are updated after intial template selection
+  in case any criterion are updated after initial template selection
   */
   const { fetchData: putTemplate } = useFetch("/templates", {
     method: "PUT",
-    body: JSON.stringify(updatingTemplate),
+    body: JSON.stringify(importingTemplate),
   });
 
   /**
@@ -145,7 +131,7 @@ export function RubricBuilderMain(): ReactElement {
    */
   const handleNewRubric = () => {
     const newRubric = createRubric();
-    setRubric(newRubric);
+    setActiveRubric(newRubric);
 
     openDialog({
       excludeCancel: true,
@@ -159,10 +145,22 @@ export function RubricBuilderMain(): ReactElement {
     setIsNewRubric(true);
   };
 
-  /**
-   * Effect hook to see if the active assignment has an existing rubric. Apply loading status while waiting to
-   * determine which view to render.
-   */
+  useEffect(() => {
+    const updateTemplate = async () => {
+      if (!importingTemplate) {
+        console.warn("No template provided for update.");
+        return;
+      }
+      const response = await putTemplate();
+      if (response.success) {
+        console.log("template usage count updated successfully");
+      } else {
+        console.error("error updating template", response.error);
+      }
+    };
+    void updateTemplate();
+  }, [importingTemplate]);
+
   useEffect(() => {
     if (!activeCourse) {
       console.warn("Select a course before trying to fetch rubric");
@@ -190,7 +188,7 @@ export function RubricBuilderMain(): ReactElement {
       }
       setHasExistingRubric(response.success || false);
       setIsNewRubric(false);
-      setRubric(response.data as Rubric);
+      setActiveRubric(response.data as Rubric);
       setLoading(false);
     };
     void checkRubricExists();
@@ -208,7 +206,7 @@ export function RubricBuilderMain(): ReactElement {
   const startNewRubric = () => {
     closeDialog();
     const newRubric = createRubric();
-    setRubric(newRubric); // set the active rubric to a fresh rubric
+    setActiveRubric(newRubric); // set the active rubric to a fresh rubric
   };
 
   /**
@@ -217,12 +215,12 @@ export function RubricBuilderMain(): ReactElement {
    * User has the option to either overwrite the rubric with a fresh start or edit the existing rubric.
    */
   const handleExistingRubric = () => {
-    if (!rubric) return;
+    if (!activeRubric) return;
 
     openDialog({
       excludeCancel: true,
       title: "Existing Rubric Detected",
-      message: `A rubric with the title "${rubric.title}" already exists for the active assignment. How would you like to proceed?`,
+      message: `A rubric with the title "${activeRubric.title}" already exists for the active assignment. How would you like to proceed?`,
       buttons: [
         {
           label: "Edit Rubric",
@@ -240,7 +238,7 @@ export function RubricBuilderMain(): ReactElement {
 
   const handleUpdateAllTemplateCriteria = async (): Promise<void> => {
     const criteriaOnATemplate: Criteria[] = [];
-    rubric?.criteria.forEach((criterion) => {
+    activeRubric?.criteria.forEach((criterion) => {
       if (criterion.template !== "") criteriaOnATemplate.push(criterion);
     });
 
@@ -263,7 +261,7 @@ export function RubricBuilderMain(): ReactElement {
       const response = await putTemplate();
 
       if (response.success) {
-        console.log("template updated successfully");
+        console.log("template updated successfully", updatingTemplate);
       } else {
         console.error("error updating template", response.error);
       }
@@ -273,8 +271,7 @@ export function RubricBuilderMain(): ReactElement {
   const handleSubmitRubric = async (event: MouseEvent): Promise<void> => {
     event.preventDefault();
     console.log("submitting rubric");
-    await handleUpdateAllTemplateCriteria();
-    if (!rubric || !activeCourse || !activeAssignment) return;
+    if (!activeRubric || !activeCourse || !activeAssignment) return;
 
     setLoading(true);
 
@@ -287,9 +284,16 @@ export function RubricBuilderMain(): ReactElement {
         openDialog({
           excludeCancel: true,
           title: "Success!",
-          message: `${rubric.title} ${isNewRubric ? "created" : "updated"}!`,
+          message: `${activeRubric.title} ${isNewRubric ? "created" : "updated"}!`,
           buttons: [
-            { autoFocus: true, label: "Radical", action: () => closeDialog() },
+            {
+              autoFocus: true,
+              label: "Radical",
+              action: () => {
+                closeDialog();
+                void handleUpdateAllTemplateCriteria();
+              },
+            },
           ],
         });
       } else {
@@ -321,11 +325,10 @@ export function RubricBuilderMain(): ReactElement {
 
   const handleRubricTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
-    setRubric((prevRubric) =>
-      prevRubric
-        ? { ...prevRubric, title: event.target.value }
-        : createRubric(),
-    );
+    setActiveRubric({
+      ...activeRubric,
+      title: event.target.value,
+    });
   };
 
   /**
@@ -335,10 +338,10 @@ export function RubricBuilderMain(): ReactElement {
    * Defaults to 0 if no criterion is defined.
    */
   const maxPoints = useMemo(() => {
-    if (!rubric) return;
+    if (!activeRubric) return;
 
     return (
-      rubric.criteria.reduce(
+      activeRubric.criteria.reduce(
         (sum, criterion) =>
           isNaN(criterion.pointsPossible)
             ? sum
@@ -346,7 +349,7 @@ export function RubricBuilderMain(): ReactElement {
         0, // init sum to 0
       ) ?? 0 // fallback value if criterion is undefined
     );
-  }, [rubric?.criteria]);
+  }, [activeRubric?.criteria]);
 
   /**
    * Callback function to trigger the creation of a new criterion on the rubric.
@@ -354,9 +357,9 @@ export function RubricBuilderMain(): ReactElement {
    */
   const handleAddCriteria = (event: MouseEvent) => {
     event.preventDefault();
-    if (!rubric) return;
-    const newCriteria = [...rubric.criteria, createCriterion()];
-    setRubric({ ...rubric, criteria: newCriteria });
+    if (!activeRubric) return;
+    const newCriteria = [...activeRubric.criteria, createCriterion()];
+    setActiveRubric({ ...activeRubric, criteria: newCriteria });
     setActiveCriterionIndex(newCriteria.length - 1);
   };
 
@@ -367,12 +370,12 @@ export function RubricBuilderMain(): ReactElement {
    * @param criterion target criterion object, used for modal details.
    */
   const handleRemoveCriterion = (index: number, criterion: Criteria) => {
-    if (!rubric) return; // do nothing if there is no active rubric
+    if (!activeRubric) return; // do nothing if there is no active rubric
 
     const deleteCriterion = () => {
-      const newCriteria = [...rubric.criteria];
+      const newCriteria = [...activeRubric.criteria];
       newCriteria.splice(index, 1);
-      setRubric({ ...rubric, criteria: newCriteria });
+      setActiveRubric({ ...activeRubric, criteria: newCriteria });
     };
 
     openDialog({
@@ -398,10 +401,10 @@ export function RubricBuilderMain(): ReactElement {
    * @param criterion updated criterion object
    */
   const handleUpdateCriterion = (index: number, criterion: Criteria) => {
-    if (!rubric) return;
-    const newCriteria = [...rubric.criteria];
+    if (!activeRubric) return;
+    const newCriteria = [...activeRubric.criteria];
     newCriteria[index] = criterion; // update the criterion with changes;
-    setRubric({ ...rubric, criteria: newCriteria }); // update rubric to have new criteria
+    setActiveRubric({ ...activeRubric, criteria: newCriteria }); // update rubric to have new criteria
   };
 
   const handleOpenTemplateImport = (event: MouseEvent<HTMLButtonElement>) => {
@@ -416,44 +419,34 @@ export function RubricBuilderMain(): ReactElement {
    * @param event - drag end event
    */
   const handleDragEnd = (event: DragEndEvent) => {
-    if (!rubric) return;
+    if (!activeRubric) return;
     if (event.over) {
-      const oldIndex = rubric.criteria.findIndex(
+      const oldIndex = activeRubric.criteria.findIndex(
         (criterion) => criterion.key === event.active.id,
       );
-      const newIndex = rubric.criteria.findIndex(
+      const newIndex = activeRubric.criteria.findIndex(
         (criterion) => criterion.key === event.over!.id, // assert not null for type safety
       );
 
-      const updatedCriteria = [...rubric.criteria];
+      const updatedCriteria = [...activeRubric.criteria];
       const [movedCriterion] = updatedCriteria.splice(oldIndex, 1);
       updatedCriteria.splice(newIndex, 0, movedCriterion);
 
-      setRubric({ ...rubric, criteria: updatedCriteria });
+      setActiveRubric({ ...activeRubric, criteria: updatedCriteria });
     }
   };
 
-  const updateTemplate = async (template: Template) => {
-    setUpdatingTemplate(template);
+  const handleImportTemplate = (template: Template) => {
     const updatedTemplate = {
       ...template,
       usageCount: template.usageCount + 1,
       lastUsed: new Date().toISOString(),
     };
+
     setUpdatingTemplate(updatedTemplate);
-    const response = await putTemplate();
-    if (response.success) {
-      console.log("template updated successfully");
-    } else {
-      console.error("error updating template", response.error);
-    }
-  };
+    if (!activeRubric) return;
 
-  const handleImportTemplate = (template: Template) => {
-    console.log("import template in rubric builder main");
-    if (!rubric) return;
-
-    const currentCriteria = rubric.criteria;
+    const currentCriteria = activeRubric.criteria;
     const newCriteria = template.criteria;
 
     if (newCriteria.length === 0) {
@@ -462,7 +455,6 @@ export function RubricBuilderMain(): ReactElement {
         title: "Oops!",
         message: `This template has no criteria`,
       });
-
       return;
     }
 
@@ -488,25 +480,22 @@ export function RubricBuilderMain(): ReactElement {
 
     // Log information about duplicates if any were found
     if (duplicates.length > 0) {
-      console.log(
-        `Found ${duplicates.length} duplicate criteria that were skipped:`,
-        duplicates.map((c) => c.description),
-      );
+      const duplicateDescriptions = duplicates
+        .map((criterion) => criterion.description)
+        .join(", ");
+      setPopUp({
+        isOpen: true,
+        title: "Oops!",
+        message: `Looks like you already imported this one. Duplicate criteria: ${duplicateDescriptions}`,
+      });
+      return;
     }
 
-    updateTemplate(template)
-      .then(() => {
-        setRubric(
-          (prevRubric) =>
-            ({
-              ...(prevRubric ?? createRubric()),
-              criteria: [...(prevRubric?.criteria ?? []), ...unique],
-            }) as Rubric,
-        );
-      })
-      .catch((error) => {
-        console.error("error updating template", error);
-      });
+    setActiveRubric({
+      ...activeRubric,
+      criteria: [...currentCriteria, ...unique],
+    });
+    setImportingTemplate(updatedTemplate);
   };
 
   /**
@@ -516,14 +505,14 @@ export function RubricBuilderMain(): ReactElement {
    * with the motion.div enable the transitions in and out.
    */
   const renderCriteriaCards = () => {
-    if (!rubric) return;
+    if (!activeRubric) return;
     return (
       <SortableContext
-        items={rubric.criteria.map((criterion) => criterion.key)}
+        items={activeRubric.criteria.map((criterion) => criterion.key)}
         strategy={verticalListSortingStrategy}
       >
         <AnimatePresence>
-          {rubric.criteria.map((criterion, index) => (
+          {activeRubric.criteria.map((criterion, index) => (
             <motion.div
               key={criterion.key}
               initial={{
@@ -557,16 +546,16 @@ export function RubricBuilderMain(): ReactElement {
    * Effect to load a default rubric if canvas api is bypassed
    */
   useEffect(() => {
-    if (isCanvasBypassed && !rubric) {
-      setRubric(createRubric());
+    if (isCanvasBypassed && !activeRubric) {
+      setActiveRubric(createRubric());
     }
-    if (!rubric) return;
-    localStorage.setItem("rubric", JSON.stringify(rubric));
-  }, [isCanvasBypassed, rubric]);
+    if (!activeRubric) return;
+    localStorage.setItem("rubric", JSON.stringify(activeRubric));
+  }, [isCanvasBypassed, activeRubric]);
 
   const deleteAllCriteria = () => {
     const newCriteria: Criteria[] = []; // empty array to reset all criteria
-    setRubric({ ...rubric, criteria: newCriteria });
+    setActiveRubric({ ...activeRubric, criteria: newCriteria });
   };
 
   const removeAllCriteria = () => {
@@ -591,7 +580,7 @@ export function RubricBuilderMain(): ReactElement {
    * Helper function to wrap the builder JSX.
    */
   const renderRubricBuilderForm = () => {
-    if (!rubric) return <p>No Active Rubric</p>;
+    if (!activeRubric) return <p>No Active Rubric</p>;
 
     return (
       <form
@@ -602,22 +591,17 @@ export function RubricBuilderMain(): ReactElement {
           Canvas Rubric Builder
         </h1>
         <div className="flex justify-between items-center">
-          {/* Import CSV */}
+          {/* Import/Export CSV */}
           <div className={"flex gap-2 items-center"}>
-            <CSVImport rubric={rubric} setRubric={setRubric} />
-
-            {/* Export CSV */}
-            <CSVExport rubric={rubric} />
-            <button
-              className="transition-all ease-in-out duration-300 bg-yellow-600 text-white font-bold rounded-lg py-2 px-4 hover:bg-yellow-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            <CSVImport />
+            <CSVExport />
+            <PaletteActionButton
+              title={"Templates"}
               onClick={handleOpenTemplateImport}
-              type={"button"}
-            >
-              Templates
-            </button>
+            />
           </div>
 
-          <h2 className="text-2xl font-extrabold bg-green-600 text-black py-2 px-4 rounded-lg">
+          <h2 className="text-2xl font-extrabold bg-blue-600 text-white py-2 px-4 rounded-lg">
             {maxPoints} {maxPoints === 1 ? "Point" : "Points"}
           </h2>
         </div>
@@ -628,7 +612,7 @@ export function RubricBuilderMain(): ReactElement {
           className="rounded p-3 mb-4 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-xl truncate whitespace-nowrap"
           name="rubricTitle"
           id="rubricTitle"
-          value={rubric.title}
+          value={activeRubric.title}
           onChange={handleRubricTitleChange}
         />
 

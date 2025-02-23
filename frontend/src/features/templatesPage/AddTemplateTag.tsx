@@ -31,7 +31,6 @@ const AddTemplateTag = () => {
   });
 
   const getTags = async () => {
-    console.log("getting tags");
     const response = await getAvailableTags();
     const backendTags = response.data as Tag[];
 
@@ -53,16 +52,12 @@ const AddTemplateTag = () => {
   useEffect(() => {
     getTags()
       .then(() => {
-        console.log("tags fetched");
+        // console.log("tags fetched in add template tag");
       })
       .catch((error) => {
         console.error("error fetching tags", error);
       });
   }, []);
-
-  useEffect(() => {
-    console.log(availableTags);
-  }, [availableTags]);
 
   return (
     <>
@@ -107,7 +102,7 @@ const AddTemplateTag = () => {
         {selectedTagFilters.length > 0 && (
           <button
             onClick={() => setSelectedTagFilters([])}
-            className="px-3 py-1 rounded-full text-sm bg-gray-700 text-white hover:bg-gray-600"
+            className="px-3 py-1 rounded-full text-sm bg-gray-700 text-white border border-blue-600 hover:bg-gray-600"
           >
             Clear Filters
           </button>

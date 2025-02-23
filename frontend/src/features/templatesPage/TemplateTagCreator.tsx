@@ -17,14 +17,16 @@ const TemplateTagCreator = ({
   onClose,
   onCreateTags,
 }: TemplateTagCreatorProps) => {
-  // Add state for tag creation modal
+  // state for tag creation modal
   const [newTag, setNewTag] = useState<Tag>(createTag());
 
+  // state for staged tags
   const [stagedTags, setStagedTags] = useState<Tag[]>([]);
 
-  // Add state for selected tag index
+  // state for selected tag index
   const [selectedTagIndex, setSelectedTagIndex] = useState<number | null>(null);
 
+  // fetch data for post tags
   const { fetchData: postTags } = useFetch("/tags/bulk", {
     method: "POST",
     body: JSON.stringify(stagedTags),
@@ -55,13 +57,20 @@ const TemplateTagCreator = ({
     "e.g. Sprint Backlog",
   ];
 
+  // state for current placeholder index
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
+
+  // state for selected color
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+
+  // state for selected tag
   const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
+
+  // state for adding tag from builder
   const { addingTagFromBuilder, editingTemplate, setEditingTemplate } =
     useTemplatesContext();
 
-  // Add effect to rotate placeholders
+  // effect to rotate placeholders
   React.useEffect(() => {
     const interval = setInterval(() => {
       setCurrentPlaceholderIndex(
@@ -72,6 +81,7 @@ const TemplateTagCreator = ({
     return () => clearInterval(interval);
   }, []);
 
+  // effect to reset state when modal is closed
   React.useEffect(() => {
     if (!isOpen) {
       setSelectedTag(null);
@@ -80,14 +90,13 @@ const TemplateTagCreator = ({
     }
   }, [isOpen]);
 
+  // handle create tag
   const handleCreateTag = async () => {
     // Loop through each tag and perform a POST request
-    console.log("addingTagFromBuilder", addingTagFromBuilder);
     if (addingTagFromBuilder && editingTemplate) {
       const updatedTags = [...editingTemplate.tags, ...stagedTags];
       const updatedTemplate = { ...editingTemplate, tags: updatedTags };
       setEditingTemplate(updatedTemplate);
-      console.log("editingTemplate", editingTemplate.tags);
       onClose();
     } else {
       const response = await postTags();
@@ -102,6 +111,7 @@ const TemplateTagCreator = ({
     }
   };
 
+  // render tag creator modal
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title="">
       <div className="flex flex-col gap-4">

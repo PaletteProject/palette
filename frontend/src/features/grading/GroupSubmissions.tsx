@@ -3,6 +3,7 @@ import { ProgressBar } from "@features";
 import { ProjectGradingView } from "./ProjectGradingView.tsx";
 import { Dispatch, SetStateAction, useState } from "react";
 import { PaletteActionButton } from "@components";
+import { useRubric } from "@context";
 
 interface GroupSubmissionsProps {
   groupName: string;
@@ -22,6 +23,8 @@ export function GroupSubmissions({
   setGradedSubmissionCache,
   gradedSubmissionCache,
 }: GroupSubmissionsProps) {
+  const { activeRubric } = useRubric();
+
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
 
   const handleGradingViewClose = () => setGradingViewOpen(false);
@@ -46,6 +49,7 @@ export function GroupSubmissions({
             color="BLUE"
             title="Grade"
             onClick={toggleGradingView}
+            disabled={activeRubric.id === ""}
           />
         </div>
 

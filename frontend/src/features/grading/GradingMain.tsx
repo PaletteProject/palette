@@ -1,7 +1,7 @@
 import { ReactElement, useEffect, useState } from "react";
-import { GroupedSubmissions, PaletteAPIResponse, Rubric } from "palette-types";
+import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@hooks";
-import { useAssignment, useCourse } from "@context";
+import { useAssignment, useCourse, useRubric } from "@context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
 import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts"; // Import the export function
 
@@ -16,7 +16,6 @@ import { SubmissionsDashboard } from "@features";
 
 export function GradingMain(): ReactElement {
   // state
-  const [rubric, setRubric] = useState<Rubric>();
   const [submissions, setSubmissions] = useState<GroupedSubmissions>({
     "No Group": [],
   });
@@ -26,13 +25,11 @@ export function GradingMain(): ReactElement {
   // context providers
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
+  const {activeRubric} = useRubric();
 
   // url string constants
   const fetchSubmissionsURL = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions`;
-  const getRubricURL = `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}`;
 
-  // define fetch hooks
-  const { fetchData: getRubric } = useFetch(getRubricURL);
   const { fetchData: getSubmissions } = useFetch(fetchSubmissionsURL);
 
   /**
@@ -99,20 +96,14 @@ export function GradingMain(): ReactElement {
    * Export all group submissions to a CSV
    */
   const handleExportAllGroups = () => {
-    if (rubric) {
-      exportAllGroupsCSV(submissions, rubric);
+    if (activeRubric) {
+      exportAllGroupsCSV(submissions, activeRubric);
     } else {
       alert("Cannot export: Missing rubric.");
     }
   };
 
-  /**
-   * Clear state prior to fetch operations.
-   */
-  const resetState = () => {
-    setRubric(undefined);
-    setSubmissions({ "No Group": [] });
-  };
+
 
   // fetch rubric and submissions when course or assignment change
   useEffect(() => {
@@ -120,27 +111,9 @@ export function GradingMain(): ReactElement {
       // prevent effect if either course or assignment is not selected
       return;
     }
-
-    resetState();
     setLoading(true);
-    void fetchRubric();
     void fetchSubmissions();
   }, [activeCourse, activeAssignment]);
-
-  const fetchRubric = async () => {
-    if (!activeAssignment?.rubricId) return; // avoid fetch if assignment doesn't have an associated rubric
-    try {
-      const response = (await getRubric()) as PaletteAPIResponse<Rubric>;
-
-      if (response.success) {
-        setRubric(response.data);
-      }
-    } catch (error) {
-      console.error("An error occurred while getting rubric: ", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const fetchSubmissions = async () => {
     setLoading(true);
@@ -161,6 +134,7 @@ export function GradingMain(): ReactElement {
   const renderContent = () => {
     if (!loading && activeCourse && activeAssignment) {
       return (
+
         <>
           <div className="flex gap-4 items-center mb-4">
             <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded cursor-pointer">
@@ -182,8 +156,8 @@ export function GradingMain(): ReactElement {
           </div>
           <SubmissionsDashboard
             submissions={submissions}
-            rubric={rubric}
             fetchSubmissions={fetchSubmissions}
+            setLoading={setLoading}
           />
         </>
       );
