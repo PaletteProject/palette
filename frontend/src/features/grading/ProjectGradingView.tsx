@@ -12,8 +12,7 @@ import { createPortal } from "react-dom";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil } from "@fortawesome/free-solid-svg-icons";
+import { PalettePencil } from "@components";
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -40,12 +39,30 @@ export function ProjectGradingView({
 
   const [ratings, setRatings] = useState<Record<string, number | string>>({});
   const [groupFeedback, setGroupFeedback] = useState<string>("");
-  const [showFeedbackSection, setShowFeedbackSection] =
+  const [individualFeedback, setIndividualFeedback] = useState<string>("");
+  const [criterionComment, setCriterionComment] = useState<string>("");
+  const [showGroupFeedbackSection, setShowGroupFeedbackSection] =
+    useState<boolean>(false);
+  const [showIndividualFeedbackSection, setShowIndividualFeedbackSection] =
+    useState<boolean>(false);
+  const [showCriterionCommentSection, setShowCriterionCommentSection] =
     useState<boolean>(false);
   // group grading checkbox state
   const [checkedCriteria, setCheckedCriteria] = useState<{
     [key: string]: boolean;
   }>({});
+  const [activeCriterionComment, setActiveCriterionComment] = useState<
+    string | null
+  >(null);
+  const [activeIndividualFeedback, setActiveIndividualFeedback] = useState<
+    number | null
+  >(null);
+  const [criterionComments, setCriterionComments] = useState<
+    Record<string, string>
+  >({});
+  const [individualFeedbacks, setIndividualFeedbacks] = useState<
+    Record<number, string>
+  >({});
 
   const { openDialog, closeDialog } = useChoiceDialog();
 
@@ -229,10 +246,15 @@ export function ProjectGradingView({
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <h1 className="text-4xl text-white font-semibold">{groupName}</h1>
-              {renderFeedbackPencil()}
+              <PalettePencil
+                onClick={() =>
+                  setShowGroupFeedbackSection(!showGroupFeedbackSection)
+                }
+                title="Group Feedback"
+              />
             </div>
           </div>
-          {showFeedbackSection && renderGroupFeedbackSection()}
+          {showGroupFeedbackSection && renderGroupFeedbackSection()}
           {renderGradingTable()}
 
           <div className={"flex gap-4 justify-end"}>
@@ -246,11 +268,6 @@ export function ProjectGradingView({
               onClick={() => void handleSaveGrades()}
               color={"GREEN"}
             />
-            <PaletteActionButton
-              title={"+"}
-              onClick={() => renderGradingTable()}
-              color={"GREEN"}
-            />
           </div>
         </div>
       </div>,
@@ -258,25 +275,50 @@ export function ProjectGradingView({
     );
   };
 
-  const renderFeedbackPencil = () => {
-    return (
-      <FontAwesomeIcon
-        icon={faPencil}
-        onClick={() => setShowFeedbackSection(!showFeedbackSection)}
-        className="cursor-pointer"
-        title="Group Feedback"
-      />
-    );
-  };
-
   const renderGroupFeedbackSection = () => {
     return (
       <div className="flex flex-col gap-2">
         <textarea
-          className="w-1/3 text-black rounded px-2 py-1"
+          className="w-1/3 min-h-12 max-h-32 text-black rounded px-2 py-1"
           onChange={(e) => setGroupFeedback(e.target.value)}
           value={groupFeedback}
           placeholder="Enter feedback for the group..."
+        />
+      </div>
+    );
+  };
+
+  const renderIndividualFeedbackSection = (submissionId: number) => {
+    return (
+      <div className="flex flex-col gap-2">
+        <textarea
+          className="w-full min-h-12 max-h-32 text-black rounded px-2 py-1"
+          onChange={(e) =>
+            setIndividualFeedbacks((prev) => ({
+              ...prev,
+              [submissionId]: e.target.value,
+            }))
+          }
+          value={individualFeedbacks[submissionId] || ""}
+          placeholder="Enter feedback for the individual..."
+        />
+      </div>
+    );
+  };
+
+  const renderCriterionCommentSection = (criterionId: string) => {
+    return (
+      <div className="flex flex-col gap-2">
+        <textarea
+          className="w-full min-h-12 max-h-32 text-black rounded px-2 py-1"
+          onChange={(e) =>
+            setCriterionComments((prev) => ({
+              ...prev,
+              [criterionId]: e.target.value,
+            }))
+          }
+          value={criterionComments[criterionId] || ""}
+          placeholder="Enter comment for the criterion..."
         />
       </div>
     );
@@ -306,7 +348,19 @@ export function ProjectGradingView({
                       onChange={() => handleCheckBoxChange(criterion.id)}
                     />
                   </label>
+                  <PalettePencil
+                    onClick={() =>
+                      setActiveCriterionComment(
+                        activeCriterionComment === criterion.id
+                          ? null
+                          : criterion.id
+                      )
+                    }
+                    title="Add Criterion Comment"
+                  />
                 </div>
+                {activeCriterionComment === criterion.id &&
+                  renderCriterionCommentSection(criterion.id)}
               </th>
             ))}
           </tr>
@@ -314,8 +368,24 @@ export function ProjectGradingView({
         <tbody>
           {submissions.map((submission: Submission) => (
             <tr key={submission.id}>
-              <td className="border border-gray-500 px-4 py-2 flex justify-between">
-                <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
+              <td className="border border-gray-500 pl-8 py-2 flex justify-between">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-4">
+                    <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
+                    <PalettePencil
+                      onClick={() =>
+                        setActiveIndividualFeedback(
+                          activeIndividualFeedback === submission.id
+                            ? null
+                            : submission.id
+                        )
+                      }
+                      title="Individual Feedback"
+                    />
+                  </div>
+                  {activeIndividualFeedback === submission.id &&
+                    renderIndividualFeedbackSection(submission.id)}
+                </div>
               </td>
               {rubric.criteria.map((criterion: Criteria) => (
                 <td

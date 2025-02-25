@@ -11,6 +11,7 @@ export * from "./layout/Navbar.tsx";
 export * from "../features/errorPages/NotFoundPage.tsx";
 export * from "./LoadingDots";
 export * from "./buttons/PaletteActionButton.tsx";
+export * from "./buttons/PalettePencil.tsx";
 export * from "./contextSelectors/NoCourseSelected.tsx";
 export * from "./contextSelectors/NoAssignmentSelected.tsx";
 export * from "./layout/MainPageTemplate.tsx";
