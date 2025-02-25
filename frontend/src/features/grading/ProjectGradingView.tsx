@@ -12,6 +12,8 @@ import { createPortal } from "react-dom";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPencil } from "@fortawesome/free-solid-svg-icons";
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -37,7 +39,9 @@ export function ProjectGradingView({
   }
 
   const [ratings, setRatings] = useState<Record<string, number | string>>({});
-
+  const [groupFeedback, setGroupFeedback] = useState<string>("");
+  const [showFeedbackSection, setShowFeedbackSection] =
+    useState<boolean>(false);
   // group grading checkbox state
   const [checkedCriteria, setCheckedCriteria] = useState<{
     [key: string]: boolean;
@@ -58,7 +62,7 @@ export function ProjectGradingView({
 
         if (rubric_assessment) {
           for (const [criterionId, assessment] of Object.entries(
-            rubric_assessment,
+            rubric_assessment
           )) {
             initialRatings[`${submission_id}-${criterionId}`] =
               assessment.points ?? "";
@@ -70,7 +74,7 @@ export function ProjectGradingView({
       submissions.forEach((submission) => {
         if (submission.rubricAssessment) {
           for (const [criterionId, assessment] of Object.entries(
-            submission.rubricAssessment,
+            submission.rubricAssessment
           )) {
             // avoid overwriting data from cache
             const key = `${submission.id}-${criterionId}`;
@@ -93,7 +97,7 @@ export function ProjectGradingView({
     submissionId: number,
     criterionId: string,
     value: string,
-    applyToGroup: boolean,
+    applyToGroup: boolean
   ) => {
     setRatings((prev) => {
       const newValue = value === "" ? "" : Number(value);
@@ -138,7 +142,7 @@ export function ProjectGradingView({
         rubric.criteria.forEach((criterion) => {
           const selectedPoints = ratings[`${submission.id}-${criterion.id}`];
           const selectedRating = criterion.ratings.find(
-            (rating) => rating.points === selectedPoints,
+            (rating) => rating.points === selectedPoints
           );
 
           if (selectedRating) {
@@ -156,7 +160,7 @@ export function ProjectGradingView({
           user: submission.user,
           rubric_assessment: rubricAssessment,
         };
-      },
+      }
     );
 
     /**
@@ -173,7 +177,7 @@ export function ProjectGradingView({
    */
   const getBackgroundColor = (
     value: number | string,
-    criterion: Criteria,
+    criterion: Criteria
   ): string => {
     if (value === "") return "bg-gray-800"; // Default background color
 
@@ -222,8 +226,15 @@ export function ProjectGradingView({
         }
       >
         <div className="bg-gray-700 p-6 rounded-xl shadow-lg relative w-full grid gap-4 m-4">
-          <h1 className="text-4xl text-white font-semibold">{groupName}</h1>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <h1 className="text-4xl text-white font-semibold">{groupName}</h1>
+              {renderFeedbackPencil()}
+            </div>
+          </div>
+          {showFeedbackSection && renderGroupFeedbackSection()}
           {renderGradingTable()}
+
           <div className={"flex gap-4 justify-end"}>
             <PaletteActionButton
               title={"Close"}
@@ -235,10 +246,39 @@ export function ProjectGradingView({
               onClick={() => void handleSaveGrades()}
               color={"GREEN"}
             />
+            <PaletteActionButton
+              title={"+"}
+              onClick={() => renderGradingTable()}
+              color={"GREEN"}
+            />
           </div>
         </div>
       </div>,
-      document.getElementById("portal-root") as HTMLElement,
+      document.getElementById("portal-root") as HTMLElement
+    );
+  };
+
+  const renderFeedbackPencil = () => {
+    return (
+      <FontAwesomeIcon
+        icon={faPencil}
+        onClick={() => setShowFeedbackSection(!showFeedbackSection)}
+        className="cursor-pointer"
+        title="Group Feedback"
+      />
+    );
+  };
+
+  const renderGroupFeedbackSection = () => {
+    return (
+      <div className="flex flex-col gap-2">
+        <textarea
+          className="w-1/3 text-black rounded px-2 py-1"
+          onChange={(e) => setGroupFeedback(e.target.value)}
+          value={groupFeedback}
+          placeholder="Enter feedback for the group..."
+        />
+      </div>
     );
   };
 
@@ -286,7 +326,7 @@ export function ProjectGradingView({
                   <select
                     className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
                       ratings[`${submission.id}-${criterion.id}`] ?? "",
-                      criterion,
+                      criterion
                     )}`}
                     value={ratings[`${submission.id}-${criterion.id}`] ?? ""}
                     onChange={(e) =>
@@ -294,7 +334,7 @@ export function ProjectGradingView({
                         submission.id,
                         criterion.id,
                         e.target.value,
-                        checkedCriteria[criterion.id],
+                        checkedCriteria[criterion.id]
                       )
                     }
                   >
