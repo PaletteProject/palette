@@ -59,7 +59,7 @@ export const RubricProvider = ({ children }: { children: ReactNode }) => {
     };
 
     void fetchRubric();
-  }, [activeCourse?.id, activeAssignment?.rubricId]); // Dependency array updated
+  }, [activeCourse?.id, activeAssignment?.rubricId]);
 
   return (
     <RubricContext.Provider

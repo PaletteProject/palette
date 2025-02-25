@@ -20,6 +20,8 @@ type ActionButtonProps = {
 
   autoFocus?: boolean;
 
+  disabled?: boolean;
+
   /**
    * The button color theme.
    */
@@ -46,6 +48,7 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
   title = "Save",
   color = "BLUE",
   autoFocus = false,
+  disabled = false,
 }: ActionButtonProps): ReactElement => {
   const colorStyles = {
     GREEN: {
@@ -85,13 +88,16 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
       className={`transition-transform duration-200 ease-in-out transform 
         ${colorStyles.bg} ${colorStyles.hover} 
         text-white font-bold rounded-lg py-2 px-4 
-        hover:scale-105 focus:outline-none focus:ring-4 ${colorStyles.focus} focus:shadow-2xl`}
+        hover:scale-105 focus:outline-none focus:ring-4 ${colorStyles.focus} focus:shadow-2xl
+        ${disabled ? "cursor-not-allowed" : ""}
+        `}
       onClick={onClick}
       onPointerDown={onPointerDown}
       type="button"
       title={title}
       aria-label={title}
       autoFocus={autoFocus}
+      disabled={disabled}
     >
       {title}
     </button>

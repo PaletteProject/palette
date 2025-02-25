@@ -20,4 +20,4 @@ export * from "./contextSelectors/ActiveCourseSelection.tsx";
 export * from "./contextSelectors/CourseSelectionMenu.tsx";
 export * from "./contextSelectors/AssignmentSelectionMenu.tsx";
 export * from "./PopUp.tsx";
-export * from "./layout/GenericBuilder.tsx";
+export * from "../features/templatesPage/TemplateBuilder.tsx";

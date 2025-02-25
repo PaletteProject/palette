@@ -67,19 +67,21 @@ export function createCriterion(
   id: string = "",
   template: string = "",
   templateTitle: string = "",
+  scores: number[] = [],
 ): Criteria {
   return {
-    ratings,
+    id,
     description,
     longDescription,
+    ratings,
     pointsPossible: points,
-    id,
     template,
     templateTitle,
     key: uuid(),
     updatePoints() {
       this.pointsPossible = Number(calcMaxPoints(this.ratings));
     },
+    scores,
   };
 }
 

@@ -65,27 +65,24 @@ export const toPaletteFormat = (rubric: CanvasRubric): Rubric => {
     pointsPossible: rubric.points_possible,
     key: uuid(),
     criteria:
-      rubric.data?.map((criterion: CanvasCriterion) => {
-        return {
-          id: criterion.id,
-          description: criterion.description,
-          longDescription: criterion.long_description,
-          pointsPossible: criterion.points,
+      rubric.data?.map((criterion: CanvasCriterion) => ({
+        id: criterion.id,
+        description: criterion.description,
+        longDescription: criterion.long_description,
+        pointsPossible: criterion.points,
+        key: uuid(),
+        updatePoints: () => {
+          throw new Error("Not implemented");
+        },
+        ratings: criterion.ratings?.map((rating: CanvasRating) => ({
+          id: rating.id,
+          description: rating.description,
+          longDescription: rating.long_description,
+          points: rating.points,
           key: uuid(),
-          updatePoints: () => {
-            throw new Error("Not implemented");
-          },
-          ratings: criterion.ratings?.map((rating: CanvasRating) => {
-            return {
-              id: rating.id,
-              description: rating.description,
-              longDescription: rating.long_description,
-              points: rating.points,
-              key: uuid(),
-            };
-          }),
-        };
-      }) || [], // or if there are no criteria, return an empty array
+        })),
+        scores: [],
+      })) || [],
   } as Rubric;
 };
 

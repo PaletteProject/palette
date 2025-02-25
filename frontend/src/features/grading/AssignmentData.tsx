@@ -22,7 +22,8 @@ export function AssignmentData() {
   const { openDialog, closeDialog } = useChoiceDialog();
 
   useEffect(() => {
-    if (activeRubric) {
+    // default rubric in palette will use empty string for id indicating Canvas does not have an active rubric
+    if (activeRubric && activeRubric.id !== "") {
       setRubricMessage(messageOptions.present);
     } else {
       setRubricMessage(messageOptions.missing);
