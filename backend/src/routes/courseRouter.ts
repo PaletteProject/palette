@@ -24,6 +24,7 @@ import {
 import {
   getSubmissions,
   submitGrades,
+  updateSubmissionComment,
 } from "../controllers/submissionController.js";
 
 const courseRouter = express.Router();
@@ -73,7 +74,15 @@ courseRouter.put(
   courseParamValidator,
   assignmentParamValidator,
   // todo: student id validator
-  submitGrades,
+  submitGrades
+);
+
+courseRouter.put(
+  "/:course_id/assignments/:assignment_id/submissions/:student_id/comments/:comment_id",
+  courseParamValidator,
+  assignmentParamValidator,
+  // todo: student id validator
+  updateSubmissionComment
 );
 
 /**

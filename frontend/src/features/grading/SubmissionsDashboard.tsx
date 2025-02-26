@@ -1,6 +1,6 @@
 import { CanvasGradedSubmission, GroupedSubmissions } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState, useEffect } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useAssignment, useCourse, useRubric } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
@@ -26,6 +26,10 @@ export function SubmissionsDashboard({
   const { activeRubric } = useRubric();
 
   const { openDialog, closeDialog } = useChoiceDialog();
+  useEffect(() => {
+    console.log("activeAssignment", activeAssignment?.id);
+    console.log("activeCourse", activeCourse?.id);
+  }, [activeAssignment, activeCourse]);
 
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
@@ -35,6 +39,7 @@ export function SubmissionsDashboard({
    */
   const submitGrades = async (gradedSubmissions: CanvasGradedSubmission[]) => {
     for (const gradedSubmission of gradedSubmissions) {
+      console.log("gradedSubmission::", gradedSubmission.user.id);
       await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -99,11 +104,11 @@ export function SubmissionsDashboard({
               (count, submission) => {
                 return submission.graded ? count + 1 : count;
               },
-              0, // initial value for counter
+              0 // initial value for counter
             );
 
             return Math.floor(
-              (gradedSubmissionCount / groupSubmissions.length) * 100,
+              (gradedSubmissionCount / groupSubmissions.length) * 100
             );
           };
           return (

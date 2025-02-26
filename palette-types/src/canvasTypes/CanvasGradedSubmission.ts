@@ -4,4 +4,5 @@ export type CanvasGradedSubmission = {
   rubric_assessment: {
     [p: string]: { points: number; rating_id: string; comments: string };
   };
+  comments: { id: number; authorName: string; comment: string }[];
 };

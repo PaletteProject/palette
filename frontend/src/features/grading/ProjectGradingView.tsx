@@ -39,13 +39,7 @@ export function ProjectGradingView({
 
   const [ratings, setRatings] = useState<Record<string, number | string>>({});
   const [groupFeedback, setGroupFeedback] = useState<string>("");
-  const [individualFeedback, setIndividualFeedback] = useState<string>("");
-  const [criterionComment, setCriterionComment] = useState<string>("");
   const [showGroupFeedbackSection, setShowGroupFeedbackSection] =
-    useState<boolean>(false);
-  const [showIndividualFeedbackSection, setShowIndividualFeedbackSection] =
-    useState<boolean>(false);
-  const [showCriterionCommentSection, setShowCriterionCommentSection] =
     useState<boolean>(false);
   // group grading checkbox state
   const [checkedCriteria, setCheckedCriteria] = useState<{
@@ -172,9 +166,18 @@ export function ProjectGradingView({
           }
         });
 
+        const comments = submission.comments.map((comment) => ({
+          id: comment.id,
+          authorName: "Billy Bob",
+          comment: "This should literally just work lol",
+        }));
+
+        console.log("comments", comments);
+
         return {
           submission_id: submission.id,
           user: submission.user,
+          comments: comments,
           rubric_assessment: rubricAssessment,
         };
       }
