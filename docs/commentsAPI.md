@@ -11,7 +11,8 @@ PUT https://canvas.asu.edu/api/v1/courses/:course_id/assignments/:assignment_id/
 ```json
 {
   "comment": {
-    "text_comment": "ABSOLUTELY STUNNING WORK"
+    "text_comment": "ABSOLUTELY STUNNING WORK",
+    "group_comment": false
   }
 }
 ```
