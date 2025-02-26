@@ -167,7 +167,7 @@ export function ProjectGradingView({
               // criterion from canvas API will always have an ID
               points: selectedRating.points,
               rating_id: selectedRating.id, // rating ID from Canvas API
-              comments: "", // placeholder for comments
+              comments: criterionComments[criterion.id] || "", // placeholder for comments
             };
           }
         });
@@ -279,7 +279,8 @@ export function ProjectGradingView({
     return (
       <div className="flex flex-col gap-2">
         <textarea
-          className="w-1/3 min-h-12 max-h-32 text-black rounded px-2 py-1"
+          className="w-1/3 min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto 
+          scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
           onChange={(e) => setGroupFeedback(e.target.value)}
           value={groupFeedback}
           placeholder="Enter feedback for the group..."
@@ -290,27 +291,27 @@ export function ProjectGradingView({
 
   const renderIndividualFeedbackSection = (submissionId: number) => {
     return (
-      <div className="flex flex-col gap-2">
-        <textarea
-          className="w-full min-h-12 max-h-32 text-black rounded px-2 py-1"
-          onChange={(e) =>
-            setIndividualFeedbacks((prev) => ({
-              ...prev,
-              [submissionId]: e.target.value,
-            }))
-          }
-          value={individualFeedbacks[submissionId] || ""}
-          placeholder="Enter feedback for the individual..."
-        />
-      </div>
+      <textarea
+        className="w-full min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto 
+          scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
+        onChange={(e) =>
+          setIndividualFeedbacks((prev) => ({
+            ...prev,
+            [submissionId]: e.target.value,
+          }))
+        }
+        value={individualFeedbacks[submissionId] || ""}
+        placeholder="Enter feedback for the individual..."
+      />
     );
   };
 
   const renderCriterionCommentSection = (criterionId: string) => {
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 ">
         <textarea
-          className="w-full min-h-12 max-h-32 text-black rounded px-2 py-1"
+          className="w-full min-h-12 max-h-32 text-black rounded px-2 py-1 bg-gray-300 overflow-auto 
+          scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
           onChange={(e) =>
             setCriterionComments((prev) => ({
               ...prev,
@@ -368,9 +369,9 @@ export function ProjectGradingView({
         <tbody>
           {submissions.map((submission: Submission) => (
             <tr key={submission.id}>
-              <td className="border border-gray-500 pl-8 py-2 flex justify-between">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-4">
+              <td className="border border-gray-500 py-2 flex justify-center">
+                <div className="flex flex-col w-full items-center gap-2 mx-4">
+                  <div className="flex items-center gap-4 pr-4">
                     <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
                     <PalettePencil
                       onClick={() =>
