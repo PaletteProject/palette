@@ -244,75 +244,83 @@ export function ProjectGradingView({
 
   const renderGradingTable = () => {
     return (
-      <table className="w-full table-auto border-collapse border border-gray-500 text-left">
-        <thead>
-          <tr>
-            <th className="border border-gray-500 px-4 py-2">Group Member</th>
-            {rubric.criteria.map((criterion: Criteria) => (
-              <th
-                key={criterion.id}
-                className="border border-gray-500 px-4 py-2"
-              >
-                <div className={"flex justify-between"}>
-                  <p>{criterion.description} </p>
-
-                  <label className={"flex gap-2 text-sm font-medium"}>
-                    Apply Ratings to Group
-                    <input
-                      type="checkbox"
-                      name={`${criterion.id}-checkbox}`}
-                      id={`${criterion.id}-checkbox}`}
-                      checked={checkedCriteria[criterion.id] || false}
-                      onChange={() => handleCheckBoxChange(criterion.id)}
-                    />
-                  </label>
-                </div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {submissions.map((submission: Submission) => (
-            <tr key={submission.id}>
-              <td className="border border-gray-500 px-4 py-2 flex justify-between">
-                <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
-              </td>
-              {rubric.criteria.map((criterion: Criteria) => (
-                <td
-                  key={`${submission.id}-${criterion.id}`}
-                  className="border border-gray-500 px-4 py-2 text-center"
+      <div
+        className={
+          "overflow-auto max-h-[70vh] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 relative"
+        }
+      >
+        <table className="w-full table-auto border-collapse border border-gray-500 text-left">
+          <thead>
+            <tr className={"sticky top-0 bg-gray-500"}>
+              {/* Header for criteria */}
+              <th className="border border-gray-500 px-4 py-2">Criteria</th>
+              {/* Group member headers */}
+              {submissions.map((submission: Submission) => (
+                <th
+                  key={submission.id}
+                  className="border border-gray-500 px-4 py-2"
                 >
-                  {/* Input field for grading */}
-                  <select
-                    className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
-                      ratings[`${submission.id}-${criterion.id}`] ?? "",
-                      criterion,
-                    )}`}
-                    value={ratings[`${submission.id}-${criterion.id}`] ?? ""}
-                    onChange={(e) =>
-                      handleRatingChange(
-                        submission.id,
-                        criterion.id,
-                        e.target.value,
-                        checkedCriteria[criterion.id],
-                      )
-                    }
-                  >
-                    <option value="" disabled>
-                      Select a Rating
-                    </option>
-                    {criterion.ratings.map((rating) => (
-                      <option value={rating.points} key={rating.key}>
-                        {`${rating.description} - ${rating.points} Points`}
-                      </option>
-                    ))}
-                  </select>
-                </td>
+                  <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {/* Each row is now a criterion */}
+            {rubric.criteria.map((criterion: Criteria) => (
+              <tr key={criterion.id}>
+                <td className="border border-gray-500 px-4 py-2">
+                  <div className="flex justify-between">
+                    <p>{criterion.description}</p>
+                    <label className="flex gap-2 text-sm font-medium">
+                      Apply Ratings to Group
+                      <input
+                        type="checkbox"
+                        name={`${criterion.id}-checkbox`}
+                        id={`${criterion.id}-checkbox`}
+                        checked={checkedCriteria[criterion.id] || false}
+                        onChange={() => handleCheckBoxChange(criterion.id)}
+                      />
+                    </label>
+                  </div>
+                </td>
+                {/* For each criterion row, create a cell for each submission */}
+                {submissions.map((submission: Submission) => (
+                  <td
+                    key={`${submission.id}-${criterion.id}`}
+                    className="border border-gray-500 px-4 py-2 text-center"
+                  >
+                    <select
+                      className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
+                        ratings[`${submission.id}-${criterion.id}`] ?? "",
+                        criterion,
+                      )}`}
+                      value={ratings[`${submission.id}-${criterion.id}`] ?? ""}
+                      onChange={(e) =>
+                        handleRatingChange(
+                          submission.id,
+                          criterion.id,
+                          e.target.value,
+                          checkedCriteria[criterion.id],
+                        )
+                      }
+                    >
+                      <option value="" disabled>
+                        Select a Rating
+                      </option>
+                      {criterion.ratings.map((rating) => (
+                        <option value={rating.points} key={rating.key}>
+                          {`${rating.description} - ${rating.points} Points`}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
   };
 
