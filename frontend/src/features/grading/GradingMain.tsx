@@ -4,6 +4,8 @@ import { useFetch } from "@hooks";
 import { useAssignment, useCourse, useRubric } from "@context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
 import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts"; // Import the export function
+import { OfflineGradingView } from "./offlineGrading/offlineGradingView";
+
 
 import {
   LoadingDots,
@@ -21,11 +23,13 @@ export function GradingMain(): ReactElement {
   });
 
   const [loading, setLoading] = useState<boolean>(false);
+  
 
   // context providers
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
   const { activeRubric } = useRubric();
+  const [isOfflineMode, setIsOfflineMode] = useState<boolean>(false);
 
   // url string constants
   const fetchSubmissionsURL = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions`;
@@ -130,43 +134,52 @@ export function GradingMain(): ReactElement {
   };
 
   const renderContent = () => {
-    if (!loading && activeCourse && activeAssignment) {
-      return (
-        <>
-          <div className="flex gap-4 items-center mb-4">
-            <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded cursor-pointer">
-              Upload Grades CSV
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-            </label>
-
-            <button
-              className="bg-green-500 text-white font-bold py-2 px-4 rounded"
-              onClick={handleExportAllGroups}
-            >
-              Export All Groups to CSV
-            </button>
-          </div>
-          <SubmissionsDashboard
-            submissions={submissions}
-            fetchSubmissions={fetchSubmissions}
-            setLoading={setLoading}
-          />
-        </>
-      );
-    }
-
     return (
       <>
-        <div className={"grid h-full"}>
-          {loading && <LoadingDots />}
-          {!activeCourse && <NoCourseSelected />}
-          {activeCourse && !activeAssignment && <NoAssignmentSelected />}
+        {/* ✅ Button Row - Always Visible */}
+        <div className="flex gap-4 items-center mb-4">
+          {/* Toggle Offline Mode */}
+          <button
+            className={`py-2 px-4 rounded font-bold ${
+              isOfflineMode ? "bg-gray-500" : "bg-blue-500"
+            } text-white`}
+            onClick={() => setIsOfflineMode(!isOfflineMode)}
+          >
+            {isOfflineMode ? "Switch to Canvas Grading" : "Switch to Offline Grading"}
+          </button>
+
+          {/* ✅ Show CSV Buttons Only When an Assignment is Selected */}
+          {activeAssignment && (
+            <>
+              <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded cursor-pointer">
+                Upload Grades CSV
+                <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" />
+              </label>
+
+              <button className="bg-green-500 text-white font-bold py-2 px-4 rounded" onClick={handleExportAllGroups}>
+                Export All Groups to CSV
+              </button>
+            </>
+          )}
         </div>
+
+        {/* ✅ Show Offline Grading View If Toggled */}
+        {isOfflineMode ? (
+          <OfflineGradingView />
+        ) : (
+          <>
+            {/* ✅ Standard Grading View (Canvas-Based) */}
+            {activeCourse && activeAssignment ? (
+              <SubmissionsDashboard submissions={submissions} fetchSubmissions={fetchSubmissions} setLoading={setLoading} />
+            ) : (
+              <div className="grid h-full">
+                {loading && <LoadingDots />}
+                {!activeCourse && <NoCourseSelected />}
+                {activeCourse && !activeAssignment && <NoAssignmentSelected />}
+              </div>
+            )}
+          </>
+        )}
       </>
     );
   };
