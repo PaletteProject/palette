@@ -1,9 +1,9 @@
 import { faPaintbrush } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-type PalettePencilProps = { onClick: () => void; title: string };
+type PaletteBrushProps = { onClick: () => void; title: string };
 
-export const PalettePencil = ({ onClick, title }: PalettePencilProps) => {
+export const PaletteBrush = ({ onClick, title }: PaletteBrushProps) => {
   return (
     <FontAwesomeIcon
       icon={faPaintbrush}
@@ -14,4 +14,4 @@ export const PalettePencil = ({ onClick, title }: PalettePencilProps) => {
   );
 };
 
-export default PalettePencil;
+export default PaletteBrush;
