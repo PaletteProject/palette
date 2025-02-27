@@ -9,7 +9,7 @@ interface PaletteEyeProps {
 export const PaletteEye = ({ onClick }: PaletteEyeProps) => {
   return (
     <div onClick={onClick} className="cursor-pointer">
-      <FontAwesomeIcon icon={faEye} />
+      <FontAwesomeIcon icon={faEye} title="View Existing Feedback" />
     </div>
   );
 };

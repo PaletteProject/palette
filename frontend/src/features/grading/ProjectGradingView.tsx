@@ -9,7 +9,13 @@ import {
   Submission,
 } from "palette-types";
 import { createPortal } from "react-dom";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+  ChangeEvent,
+} from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 import { PaletteBrush, PaletteEye } from "@components";
@@ -57,14 +63,33 @@ export function ProjectGradingView({
   const [individualFeedbacks, setIndividualFeedbacks] = useState<
     Record<number, string>
   >({});
-  const [showExistingGroupComments, setShowExistingGroupComments] =
+
+  const [existingIndividualFeedback, setExistingIndividualFeedback] = useState<
+    { id: number; authorName: string; comment: string }[] | null
+  >(null);
+
+  const [showExistingGroupFeedback, setShowExistingGroupFeedback] =
+    useState<boolean>(false);
+
+  const [showExistingIndividualFeedback, setShowExistingIndividualFeedback] =
+    useState<boolean>(false);
+
+  const [editingComment, setEditingComment] = useState<{
+    id: number;
+    authorName: string;
+    comment: string;
+  } | null>(null);
+
+  const [userIsEditingIndividualFeedback, setUserIsEditingIndividualFeedback] =
     useState<boolean>(false);
 
   const { openDialog, closeDialog } = useChoiceDialog();
   const [activeStudentId, setActiveStudentId] = useState<number | null>(null);
   const [updatedIndividualFeedback, setUpdatedIndividualFeedback] = useState<
-    Record<number, { id: number; authorName: string; comment: string }>
-  >({});
+    { id: number; authorName: string; comment: string }[]
+  >([]);
+
+  const [showFeedbackInput, setShowFeedbackInput] = useState<boolean>(false);
 
   /**
    * Initialize ratings when grading modal opens. Maps criterion directly from rubric.
@@ -109,7 +134,17 @@ export function ProjectGradingView({
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
-  const getExistingGroupComments = (submissions: Submission[]) => {
+  useEffect(() => {
+    if (activeStudentId !== null) {
+      const existingFeedback = getExistingIndividualFeedback(
+        submissions,
+        activeStudentId
+      );
+      setExistingIndividualFeedback(existingFeedback || null);
+    }
+  }, [submissions, activeStudentId]);
+
+  const getExistingGroupFeedback = (submissions: Submission[]) => {
     let allSubmissionComments = [];
     let seenComments = new Set<string>();
     let existingGroupComments = [];
@@ -127,36 +162,36 @@ export function ProjectGradingView({
     }
 
     // setGroupFeedback(allSubmissionComments.join("\n"));
-    console.log("Existing group comments:", existingGroupComments);
+    // console.log("Existing group comments:", existingGroupComments);
     return existingGroupComments;
   };
 
-  const getExistingIndividualComments = (
+  const getExistingIndividualFeedback = (
     submissions: Submission[],
     submissionId: number
   ) => {
-    const existingGroupComments = getExistingGroupComments(submissions);
+    const existingGroupFeedback = getExistingGroupFeedback(submissions);
     const studentsComments = submissions.find(
       (submission) => submission.id === submissionId
     )?.comments;
 
     const existingIndividualComments = studentsComments?.filter(
       (comment) =>
-        !existingGroupComments.some(
+        !existingGroupFeedback.some(
           (existingComment) => existingComment.comment === comment.comment
         )
     );
     return existingIndividualComments;
   };
 
-  const renderExistingGroupComments = () => {
+  const renderExistingGroupFeedback = () => {
     return (
       <div className="flex flex-col gap-2">
-        {getExistingGroupComments(submissions).length > 0 ? (
+        {getExistingGroupFeedback(submissions).length > 0 ? (
           <>
             <h2 className="text-lg font-bold">Existing Group Comments</h2>
             <ul className="list-disc list-inside">
-              {getExistingGroupComments(submissions).map((comment) => (
+              {getExistingGroupFeedback(submissions).map((comment) => (
                 <li key={comment.id}>{comment.comment}</li>
               ))}
             </ul>
@@ -171,44 +206,30 @@ export function ProjectGradingView({
   const renderExistingIndividualFeedback = (submissionId: number) => {
     if (activeStudentId !== submissionId) return null; // Only render if the student is active
 
-    const existingComments = getExistingIndividualComments(
-      submissions,
-      submissionId
-    );
-
     const handleCommentClick = (comment: {
       id: number;
       authorName: string;
       comment: string;
     }) => {
-      setIndividualFeedbacks((prev) => ({
-        ...prev,
-        [submissionId]: comment.comment,
-      }));
-      setUpdatedIndividualFeedback((prev) => ({
-        ...prev,
-        [submissionId]: {
-          id: Number(comment.id),
-          authorName: comment.authorName,
-          comment: comment.comment,
-        },
-      }));
+      console.log("comment", comment);
+      setEditingComment(comment); // Set the comment to be edited
     };
 
     return (
       <div className="w-full">
-        {existingComments ? (
+        {existingIndividualFeedback ? (
           <>
-            {existingComments.length > 0 ? (
+            {existingIndividualFeedback.length > 0 ? (
               <>
                 <h2 className="text-lg font-bold">Existing Comments</h2>
                 <ul className="list-disc list-inside">
-                  {existingComments.map((comment) => (
+                  {existingIndividualFeedback.map((comment) => (
                     <li
                       key={comment.comment}
                       onClick={() => {
                         handleCommentClick(comment);
                         setActiveIndividualFeedback(submissionId);
+                        setShowFeedbackInput(true);
                       }}
                       className="cursor-pointer hover:underline"
                     >
@@ -226,6 +247,31 @@ export function ProjectGradingView({
         )}
       </div>
     );
+  };
+
+  const handleSaveEditedComment = () => {
+    openDialog({
+      title: "Save Edited Comment",
+      message:
+        "This is a soft save meaning Canvas will not reflect the changes until you click Save Grades. Are you sure you want to save the edited comment?",
+      buttons: [
+        {
+          label: "Yes",
+          action: () => {
+            setExistingIndividualFeedback((prev) =>
+              prev
+                ? prev.map((comment) =>
+                    comment.id === editingComment?.id ? editingComment : comment
+                  )
+                : null
+            );
+            setEditingComment(null);
+            closeDialog();
+          },
+          autoFocus: true,
+        },
+      ],
+    });
   };
 
   /**
@@ -325,7 +371,6 @@ export function ProjectGradingView({
     /**
      * Store graded submissions in cache
      */
-
     setGradedSubmissionCache((prev) => prev.concat(gradedSubmissions));
 
     onClose();
@@ -392,16 +437,16 @@ export function ProjectGradingView({
                 onClick={() =>
                   setShowGroupFeedbackSection(!showGroupFeedbackSection)
                 }
-                title="Group Feedback"
+                title="Add Group Feedback"
               />
               <PaletteEye
                 onClick={() =>
-                  setShowExistingGroupComments(!showExistingGroupComments)
+                  setShowExistingGroupFeedback(!showExistingGroupFeedback)
                 }
               />
             </div>
           </div>
-          {showExistingGroupComments && renderExistingGroupComments()}
+          {showExistingGroupFeedback && renderExistingGroupFeedback()}
           {showGroupFeedbackSection && renderGroupFeedbackSection()}
           {renderGradingTable()}
 
@@ -439,18 +484,41 @@ export function ProjectGradingView({
 
   const renderIndividualFeedbackSection = (submissionId: number) => {
     return (
-      <textarea
-        className="w-full min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto 
+      <div className="w-full">
+        <textarea
+          className="w-full min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto 
           scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
-        onChange={(e) =>
-          setIndividualFeedbacks((prev) => ({
-            ...prev,
-            [submissionId]: e.target.value,
-          }))
-        }
-        value={individualFeedbacks[submissionId] || ""}
-        placeholder="Enter feedback for the individual..."
-      />
+          onChange={(e) => {
+            if (editingComment === null) {
+              setIndividualFeedbacks((prev) => ({
+                ...prev,
+                [submissionId]: e.target.value,
+              }));
+            } else {
+              setEditingComment({ ...editingComment, comment: e.target.value });
+              console.log("editingComment", editingComment);
+            }
+          }}
+          value={
+            editingComment !== null
+              ? editingComment.comment
+              : individualFeedbacks[submissionId]
+          }
+          placeholder={
+            userIsEditingIndividualFeedback
+              ? "Edit feedback"
+              : "Enter feedback for the individual..."
+          }
+        />
+        {editingComment !== null && (
+          <button
+            onClick={handleSaveEditedComment}
+            className="font-semibold text-green-400"
+          >
+            Save
+          </button>
+        )}
+      </div>
     );
   };
 
@@ -471,6 +539,18 @@ export function ProjectGradingView({
         />
       </div>
     );
+  };
+
+  const showAddingIndividualFeedbackContent = () => {
+    setShowFeedbackInput(true);
+    setShowExistingIndividualFeedback(false);
+    setUserIsEditingIndividualFeedback(false);
+    setEditingComment(null);
+  };
+
+  const showExistingIndividualFeedbackContent = (submissionId: number) => {
+    setShowExistingIndividualFeedback(true);
+    handleSeeIndividualFeedback(submissionId);
   };
 
   const renderGradingTable = () => {
@@ -522,21 +602,27 @@ export function ProjectGradingView({
                   <div className="flex items-center gap-4 pr-4">
                     <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
                     <PaletteBrush
-                      onClick={() =>
+                      onClick={() => {
                         setActiveIndividualFeedback(
                           activeIndividualFeedback === submission.id
                             ? null
                             : submission.id
-                        )
-                      }
-                      title="Individual Feedback"
+                        );
+                        showAddingIndividualFeedbackContent();
+                      }}
+                      title="Add Feedback"
                     />
                     <PaletteEye
-                      onClick={() => handleStudentClick(submission.id)}
+                      onClick={() => {
+                        setShowFeedbackInput(false);
+                        showExistingIndividualFeedbackContent(submission.id);
+                      }}
                     />
                   </div>
-                  {renderExistingIndividualFeedback(submission.id)}
+                  {showExistingIndividualFeedback &&
+                    renderExistingIndividualFeedback(submission.id)}
                   {activeIndividualFeedback === submission.id &&
+                    showFeedbackInput &&
                     renderIndividualFeedbackSection(submission.id)}
                 </div>
               </td>
@@ -579,7 +665,7 @@ export function ProjectGradingView({
     );
   };
 
-  const handleStudentClick = (submissionId: number) => {
+  const handleSeeIndividualFeedback = (submissionId: number) => {
     setActiveStudentId((prev) => (prev === submissionId ? null : submissionId));
   };
 
