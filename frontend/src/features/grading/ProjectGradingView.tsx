@@ -73,7 +73,7 @@ export function ProjectGradingView({
 
         if (rubric_assessment) {
           for (const [criterionId, assessment] of Object.entries(
-            rubric_assessment
+            rubric_assessment,
           )) {
             initialRatings[`${submission_id}-${criterionId}`] =
               assessment.points ?? "";
@@ -85,7 +85,7 @@ export function ProjectGradingView({
       submissions.forEach((submission) => {
         if (submission.rubricAssessment) {
           for (const [criterionId, assessment] of Object.entries(
-            submission.rubricAssessment
+            submission.rubricAssessment,
           )) {
             // avoid overwriting data from cache
             const key = `${submission.id}-${criterionId}`;
@@ -108,7 +108,7 @@ export function ProjectGradingView({
     submissionId: number,
     criterionId: string,
     value: string,
-    applyToGroup: boolean
+    applyToGroup: boolean,
   ) => {
     setRatings((prev) => {
       const newValue = value === "" ? "" : Number(value);
@@ -153,7 +153,7 @@ export function ProjectGradingView({
         rubric.criteria.forEach((criterion) => {
           const selectedPoints = ratings[`${submission.id}-${criterion.id}`];
           const selectedRating = criterion.ratings.find(
-            (rating) => rating.points === selectedPoints
+            (rating) => rating.points === selectedPoints,
           );
 
           if (selectedRating) {
@@ -174,16 +174,14 @@ export function ProjectGradingView({
           };
         }
 
-        let groupComment = undefined; // group comment is not sent to canvas. keep it undefined.
-
         return {
           submission_id: submission.id,
           user: submission.user,
           individual_comment: individualComment,
-          group_comment: groupComment,
+          group_comment: undefined, // Assume there are no group comments. Check for it and add it to the first submission outside of map below.
           rubric_assessment: rubricAssessment,
         };
-      }
+      },
     );
 
     // Add a group comment to the first submission if it exists
@@ -211,7 +209,7 @@ export function ProjectGradingView({
    */
   const getBackgroundColor = (
     value: number | string,
-    criterion: Criteria
+    criterion: Criteria,
   ): string => {
     if (value === "") return "bg-gray-800"; // Default background color
 
@@ -288,7 +286,7 @@ export function ProjectGradingView({
           </div>
         </div>
       </div>,
-      document.getElementById("portal-root") as HTMLElement
+      document.getElementById("portal-root") as HTMLElement,
     );
   };
 
@@ -371,7 +369,7 @@ export function ProjectGradingView({
                       setActiveCriterionComment(
                         activeCriterionComment === criterion.id
                           ? null
-                          : criterion.id
+                          : criterion.id,
                       )
                     }
                     title="Add Criterion Comment"
@@ -395,7 +393,7 @@ export function ProjectGradingView({
                         setActiveIndividualFeedback(
                           activeIndividualFeedback === submission.id
                             ? null
-                            : submission.id
+                            : submission.id,
                         )
                       }
                       title="Individual Feedback"
@@ -414,7 +412,7 @@ export function ProjectGradingView({
                   <select
                     className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
                       ratings[`${submission.id}-${criterion.id}`] ?? "",
-                      criterion
+                      criterion,
                     )}`}
                     value={ratings[`${submission.id}-${criterion.id}`] ?? ""}
                     onChange={(e) =>
@@ -422,7 +420,7 @@ export function ProjectGradingView({
                         submission.id,
                         criterion.id,
                         e.target.value,
-                        checkedCriteria[criterion.id]
+                        checkedCriteria[criterion.id],
                       )
                     }
                   >

@@ -1,4 +1,4 @@
-import { faPaintbrush, faPencil } from "@fortawesome/free-solid-svg-icons";
+import { faPaintbrush } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type PalettePencilProps = { onClick: () => void; title: string };
