@@ -1,0 +1,129 @@
+{
+  "data": {
+    "No Group": [
+      {
+        "id": 316761976,
+        "user": {
+          "id": 1278183,
+          "name": "Test Student",
+          "asurite": "1c09532268a45cac4a77c353e1e2553e608a66e0"
+        },
+        "group": { "id": null, "name": "" },
+        "comments": [],
+        "workflowState": "unsubmitted",
+        "graded": false,
+        "gradedBy": null
+      }
+    ],
+    "GROUP ONE": [
+      {
+        "id": 316761974,
+        "user": {
+          "id": 129878,
+          "name": "Clint Mccandless",
+          "asurite": "cmccand1"
+        },
+        "group": { "id": 607984, "name": "GROUP ONE" },
+        "comments": [
+          { "id": 41611358, "authorName": "Benjamin Aspinall", "comment": "g" },
+          { "id": 41611360, "authorName": "Benjamin Aspinall", "comment": "c" },
+          {
+            "id": 41611446,
+            "authorName": "Benjamin Aspinall",
+            "comment": "Another Group Comment from Palette"
+          },
+          {
+            "id": 41611448,
+            "authorName": "Benjamin Aspinall",
+            "comment": "Individual for Clint"
+          },
+          {
+            "id": 41611723,
+            "authorName": "Benjamin Aspinall",
+            "comment": "just indiv clint"
+          },
+          {
+            "id": 41611742,
+            "authorName": "Benjamin Aspinall",
+            "comment": "just group"
+          }
+        ],
+        "rubricAssessment": {
+          "1015406_5971": {
+            "rating_id": "1015406_5984",
+            "comments": "",
+            "points": 0
+          },
+          "1015406_5543": {
+            "rating_id": "1015406_7289",
+            "comments": "",
+            "points": 15
+          },
+          "1015406_207": {
+            "rating_id": "1015406_6580",
+            "comments": "",
+            "points": 5
+          }
+        },
+        "workflowState": "graded",
+        "graded": "2025-02-26T04:35:23Z",
+        "gradedBy": 994110
+      },
+      {
+        "id": 316761975,
+        "user": {
+          "id": 862878,
+          "name": "Matt Anderson",
+          "asurite": "mmande34"
+        },
+        "group": { "id": 607984, "name": "GROUP ONE" },
+        "comments": [
+          { "id": 41611359, "authorName": "Benjamin Aspinall", "comment": "g" },
+          { "id": 41611361, "authorName": "Benjamin Aspinall", "comment": "m" },
+          {
+            "id": 41611447,
+            "authorName": "Benjamin Aspinall",
+            "comment": "Another Group Comment from Palette"
+          },
+          {
+            "id": 41611449,
+            "authorName": "Benjamin Aspinall",
+            "comment": "Individual for Matt"
+          },
+          {
+            "id": 41611724,
+            "authorName": "Benjamin Aspinall",
+            "comment": "just indiv matt"
+          },
+          {
+            "id": 41611743,
+            "authorName": "Benjamin Aspinall",
+            "comment": "just group"
+          }
+        ],
+        "rubricAssessment": {
+          "1015406_5971": {
+            "rating_id": "1015406_4935",
+            "comments": "",
+            "points": 10
+          },
+          "1015406_5543": {
+            "rating_id": "1015406_8497",
+            "comments": "",
+            "points": 7
+          },
+          "1015406_207": {
+            "rating_id": "1015406_6580",
+            "comments": "",
+            "points": 5
+          }
+        },
+        "workflowState": "graded",
+        "graded": "2025-02-26T01:18:03Z",
+        "gradedBy": 994110
+      }
+    ]
+  },
+  "success": true,
+  "message": "Assignment submissions"
+}
