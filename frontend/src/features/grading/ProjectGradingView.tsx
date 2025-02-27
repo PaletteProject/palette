@@ -28,6 +28,11 @@ type ProjectGradingViewProps = {
   onClose: () => void; // event handler defined in GroupSubmissions.tsx
   setGradedSubmissionCache: Dispatch<SetStateAction<CanvasGradedSubmission[]>>;
   gradedSubmissionCache: CanvasGradedSubmission[];
+  updateSubmissionComment: (
+    submissionId: number,
+    commentId: number,
+    comment: string
+  ) => Promise<void>;
 };
 
 export function ProjectGradingView({
@@ -38,6 +43,7 @@ export function ProjectGradingView({
   onClose,
   setGradedSubmissionCache,
   gradedSubmissionCache,
+  updateSubmissionComment,
 }: ProjectGradingViewProps) {
   if (!isOpen) {
     return null;
@@ -51,9 +57,7 @@ export function ProjectGradingView({
   const [checkedCriteria, setCheckedCriteria] = useState<{
     [key: string]: boolean;
   }>({});
-  const [activeCriterionComment, setActiveCriterionComment] = useState<
-    string | null
-  >(null);
+  const [activeCriterion, setActiveCriterion] = useState<string | null>(null);
   const [activeIndividualFeedback, setActiveIndividualFeedback] = useState<
     number | null
   >(null);
@@ -68,10 +72,17 @@ export function ProjectGradingView({
     { id: number; authorName: string; comment: string }[] | null
   >(null);
 
+  const [existingCriterionComments, setExistingCriterionComments] = useState<
+    Record<string, string>
+  >({});
+
   const [showExistingGroupFeedback, setShowExistingGroupFeedback] =
     useState<boolean>(false);
 
   const [showExistingIndividualFeedback, setShowExistingIndividualFeedback] =
+    useState<boolean>(false);
+
+  const [showExistingCriterionComment, setShowExistingCriterionComment] =
     useState<boolean>(false);
 
   const [editingComment, setEditingComment] = useState<{
@@ -86,8 +97,8 @@ export function ProjectGradingView({
   const { openDialog, closeDialog } = useChoiceDialog();
   const [activeStudentId, setActiveStudentId] = useState<number | null>(null);
   const [updatedIndividualFeedback, setUpdatedIndividualFeedback] = useState<
-    { id: number; authorName: string; comment: string }[]
-  >([]);
+    Record<number, string>
+  >({});
 
   const [showFeedbackInput, setShowFeedbackInput] = useState<boolean>(false);
 
@@ -129,8 +140,6 @@ export function ProjectGradingView({
       });
 
       setRatings(initialRatings);
-
-      console.log("submissions", submissions);
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
@@ -206,15 +215,6 @@ export function ProjectGradingView({
   const renderExistingIndividualFeedback = (submissionId: number) => {
     if (activeStudentId !== submissionId) return null; // Only render if the student is active
 
-    const handleCommentClick = (comment: {
-      id: number;
-      authorName: string;
-      comment: string;
-    }) => {
-      console.log("comment", comment);
-      setEditingComment(comment); // Set the comment to be edited
-    };
-
     return (
       <div className="w-full">
         {existingIndividualFeedback ? (
@@ -227,7 +227,7 @@ export function ProjectGradingView({
                     <li
                       key={comment.comment}
                       onClick={() => {
-                        handleCommentClick(comment);
+                        setEditingComment(comment);
                         setActiveIndividualFeedback(submissionId);
                         setShowFeedbackInput(true);
                       }}
@@ -249,7 +249,19 @@ export function ProjectGradingView({
     );
   };
 
-  const handleSaveEditedComment = () => {
+  const renderExistingCriterionCommentSection = (criterionId: string) => {
+    return (
+      <div className="flex flex-col gap-2 ">
+        {existingCriterionComments[criterionId] && (
+          <li key={existingCriterionComments[criterionId]}>
+            {existingCriterionComments[criterionId]}
+          </li>
+        )}
+      </div>
+    );
+  };
+
+  const handleSaveEditedComment = (submissionId: number) => {
     openDialog({
       title: "Save Edited Comment",
       message:
@@ -265,6 +277,15 @@ export function ProjectGradingView({
                   )
                 : null
             );
+
+            if (editingComment?.id) {
+              void updateSubmissionComment(
+                submissionId,
+                editingComment.id,
+                editingComment.comment || ""
+              );
+            }
+
             setEditingComment(null);
             closeDialog();
           },
@@ -496,7 +517,7 @@ export function ProjectGradingView({
               }));
             } else {
               setEditingComment({ ...editingComment, comment: e.target.value });
-              console.log("editingComment", editingComment);
+              // console.log("editingComment", editingComment);
             }
           }}
           value={
@@ -512,7 +533,7 @@ export function ProjectGradingView({
         />
         {editingComment !== null && (
           <button
-            onClick={handleSaveEditedComment}
+            onClick={() => handleSaveEditedComment(submissionId)}
             className="font-semibold text-green-400"
           >
             Save
@@ -579,17 +600,38 @@ export function ProjectGradingView({
                   </label>
                   <PaletteBrush
                     onClick={() =>
-                      setActiveCriterionComment(
-                        activeCriterionComment === criterion.id
-                          ? null
-                          : criterion.id
+                      setActiveCriterion(
+                        activeCriterion === criterion.id ? null : criterion.id
                       )
                     }
                     title="Add Criterion Comment"
                   />
+                  <PaletteEye
+                    onClick={() => {
+                      const rubricAssessment = submissions[0].rubricAssessment;
+                      console.log(rubricAssessment);
+                      const rubricAssessmentComments = Object.values(
+                        rubricAssessment
+                      ).map((assessment) => [
+                        criterion.id,
+                        assessment.comments,
+                      ]);
+                      const criterionComments = rubricAssessmentComments.reduce(
+                        (acc, comment) => ({ ...acc, ...comment }),
+                        {}
+                      );
+                      setExistingCriterionComments(criterionComments);
+                      console.log(criterionComments);
+                      setShowExistingCriterionComment(
+                        !showExistingCriterionComment
+                      );
+                    }}
+                  />
                 </div>
-                {activeCriterionComment === criterion.id &&
+                {activeCriterion === criterion.id &&
                   renderCriterionCommentSection(criterion.id)}
+                {showExistingCriterionComment &&
+                  renderExistingCriterionCommentSection(criterion.id)}
               </th>
             ))}
           </tr>

@@ -13,6 +13,11 @@ interface GroupSubmissionsProps {
   fetchSubmissions: () => Promise<void>;
   setGradedSubmissionCache: Dispatch<SetStateAction<CanvasGradedSubmission[]>>;
   gradedSubmissionCache: CanvasGradedSubmission[];
+  updateSubmissionComment: (
+    submissionId: number,
+    commentId: number,
+    comment: string
+  ) => Promise<void>;
 }
 
 export function GroupSubmissions({
@@ -22,6 +27,7 @@ export function GroupSubmissions({
   rubric,
   setGradedSubmissionCache,
   gradedSubmissionCache,
+  updateSubmissionComment,
 }: GroupSubmissionsProps) {
   const { activeRubric } = useRubric();
 
@@ -32,7 +38,7 @@ export function GroupSubmissions({
   const toggleGradingView = () => {
     if (!rubric) {
       alert(
-        "Assignment does not have a rubric for grading. Create a rubric and try again!",
+        "Assignment does not have a rubric for grading. Create a rubric and try again!"
       );
       return;
     }
@@ -67,6 +73,7 @@ export function GroupSubmissions({
         onClose={handleGradingViewClose}
         setGradedSubmissionCache={setGradedSubmissionCache}
         gradedSubmissionCache={gradedSubmissionCache}
+        updateSubmissionComment={updateSubmissionComment}
       />
     </div>
   );

@@ -24,6 +24,7 @@ import {
 import {
   getSubmissions,
   submitGrades,
+  updateSubmissionComment,
 } from "../controllers/submissionController.js";
 
 const courseRouter = express.Router();
@@ -65,7 +66,7 @@ courseRouter.get(
   courseParamValidator,
   assignmentParamValidator,
   validationErrorHandler,
-  getSubmissions,
+  getSubmissions
 );
 
 courseRouter.put(
@@ -73,7 +74,7 @@ courseRouter.put(
   courseParamValidator,
   assignmentParamValidator,
   // todo: student id validator
-  submitGrades,
+  submitGrades
 );
 
 /**
@@ -128,7 +129,7 @@ courseRouter.post(
   assignmentParamValidator,
   rubricValidator,
   validationErrorHandler,
-  createRubric,
+  createRubric
 );
 
 /**
@@ -175,7 +176,7 @@ courseRouter.get(
   "/:course_id/rubrics/:rubric_id",
   idAndCourseParamValidator,
   validationErrorHandler,
-  getRubric,
+  getRubric
 );
 
 /**
@@ -208,7 +209,7 @@ courseRouter.get(
   "/:course_id/rubrics",
   courseParamValidator,
   validationErrorHandler,
-  getAllRubrics,
+  getAllRubrics
 );
 
 /**
@@ -298,7 +299,65 @@ courseRouter.put(
   assignmentParamValidator,
   rubricValidator,
   validationErrorHandler,
-  updateRubric,
+  updateRubric
+);
+
+/**
+ * @swagger
+ * /courses/{course_id}/assignments/{assignment_id}/submissions/{student_id}/{submission_id}/comments/{comment_id}:
+ *   put:
+ *     summary: Update a submission comment
+ *     description: Update a specific comment for a student's submission in a course and assignment.
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *       - in: path
+ *         name: assignment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the assignment.
+ *       - in: path
+ *         name: student_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the student.
+ *       - in: path
+ *         name: comment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the comment.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               comment:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The comment has been successfully updated.
+ *       400:
+ *         description: Invalid input or missing fields.
+ *       404:
+ *         description: Comment not found.
+ * @route PUT /courses/:course_id/assignments/:assignment_id/submissions/:student_id/comments/:comment_id
+ * @description Update a submission comment in a specific course and assignment.
+ */
+courseRouter.put(
+  "/:course_id/assignments/:assignment_id/submissions/:student_id/comments/:comment_id",
+  courseParamValidator,
+  assignmentParamValidator,
+  validationErrorHandler,
+  updateSubmissionComment
 );
 
 /**
@@ -332,7 +391,7 @@ courseRouter.delete(
   "/:course_id/rubrics/:rubric_id",
   idAndCourseParamValidator,
   validationErrorHandler,
-  handleDeleteRubric,
+  handleDeleteRubric
 );
 
 /**
