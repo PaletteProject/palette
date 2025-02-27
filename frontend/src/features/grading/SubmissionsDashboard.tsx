@@ -1,6 +1,6 @@
 import { CanvasGradedSubmission, GroupedSubmissions } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState, useEffect } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useAssignment, useCourse, useRubric } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
@@ -26,6 +26,10 @@ export function SubmissionsDashboard({
   const { activeRubric } = useRubric();
 
   const { openDialog, closeDialog } = useChoiceDialog();
+  useEffect(() => {
+    console.log("activeAssignment", activeAssignment?.id);
+    console.log("activeCourse", activeCourse?.id);
+  }, [activeAssignment, activeCourse]);
 
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
@@ -34,6 +38,28 @@ export function SubmissionsDashboard({
    * Submit all graded submissions in the cache
    */
   const submitGrades = async (gradedSubmissions: CanvasGradedSubmission[]) => {
+    // if the first submission has a group comment, update the group comment for all submissions
+    // ATTENTION: This code ofcourse assumes that the groupFeedback will always be added to the first graded submission.
+    // Not a bad assumption, but if it were to change, this code would break.
+    // This is being set in ProjectGradingView.tsx in handleSaveGrades()
+
+    if (gradedSubmissions[0].group_comment) {
+      console.log(
+        "gradedSubmissions[0].group_comment",
+        gradedSubmissions[0].group_comment
+      );
+      await fetch(
+        `${BASE_URL}${GRADING_ENDPOINT}${gradedSubmissions[0].user.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(gradedSubmissions[0]),
+        }
+      );
+      gradedSubmissions[0].group_comment.sent = true; // set it to sent so that it doesn't get sent again
+    }
+
+    // submit all submissions (group comments are already sent) only individual comments get sent here
     for (const gradedSubmission of gradedSubmissions) {
       await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
         method: "PUT",
@@ -41,6 +67,7 @@ export function SubmissionsDashboard({
         body: JSON.stringify(gradedSubmission),
       });
     }
+
     setLoading(true);
     await fetchSubmissions(); // refresh submissions
     setLoading(false);
@@ -99,11 +126,11 @@ export function SubmissionsDashboard({
               (count, submission) => {
                 return submission.graded ? count + 1 : count;
               },
-              0, // initial value for counter
+              0 // initial value for counter
             );
 
             return Math.floor(
-              (gradedSubmissionCount / groupSubmissions.length) * 100,
+              (gradedSubmissionCount / groupSubmissions.length) * 100
             );
           };
           return (

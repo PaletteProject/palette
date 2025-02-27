@@ -26,6 +26,12 @@ type GradedSubmission = {
   rubric_assessment: {
     [p: string]: { points: number; rating_id: string; comments: string };
   };
+  individual_comment?: { text_comment: string; group_comment: boolean };
+  group_comment?: {
+    text_comment: string;
+    group_comment: boolean;
+    sent: boolean;
+  };
 };
 
 const RESULTS_PER_PAGE = 100;
@@ -40,7 +46,7 @@ async function getAllCourses() {
 
   do {
     fetchedCourses = await fetchAPI<CanvasCourse[]>(
-      `/courses?per_page=${RESULTS_PER_PAGE}&page=${page}`,
+      `/courses?per_page=${RESULTS_PER_PAGE}&page=${page}`
     );
 
     canvasCourses = canvasCourses.concat(fetchedCourses);
@@ -60,7 +66,7 @@ async function getAllAssignments(courseId: string) {
 
   do {
     fetchedAssignments = await fetchAPI<CanvasAssignment[]>(
-      `/courses/${courseId}/assignments?per_page=${RESULTS_PER_PAGE}&page=${page}`,
+      `/courses/${courseId}/assignments?per_page=${RESULTS_PER_PAGE}&page=${page}`
     );
     canvasAssignments = canvasAssignments.concat(fetchedAssignments);
     page++;
@@ -79,7 +85,7 @@ async function getAllGroups(courseId: string) {
 
   do {
     fetchedGroups = await fetchAPI<Group[]>(
-      `/courses/${courseId}/groups?per_page=${RESULTS_PER_PAGE}&page=${page}`,
+      `/courses/${courseId}/groups?per_page=${RESULTS_PER_PAGE}&page=${page}`
     );
     canvasGroups = canvasGroups.concat(fetchedGroups);
     page++;
@@ -88,14 +94,9 @@ async function getAllGroups(courseId: string) {
   return canvasGroups;
 }
 
-export type Group = {
-  id: number;
-  name: string;
-};
+export type Group = { id: number; name: string };
 
-type User = {
-  id: number;
-};
+type User = { id: number };
 
 async function buildGroupLookupTable(courseId: string) {
   // get all the groups for the active course
@@ -129,7 +130,7 @@ async function getAllSubmissions(courseId: string, assignmentId: string) {
 
   do {
     fetchedSubmissions = await fetchAPI<CanvasSubmissionResponse[]>(
-      `/courses/${courseId}/assignments/${assignmentId}/submissions${SUBMISSION_QUERY_PARAMS}&per_page=${RESULTS_PER_PAGE}&page=${page}`,
+      `/courses/${courseId}/assignments/${assignmentId}/submissions${SUBMISSION_QUERY_PARAMS}&per_page=${RESULTS_PER_PAGE}&page=${page}`
     );
     canvasSubmissions = canvasSubmissions.concat(fetchedSubmissions);
     page++;
@@ -152,8 +153,8 @@ function filterCourses(canvasCourses: CanvasCourse[]): CanvasCourse[] {
   // Step 1: Filter by valid enrollments (teacher or TA)
   let filteredCourses = canvasCourses.filter((course) =>
     course.enrollments?.some(
-      (enrollment) => enrollment.type === "teacher" || enrollment.type === "ta",
-    ),
+      (enrollment) => enrollment.type === "teacher" || enrollment.type === "ta"
+    )
   );
 
   // Step 2: Conditionally filter by start date if there are more than 5 courses
@@ -198,10 +199,10 @@ export const CoursesAPI = {
 
   async getAssignment(
     courseId: string,
-    assignmentId: string,
+    assignmentId: string
   ): Promise<Assignment> {
     const canvasAssignment = await fetchAPI<CanvasAssignment>(
-      `/courses/${courseId}/assignments/${assignmentId}`,
+      `/courses/${courseId}/assignments/${assignmentId}`
     );
 
     return mapToPaletteAssignment(canvasAssignment);
@@ -209,13 +210,13 @@ export const CoursesAPI = {
 
   async getSubmissions(
     courseId: string,
-    assignmentId: string,
+    assignmentId: string
   ): Promise<GroupedSubmissions> {
     const canvasSubmissions = await getAllSubmissions(courseId, assignmentId);
 
     return transformSubmissions(
       canvasSubmissions,
-      await buildGroupLookupTable(courseId),
+      await buildGroupLookupTable(courseId)
     );
   },
 
@@ -223,14 +224,27 @@ export const CoursesAPI = {
     courseId: string,
     assignmentId: string,
     studentId: string,
-    submission: GradedSubmission,
+    submission: GradedSubmission
   ) {
+    const isGroupComment =
+      submission.group_comment !== undefined &&
+      submission.group_comment.sent === false;
+
+    const submissionBody = {
+      submission_id: submission.submission_id,
+      user: submission.user,
+      rubric_assessment: submission.rubric_assessment,
+      comment: {
+        text_comment: isGroupComment
+          ? submission.group_comment?.text_comment
+          : submission.individual_comment?.text_comment,
+        group_comment: isGroupComment,
+      },
+    };
+
     return await fetchAPI<null>(
       `/courses/${courseId}/assignments/${assignmentId}/submissions/${studentId}`,
-      {
-        method: "PUT",
-        body: JSON.stringify(submission),
-      },
+      { method: "PUT", body: JSON.stringify(submissionBody) }
     );
   },
 };

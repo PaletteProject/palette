@@ -12,6 +12,7 @@ import { createPortal } from "react-dom";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { PalettePencil } from "@components";
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -37,11 +38,25 @@ export function ProjectGradingView({
   }
 
   const [ratings, setRatings] = useState<Record<string, number | string>>({});
-
+  const [groupFeedback, setGroupFeedback] = useState<string>("");
+  const [showGroupFeedbackSection, setShowGroupFeedbackSection] =
+    useState<boolean>(false);
   // group grading checkbox state
   const [checkedCriteria, setCheckedCriteria] = useState<{
     [key: string]: boolean;
   }>({});
+  const [activeCriterionComment, setActiveCriterionComment] = useState<
+    string | null
+  >(null);
+  const [activeIndividualFeedback, setActiveIndividualFeedback] = useState<
+    number | null
+  >(null);
+  const [criterionComments, setCriterionComments] = useState<
+    Record<string, string>
+  >({});
+  const [individualFeedbacks, setIndividualFeedbacks] = useState<
+    Record<number, string>
+  >({});
 
   const { openDialog, closeDialog } = useChoiceDialog();
 
@@ -58,7 +73,7 @@ export function ProjectGradingView({
 
         if (rubric_assessment) {
           for (const [criterionId, assessment] of Object.entries(
-            rubric_assessment,
+            rubric_assessment
           )) {
             initialRatings[`${submission_id}-${criterionId}`] =
               assessment.points ?? "";
@@ -70,7 +85,7 @@ export function ProjectGradingView({
       submissions.forEach((submission) => {
         if (submission.rubricAssessment) {
           for (const [criterionId, assessment] of Object.entries(
-            submission.rubricAssessment,
+            submission.rubricAssessment
           )) {
             // avoid overwriting data from cache
             const key = `${submission.id}-${criterionId}`;
@@ -93,7 +108,7 @@ export function ProjectGradingView({
     submissionId: number,
     criterionId: string,
     value: string,
-    applyToGroup: boolean,
+    applyToGroup: boolean
   ) => {
     setRatings((prev) => {
       const newValue = value === "" ? "" : Number(value);
@@ -138,7 +153,7 @@ export function ProjectGradingView({
         rubric.criteria.forEach((criterion) => {
           const selectedPoints = ratings[`${submission.id}-${criterion.id}`];
           const selectedRating = criterion.ratings.find(
-            (rating) => rating.points === selectedPoints,
+            (rating) => rating.points === selectedPoints
           );
 
           if (selectedRating) {
@@ -146,18 +161,41 @@ export function ProjectGradingView({
               // criterion from canvas API will always have an ID
               points: selectedRating.points,
               rating_id: selectedRating.id, // rating ID from Canvas API
-              comments: "", // placeholder for comments
+              comments: criterionComments[criterion.id] || "", // placeholder for comments
             };
           }
         });
 
+        let individualComment = undefined;
+        if (individualFeedbacks[submission.id]) {
+          individualComment = {
+            text_comment: individualFeedbacks[submission.id],
+            group_comment: false as const,
+          };
+        }
+
+        let groupComment = undefined; // group comment is not sent to canvas. keep it undefined.
+
         return {
           submission_id: submission.id,
           user: submission.user,
+          individual_comment: individualComment,
+          group_comment: groupComment,
           rubric_assessment: rubricAssessment,
         };
-      },
+      }
     );
+
+    // Add a group comment to the first submission if it exists
+    // This should affect all submissions on canvas side.
+    // No need to add it to all submissions.
+    if (groupFeedback !== "") {
+      gradedSubmissions[0].group_comment = {
+        text_comment: groupFeedback,
+        group_comment: true as const,
+        sent: false,
+      };
+    }
 
     /**
      * Store graded submissions in cache
@@ -173,7 +211,7 @@ export function ProjectGradingView({
    */
   const getBackgroundColor = (
     value: number | string,
-    criterion: Criteria,
+    criterion: Criteria
   ): string => {
     if (value === "") return "bg-gray-800"; // Default background color
 
@@ -222,8 +260,20 @@ export function ProjectGradingView({
         }
       >
         <div className="bg-gray-700 p-6 rounded-xl shadow-lg relative w-full grid gap-4 m-4">
-          <h1 className="text-4xl text-white font-semibold">{groupName}</h1>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <h1 className="text-4xl text-white font-semibold">{groupName}</h1>
+              <PalettePencil
+                onClick={() =>
+                  setShowGroupFeedbackSection(!showGroupFeedbackSection)
+                }
+                title="Group Feedback"
+              />
+            </div>
+          </div>
+          {showGroupFeedbackSection && renderGroupFeedbackSection()}
           {renderGradingTable()}
+
           <div className={"flex gap-4 justify-end"}>
             <PaletteActionButton
               title={"Close"}
@@ -238,7 +288,57 @@ export function ProjectGradingView({
           </div>
         </div>
       </div>,
-      document.getElementById("portal-root") as HTMLElement,
+      document.getElementById("portal-root") as HTMLElement
+    );
+  };
+
+  const renderGroupFeedbackSection = () => {
+    return (
+      <div className="flex flex-col gap-2">
+        <textarea
+          className="w-1/3 min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto 
+          scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
+          onChange={(e) => setGroupFeedback(e.target.value)}
+          value={groupFeedback}
+          placeholder="Enter feedback for the group..."
+        />
+      </div>
+    );
+  };
+
+  const renderIndividualFeedbackSection = (submissionId: number) => {
+    return (
+      <textarea
+        className="w-full min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto 
+          scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
+        onChange={(e) =>
+          setIndividualFeedbacks((prev) => ({
+            ...prev,
+            [submissionId]: e.target.value,
+          }))
+        }
+        value={individualFeedbacks[submissionId] || ""}
+        placeholder="Enter feedback for the individual..."
+      />
+    );
+  };
+
+  const renderCriterionCommentSection = (criterionId: string) => {
+    return (
+      <div className="flex flex-col gap-2 ">
+        <textarea
+          className="w-full min-h-12 max-h-32 text-black rounded px-2 py-1 bg-gray-300 overflow-auto 
+          scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
+          onChange={(e) =>
+            setCriterionComments((prev) => ({
+              ...prev,
+              [criterionId]: e.target.value,
+            }))
+          }
+          value={criterionComments[criterionId] || ""}
+          placeholder="Enter comment for the criterion..."
+        />
+      </div>
     );
   };
 
@@ -266,7 +366,19 @@ export function ProjectGradingView({
                       onChange={() => handleCheckBoxChange(criterion.id)}
                     />
                   </label>
+                  <PalettePencil
+                    onClick={() =>
+                      setActiveCriterionComment(
+                        activeCriterionComment === criterion.id
+                          ? null
+                          : criterion.id
+                      )
+                    }
+                    title="Add Criterion Comment"
+                  />
                 </div>
+                {activeCriterionComment === criterion.id &&
+                  renderCriterionCommentSection(criterion.id)}
               </th>
             ))}
           </tr>
@@ -274,8 +386,24 @@ export function ProjectGradingView({
         <tbody>
           {submissions.map((submission: Submission) => (
             <tr key={submission.id}>
-              <td className="border border-gray-500 px-4 py-2 flex justify-between">
-                <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
+              <td className="border border-gray-500 py-2 flex justify-center">
+                <div className="flex flex-col w-full items-center gap-2 mx-4">
+                  <div className="flex items-center gap-4 pr-4">
+                    <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
+                    <PalettePencil
+                      onClick={() =>
+                        setActiveIndividualFeedback(
+                          activeIndividualFeedback === submission.id
+                            ? null
+                            : submission.id
+                        )
+                      }
+                      title="Individual Feedback"
+                    />
+                  </div>
+                  {activeIndividualFeedback === submission.id &&
+                    renderIndividualFeedbackSection(submission.id)}
+                </div>
               </td>
               {rubric.criteria.map((criterion: Criteria) => (
                 <td
@@ -286,7 +414,7 @@ export function ProjectGradingView({
                   <select
                     className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
                       ratings[`${submission.id}-${criterion.id}`] ?? "",
-                      criterion,
+                      criterion
                     )}`}
                     value={ratings[`${submission.id}-${criterion.id}`] ?? ""}
                     onChange={(e) =>
@@ -294,7 +422,7 @@ export function ProjectGradingView({
                         submission.id,
                         criterion.id,
                         e.target.value,
-                        checkedCriteria[criterion.id],
+                        checkedCriteria[criterion.id]
                       )
                     }
                   >

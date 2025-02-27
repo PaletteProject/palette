@@ -5,11 +5,11 @@ import { GroupedSubmissions } from "palette-types/dist/types/GroupedSubmissions"
 
 export const getSubmissions = asyncHandler(async (req, res) => {
   console.log(
-    `getting submissions for assignment: ${req.params.assignment_id}`,
+    `getting submissions for assignment: ${req.params.assignment_id}`
   );
   const submissions = await CoursesAPI.getSubmissions(
     req.params.course_id,
-    req.params.assignment_id,
+    req.params.assignment_id
   );
 
   const apiResponse: PaletteAPIResponse<GroupedSubmissions> = {
@@ -23,12 +23,11 @@ export const getSubmissions = asyncHandler(async (req, res) => {
 
 export const submitGrades = asyncHandler(async (req, res) => {
   console.log("got some grades to submit");
-
   const canvasResponse = await CoursesAPI.putSubmission(
     req.params.course_id,
     req.params.assignment_id,
     req.params.student_id,
-    req.body as CanvasGradedSubmission,
+    req.body as CanvasGradedSubmission
   );
 
   console.log(canvasResponse);
