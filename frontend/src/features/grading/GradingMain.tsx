@@ -5,6 +5,8 @@ import { useAssignment, useCourse, useRubric } from "@context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
 import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts"; // Import the export function
 import { OfflineGradingView } from "./offlineGrading/offlineGradingView";
+import { transferToOfflineGrading } from "./offlineGrading/transferToOfflineGrading.ts"; // ✅ Import the transfer function
+
 
 
 import {
@@ -133,37 +135,38 @@ export function GradingMain(): ReactElement {
     }
   };
 
-  const renderContent = () => {
+
+const renderContent = () => {
     return (
       <>
-        {/* ✅ Button Row - Always Visible */}
-        <div className="flex gap-4 items-center mb-4">
-          {/* Toggle Offline Mode */}
-          <button
-            className={`py-2 px-4 rounded font-bold ${
-              isOfflineMode ? "bg-gray-500" : "bg-blue-500"
-            } text-white`}
-            onClick={() => setIsOfflineMode(!isOfflineMode)}
-          >
-            {isOfflineMode ? "Switch to Canvas Grading" : "Switch to Offline Grading"}
-          </button>
+<div className="flex gap-4 items-center mb-4">
+  <button
+    className={`py-2 px-4 rounded font-bold ${
+      isOfflineMode ? "bg-gray-500" : "bg-blue-500"
+    } text-white`}
+    onClick={() => setIsOfflineMode(!isOfflineMode)}
+  >
+    {isOfflineMode ? "Switch to Canvas Grading" : "Switch to Offline Grading"}
+  </button>
 
-          {/* ✅ Show CSV Buttons Only When an Assignment is Selected */}
-          {activeAssignment && (
-            <>
-              <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded cursor-pointer">
-                Upload Grades CSV
-                <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" />
-              </label>
+  {!isOfflineMode && activeAssignment && Object.keys(submissions).length > 0 && (
+    <button
+      className="bg-yellow-500 text-white font-bold py-2 px-4 rounded"
+      onClick={() =>
+        transferToOfflineGrading(
+          String(activeCourse?.id || ""),
+          String(activeAssignment?.id || ""),
+          String(activeRubric?.id || "")
+        )
+      }
+    >
+      Transfer to Offline Grading
+    </button>
+  )}
+</div>
 
-              <button className="bg-green-500 text-white font-bold py-2 px-4 rounded" onClick={handleExportAllGroups}>
-                Export All Groups to CSV
-              </button>
-            </>
-          )}
-        </div>
 
-        {/* ✅ Show Offline Grading View If Toggled */}
+        {/* ✅ Render OfflineGradingView if Offline Mode is Active */}
         {isOfflineMode ? (
           <OfflineGradingView />
         ) : (
