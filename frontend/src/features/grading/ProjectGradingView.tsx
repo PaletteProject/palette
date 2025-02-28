@@ -88,7 +88,7 @@ export function ProjectGradingView({
           acc[criterionId] = criterion.comments;
           return acc;
         },
-        {} as Record<string, string>
+        {} as Record<string, string>,
       )
     : {};
   const setInitialGroupFlags = () => {
@@ -97,7 +97,7 @@ export function ProjectGradingView({
         acc[criterion.id] = criterion.isGroupCriterion;
         return acc;
       },
-      {} as Record<string, boolean>
+      {} as Record<string, boolean>,
     );
 
     setCheckedCriteria(newFlags);
@@ -118,7 +118,7 @@ export function ProjectGradingView({
 
         if (rubric_assessment) {
           for (const [criterionId, assessment] of Object.entries(
-            rubric_assessment
+            rubric_assessment,
           )) {
             initialRatings[`${criterionId}-${submission_id}`] =
               assessment.points ?? "";
@@ -130,7 +130,7 @@ export function ProjectGradingView({
       submissions.forEach((submission) => {
         if (submission.rubricAssessment) {
           for (const [criterionId, assessment] of Object.entries(
-            submission.rubricAssessment
+            submission.rubricAssessment,
           )) {
             // avoid overwriting data from cache
             const key = `${criterionId}-${submission.id}`;
@@ -151,7 +151,7 @@ export function ProjectGradingView({
     if (activeStudentId !== null) {
       const existingFeedback = getExistingIndividualFeedback(
         submissions,
-        activeStudentId
+        activeStudentId,
       );
       setExistingIndividualFeedback(existingFeedback || null);
     }
@@ -164,7 +164,7 @@ export function ProjectGradingView({
     submissionId: number,
     criterionId: string,
     value: string,
-    applyToGroup: boolean
+    applyToGroup: boolean,
   ) => {
     setRatings((prev) => {
       const newValue = value === "" ? "" : Number(value);
@@ -209,7 +209,7 @@ export function ProjectGradingView({
         rubric.criteria.forEach((criterion) => {
           const selectedPoints = ratings[`${criterion.id}-${submission.id}`];
           const selectedRating = criterion.ratings.find(
-            (rating) => rating.points === selectedPoints
+            (rating) => rating.points === selectedPoints,
           );
 
           if (selectedRating) {
@@ -237,7 +237,7 @@ export function ProjectGradingView({
           group_comment: undefined, // Assume there are no group comments. Check for it and add it to the first submission outside of map below.
           rubric_assessment: rubricAssessment,
         };
-      }
+      },
     );
 
     // Add a group comment to the first submission if it exists
@@ -264,7 +264,7 @@ export function ProjectGradingView({
    */
   const getBackgroundColor = (
     value: number | string,
-    criterion: Criteria
+    criterion: Criteria,
   ): string => {
     if (value === "") return "bg-gray-800"; // Default background color
 
@@ -329,18 +329,18 @@ export function ProjectGradingView({
 
   const getExistingIndividualFeedback = (
     submissions: Submission[],
-    submissionId: number
+    submissionId: number,
   ) => {
     const existingGroupFeedback = getExistingGroupFeedback(submissions);
     const studentsComments = submissions.find(
-      (submission) => submission.id === submissionId
+      (submission) => submission.id === submissionId,
     )?.comments;
 
     const existingIndividualComments = studentsComments?.filter(
       (comment) =>
         !existingGroupFeedback.some(
-          (existingComment) => existingComment.comment === comment.comment
-        )
+          (existingComment) => existingComment.comment === comment.comment,
+        ),
     );
     return existingIndividualComments;
   };
@@ -389,7 +389,7 @@ export function ProjectGradingView({
           </div>
         </div>
       </div>,
-      document.getElementById("portal-root") as HTMLElement
+      document.getElementById("portal-root") as HTMLElement,
     );
   };
 
@@ -520,7 +520,7 @@ export function ProjectGradingView({
           <PaletteBrush
             onClick={() => {
               setActiveStudentId(
-                activeStudentId === submission.id ? null : submission.id
+                activeStudentId === submission.id ? null : submission.id,
               );
               setShowIndividualFeedbackTextArea(true);
               setShowExistingIndividualFeedback(false);
@@ -530,7 +530,7 @@ export function ProjectGradingView({
           <PaletteEye
             onClick={() => {
               setActiveStudentId((prev) =>
-                prev === submission.id ? null : submission.id
+                prev === submission.id ? null : submission.id,
               );
               setShowExistingIndividualFeedback(true);
               setShowIndividualFeedbackTextArea(false);
@@ -553,7 +553,7 @@ export function ProjectGradingView({
           <PaletteBrush
             onClick={() => {
               setActiveCriterion(
-                activeCriterion === criterion.id ? null : criterion.id
+                activeCriterion === criterion.id ? null : criterion.id,
               );
               setShowCriterionCommentTextArea(true);
               setShowExistingCriterionComment(false);
@@ -563,7 +563,7 @@ export function ProjectGradingView({
           <PaletteEye
             onClick={() => {
               setActiveCriterion(
-                activeCriterion === criterion.id ? null : criterion.id
+                activeCriterion === criterion.id ? null : criterion.id,
               );
               setShowExistingCriterionComment(true);
               setShowCriterionCommentTextArea(false);
@@ -632,7 +632,7 @@ export function ProjectGradingView({
                     <select
                       className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
                         ratings[`${criterion.id}-${submission.id}`] ?? "",
-                        criterion
+                        criterion,
                       )}`}
                       value={ratings[`${criterion.id}-${submission.id}`] ?? ""}
                       onChange={(e) =>
@@ -640,7 +640,7 @@ export function ProjectGradingView({
                           submission.id,
                           criterion.id,
                           e.target.value,
-                          checkedCriteria[criterion.id]
+                          checkedCriteria[criterion.id],
                         )
                       }
                     >
