@@ -45,11 +45,25 @@ export function ProjectGradingView({
 
   const { openDialog, closeDialog } = useChoiceDialog();
 
+  const setInitialGroupFlags = () => {
+    const newFlags = rubric.criteria.reduce(
+      (acc, criterion) => {
+        acc[criterion.id] = criterion.isGroupCriterion;
+        return acc;
+      },
+      {} as Record<string, boolean>,
+    );
+
+    setCheckedCriteria(newFlags);
+  };
+
   /**
-   * Initialize ratings when grading modal opens. Maps criterion directly from rubric.
+   * Initialize project grading view.
    */
   useEffect(() => {
     if (isOpen) {
+      setInitialGroupFlags();
+
       const initialRatings: Record<string, number | string> = {};
 
       // process the cached submissions, prioritizing the latest in progress grades over what Canvas current has saved.
