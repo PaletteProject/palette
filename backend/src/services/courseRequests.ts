@@ -46,7 +46,7 @@ async function getAllCourses() {
 
   do {
     fetchedCourses = await fetchAPI<CanvasCourse[]>(
-      `/courses?per_page=${RESULTS_PER_PAGE}&page=${page}`
+      `/courses?per_page=${RESULTS_PER_PAGE}&page=${page}&include[]=term`
     );
 
     canvasCourses = canvasCourses.concat(fetchedCourses);
