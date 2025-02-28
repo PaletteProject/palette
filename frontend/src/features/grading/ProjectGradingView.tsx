@@ -88,14 +88,28 @@ export function ProjectGradingView({
           acc[criterionId] = criterion.comments;
           return acc;
         },
-        {} as Record<string, string>,
+        {} as Record<string, string>
       )
     : {};
+  const setInitialGroupFlags = () => {
+    const newFlags = rubric.criteria.reduce(
+      (acc, criterion) => {
+        acc[criterion.id] = criterion.isGroupCriterion;
+        return acc;
+      },
+      {} as Record<string, boolean>
+    );
+
+    setCheckedCriteria(newFlags);
+  };
+
   /**
-   * Initialize ratings when grading modal opens. Maps criterion directly from rubric.
+   * Initialize project grading view.
    */
   useEffect(() => {
     if (isOpen) {
+      setInitialGroupFlags();
+
       const initialRatings: Record<string, number | string> = {};
 
       // process the cached submissions, prioritizing the latest in progress grades over what Canvas current has saved.
@@ -104,9 +118,9 @@ export function ProjectGradingView({
 
         if (rubric_assessment) {
           for (const [criterionId, assessment] of Object.entries(
-            rubric_assessment,
+            rubric_assessment
           )) {
-            initialRatings[`${submission_id}-${criterionId}`] =
+            initialRatings[`${criterionId}-${submission_id}`] =
               assessment.points ?? "";
           }
         }
@@ -116,12 +130,12 @@ export function ProjectGradingView({
       submissions.forEach((submission) => {
         if (submission.rubricAssessment) {
           for (const [criterionId, assessment] of Object.entries(
-            submission.rubricAssessment,
+            submission.rubricAssessment
           )) {
             // avoid overwriting data from cache
-            const key = `${submission.id}-${criterionId}`;
+            const key = `${criterionId}-${submission.id}`;
             if (!(key in initialRatings)) {
-              initialRatings[`${submission.id}-${criterionId}`] =
+              initialRatings[`${criterionId}-${submission.id}`] =
                 assessment.points ?? "";
             }
           }
@@ -129,6 +143,7 @@ export function ProjectGradingView({
       });
 
       setRatings(initialRatings);
+      console.log(initialRatings);
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
@@ -136,7 +151,7 @@ export function ProjectGradingView({
     if (activeStudentId !== null) {
       const existingFeedback = getExistingIndividualFeedback(
         submissions,
-        activeStudentId,
+        activeStudentId
       );
       setExistingIndividualFeedback(existingFeedback || null);
     }
@@ -149,14 +164,14 @@ export function ProjectGradingView({
     submissionId: number,
     criterionId: string,
     value: string,
-    applyToGroup: boolean,
+    applyToGroup: boolean
   ) => {
     setRatings((prev) => {
       const newValue = value === "" ? "" : Number(value);
 
       const updatedRatings = {
         ...prev,
-        [`${submissionId}-${criterionId}`]: newValue,
+        [`${criterionId}-${submissionId}`]: newValue,
       };
 
       if (applyToGroup) {
@@ -164,7 +179,7 @@ export function ProjectGradingView({
         submissions.forEach((submission) => {
           // iterate over submissions directly rather than existing ratings to ensure we include the entries that
           // haven't been graded yet
-          updatedRatings[`${submission.id}-${criterionId}`] = newValue;
+          updatedRatings[`${criterionId}-${submission.id}`] = newValue;
         });
       }
 
@@ -192,9 +207,9 @@ export function ProjectGradingView({
         } = {};
 
         rubric.criteria.forEach((criterion) => {
-          const selectedPoints = ratings[`${submission.id}-${criterion.id}`];
+          const selectedPoints = ratings[`${criterion.id}-${submission.id}`];
           const selectedRating = criterion.ratings.find(
-            (rating) => rating.points === selectedPoints,
+            (rating) => rating.points === selectedPoints
           );
 
           if (selectedRating) {
@@ -222,7 +237,7 @@ export function ProjectGradingView({
           group_comment: undefined, // Assume there are no group comments. Check for it and add it to the first submission outside of map below.
           rubric_assessment: rubricAssessment,
         };
-      },
+      }
     );
 
     // Add a group comment to the first submission if it exists
@@ -249,7 +264,7 @@ export function ProjectGradingView({
    */
   const getBackgroundColor = (
     value: number | string,
-    criterion: Criteria,
+    criterion: Criteria
   ): string => {
     if (value === "") return "bg-gray-800"; // Default background color
 
@@ -314,18 +329,18 @@ export function ProjectGradingView({
 
   const getExistingIndividualFeedback = (
     submissions: Submission[],
-    submissionId: number,
+    submissionId: number
   ) => {
     const existingGroupFeedback = getExistingGroupFeedback(submissions);
     const studentsComments = submissions.find(
-      (submission) => submission.id === submissionId,
+      (submission) => submission.id === submissionId
     )?.comments;
 
     const existingIndividualComments = studentsComments?.filter(
       (comment) =>
         !existingGroupFeedback.some(
-          (existingComment) => existingComment.comment === comment.comment,
-        ),
+          (existingComment) => existingComment.comment === comment.comment
+        )
     );
     return existingIndividualComments;
   };
@@ -374,7 +389,7 @@ export function ProjectGradingView({
           </div>
         </div>
       </div>,
-      document.getElementById("portal-root") as HTMLElement,
+      document.getElementById("portal-root") as HTMLElement
     );
   };
 
@@ -459,7 +474,7 @@ export function ProjectGradingView({
 
   const renderCriterionCommentTextArea = (criterionId: string) => {
     return (
-      <div className="flex flex-col gap-2 ">
+      <div className="flex flex-col w-full gap-2 ">
         <textarea
           className="w-full min-h-12 max-h-32 text-black rounded px-2 py-1 bg-gray-300 overflow-auto 
           scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
@@ -480,7 +495,7 @@ export function ProjectGradingView({
     if (!showExistingCriterionComment) return null; // Only render if the section is active
 
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col w-full gap-2">
         {existingCriterionComments[criterionId] ? (
           <>
             <h2 className="text-lg font-bold">Existing Criterion Comments</h2>
@@ -497,132 +512,154 @@ export function ProjectGradingView({
     );
   };
 
+  const renderStudentHeaderControls = (submission: Submission) => {
+    return (
+      <div className="flex flex-col w-full items-center gap-2 mx-4">
+        <div className="flex items-center gap-4 pr-4">
+          <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
+          <PaletteBrush
+            onClick={() => {
+              setActiveStudentId(
+                activeStudentId === submission.id ? null : submission.id
+              );
+              setShowIndividualFeedbackTextArea(true);
+              setShowExistingIndividualFeedback(false);
+            }}
+            title="Add Feedback"
+          />
+          <PaletteEye
+            onClick={() => {
+              setActiveStudentId((prev) =>
+                prev === submission.id ? null : submission.id
+              );
+              setShowExistingIndividualFeedback(true);
+              setShowIndividualFeedbackTextArea(false);
+            }}
+          />
+        </div>
+        {showExistingIndividualFeedback &&
+          renderExistingIndividualFeedback(submission.id)}
+        {activeStudentId === submission.id &&
+          showIndividualFeedbackTextArea &&
+          renderIndividualFeedbackTextArea(submission.id)}
+      </div>
+    );
+  };
+
+  const renderCriterionHeaderControls = (criterion: Criteria) => {
+    return (
+      <div>
+        <div className="flex items-center gap-4 pr-4">
+          <PaletteBrush
+            onClick={() => {
+              setActiveCriterion(
+                activeCriterion === criterion.id ? null : criterion.id
+              );
+              setShowCriterionCommentTextArea(true);
+              setShowExistingCriterionComment(false);
+            }}
+            title="Add Criterion Comment"
+          />
+          <PaletteEye
+            onClick={() => {
+              setActiveCriterion(
+                activeCriterion === criterion.id ? null : criterion.id
+              );
+              setShowExistingCriterionComment(true);
+              setShowCriterionCommentTextArea(false);
+            }}
+          />
+        </div>
+      </div>
+    );
+  };
+
   const renderGradingTable = () => {
     return (
-      <table className="w-full table-auto border-collapse border border-gray-500 text-left">
-        <thead>
-          <tr>
-            <th className="border border-gray-500 px-4 py-2">Group Member</th>
-            {rubric.criteria.map((criterion: Criteria) => (
-              <th
-                key={criterion.id}
-                className="border border-gray-500 px-4 py-2"
-              >
-                <div className={"flex justify-between"}>
-                  <p>{criterion.description} </p>
-
-                  <label className={"flex gap-2 text-sm font-medium"}>
-                    Apply Ratings to Group
-                    <input
-                      type="checkbox"
-                      name={`${criterion.id}-checkbox}`}
-                      id={`${criterion.id}-checkbox}`}
-                      checked={checkedCriteria[criterion.id] || false}
-                      onChange={() => handleCheckBoxChange(criterion.id)}
-                    />
-                  </label>
-                  <PaletteBrush
-                    onClick={() => {
-                      setActiveCriterion(
-                        activeCriterion === criterion.id ? null : criterion.id,
-                      );
-                      setShowCriterionCommentTextArea(true);
-                      setShowExistingCriterionComment(false);
-                    }}
-                    title="Add Criterion Comment"
-                  />
-                  <PaletteEye
-                    onClick={() => {
-                      setActiveCriterion(
-                        activeCriterion === criterion.id ? null : criterion.id,
-                      );
-                      setShowExistingCriterionComment(true);
-                      setShowCriterionCommentTextArea(false);
-                    }}
-                  />
-                </div>
-                {showExistingCriterionComment &&
-                  activeCriterion === criterion.id &&
-                  renderExistingCriterionComment(criterion.id)}
-                {showCriterionCommentTextArea &&
-                  activeCriterion === criterion.id &&
-                  renderCriterionCommentTextArea(criterion.id)}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {submissions.map((submission: Submission) => (
-            <tr key={submission.id}>
-              <td className="border border-gray-500 py-2 flex justify-center">
-                <div className="flex flex-col w-full items-center gap-2 mx-4">
-                  <div className="flex items-center gap-4 pr-4">
-                    <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
-                    <PaletteBrush
-                      onClick={() => {
-                        setActiveStudentId(
-                          activeStudentId === submission.id
-                            ? null
-                            : submission.id,
-                        );
-                        setShowIndividualFeedbackTextArea(true);
-                        setShowExistingIndividualFeedback(false);
-                      }}
-                      title="Add Feedback"
-                    />
-                    <PaletteEye
-                      onClick={() => {
-                        setActiveStudentId((prev) =>
-                          prev === submission.id ? null : submission.id,
-                        );
-                        setShowExistingIndividualFeedback(true);
-                        setShowIndividualFeedbackTextArea(false);
-                      }}
-                    />
-                  </div>
-                  {showExistingIndividualFeedback &&
-                    renderExistingIndividualFeedback(submission.id)}
-                  {activeStudentId === submission.id &&
-                    showIndividualFeedbackTextArea &&
-                    renderIndividualFeedbackTextArea(submission.id)}
-                </div>
-              </td>
-              {rubric.criteria.map((criterion: Criteria) => (
-                <td
-                  key={`${submission.id}-${criterion.id}`}
-                  className="border border-gray-500 px-4 py-2 text-center"
+      <div
+        className={
+          "overflow-auto max-h-[70vh] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 relative"
+        }
+      >
+        <table className="w-full table-auto border-collapse border border-gray-500 text-left">
+          <thead>
+            <tr className={"sticky top-0 bg-gray-500"}>
+              {/* Header for criteria */}
+              <th className="border border-gray-500 px-4 py-2">Criteria</th>
+              {/* Group member headers */}
+              {submissions.map((submission: Submission) => (
+                <th
+                  key={submission.id}
+                  className="border border-gray-500 px-4 py-2"
                 >
-                  {/* Input field for grading */}
-                  <select
-                    className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
-                      ratings[`${submission.id}-${criterion.id}`] ?? "",
-                      criterion,
-                    )}`}
-                    value={ratings[`${submission.id}-${criterion.id}`] ?? ""}
-                    onChange={(e) =>
-                      handleRatingChange(
-                        submission.id,
-                        criterion.id,
-                        e.target.value,
-                        checkedCriteria[criterion.id],
-                      )
-                    }
-                  >
-                    <option value="" disabled>
-                      Select a Rating
-                    </option>
-                    {criterion.ratings.map((rating) => (
-                      <option value={rating.points} key={rating.key}>
-                        {`${rating.description} - ${rating.points} Points`}
-                      </option>
-                    ))}
-                  </select>
-                </td>
+                  {renderStudentHeaderControls(submission)}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {/* Each row is a criterion */}
+            {rubric.criteria.map((criterion: Criteria) => (
+              <tr key={criterion.id}>
+                <td className="border border-gray-500 px-4 py-2">
+                  <div className="flex justify-between items-center gap-6">
+                    <p className="flex-1">{criterion.description}</p>
+                    {showExistingCriterionComment &&
+                      activeCriterion === criterion.id &&
+                      renderExistingCriterionComment(criterion.id)}
+                    {showCriterionCommentTextArea &&
+                      activeCriterion === criterion.id &&
+                      renderCriterionCommentTextArea(criterion.id)}
+                    <label className="flex gap-2 text-sm font-medium whitespace-nowrap items-center">
+                      <p>Apply Ratings to Group</p>
+                      <input
+                        type="checkbox"
+                        name={`${criterion.id}-checkbox`}
+                        id={`${criterion.id}-checkbox`}
+                        checked={checkedCriteria[criterion.id] || false}
+                        onChange={() => handleCheckBoxChange(criterion.id)}
+                      />
+                    </label>
+                    {renderCriterionHeaderControls(criterion)}
+                  </div>
+                </td>
+                {/* For each criterion row, create a cell for each submission */}
+                {submissions.map((submission: Submission) => (
+                  <td
+                    key={`${criterion.id}-${submission.id}`}
+                    className="w-1/6 border border-gray-500 px-4 py-2 text-center"
+                  >
+                    <select
+                      className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
+                        ratings[`${criterion.id}-${submission.id}`] ?? "",
+                        criterion
+                      )}`}
+                      value={ratings[`${criterion.id}-${submission.id}`] ?? ""}
+                      onChange={(e) =>
+                        handleRatingChange(
+                          submission.id,
+                          criterion.id,
+                          e.target.value,
+                          checkedCriteria[criterion.id]
+                        )
+                      }
+                    >
+                      <option value="" disabled>
+                        Select a Rating
+                      </option>
+                      {criterion.ratings.map((rating) => (
+                        <option value={rating.points} key={rating.key}>
+                          {`${rating.description} - ${rating.points} Points`}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
   };
 
