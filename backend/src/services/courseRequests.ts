@@ -145,9 +145,8 @@ async function getAllSubmissions(courseId: string, assignmentId: string) {
  * @param canvasCourses
  */
 function filterCourses(canvasCourses: CanvasCourse[]): CanvasCourse[] {
-  const oneYearAgo = new Date();
-  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-  console.log(oneYearAgo);
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
 
   // Step 1: Filter by valid enrollments (teacher or TA)
   let filteredCourses = canvasCourses.filter((course) =>
@@ -160,13 +159,11 @@ function filterCourses(canvasCourses: CanvasCourse[]): CanvasCourse[] {
   // todo: temp fix until custom filters are added
   if (filteredCourses.length > 5) {
     filteredCourses = filteredCourses.filter((course) => {
-      const startDate = course.start_at ? new Date(course.start_at) : null;
-      return startDate ? startDate >= oneYearAgo : false;
+      // start_at is an optional prop in canvas, created_at will always be generated
+      const startDate = course.created_at ? new Date(course.created_at) : null;
+      return startDate ? startDate >= twoYearsAgo : false;
     });
   }
-
-  console.log("Filtered courses BELOW");
-  console.log(filteredCourses);
 
   return filteredCourses;
 }
