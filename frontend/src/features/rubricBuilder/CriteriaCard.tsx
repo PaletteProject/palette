@@ -37,6 +37,9 @@ export default function CriteriaCard({
   const [criteriaDescription, setCriteriaDescription] = useState(
     criterion.description || "",
   );
+  const [groupCriteria, setGroupCriteria] = useState<boolean>(
+    criterion.isGroupCriterion,
+  );
 
   const [templateTitle, setTemplateTitle] = useState(criterion.template || "");
 
@@ -180,25 +183,29 @@ export default function CriteriaCard({
           {criteriaDescription}
         </div>
         <div className={"flex gap-3"}>
-          <button
+          <PaletteActionButton
             onPointerDown={(event: ReactMouseEvent) =>
               handleRemoveCriteriaButton(event, index)
             }
-            type={"button"}
-            className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
-          >
-            Remove
-          </button>
-          <button
+            color={"RED"}
+            title={"Remove"}
+          />
+          <PaletteActionButton
             onPointerDown={handleExpandCriterion}
-            type={"button"}
-            className="transition-all ease-in-out duration-300 bg-emerald-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-emerald-700 focus:outline-none border-2 border-transparent"
-          >
-            Edit
-          </button>
+            color={"BLUE"}
+            title={"Edit"}
+          />
         </div>
       </div>
     );
+  };
+
+  const toggleGroupCriteriaFlag = (
+    event: ReactMouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+    setGroupCriteria((prevState) => !prevState);
+    handleCriteriaUpdate(index, criterion);
   };
 
   const renderDetailedView = () => {
@@ -276,9 +283,19 @@ export default function CriteriaCard({
             />
           </Dialog>
         </div>
-        <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
-          Max Points: {maxPoints}
-        </p>
+        <div className={"grid gap-2"}>
+          <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-lg">
+            Max Points: {maxPoints}
+          </p>
+
+          <PaletteActionButton
+            color={groupCriteria ? "BLUE" : "GRAY"}
+            title={groupCriteria ? "Group Criteria" : "Individual Criteria"}
+            onClick={(event: ReactMouseEvent<HTMLButtonElement>) =>
+              toggleGroupCriteriaFlag(event)
+            }
+          />
+        </div>
       </div>
     );
   };
