@@ -270,9 +270,9 @@ export function ProjectGradingView({
             {rubric.criteria.map((criterion: Criteria) => (
               <tr key={criterion.id}>
                 <td className="border border-gray-500 px-4 py-2">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between gap-6">
                     <p>{criterion.description}</p>
-                    <label className="flex gap-2 text-sm font-medium">
+                    <label className="flex gap-2 text-sm font-medium whitespace-nowrap">
                       <p>Apply Ratings to Group</p>
                       <input
                         type="checkbox"
@@ -288,7 +288,7 @@ export function ProjectGradingView({
                 {submissions.map((submission: Submission) => (
                   <td
                     key={`${criterion.id}-${submission.id}`}
-                    className="border border-gray-500 px-4 py-2 text-center"
+                    className="w-1/6 border border-gray-500 px-4 py-2 text-center"
                   >
                     <select
                       className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
