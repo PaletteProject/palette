@@ -21,6 +21,7 @@ type CriteriaCardProps = {
   handleCriteriaUpdate: (index: number, criterion: Criteria) => void;
   removeCriterion: (index: number, criterion: Criteria) => void;
   setActiveCriterionIndex: (index: number) => void;
+  isGroupCriteria: boolean;
 };
 
 export default function CriteriaCard({
@@ -30,6 +31,7 @@ export default function CriteriaCard({
   handleCriteriaUpdate,
   removeCriterion,
   setActiveCriterionIndex,
+  isGroupCriteria,
 }: CriteriaCardProps): ReactElement {
   const [ratings, setRatings] = useState<Rating[]>(criterion.ratings);
   const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
@@ -37,6 +39,7 @@ export default function CriteriaCard({
   const [criteriaDescription, setCriteriaDescription] = useState(
     criterion.description || "",
   );
+  const [groupCriteria, setGroupCriteria] = useState<boolean>(false);
 
   const [templateTitle, setTemplateTitle] = useState(criterion.template || "");
 
@@ -201,6 +204,13 @@ export default function CriteriaCard({
     );
   };
 
+  const toggleGroupCriteriaFlag = (
+    event: ReactMouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+    setGroupCriteria((prevState) => !prevState);
+  };
+
   const renderDetailedView = () => {
     return (
       <div
@@ -276,9 +286,19 @@ export default function CriteriaCard({
             />
           </Dialog>
         </div>
-        <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-full">
-          Max Points: {maxPoints}
-        </p>
+        <div className={"grid gap-2"}>
+          <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-lg">
+            Max Points: {maxPoints}
+          </p>
+
+          <PaletteActionButton
+            color={groupCriteria ? "BLUE" : "GRAY"}
+            title={groupCriteria ? "Group Criteria" : "Individual Criteria"}
+            onClick={(event: ReactMouseEvent<HTMLButtonElement>) =>
+              toggleGroupCriteriaFlag(event, index)
+            }
+          />
+        </div>
       </div>
     );
   };
