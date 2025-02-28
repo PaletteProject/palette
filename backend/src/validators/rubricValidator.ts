@@ -23,6 +23,9 @@ const rubricValidator: ValidationChain[] = [
   body("criteria.*.pointsPossible")
     .isNumeric()
     .withMessage("Points field must be numeric"),
+  body("criteria.*isGroupCriterion")
+    .isBoolean()
+    .withMessage("Criterion must have group criterion flag"),
   body("criteria.*.ratings")
     .isArray({ min: 1 })
     .withMessage("Criterion must have at least one rating."),
