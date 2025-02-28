@@ -6,7 +6,7 @@ import {
   RequestFormattedCriteria,
   RequestFormattedRubric,
   Rubric,
-  RubricAssociation
+  RubricAssociation,
 } from "palette-types";
 
 import { v4 as uuid } from "uuid"; /**
