@@ -60,7 +60,7 @@ export function ProjectGradingView({
           for (const [criterionId, assessment] of Object.entries(
             rubric_assessment,
           )) {
-            initialRatings[`${submission_id}-${criterionId}`] =
+            initialRatings[`${criterionId}-${submission_id}`] =
               assessment.points ?? "";
           }
         }
@@ -73,9 +73,9 @@ export function ProjectGradingView({
             submission.rubricAssessment,
           )) {
             // avoid overwriting data from cache
-            const key = `${submission.id}-${criterionId}`;
+            const key = `${criterionId}-${submission.id}`;
             if (!(key in initialRatings)) {
-              initialRatings[`${submission.id}-${criterionId}`] =
+              initialRatings[`${criterionId}-${submission.id}`] =
                 assessment.points ?? "";
             }
           }
@@ -83,6 +83,7 @@ export function ProjectGradingView({
       });
 
       setRatings(initialRatings);
+      console.log(initialRatings);
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
@@ -100,7 +101,7 @@ export function ProjectGradingView({
 
       const updatedRatings = {
         ...prev,
-        [`${submissionId}-${criterionId}`]: newValue,
+        [`${criterionId}-${submissionId}`]: newValue,
       };
 
       if (applyToGroup) {
@@ -108,7 +109,7 @@ export function ProjectGradingView({
         submissions.forEach((submission) => {
           // iterate over submissions directly rather than existing ratings to ensure we include the entries that
           // haven't been graded yet
-          updatedRatings[`${submission.id}-${criterionId}`] = newValue;
+          updatedRatings[`${criterionId}-${submission.id}`] = newValue;
         });
       }
 
@@ -136,7 +137,7 @@ export function ProjectGradingView({
         } = {};
 
         rubric.criteria.forEach((criterion) => {
-          const selectedPoints = ratings[`${submission.id}-${criterion.id}`];
+          const selectedPoints = ratings[`${criterion.id}-${submission.id}`];
           const selectedRating = criterion.ratings.find(
             (rating) => rating.points === selectedPoints,
           );
@@ -244,75 +245,83 @@ export function ProjectGradingView({
 
   const renderGradingTable = () => {
     return (
-      <table className="w-full table-auto border-collapse border border-gray-500 text-left">
-        <thead>
-          <tr>
-            <th className="border border-gray-500 px-4 py-2">Group Member</th>
-            {rubric.criteria.map((criterion: Criteria) => (
-              <th
-                key={criterion.id}
-                className="border border-gray-500 px-4 py-2"
-              >
-                <div className={"flex justify-between"}>
-                  <p>{criterion.description} </p>
-
-                  <label className={"flex gap-2 text-sm font-medium"}>
-                    Apply Ratings to Group
-                    <input
-                      type="checkbox"
-                      name={`${criterion.id}-checkbox}`}
-                      id={`${criterion.id}-checkbox}`}
-                      checked={checkedCriteria[criterion.id] || false}
-                      onChange={() => handleCheckBoxChange(criterion.id)}
-                    />
-                  </label>
-                </div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {submissions.map((submission: Submission) => (
-            <tr key={submission.id}>
-              <td className="border border-gray-500 px-4 py-2 flex justify-between">
-                <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
-              </td>
-              {rubric.criteria.map((criterion: Criteria) => (
-                <td
-                  key={`${submission.id}-${criterion.id}`}
-                  className="border border-gray-500 px-4 py-2 text-center"
+      <div
+        className={
+          "overflow-auto max-h-[70vh] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 relative"
+        }
+      >
+        <table className="w-full table-auto border-collapse border border-gray-500 text-left">
+          <thead>
+            <tr className={"sticky top-0 bg-gray-500"}>
+              {/* Header for criteria */}
+              <th className="border border-gray-500 px-4 py-2">Criteria</th>
+              {/* Group member headers */}
+              {submissions.map((submission: Submission) => (
+                <th
+                  key={submission.id}
+                  className="border border-gray-500 px-4 py-2"
                 >
-                  {/* Input field for grading */}
-                  <select
-                    className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
-                      ratings[`${submission.id}-${criterion.id}`] ?? "",
-                      criterion,
-                    )}`}
-                    value={ratings[`${submission.id}-${criterion.id}`] ?? ""}
-                    onChange={(e) =>
-                      handleRatingChange(
-                        submission.id,
-                        criterion.id,
-                        e.target.value,
-                        checkedCriteria[criterion.id],
-                      )
-                    }
-                  >
-                    <option value="" disabled>
-                      Select a Rating
-                    </option>
-                    {criterion.ratings.map((rating) => (
-                      <option value={rating.points} key={rating.key}>
-                        {`${rating.description} - ${rating.points} Points`}
-                      </option>
-                    ))}
-                  </select>
-                </td>
+                  <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {/* Each row is a criterion */}
+            {rubric.criteria.map((criterion: Criteria) => (
+              <tr key={criterion.id}>
+                <td className="border border-gray-500 px-4 py-2">
+                  <div className="flex justify-between gap-6">
+                    <p>{criterion.description}</p>
+                    <label className="flex gap-2 text-sm font-medium whitespace-nowrap">
+                      <p>Apply Ratings to Group</p>
+                      <input
+                        type="checkbox"
+                        name={`${criterion.id}-checkbox`}
+                        id={`${criterion.id}-checkbox`}
+                        checked={checkedCriteria[criterion.id] || false}
+                        onChange={() => handleCheckBoxChange(criterion.id)}
+                      />
+                    </label>
+                  </div>
+                </td>
+                {/* For each criterion row, create a cell for each submission */}
+                {submissions.map((submission: Submission) => (
+                  <td
+                    key={`${criterion.id}-${submission.id}`}
+                    className="w-1/6 border border-gray-500 px-4 py-2 text-center"
+                  >
+                    <select
+                      className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
+                        ratings[`${criterion.id}-${submission.id}`] ?? "",
+                        criterion,
+                      )}`}
+                      value={ratings[`${criterion.id}-${submission.id}`] ?? ""}
+                      onChange={(e) =>
+                        handleRatingChange(
+                          submission.id,
+                          criterion.id,
+                          e.target.value,
+                          checkedCriteria[criterion.id],
+                        )
+                      }
+                    >
+                      <option value="" disabled>
+                        Select a Rating
+                      </option>
+                      {criterion.ratings.map((rating) => (
+                        <option value={rating.points} key={rating.key}>
+                          {`${rating.description} - ${rating.points} Points`}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
   };
 

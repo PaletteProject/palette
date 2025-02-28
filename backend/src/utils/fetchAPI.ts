@@ -4,7 +4,7 @@ import { CanvasAPIUnexpectedError } from "../errors/UnknownCanvasError.js";
 import util from "util";
 import { SettingsAPI } from "../settings.js";
 
-export const CanvasAPIConfig = {
+const CanvasAPIConfig = {
   baseURL: "https://canvas.asu.edu/api/v1",
   headers: {
     // get the token from the environment variables
@@ -12,7 +12,14 @@ export const CanvasAPIConfig = {
     Accept: "application/json",
     "Content-Type": "application/json",
   },
-} as const;
+};
+
+/**
+ * Helper function to refresh the API config and ensure it's using the latest token.
+ */
+const refreshToken = () => {
+  CanvasAPIConfig.headers.Authorization = `Bearer ${SettingsAPI.getUserSettings(true).token}`;
+};
 
 /**
  * Generic fetch wrapper function to avoid similar fetch requests in each CRUD method.
@@ -25,6 +32,7 @@ export async function fetchAPI<T>(
   endpoint: string,
   options: RequestInit = {}, // default options (none)
 ): Promise<T> {
+  refreshToken();
   try {
     const url = `${CanvasAPIConfig.baseURL}${endpoint}`;
     const requestInit: RequestInit = {

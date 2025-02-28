@@ -39,6 +39,31 @@ export function GroupSubmissions({
     setGradingViewOpen(true);
   };
 
+  const calculateGroupAverage = (submissions: Submission[]): number => {
+    const { total, count } = submissions.reduce(
+      (groupAcc, submission) => {
+        // use reduce to aggregate scores for a single submission
+        const { total: subTotal, count: subCount } = Object.values(
+          submission.rubricAssessment,
+        ).reduce(
+          (acc, assessment) => ({
+            total: acc.total + assessment.points,
+            count: acc.count + 1,
+          }),
+          { total: 0, count: 0 }, // initial accumulator for a submission
+        );
+
+        // add submission total to group totals
+        return {
+          total: groupAcc.total + subTotal,
+          count: groupAcc.count + subCount,
+        };
+      },
+      { total: 0, count: 0 }, // initial accumulator for the group
+    );
+    return count > 0 ? total / count : 0;
+  };
+
   return (
     <div className="w-full">
       <div className="flex flex-col gap-2 p-4 border-2 rounded-2xl border-gray-500 shadow-xl bg-gray-900 border-opacity-35">
@@ -56,6 +81,9 @@ export function GroupSubmissions({
         {/* Progress Bar Section */}
         <div className="w-full mt-1">
           <ProgressBar progress={progress} />
+        </div>
+        <div className={"text-center"}>
+          Average: {`${calculateGroupAverage(submissions)} Points`}
         </div>
       </div>
 
