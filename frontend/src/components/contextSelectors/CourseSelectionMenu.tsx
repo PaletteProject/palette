@@ -9,6 +9,7 @@ import { useFetch } from "@hooks";
 import { Course, PaletteAPIResponse } from "palette-types";
 import { useCourse } from "../../context/CourseProvider.tsx";
 import { PaletteActionButton } from "../buttons/PaletteActionButton.tsx";
+import { PaletteTrash } from "../buttons/PaletteTrash.tsx";
 import { LoadingDots } from "../LoadingDots.tsx";
 
 export function CourseSelectionMenu({
@@ -19,47 +20,51 @@ export function CourseSelectionMenu({
   const [errorMessage, setErrorMessage] = useState<string>();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [isTableVisible, setIsTableVisible] = useState<boolean>(true);
+  const [optionChecked, setOptionChecked] = useState<boolean>(false);
   const { fetchData: getCourses } = useFetch("/courses");
   const { setActiveCourse } = useCourse();
-
-  const [filter, setFilter] = useState<{
-    label: string;
-    value: string;
-    options?: string[];
-  }>({ label: "All", value: "all", options: ["all"] });
-
-  const filterOptions = [
-    { label: "All", value: "all", options: ["all"] },
+  const [stagedFilters, setStagedFilters] = useState<
     {
-      label: "Quantity",
-      value: "quantity",
-      options: ["all", "current", "past"],
-    },
+      label: string;
+      value: string;
+      options?: string[];
+      selected_option?: string;
+    }[]
+  >([]);
+
+  const currentYear = new Date().getFullYear();
+
+  const preDefinedFilters = [
     {
       label: "Course Format",
       value: "course_format",
       options: ["online", "on_campus", "blended"],
+      selected_option: "",
     },
     {
       label: "State",
       value: "course_state",
       options: ["unpublished", "available", "completed", "deleted"],
+      selected_option: "",
     },
-    {
-      label: "Enrollment State",
-      value: "enrollment_state",
-      options: ["active", "invited", "inactive"],
-    },
+
     {
       label: "Term",
       value: "term",
-      options: ["all", "current", "past"],
+      options: [
+        currentYear.toString(),
+        (currentYear - 1).toString(),
+        (currentYear - 2).toString(),
+        (currentYear - 3).toString(),
+      ],
+      selected_option: "",
     },
     {
       label: "Course Code",
       value: "course_code",
       options: ["CS", "CSE", "CSC", "SER", "EEE"],
+      selected_option: "",
     },
   ];
 
@@ -86,7 +91,7 @@ export function CourseSelectionMenu({
     } catch (error) {
       console.error(
         "An unexpected error occurred while getting courses: ",
-        error,
+        error
       );
       setErrorMessage("An unexpected error occurred while fetching courses.");
     }
@@ -114,30 +119,111 @@ export function CourseSelectionMenu({
     );
   };
 
-  const renderFilters = () => {
+  const updateStagedFilters = (
+    filter: {
+      label: string;
+      value: string;
+      options?: string[];
+      selected_option?: string;
+    },
+    option: string
+  ) => {
+    const filterIndex = stagedFilters.findIndex(
+      (stagedFilter) => stagedFilter.value === filter.value
+    );
+    const stagedFilter = stagedFilters[filterIndex];
+
+    // Create a new staged filter object to avoid mutation
+    const updatedStagedFilter = {
+      label: filter.label,
+      value: filter.value,
+      options: filter.options,
+      selected_option: option,
+    };
+
+    let newStagedFilters = [...stagedFilters];
+
+    // Return a new array with the updated staged filter
+    if (filterIndex === -1) {
+      // If the filter is not in the array, add it
+      newStagedFilters = [...stagedFilters, updatedStagedFilter];
+      console.log("newStagedFilters:", newStagedFilters);
+      setStagedFilters(newStagedFilters);
+    } else {
+      if (stagedFilter.selected_option === option) {
+        setOptionChecked(false);
+      }
+      // If the filter is already in the array, update it
+      newStagedFilters = [
+        ...stagedFilters.slice(0, filterIndex),
+        updatedStagedFilter,
+        ...stagedFilters.slice(filterIndex + 1),
+      ];
+      setOptionChecked(true);
+      console.log("debug:");
+    }
+
+    setStagedFilters(newStagedFilters);
+  };
+
+  const renderFiltersTable = () => {
     return (
-      <div className="">
-        <span className="text-lg font-bold mb-2 mr-2">Filter by:</span>
-        {filterOptions.map((option) => (
-          <button
-            key={option.value}
-            className={`${filter.value === option.value ? "border-2 border-blue-500" : ""} bg-gray-600 hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full font-bold text-lg mr-2 `}
-            onClick={() => setFilter(option)}
-          >
-            <span className="text-white">{option.label}</span>
-          </button>
-        ))}
+      <div className="flex flex-col gap-2">
+        <button
+          className="text-lg font-bold mb-2"
+          onClick={() => setIsTableVisible((prev) => !prev)}
+        >
+          {isTableVisible ? "Hide Filters" : "Show Filters"}
+        </button>
+        {
+          <table className="border-2 border-gray-500 rounded-lg text-sm">
+            <thead className="bg-gray-600 border-2 border-gray-500">
+              <tr>
+                {/* Filter Labels */}
+                {preDefinedFilters.map((filter) => (
+                  <th key={filter.value} className="border-2 border-gray-500">
+                    {filter.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="flex-col items-start justify-start">
+                {/* Filter Options */}
+                {preDefinedFilters.map((filter) => (
+                  <td key={filter.value} className="border-2 border-gray-500">
+                    {filter.options?.map((option) => (
+                      <div key={option} className="flex ">
+                        <input
+                          type="radio"
+                          id={option}
+                          checked={stagedFilters.some(
+                            (stagedFilter) =>
+                              stagedFilter.selected_option === option
+                          )}
+                          onChange={() => {
+                            console.log("changed");
+                          }}
+                          className="mr-2"
+                          onClick={() => {
+                            updateStagedFilters(filter, option);
+                          }}
+                        />
+                        <label htmlFor={option}>
+                          {option.toUpperCase().replace("_", " ")}
+                        </label>
+                      </div>
+                    ))}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        }
       </div>
     );
   };
 
-  const renderFilterOptions = () => {
-    return (
-      <div className="flex flex-col gap-2">
-        {filter.options?.map((option) => <p key={option}>{option}</p>)}
-      </div>
-    );
-  };
   const renderContent = () => {
     if (loading) return <LoadingDots />;
     if (errorMessage)
@@ -150,8 +236,7 @@ export function CourseSelectionMenu({
           "grid gap-2 my-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
         }
       >
-        {renderFilters()}
-        {filter && renderFilterOptions()}
+        {renderFiltersTable()}
       </div>
     );
   };
@@ -169,10 +254,32 @@ export function CourseSelectionMenu({
     event.preventDefault();
     void fetchCourses();
   };
+
+  const handleApplyFilters = (event: MouseEvent<HTMLButtonElement>): void => {
+    event.preventDefault();
+    setStagedFilters([]);
+    console.log("applied filters");
+  };
+
   return (
     <div className={"grid gap-2 text-2xl"}>
       <div>{renderContent()}</div>
-      <div className={"justify-self-end"}>
+      <div className={"justify-self-end flex gap-2 items-center"}>
+        {stagedFilters.length > 0 && (
+          <>
+            <PaletteTrash
+              title={"Clear Filters"}
+              onClick={() => setStagedFilters([])}
+            />
+
+            <PaletteActionButton
+              color={"GREEN"}
+              title={"Apply Filters"}
+              onClick={handleApplyFilters}
+              autoFocus={false}
+            />
+          </>
+        )}
         <PaletteActionButton
           color={"BLUE"}
           title={"Refresh"}
