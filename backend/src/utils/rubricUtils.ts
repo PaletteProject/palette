@@ -6,7 +6,7 @@ import {
   RequestFormattedCriteria,
   RequestFormattedRubric,
   Rubric,
-  RubricAssociation,
+  RubricAssociation
 } from "palette-types";
 
 import { v4 as uuid } from "uuid"; /**
@@ -70,6 +70,7 @@ export const toPaletteFormat = (rubric: CanvasRubric): Rubric => {
         description: criterion.description,
         longDescription: criterion.long_description,
         pointsPossible: criterion.points,
+        isGroupCriterion: true, // default to all criterion being group criteria
         key: uuid(),
         updatePoints: () => {
           throw new Error("Not implemented");
