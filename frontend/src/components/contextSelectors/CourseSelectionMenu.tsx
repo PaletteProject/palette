@@ -86,7 +86,7 @@ export function CourseSelectionMenu({
     } catch (error) {
       console.error(
         "An unexpected error occurred while getting courses: ",
-        error
+        error,
       );
       setErrorMessage("An unexpected error occurred while fetching courses.");
     }
