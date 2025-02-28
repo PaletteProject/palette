@@ -183,22 +183,18 @@ export default function CriteriaCard({
           {criteriaDescription}
         </div>
         <div className={"flex gap-3"}>
-          <button
+          <PaletteActionButton
             onPointerDown={(event: ReactMouseEvent) =>
               handleRemoveCriteriaButton(event, index)
             }
-            type={"button"}
-            className="transition-all ease-in-out duration-300 bg-red-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-red-700 focus:outline-none border-2 border-transparent"
-          >
-            Remove
-          </button>
-          <button
+            color={"RED"}
+            title={"Remove"}
+          />
+          <PaletteActionButton
             onPointerDown={handleExpandCriterion}
-            type={"button"}
-            className="transition-all ease-in-out duration-300 bg-emerald-600 text-white font-bold rounded-lg px-2 py-1 hover:bg-emerald-700 focus:outline-none border-2 border-transparent"
-          >
-            Edit
-          </button>
+            color={"BLUE"}
+            title={"Edit"}
+          />
         </div>
       </div>
     );
