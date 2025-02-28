@@ -9,13 +9,7 @@ import {
   Submission,
 } from "palette-types";
 import { createPortal } from "react-dom";
-import {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useState,
-  ChangeEvent,
-} from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 import { PaletteBrush, PaletteEye } from "@components";
@@ -28,11 +22,6 @@ type ProjectGradingViewProps = {
   onClose: () => void; // event handler defined in GroupSubmissions.tsx
   setGradedSubmissionCache: Dispatch<SetStateAction<CanvasGradedSubmission[]>>;
   gradedSubmissionCache: CanvasGradedSubmission[];
-  updateSubmissionComment: (
-    submissionId: number,
-    commentId: number,
-    comment: string
-  ) => Promise<void>;
 };
 
 export function ProjectGradingView({
@@ -43,7 +32,6 @@ export function ProjectGradingView({
   onClose,
   setGradedSubmissionCache,
   gradedSubmissionCache,
-  updateSubmissionComment,
 }: ProjectGradingViewProps) {
   if (!isOpen) {
     return null;
@@ -51,16 +39,12 @@ export function ProjectGradingView({
 
   const [ratings, setRatings] = useState<Record<string, number | string>>({});
   const [groupFeedback, setGroupFeedback] = useState<string>("");
-  const [showGroupFeedbackSection, setShowGroupFeedbackSection] =
-    useState<boolean>(false);
+
   // group grading checkbox state
   const [checkedCriteria, setCheckedCriteria] = useState<{
     [key: string]: boolean;
   }>({});
-  const [activeCriterion, setActiveCriterion] = useState<string | null>(null);
-  const [activeIndividualFeedback, setActiveIndividualFeedback] = useState<
-    number | null
-  >(null);
+
   const [criterionComments, setCriterionComments] = useState<
     Record<string, string>
   >({});
@@ -68,14 +52,12 @@ export function ProjectGradingView({
     Record<number, string>
   >({});
 
+  // Existing feedback states
   const [existingIndividualFeedback, setExistingIndividualFeedback] = useState<
     { id: number; authorName: string; comment: string }[] | null
   >(null);
 
-  const [existingCriterionComments, setExistingCriterionComments] = useState<
-    Record<string, string>
-  >({});
-
+  // UI state
   const [showExistingGroupFeedback, setShowExistingGroupFeedback] =
     useState<boolean>(false);
 
@@ -85,23 +67,35 @@ export function ProjectGradingView({
   const [showExistingCriterionComment, setShowExistingCriterionComment] =
     useState<boolean>(false);
 
-  const [editingComment, setEditingComment] = useState<{
-    id: number;
-    authorName: string;
-    comment: string;
-  } | null>(null);
+  // Active student and criterion states
+  const [activeStudentId, setActiveStudentId] = useState<number | null>(null);
+  const [activeCriterion, setActiveCriterion] = useState<string | null>(null);
 
-  const [userIsEditingIndividualFeedback, setUserIsEditingIndividualFeedback] =
+  // Text area states
+  const [showIndividualFeedbackTextArea, setShowIndividualFeedbackTextArea] =
+    useState<boolean>(false);
+  const [showGroupFeedbackTextArea, setShowGroupFeedbackTextArea] =
+    useState<boolean>(false);
+  const [showCriterionCommentTextArea, setShowCriterionCommentTextArea] =
     useState<boolean>(false);
 
+  // Add a new state to track the open state of each eye icon
+  const [eyeOpenStates, setEyeOpenStates] = useState<Record<string, boolean>>(
+    {}
+  );
+
+  // Dialog state
   const { openDialog, closeDialog } = useChoiceDialog();
-  const [activeStudentId, setActiveStudentId] = useState<number | null>(null);
-  const [updatedIndividualFeedback, setUpdatedIndividualFeedback] = useState<
-    Record<number, string>
-  >({});
 
-  const [showFeedbackInput, setShowFeedbackInput] = useState<boolean>(false);
-
+  const existingCriterionComments = submissions[0].rubricAssessment
+    ? Object.entries(submissions[0].rubricAssessment).reduce(
+        (acc, [criterionId, criterion]) => {
+          acc[criterionId] = criterion.comments;
+          return acc;
+        },
+        {} as Record<string, string>
+      )
+    : {};
   /**
    * Initialize ratings when grading modal opens. Maps criterion directly from rubric.
    */
@@ -152,148 +146,6 @@ export function ProjectGradingView({
       setExistingIndividualFeedback(existingFeedback || null);
     }
   }, [submissions, activeStudentId]);
-
-  const getExistingGroupFeedback = (submissions: Submission[]) => {
-    let allSubmissionComments = [];
-    let seenComments = new Set<string>();
-    let existingGroupComments = [];
-
-    for (const submission of submissions) {
-      let submissionComments = submission.comments;
-      for (const comment of submissionComments) {
-        if (seenComments.has(comment.comment)) {
-          existingGroupComments.push(comment);
-        } else {
-          seenComments.add(comment.comment);
-        }
-      }
-      allSubmissionComments.push(...submissionComments);
-    }
-
-    // setGroupFeedback(allSubmissionComments.join("\n"));
-    // console.log("Existing group comments:", existingGroupComments);
-    return existingGroupComments;
-  };
-
-  const getExistingIndividualFeedback = (
-    submissions: Submission[],
-    submissionId: number
-  ) => {
-    const existingGroupFeedback = getExistingGroupFeedback(submissions);
-    const studentsComments = submissions.find(
-      (submission) => submission.id === submissionId
-    )?.comments;
-
-    const existingIndividualComments = studentsComments?.filter(
-      (comment) =>
-        !existingGroupFeedback.some(
-          (existingComment) => existingComment.comment === comment.comment
-        )
-    );
-    return existingIndividualComments;
-  };
-
-  const renderExistingGroupFeedback = () => {
-    return (
-      <div className="flex flex-col gap-2">
-        {getExistingGroupFeedback(submissions).length > 0 ? (
-          <>
-            <h2 className="text-lg font-bold">Existing Group Comments</h2>
-            <ul className="list-disc list-inside">
-              {getExistingGroupFeedback(submissions).map((comment) => (
-                <li key={comment.id}>{comment.comment}</li>
-              ))}
-            </ul>
-          </>
-        ) : (
-          <p>No existing group comments</p>
-        )}
-      </div>
-    );
-  };
-
-  const renderExistingIndividualFeedback = (submissionId: number) => {
-    if (activeStudentId !== submissionId) return null; // Only render if the student is active
-
-    return (
-      <div className="w-full">
-        {existingIndividualFeedback ? (
-          <>
-            {existingIndividualFeedback.length > 0 ? (
-              <>
-                <h2 className="text-lg font-bold">Existing Comments</h2>
-                <ul className="list-disc list-inside">
-                  {existingIndividualFeedback.map((comment) => (
-                    <li
-                      key={comment.comment}
-                      onClick={() => {
-                        setEditingComment(comment);
-                        setActiveIndividualFeedback(submissionId);
-                        setShowFeedbackInput(true);
-                      }}
-                      className="cursor-pointer hover:underline"
-                    >
-                      {comment.comment}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p>No existing comments for this student</p>
-            )}
-          </>
-        ) : (
-          <p>No existing comments for this student</p> // TODO: figure out how to remove this. Need this because existingComments might be undefined
-        )}
-      </div>
-    );
-  };
-
-  const renderExistingCriterionCommentSection = (criterionId: string) => {
-    return (
-      <div className="flex flex-col gap-2 ">
-        {existingCriterionComments[criterionId] && (
-          <li key={existingCriterionComments[criterionId]}>
-            {existingCriterionComments[criterionId]}
-          </li>
-        )}
-      </div>
-    );
-  };
-
-  const handleSaveEditedComment = (submissionId: number) => {
-    openDialog({
-      title: "Save Edited Comment",
-      message:
-        "This is a soft save meaning Canvas will not reflect the changes until you click Save Grades. Are you sure you want to save the edited comment?",
-      buttons: [
-        {
-          label: "Yes",
-          action: () => {
-            setExistingIndividualFeedback((prev) =>
-              prev
-                ? prev.map((comment) =>
-                    comment.id === editingComment?.id ? editingComment : comment
-                  )
-                : null
-            );
-
-            if (editingComment?.id) {
-              void updateSubmissionComment(
-                submissionId,
-                editingComment.id,
-                editingComment.comment || ""
-              );
-            }
-
-            setEditingComment(null);
-            closeDialog();
-          },
-          autoFocus: true,
-        },
-      ],
-    });
-  };
 
   /**
    * Update ratings state on changes.
@@ -443,6 +295,51 @@ export function ProjectGradingView({
     });
   };
 
+  const getExistingGroupFeedback = (submissions: Submission[]) => {
+    let allSubmissionComments = [];
+    let seenComments = new Set<string>();
+    let existingGroupComments = [];
+
+    for (const submission of submissions) {
+      let submissionComments = submission.comments;
+      for (const comment of submissionComments) {
+        if (seenComments.has(comment.comment)) {
+          existingGroupComments.push(comment);
+        } else {
+          seenComments.add(comment.comment);
+        }
+      }
+      allSubmissionComments.push(...submissionComments);
+    }
+
+    // setGroupFeedback(allSubmissionComments.join("\n"));
+    // console.log("Existing group comments:", existingGroupComments);
+    return existingGroupComments;
+  };
+
+  const getExistingIndividualFeedback = (
+    submissions: Submission[],
+    submissionId: number
+  ) => {
+    const existingGroupFeedback = getExistingGroupFeedback(submissions);
+    const studentsComments = submissions.find(
+      (submission) => submission.id === submissionId
+    )?.comments;
+
+    const existingIndividualComments = studentsComments?.filter(
+      (comment) =>
+        !existingGroupFeedback.some(
+          (existingComment) => existingComment.comment === comment.comment
+        )
+    );
+    return existingIndividualComments;
+  };
+
+  // Function to toggle the eye icon state
+  const toggleEyeOpen = (key: string) => {
+    setEyeOpenStates((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   const renderGradingPopup = () => {
     return createPortal(
       <div
@@ -455,20 +352,23 @@ export function ProjectGradingView({
             <div className="flex items-center gap-4">
               <h1 className="text-4xl text-white font-semibold">{groupName}</h1>
               <PaletteBrush
-                onClick={() =>
-                  setShowGroupFeedbackSection(!showGroupFeedbackSection)
-                }
+                onClick={() => {
+                  setShowGroupFeedbackTextArea(!showGroupFeedbackTextArea);
+                  setShowExistingGroupFeedback(false);
+                }}
                 title="Add Group Feedback"
               />
               <PaletteEye
-                onClick={() =>
-                  setShowExistingGroupFeedback(!showExistingGroupFeedback)
-                }
+                onClick={() => {
+                  toggleEyeOpen("groupFeedback");
+                  setShowExistingGroupFeedback(!showExistingGroupFeedback);
+                  setShowGroupFeedbackTextArea(false);
+                }}
               />
             </div>
           </div>
           {showExistingGroupFeedback && renderExistingGroupFeedback()}
-          {showGroupFeedbackSection && renderGroupFeedbackSection()}
+          {showGroupFeedbackTextArea && renderGroupFeedbackTextArea()}
           {renderGradingTable()}
 
           <div className={"flex gap-4 justify-end"}>
@@ -489,7 +389,7 @@ export function ProjectGradingView({
     );
   };
 
-  const renderGroupFeedbackSection = () => {
+  const renderGroupFeedbackTextArea = () => {
     return (
       <div className="flex flex-col gap-2">
         <textarea
@@ -503,47 +403,72 @@ export function ProjectGradingView({
     );
   };
 
-  const renderIndividualFeedbackSection = (submissionId: number) => {
+  const renderExistingGroupFeedback = () => {
+    return (
+      <div className="flex flex-col gap-2">
+        {getExistingGroupFeedback(submissions).length > 0 ? (
+          <>
+            <h2 className="text-lg font-bold">Existing Group Comments</h2>
+            <ul className="list-disc list-inside">
+              {getExistingGroupFeedback(submissions).map((comment) => (
+                <li key={comment.id}>{comment.comment}</li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p>No existing group comments</p>
+        )}
+      </div>
+    );
+  };
+
+  const renderIndividualFeedbackTextArea = (submissionId: number) => {
     return (
       <div className="w-full">
         <textarea
           className="w-full min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto 
           scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
           onChange={(e) => {
-            if (editingComment === null) {
-              setIndividualFeedbacks((prev) => ({
-                ...prev,
-                [submissionId]: e.target.value,
-              }));
-            } else {
-              setEditingComment({ ...editingComment, comment: e.target.value });
-              // console.log("editingComment", editingComment);
-            }
+            setIndividualFeedbacks((prev) => ({
+              ...prev,
+              [submissionId]: e.target.value,
+            }));
           }}
-          value={
-            editingComment !== null
-              ? editingComment.comment
-              : individualFeedbacks[submissionId]
-          }
-          placeholder={
-            userIsEditingIndividualFeedback
-              ? "Edit feedback"
-              : "Enter feedback for the individual..."
-          }
+          value={individualFeedbacks[submissionId]}
+          placeholder={"Enter feedback for the individual..."}
         />
-        {editingComment !== null && (
-          <button
-            onClick={() => handleSaveEditedComment(submissionId)}
-            className="font-semibold text-green-400"
-          >
-            Save
-          </button>
+      </div>
+    );
+  };
+
+  const renderExistingIndividualFeedback = (submissionId: number) => {
+    if (activeStudentId !== submissionId) return null; // Only render if the student is active
+
+    return (
+      <div className="w-full">
+        {existingIndividualFeedback ? (
+          <>
+            {existingIndividualFeedback.length > 0 ? (
+              <>
+                <h2 className="text-lg font-bold">Existing Comments</h2>
+                <ul className="list-disc list-inside">
+                  {existingIndividualFeedback.map((comment) => (
+                    <li>{comment.comment}</li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p>No existing comments for this student</p>
+            )}
+          </>
+        ) : (
+          <p>No existing comments for this student</p> // TODO: figure out how to remove this. Need this because existingComments might be undefined
         )}
       </div>
     );
   };
 
-  const renderCriterionCommentSection = (criterionId: string) => {
+  const renderCriterionCommentTextArea = (criterionId: string) => {
     return (
       <div className="flex flex-col gap-2 ">
         <textarea
@@ -562,16 +487,25 @@ export function ProjectGradingView({
     );
   };
 
-  const showAddingIndividualFeedbackContent = () => {
-    setShowFeedbackInput(true);
-    setShowExistingIndividualFeedback(false);
-    setUserIsEditingIndividualFeedback(false);
-    setEditingComment(null);
-  };
+  const renderExistingCriterionComment = (criterionId: string) => {
+    if (!showExistingCriterionComment) return null; // Only render if the section is active
 
-  const showExistingIndividualFeedbackContent = (submissionId: number) => {
-    setShowExistingIndividualFeedback(true);
-    handleSeeIndividualFeedback(submissionId);
+    return (
+      <div className="flex flex-col gap-2">
+        {existingCriterionComments[criterionId] ? (
+          <>
+            <h2 className="text-lg font-bold">Existing Criterion Comments</h2>
+            <ul className="list-disc list-inside">
+              <li key={criterionId}>
+                {existingCriterionComments[criterionId]}
+              </li>
+            </ul>
+          </>
+        ) : (
+          <p>No existing comments for this criterion</p>
+        )}
+      </div>
+    );
   };
 
   const renderGradingTable = () => {
@@ -599,39 +533,32 @@ export function ProjectGradingView({
                     />
                   </label>
                   <PaletteBrush
-                    onClick={() =>
+                    onClick={() => {
                       setActiveCriterion(
                         activeCriterion === criterion.id ? null : criterion.id
-                      )
-                    }
+                      );
+                      setShowCriterionCommentTextArea(true);
+                      setShowExistingCriterionComment(false);
+                    }}
                     title="Add Criterion Comment"
                   />
                   <PaletteEye
                     onClick={() => {
-                      const rubricAssessment = submissions[0].rubricAssessment;
-                      console.log(rubricAssessment);
-                      const rubricAssessmentComments = Object.values(
-                        rubricAssessment
-                      ).map((assessment) => [
-                        criterion.id,
-                        assessment.comments,
-                      ]);
-                      const criterionComments = rubricAssessmentComments.reduce(
-                        (acc, comment) => ({ ...acc, ...comment }),
-                        {}
+                      toggleEyeOpen(`criterion-${criterion.id}`);
+                      setActiveCriterion(
+                        activeCriterion === criterion.id ? null : criterion.id
                       );
-                      setExistingCriterionComments(criterionComments);
-                      console.log(criterionComments);
-                      setShowExistingCriterionComment(
-                        !showExistingCriterionComment
-                      );
+                      setShowExistingCriterionComment(true);
+                      setShowCriterionCommentTextArea(false);
                     }}
                   />
                 </div>
-                {activeCriterion === criterion.id &&
-                  renderCriterionCommentSection(criterion.id)}
                 {showExistingCriterionComment &&
-                  renderExistingCriterionCommentSection(criterion.id)}
+                  activeCriterion === criterion.id &&
+                  renderExistingCriterionComment(criterion.id)}
+                {showCriterionCommentTextArea &&
+                  activeCriterion === criterion.id &&
+                  renderCriterionCommentTextArea(criterion.id)}
               </th>
             ))}
           </tr>
@@ -645,27 +572,32 @@ export function ProjectGradingView({
                     <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
                     <PaletteBrush
                       onClick={() => {
-                        setActiveIndividualFeedback(
-                          activeIndividualFeedback === submission.id
+                        setActiveStudentId(
+                          activeStudentId === submission.id
                             ? null
                             : submission.id
                         );
-                        showAddingIndividualFeedbackContent();
+                        setShowIndividualFeedbackTextArea(true);
+                        setShowExistingIndividualFeedback(false);
                       }}
                       title="Add Feedback"
                     />
                     <PaletteEye
                       onClick={() => {
-                        setShowFeedbackInput(false);
-                        showExistingIndividualFeedbackContent(submission.id);
+                        toggleEyeOpen(`student-${submission.id}`);
+                        setActiveStudentId((prev) =>
+                          prev === submission.id ? null : submission.id
+                        );
+                        setShowExistingIndividualFeedback(true);
+                        setShowIndividualFeedbackTextArea(false);
                       }}
                     />
                   </div>
                   {showExistingIndividualFeedback &&
                     renderExistingIndividualFeedback(submission.id)}
-                  {activeIndividualFeedback === submission.id &&
-                    showFeedbackInput &&
-                    renderIndividualFeedbackSection(submission.id)}
+                  {activeStudentId === submission.id &&
+                    showIndividualFeedbackTextArea &&
+                    renderIndividualFeedbackTextArea(submission.id)}
                 </div>
               </td>
               {rubric.criteria.map((criterion: Criteria) => (
@@ -705,10 +637,6 @@ export function ProjectGradingView({
         </tbody>
       </table>
     );
-  };
-
-  const handleSeeIndividualFeedback = (submissionId: number) => {
-    setActiveStudentId((prev) => (prev === submissionId ? null : submissionId));
   };
 
   return (

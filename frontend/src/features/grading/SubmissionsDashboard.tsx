@@ -74,22 +74,6 @@ export function SubmissionsDashboard({
     setGradedSubmissionCache([]); // clear submission cache
   };
 
-  const updateSubmissionComment = async (
-    submissionId: number,
-    commentId: number,
-    comment: string
-  ) => {
-    const response = await fetch(
-      `${BASE_URL}${GRADING_ENDPOINT}${submissionId}/comments/${commentId}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment }),
-      }
-    );
-    console.log("response", response.body);
-  };
-
   const handleClickSubmitGrades = () => {
     openDialog({
       title: "Submit Grades to Canvas?",
@@ -159,7 +143,6 @@ export function SubmissionsDashboard({
               fetchSubmissions={fetchSubmissions}
               setGradedSubmissionCache={setGradedSubmissionCache}
               gradedSubmissionCache={gradedSubmissionCache}
-              updateSubmissionComment={updateSubmissionComment}
             />
           );
         })}
