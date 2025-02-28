@@ -32,7 +32,7 @@ export function GroupSubmissions({
   const toggleGradingView = () => {
     if (!rubric) {
       alert(
-        "Assignment does not have a rubric for grading. Create a rubric and try again!"
+        "Assignment does not have a rubric for grading. Create a rubric and try again!",
       );
       return;
     }

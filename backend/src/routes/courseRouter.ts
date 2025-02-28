@@ -66,7 +66,7 @@ courseRouter.get(
   courseParamValidator,
   assignmentParamValidator,
   validationErrorHandler,
-  getSubmissions
+  getSubmissions,
 );
 
 courseRouter.put(
@@ -74,7 +74,7 @@ courseRouter.put(
   courseParamValidator,
   assignmentParamValidator,
   // todo: student id validator
-  submitGrades
+  submitGrades,
 );
 
 /**
@@ -129,7 +129,7 @@ courseRouter.post(
   assignmentParamValidator,
   rubricValidator,
   validationErrorHandler,
-  createRubric
+  createRubric,
 );
 
 /**
@@ -176,7 +176,7 @@ courseRouter.get(
   "/:course_id/rubrics/:rubric_id",
   idAndCourseParamValidator,
   validationErrorHandler,
-  getRubric
+  getRubric,
 );
 
 /**
@@ -209,7 +209,7 @@ courseRouter.get(
   "/:course_id/rubrics",
   courseParamValidator,
   validationErrorHandler,
-  getAllRubrics
+  getAllRubrics,
 );
 
 /**
@@ -299,7 +299,7 @@ courseRouter.put(
   assignmentParamValidator,
   rubricValidator,
   validationErrorHandler,
-  updateRubric
+  updateRubric,
 );
 
 /**
@@ -357,7 +357,7 @@ courseRouter.put(
   courseParamValidator,
   assignmentParamValidator,
   validationErrorHandler,
-  updateSubmissionComment
+  updateSubmissionComment,
 );
 
 /**
@@ -391,7 +391,7 @@ courseRouter.delete(
   "/:course_id/rubrics/:rubric_id",
   idAndCourseParamValidator,
   validationErrorHandler,
-  handleDeleteRubric
+  handleDeleteRubric,
 );
 
 /**

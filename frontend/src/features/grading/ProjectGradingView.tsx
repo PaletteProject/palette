@@ -79,11 +79,6 @@ export function ProjectGradingView({
   const [showCriterionCommentTextArea, setShowCriterionCommentTextArea] =
     useState<boolean>(false);
 
-  // Add a new state to track the open state of each eye icon
-  const [eyeOpenStates, setEyeOpenStates] = useState<Record<string, boolean>>(
-    {}
-  );
-
   // Dialog state
   const { openDialog, closeDialog } = useChoiceDialog();
 
@@ -93,7 +88,7 @@ export function ProjectGradingView({
           acc[criterionId] = criterion.comments;
           return acc;
         },
-        {} as Record<string, string>
+        {} as Record<string, string>,
       )
     : {};
   /**
@@ -109,7 +104,7 @@ export function ProjectGradingView({
 
         if (rubric_assessment) {
           for (const [criterionId, assessment] of Object.entries(
-            rubric_assessment
+            rubric_assessment,
           )) {
             initialRatings[`${submission_id}-${criterionId}`] =
               assessment.points ?? "";
@@ -121,7 +116,7 @@ export function ProjectGradingView({
       submissions.forEach((submission) => {
         if (submission.rubricAssessment) {
           for (const [criterionId, assessment] of Object.entries(
-            submission.rubricAssessment
+            submission.rubricAssessment,
           )) {
             // avoid overwriting data from cache
             const key = `${submission.id}-${criterionId}`;
@@ -141,7 +136,7 @@ export function ProjectGradingView({
     if (activeStudentId !== null) {
       const existingFeedback = getExistingIndividualFeedback(
         submissions,
-        activeStudentId
+        activeStudentId,
       );
       setExistingIndividualFeedback(existingFeedback || null);
     }
@@ -154,7 +149,7 @@ export function ProjectGradingView({
     submissionId: number,
     criterionId: string,
     value: string,
-    applyToGroup: boolean
+    applyToGroup: boolean,
   ) => {
     setRatings((prev) => {
       const newValue = value === "" ? "" : Number(value);
@@ -199,7 +194,7 @@ export function ProjectGradingView({
         rubric.criteria.forEach((criterion) => {
           const selectedPoints = ratings[`${submission.id}-${criterion.id}`];
           const selectedRating = criterion.ratings.find(
-            (rating) => rating.points === selectedPoints
+            (rating) => rating.points === selectedPoints,
           );
 
           if (selectedRating) {
@@ -227,7 +222,7 @@ export function ProjectGradingView({
           group_comment: undefined, // Assume there are no group comments. Check for it and add it to the first submission outside of map below.
           rubric_assessment: rubricAssessment,
         };
-      }
+      },
     );
 
     // Add a group comment to the first submission if it exists
@@ -254,7 +249,7 @@ export function ProjectGradingView({
    */
   const getBackgroundColor = (
     value: number | string,
-    criterion: Criteria
+    criterion: Criteria,
   ): string => {
     if (value === "") return "bg-gray-800"; // Default background color
 
@@ -296,12 +291,12 @@ export function ProjectGradingView({
   };
 
   const getExistingGroupFeedback = (submissions: Submission[]) => {
-    let allSubmissionComments = [];
-    let seenComments = new Set<string>();
-    let existingGroupComments = [];
+    const allSubmissionComments = [];
+    const seenComments = new Set<string>();
+    const existingGroupComments = [];
 
     for (const submission of submissions) {
-      let submissionComments = submission.comments;
+      const submissionComments = submission.comments;
       for (const comment of submissionComments) {
         if (seenComments.has(comment.comment)) {
           existingGroupComments.push(comment);
@@ -319,25 +314,20 @@ export function ProjectGradingView({
 
   const getExistingIndividualFeedback = (
     submissions: Submission[],
-    submissionId: number
+    submissionId: number,
   ) => {
     const existingGroupFeedback = getExistingGroupFeedback(submissions);
     const studentsComments = submissions.find(
-      (submission) => submission.id === submissionId
+      (submission) => submission.id === submissionId,
     )?.comments;
 
     const existingIndividualComments = studentsComments?.filter(
       (comment) =>
         !existingGroupFeedback.some(
-          (existingComment) => existingComment.comment === comment.comment
-        )
+          (existingComment) => existingComment.comment === comment.comment,
+        ),
     );
     return existingIndividualComments;
-  };
-
-  // Function to toggle the eye icon state
-  const toggleEyeOpen = (key: string) => {
-    setEyeOpenStates((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const renderGradingPopup = () => {
@@ -360,7 +350,6 @@ export function ProjectGradingView({
               />
               <PaletteEye
                 onClick={() => {
-                  toggleEyeOpen("groupFeedback");
                   setShowExistingGroupFeedback(!showExistingGroupFeedback);
                   setShowGroupFeedbackTextArea(false);
                 }}
@@ -385,7 +374,7 @@ export function ProjectGradingView({
           </div>
         </div>
       </div>,
-      document.getElementById("portal-root") as HTMLElement
+      document.getElementById("portal-root") as HTMLElement,
     );
   };
 
@@ -535,7 +524,7 @@ export function ProjectGradingView({
                   <PaletteBrush
                     onClick={() => {
                       setActiveCriterion(
-                        activeCriterion === criterion.id ? null : criterion.id
+                        activeCriterion === criterion.id ? null : criterion.id,
                       );
                       setShowCriterionCommentTextArea(true);
                       setShowExistingCriterionComment(false);
@@ -544,9 +533,8 @@ export function ProjectGradingView({
                   />
                   <PaletteEye
                     onClick={() => {
-                      toggleEyeOpen(`criterion-${criterion.id}`);
                       setActiveCriterion(
-                        activeCriterion === criterion.id ? null : criterion.id
+                        activeCriterion === criterion.id ? null : criterion.id,
                       );
                       setShowExistingCriterionComment(true);
                       setShowCriterionCommentTextArea(false);
@@ -575,7 +563,7 @@ export function ProjectGradingView({
                         setActiveStudentId(
                           activeStudentId === submission.id
                             ? null
-                            : submission.id
+                            : submission.id,
                         );
                         setShowIndividualFeedbackTextArea(true);
                         setShowExistingIndividualFeedback(false);
@@ -584,9 +572,8 @@ export function ProjectGradingView({
                     />
                     <PaletteEye
                       onClick={() => {
-                        toggleEyeOpen(`student-${submission.id}`);
                         setActiveStudentId((prev) =>
-                          prev === submission.id ? null : submission.id
+                          prev === submission.id ? null : submission.id,
                         );
                         setShowExistingIndividualFeedback(true);
                         setShowIndividualFeedbackTextArea(false);
@@ -609,7 +596,7 @@ export function ProjectGradingView({
                   <select
                     className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
                       ratings[`${submission.id}-${criterion.id}`] ?? "",
-                      criterion
+                      criterion,
                     )}`}
                     value={ratings[`${submission.id}-${criterion.id}`] ?? ""}
                     onChange={(e) =>
@@ -617,7 +604,7 @@ export function ProjectGradingView({
                         submission.id,
                         criterion.id,
                         e.target.value,
-                        checkedCriteria[criterion.id]
+                        checkedCriteria[criterion.id],
                       )
                     }
                   >
