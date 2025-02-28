@@ -83,6 +83,7 @@ export function ProjectGradingView({
       });
 
       setRatings(initialRatings);
+      console.log(initialRatings);
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
@@ -136,7 +137,7 @@ export function ProjectGradingView({
         } = {};
 
         rubric.criteria.forEach((criterion) => {
-          const selectedPoints = ratings[`${submission.id}-${criterion.id}`];
+          const selectedPoints = ratings[`${criterion.id}-${submission.id}`];
           const selectedRating = criterion.ratings.find(
             (rating) => rating.points === selectedPoints,
           );
