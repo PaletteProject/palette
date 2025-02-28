@@ -21,7 +21,6 @@ type CriteriaCardProps = {
   handleCriteriaUpdate: (index: number, criterion: Criteria) => void;
   removeCriterion: (index: number, criterion: Criteria) => void;
   setActiveCriterionIndex: (index: number) => void;
-  isGroupCriteria: boolean;
 };
 
 export default function CriteriaCard({
@@ -31,7 +30,6 @@ export default function CriteriaCard({
   handleCriteriaUpdate,
   removeCriterion,
   setActiveCriterionIndex,
-  isGroupCriteria,
 }: CriteriaCardProps): ReactElement {
   const [ratings, setRatings] = useState<Rating[]>(criterion.ratings);
   const [maxPoints, setMaxPoints] = useState<number>(0); // Initialize state for max points
@@ -39,7 +37,9 @@ export default function CriteriaCard({
   const [criteriaDescription, setCriteriaDescription] = useState(
     criterion.description || "",
   );
-  const [groupCriteria, setGroupCriteria] = useState<boolean>(false);
+  const [groupCriteria, setGroupCriteria] = useState<boolean>(
+    criterion.isGroupCriterion,
+  );
 
   const [templateTitle, setTemplateTitle] = useState(criterion.template || "");
 
@@ -209,6 +209,7 @@ export default function CriteriaCard({
   ) => {
     event.preventDefault();
     setGroupCriteria((prevState) => !prevState);
+    handleCriteriaUpdate(index, criterion);
   };
 
   const renderDetailedView = () => {
@@ -295,7 +296,7 @@ export default function CriteriaCard({
             color={groupCriteria ? "BLUE" : "GRAY"}
             title={groupCriteria ? "Group Criteria" : "Individual Criteria"}
             onClick={(event: ReactMouseEvent<HTMLButtonElement>) =>
-              toggleGroupCriteriaFlag(event, index)
+              toggleGroupCriteriaFlag(event)
             }
           />
         </div>
