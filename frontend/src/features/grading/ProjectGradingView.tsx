@@ -60,7 +60,7 @@ export function ProjectGradingView({
           for (const [criterionId, assessment] of Object.entries(
             rubric_assessment,
           )) {
-            initialRatings[`${submission_id}-${criterionId}`] =
+            initialRatings[`${criterionId}-${submission_id}`] =
               assessment.points ?? "";
           }
         }
@@ -73,9 +73,9 @@ export function ProjectGradingView({
             submission.rubricAssessment,
           )) {
             // avoid overwriting data from cache
-            const key = `${submission.id}-${criterionId}`;
+            const key = `${criterionId}-${submission.id}`;
             if (!(key in initialRatings)) {
-              initialRatings[`${submission.id}-${criterionId}`] =
+              initialRatings[`${criterionId}-${submission.id}`] =
                 assessment.points ?? "";
             }
           }
@@ -100,7 +100,7 @@ export function ProjectGradingView({
 
       const updatedRatings = {
         ...prev,
-        [`${submissionId}-${criterionId}`]: newValue,
+        [`${criterionId}-${submissionId}`]: newValue,
       };
 
       if (applyToGroup) {
@@ -108,7 +108,7 @@ export function ProjectGradingView({
         submissions.forEach((submission) => {
           // iterate over submissions directly rather than existing ratings to ensure we include the entries that
           // haven't been graded yet
-          updatedRatings[`${submission.id}-${criterionId}`] = newValue;
+          updatedRatings[`${criterionId}-${submission.id}`] = newValue;
         });
       }
 
@@ -266,14 +266,14 @@ export function ProjectGradingView({
             </tr>
           </thead>
           <tbody>
-            {/* Each row is now a criterion */}
+            {/* Each row is a criterion */}
             {rubric.criteria.map((criterion: Criteria) => (
               <tr key={criterion.id}>
                 <td className="border border-gray-500 px-4 py-2">
                   <div className="flex justify-between">
                     <p>{criterion.description}</p>
                     <label className="flex gap-2 text-sm font-medium">
-                      Apply Ratings to Group
+                      <p>Apply Ratings to Group</p>
                       <input
                         type="checkbox"
                         name={`${criterion.id}-checkbox`}
@@ -287,15 +287,15 @@ export function ProjectGradingView({
                 {/* For each criterion row, create a cell for each submission */}
                 {submissions.map((submission: Submission) => (
                   <td
-                    key={`${submission.id}-${criterion.id}`}
+                    key={`${criterion.id}-${submission.id}`}
                     className="border border-gray-500 px-4 py-2 text-center"
                   >
                     <select
                       className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
-                        ratings[`${submission.id}-${criterion.id}`] ?? "",
+                        ratings[`${criterion.id}-${submission.id}`] ?? "",
                         criterion,
                       )}`}
-                      value={ratings[`${submission.id}-${criterion.id}`] ?? ""}
+                      value={ratings[`${criterion.id}-${submission.id}`] ?? ""}
                       onChange={(e) =>
                         handleRatingChange(
                           submission.id,
