@@ -42,6 +42,12 @@ export function GroupSubmissions({
   const calculateGroupAverage = (submissions: Submission[]): number => {
     const { total, count } = submissions.reduce(
       (groupAcc, submission) => {
+        // make sure submission has a rubric assessment, otherwise throw it out
+        if (!submission.rubricAssessment)
+          return {
+            total: groupAcc.total,
+            count: groupAcc.count,
+          };
         // use reduce to aggregate scores for a single submission
         const { total: subTotal, count: subCount } = Object.values(
           submission.rubricAssessment,
