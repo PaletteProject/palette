@@ -271,6 +271,7 @@ export function RubricBuilderMain(): ReactElement {
   const handleSubmitRubric = async (event: MouseEvent): Promise<void> => {
     event.preventDefault();
     console.log("submitting rubric");
+    console.log(activeRubric);
     if (!activeRubric || !activeCourse || !activeAssignment) return;
 
     setLoading(true);
