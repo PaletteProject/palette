@@ -4,7 +4,7 @@ import {
   DeleteRubricResponse,
   Rubric,
   RubricRequestBody,
-  UpdateRubricResponse
+  UpdateRubricResponse,
 } from "palette-types";
 import { fetchAPI } from "../utils/fetchAPI.js";
 import { toPaletteFormat } from "../utils/rubricUtils.js";
