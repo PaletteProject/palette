@@ -59,8 +59,11 @@ export default function CriteriaCard({
     const maxRating = sortedRatings[0]?.points || 0; // defaults to 0 if ratings array is empty
     setMaxPoints(maxRating);
 
+    console.log("waffles");
+    console.log(maxRating);
+
     // update criterion with new max points value
-    const newCriterion = { ...criterion, points: maxRating };
+    const newCriterion = { ...criterion, pointsPossible: maxRating };
     handleCriteriaUpdate(index, newCriterion);
   }, [ratings]);
 
@@ -195,6 +198,10 @@ export default function CriteriaCard({
             color={"BLUE"}
             title={"Edit"}
           />
+          <div className={"grid text-center"}>
+            <p>Max Points</p>
+            <p>{maxPoints}</p>
+          </div>
         </div>
       </div>
     );
