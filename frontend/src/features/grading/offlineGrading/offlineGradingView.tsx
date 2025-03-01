@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState, Dispatch, SetStateAction } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GroupedSubmissions, Rubric, Submission, CanvasGradedSubmission } from "palette-types";
 import { SubmissionsDashboard } from "@features";
@@ -18,11 +18,27 @@ export function OfflineGradingView(): ReactElement {
     if (selectedCourse && selectedAssignment) {
       const submissionsKey = `offlineSubmissions_${selectedCourse}_${selectedAssignment}`;
       const rubricKey = `offlineRubric_${selectedCourse}_${selectedAssignment}`;
-
-      setOfflineSubmissions(JSON.parse(localStorage.getItem(submissionsKey) || "{}"));
-      setOfflineRubric(JSON.parse(localStorage.getItem(rubricKey) || "null"));
+  
+      console.log("📤 Fetching offline data:");
+      console.log("Submissions Key:", submissionsKey, "Data:", localStorage.getItem(submissionsKey));
+      console.log("Rubric Key:", rubricKey, "Data:", localStorage.getItem(rubricKey));
+  
+      try {
+        const submissions = JSON.parse(localStorage.getItem(submissionsKey) || "{}");
+        const rubric = JSON.parse(localStorage.getItem(rubricKey) || "null");
+  
+        setOfflineSubmissions(submissions);
+        setOfflineRubric(rubric);
+  
+        if (rubric) {
+          setGradingOpen(true);
+        }
+      } catch (error) {
+        console.error("Error loading offline grading data:", error);
+      }
     }
   }, [selectedCourse, selectedAssignment]);
+  
 
   const allOfflineSubmissions: Submission[] = Object.values(offlineSubmissions).flat();
 
@@ -45,15 +61,7 @@ export function OfflineGradingView(): ReactElement {
         }}
       />
 
-      {offlineRubric && (
-        <button
-          className="bg-blue-500 text-white py-2 px-4 mt-4 rounded"
-          onClick={() => setGradingOpen(true)}
-        >
-          Open Grading
-        </button>
-      )}
-
+      {/* Remove manual "Open Grading" button—grading starts automatically */}
       {gradingOpen && (
         <ProjectGradingView
           groupName="Offline Group"

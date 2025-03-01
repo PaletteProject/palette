@@ -43,28 +43,18 @@ export function GradingMain(): ReactElement {
    */
   useEffect(() => {
     if (activeCourse && activeAssignment) {
-      const storageKey = `parsedStudents_${activeCourse.id}_${activeAssignment.id}`;
-      const storedStudentsString = localStorage.getItem(storageKey);
-
-      if (storedStudentsString) {
-        try {
-          const storedStudentsRaw = localStorage.getItem(storageKey);
-          const storedStudents: ParsedStudent[] = storedStudentsRaw
-            ? (JSON.parse(storedStudentsRaw) as ParsedStudent[]) // ✅ Type assertion
-            : [];
-          console.log(
-            `Retrieved students for ${activeAssignment.id}:`,
-            storedStudents,
-          );
-        } catch (error) {
-          console.error(
-            "Error parsing stored students from localStorage:",
-            error,
-          );
-        }
+      console.log("📝 Checking if submissions exist before transfer...");
+      
+      fetchSubmissions(); 
+  
+      if (activeRubric) {
+        const rubricKey = `rubric_${activeRubric.id}`;
+        console.log("📥 Storing active rubric:", activeRubric);
+        localStorage.setItem(rubricKey, JSON.stringify(activeRubric));
       }
     }
-  }, [activeCourse, activeAssignment]);
+  }, [activeCourse, activeAssignment, activeRubric]);
+  
 
   /**
    * Handle CSV Upload for group data
@@ -119,14 +109,21 @@ export function GradingMain(): ReactElement {
     void fetchSubmissions();
   }, [activeCourse, activeAssignment]);
 
-  const fetchSubmissions = async () => {
+  const fetchSubmissions = async (): Promise<void> => {
     setLoading(true);
     try {
       const response =
         (await getSubmissions()) as PaletteAPIResponse<GroupedSubmissions>;
-
+  
+      console.log("📥 Raw API Response:", response);
+  
       if (response.success && response.data) {
+        console.log("📂 Submissions (before setting state):", response.data);
         setSubmissions(response.data);
+  
+        //Store in localStorage 
+        const submissionsKey = `submissions_${activeCourse?.id}_${activeAssignment?.id}`;
+        localStorage.setItem(submissionsKey, JSON.stringify(response.data));
       }
     } catch (error) {
       console.error("An error occurred while getting submissions: ", error);
@@ -134,6 +131,8 @@ export function GradingMain(): ReactElement {
       setLoading(false);
     }
   };
+  
+  
 
 
 const renderContent = () => {
@@ -165,15 +164,16 @@ const renderContent = () => {
   )}
 </div>
 
-
-        {/* ✅ Render OfflineGradingView if Offline Mode is Active */}
         {isOfflineMode ? (
           <OfflineGradingView />
         ) : (
           <>
-            {/* ✅ Standard Grading View (Canvas-Based) */}
             {activeCourse && activeAssignment ? (
-              <SubmissionsDashboard submissions={submissions} fetchSubmissions={fetchSubmissions} setLoading={setLoading} />
+              <SubmissionsDashboard
+                submissions={submissions}
+                fetchSubmissions={fetchSubmissions}
+                setLoading={setLoading}
+              />
             ) : (
               <div className="grid h-full">
                 {loading && <LoadingDots />}

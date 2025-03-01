@@ -8,6 +8,12 @@ export function transferToOfflineGrading(
     return;
   }
 
+  console.log("🔄 Starting offline transfer...");
+  console.log("📥 Checking existing data before transfer:");
+
+  console.log("Submissions:", localStorage.getItem(`submissions_${activeCourseId}_${activeAssignmentId}`));
+  console.log("Rubric:", localStorage.getItem(`rubric_${rubricId}`));
+
   // Store active course and assignment for later retrieval
   localStorage.setItem("lastActiveCourse", activeCourseId);
   localStorage.setItem("lastActiveAssignment", activeAssignmentId);
@@ -28,19 +34,21 @@ export function transferToOfflineGrading(
   }
 
   // Define storage keys
-  const gradesKey = `localGrades_${activeCourseId}_${activeAssignmentId}_rubric_${rubricId}`;
   const submissionsKey = `submissions_${activeCourseId}_${activeAssignmentId}`;
   const rubricKey = `rubric_${rubricId}`;
 
   // Define offline storage keys
-  const offlineGradesKey = `offlineGrades_${activeCourseId}_${activeAssignmentId}_rubric_${rubricId}`;
   const offlineSubmissionsKey = `offlineSubmissions_${activeCourseId}_${activeAssignmentId}`;
-  const offlineRubricKey = `offlineRubric_${rubricId}`;
+  const offlineRubricKey = `offlineRubric_${activeCourseId}_${activeAssignmentId}`;
+
+  // 🔍 Debugging logs before storing
+  console.log("📤 Attempting to store data...");
+  console.log("Saving to:", offlineSubmissionsKey, "Data:", localStorage.getItem(submissionsKey));
+  console.log("Saving to:", offlineRubricKey, "Data:", localStorage.getItem(rubricKey));
 
   // Transfer Data
-  localStorage.setItem(offlineGradesKey, localStorage.getItem(gradesKey) || "[]");
   localStorage.setItem(offlineSubmissionsKey, localStorage.getItem(submissionsKey) || "{}");
-  localStorage.setItem(offlineRubricKey, localStorage.getItem(rubricKey) || "{}");
+  localStorage.setItem(offlineRubricKey, localStorage.getItem(rubricKey) || "null");
 
-  alert("Grading data transferred to Offline Grading.");
+  console.log("✅ Offline grading data transferred.");
 }
