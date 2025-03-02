@@ -11,36 +11,33 @@ export function OfflineGradingView(): ReactElement {
   const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null);
   const [offlineSubmissions, setOfflineSubmissions] = useState<GroupedSubmissions>({});
   const [offlineRubric, setOfflineRubric] = useState<Rubric | null>(null);
-  const [gradingOpen, setGradingOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [gradedSubmissionCache, setGradedSubmissionCache] = useState<CanvasGradedSubmission[]>([]);
 
   useEffect(() => {
     if (selectedCourse && selectedAssignment) {
       const submissionsKey = `offlineSubmissions_${selectedCourse}_${selectedAssignment}`;
       const rubricKey = `offlineRubric_${selectedCourse}_${selectedAssignment}`;
-  
-      console.log("📤 Fetching offline data:");
-      console.log("Submissions Key:", submissionsKey, "Data:", localStorage.getItem(submissionsKey));
-      console.log("Rubric Key:", rubricKey, "Data:", localStorage.getItem(rubricKey));
-  
+
       try {
         const submissions = JSON.parse(localStorage.getItem(submissionsKey) || "{}");
         const rubric = JSON.parse(localStorage.getItem(rubricKey) || "null");
-  
+
+        if (Object.keys(submissions).length === 0) {
+          console.warn("No offline submissions found.");
+        }
+
+        if (!rubric) {
+          console.warn("No offline rubric found.");
+        }
+
         setOfflineSubmissions(submissions);
         setOfflineRubric(rubric);
-  
-        if (rubric) {
-          setGradingOpen(true);
-        }
       } catch (error) {
         console.error("Error loading offline grading data:", error);
       }
     }
   }, [selectedCourse, selectedAssignment]);
-  
-
-  const allOfflineSubmissions: Submission[] = Object.values(offlineSubmissions).flat();
 
   const safeOfflineRubric: Rubric = offlineRubric ?? {
     id: "default",
@@ -61,14 +58,30 @@ export function OfflineGradingView(): ReactElement {
         }}
       />
 
-      {/* Remove manual "Open Grading" button—grading starts automatically */}
-      {gradingOpen && (
+      {Object.keys(offlineSubmissions).length > 0 ? (
+        <div className="mt-4">
+          <h2 className="text-xl font-semibold text-white">Select a Group</h2>
+          {Object.entries(offlineSubmissions).map(([groupName, submissions]) => (
+            <button
+              key={groupName}
+              className="block bg-gray-700 text-white p-3 rounded mt-2 w-full text-left"
+              onClick={() => setSelectedGroup(groupName)}
+            >
+              {groupName} ({submissions.length} submissions)
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="text-white mt-4">No submissions available for offline grading.</p>
+      )}
+
+      {selectedGroup && (
         <ProjectGradingView
-          groupName="Offline Group"
-          submissions={allOfflineSubmissions}
+          groupName={selectedGroup}
+          submissions={offlineSubmissions[selectedGroup] || []}
           rubric={safeOfflineRubric}
-          isOpen={gradingOpen}
-          onClose={() => setGradingOpen(false)}
+          isOpen={Boolean(selectedGroup)}
+          onClose={() => setSelectedGroup(null)}
           gradedSubmissionCache={gradedSubmissionCache}
           setGradedSubmissionCache={setGradedSubmissionCache}
         />

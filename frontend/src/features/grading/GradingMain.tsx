@@ -3,10 +3,9 @@ import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@hooks";
 import { useAssignment, useCourse, useRubric } from "@context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
-import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts"; // Import the export function
+import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts"; 
 import { OfflineGradingView } from "./offlineGrading/offlineGradingView";
-import { transferToOfflineGrading } from "./offlineGrading/transferToOfflineGrading.ts"; // ✅ Import the transfer function
-
+import { transferToOfflineGrading } from "./offlineGrading/transferToOfflineGrading.ts"; 
 
 
 import {
@@ -32,6 +31,8 @@ export function GradingMain(): ReactElement {
   const { activeAssignment } = useAssignment();
   const { activeRubric } = useRubric();
   const [isOfflineMode, setIsOfflineMode] = useState<boolean>(false);
+  const [transferring, setTransferring] = useState<boolean>(false);
+
 
   // url string constants
   const fetchSubmissionsURL = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions`;
@@ -146,20 +147,26 @@ const renderContent = () => {
     onClick={() => setIsOfflineMode(!isOfflineMode)}
   >
     {isOfflineMode ? "Switch to Canvas Grading" : "Switch to Offline Grading"}
+    
   </button>
 
   {!isOfflineMode && activeAssignment && Object.keys(submissions).length > 0 && (
     <button
       className="bg-yellow-500 text-white font-bold py-2 px-4 rounded"
-      onClick={() =>
-        transferToOfflineGrading(
-          String(activeCourse?.id || ""),
-          String(activeAssignment?.id || ""),
-          String(activeRubric?.id || "")
-        )
-      }
+      onClick={() => {
+        if (!transferring) {
+          setTransferring(true);
+          transferToOfflineGrading(
+            String(activeCourse?.id || ""),
+            String(activeAssignment?.id || ""),
+            String(activeRubric?.id || "")
+          );
+          setTimeout(() => setTransferring(false), 2000); // Reset after transfer
+        }
+      }}
+      disabled={transferring}
     >
-      Transfer to Offline Grading
+      {transferring ? "Transferring..." : "Transfer to Offline Grading"}
     </button>
   )}
 </div>
