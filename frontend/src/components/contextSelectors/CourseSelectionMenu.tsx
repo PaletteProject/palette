@@ -87,8 +87,15 @@ export function CourseSelectionMenu({
    * Run fetchCourses when component initially mounts.
    */
   useEffect(() => {
-    void fetchCourses();
+    // void fetchCourses();
   }, []);
+
+  useEffect(() => {
+    if (selectedFilters.length > 0) {
+      updateUserCourseFilters();
+      fetchCourses();
+    }
+  }, [selectedFilters]);
 
   /**
    * Get all courses the user is authorized to grade.
@@ -99,6 +106,7 @@ export function CourseSelectionMenu({
       const response = (await getCourses()) as PaletteAPIResponse<Course[]>; // Trigger the GET request
 
       if (response.success) {
+        console.log("response.data:", response.data);
         setCourses(response.data!);
       } else {
         setErrorMessage(response.error || "Failed to get courses");
@@ -280,7 +288,6 @@ export function CourseSelectionMenu({
 
     console.log("courseFilters:", JSON.stringify(courseFilters));
 
-    updateUserCourseFilters();
     setStagedFilters([]);
     console.log("applied filters");
   };

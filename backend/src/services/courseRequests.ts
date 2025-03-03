@@ -16,7 +16,7 @@ import {
   transformSubmissions,
 } from "./transformers.js";
 import { GroupedSubmissions } from "palette-types/dist/types/GroupedSubmissions";
-
+import { SettingsAPI } from "../settings.js";
 const SUBMISSION_QUERY_PARAMS =
   "?include[]=group&include[]=user&include[]=submission_comments&grouped=true&include[]=rubric_assessment";
 
@@ -36,6 +36,11 @@ type GradedSubmission = {
 
 const RESULTS_PER_PAGE = 100;
 
+let yearThreshold = 2025;
+let courseSubject = "";
+
+const courseSubjects = ["CS", "CSE", "CSC", "SER", "EEE"];
+
 /**
  * Helper for handling course pagination from the Canvas API.
  */
@@ -44,12 +49,29 @@ async function getAllCourses(requestBody: JSON) {
   let page = 1;
   let fetchedCourses: CanvasCourse[];
 
-  console.log("requestBody BELOW");
-  console.log(requestBody);
+  const userSettings = SettingsAPI.getUserSettings();
+  const courseFilters = userSettings.course_filters;
+
+  let courseFiltersString = "";
+  if (courseFilters) {
+    for (const filter of courseFilters) {
+      const year = parseInt(filter.option);
+      if (!isNaN(year)) {
+        yearThreshold = year; //will be used to filter courses by year
+      } else if (courseSubjects.includes(filter.option)) {
+        courseSubject = filter.option; //will be used to filter courses by subject
+      } else {
+        courseFiltersString += `&${filter.param_code}=${filter.option}`;
+      }
+    }
+  }
+
+  console.log("courseFiltersString BELOW");
+  console.log(courseFiltersString);
 
   do {
     fetchedCourses = await fetchAPI<CanvasCourse[]>(
-      `/courses?per_page=${RESULTS_PER_PAGE}&page=${page}&include[]=term`
+      `/courses?per_page=${RESULTS_PER_PAGE}&page=${page}&course_format=on_campus`
     );
 
     canvasCourses = canvasCourses.concat(fetchedCourses);
@@ -169,8 +191,8 @@ function filterCourses(canvasCourses: CanvasCourse[]): CanvasCourse[] {
     });
   }
 
-  console.log("Filtered courses BELOW");
-  console.log(filteredCourses);
+  // console.log("Filtered courses BELOW");
+  // console.log(filteredCourses);
 
   return filteredCourses;
 }
