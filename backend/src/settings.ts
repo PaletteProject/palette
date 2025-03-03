@@ -12,6 +12,7 @@ export const defaultSettings: Settings = {
     darkMode: false,
     defaultScale: 1,
   },
+  course_filters: [],
 } as const;
 
 // the settings object
@@ -69,6 +70,20 @@ export const SettingsAPI = {
     });
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
   },
+
+  updateUserCourseFilters(
+    courseFilters: { option: string; param_code: string }[]
+  ): void {
+    if (settings === null) {
+      initializeSettings();
+    }
+
+    // Update the course filters in the settings object
+    settings!.course_filters = courseFilters;
+
+    // Write the updated settings object to the settings file
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+  },
 };
 
 /**
@@ -82,7 +97,7 @@ function initializeSettings() {
   } else {
     try {
       const loadedSettings = JSON.parse(
-        fs.readFileSync(SETTINGS_PATH, "utf-8"),
+        fs.readFileSync(SETTINGS_PATH, "utf-8")
       ) as Partial<Settings>;
       // Fill in any missing fields with default values
       settings = mergeSettings(loadedSettings);
@@ -114,6 +129,7 @@ function mergeSettings(target: Partial<Settings>): Settings {
         target.preferences?.defaultScale ??
         defaultSettings.preferences.defaultScale,
     },
+    course_filters: target.course_filters ?? defaultSettings.course_filters,
   };
 }
 

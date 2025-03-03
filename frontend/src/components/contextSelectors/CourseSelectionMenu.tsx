@@ -6,7 +6,7 @@
  */
 import { MouseEvent, ReactElement, useEffect, useState } from "react";
 import { useFetch } from "@hooks";
-import { Course, PaletteAPIResponse } from "palette-types";
+import { Course, PaletteAPIResponse, Settings } from "palette-types";
 import { useCourse } from "../../context/CourseProvider.tsx";
 import { PaletteActionButton } from "../buttons/PaletteActionButton.tsx";
 import { PaletteTrash } from "../buttons/PaletteTrash.tsx";
@@ -20,18 +20,29 @@ export function CourseSelectionMenu({
   const [errorMessage, setErrorMessage] = useState<string>();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [isTableVisible, setIsTableVisible] = useState<boolean>(true);
   const [optionChecked, setOptionChecked] = useState<boolean>(false);
-  const { fetchData: getCourses } = useFetch("/courses");
   const { setActiveCourse } = useCourse();
+  const [selectedFilters, setSelectedFilters] = useState<
+    { option: string; param_code: string }[]
+  >([]);
   const [stagedFilters, setStagedFilters] = useState<
     {
       label: string;
       value: string;
       options?: string[];
       selected_option?: string;
+      param_code?: string;
     }[]
   >([]);
+
+  const { fetchData: getCourses } = useFetch("/courses");
+  const { fetchData: updateUserCourseFilters } = useFetch(
+    "/user/settings/course_filters",
+    {
+      method: "PUT",
+      body: JSON.stringify(selectedFilters),
+    }
+  );
 
   const currentYear = new Date().getFullYear();
 
@@ -41,12 +52,14 @@ export function CourseSelectionMenu({
       value: "course_format",
       options: ["online", "on_campus", "blended"],
       selected_option: "",
+      param_code: "",
     },
     {
       label: "State",
       value: "course_state",
       options: ["unpublished", "available", "completed", "deleted"],
       selected_option: "",
+      param_code: "state[]",
     },
 
     {
@@ -59,12 +72,14 @@ export function CourseSelectionMenu({
         (currentYear - 3).toString(),
       ],
       selected_option: "",
+      param_code: "",
     },
     {
       label: "Course Code",
       value: "course_code",
       options: ["CS", "CSE", "CSC", "SER", "EEE"],
       selected_option: "",
+      param_code: "",
     },
   ];
 
@@ -125,6 +140,7 @@ export function CourseSelectionMenu({
       value: string;
       options?: string[];
       selected_option?: string;
+      param_code?: string;
     },
     option: string
   ) => {
@@ -139,6 +155,7 @@ export function CourseSelectionMenu({
       value: filter.value,
       options: filter.options,
       selected_option: option,
+      param_code: filter.param_code,
     };
 
     let newStagedFilters = [...stagedFilters];
@@ -169,12 +186,6 @@ export function CourseSelectionMenu({
   const renderFiltersTable = () => {
     return (
       <div className="flex flex-col gap-2">
-        <button
-          className="text-lg font-bold mb-2"
-          onClick={() => setIsTableVisible((prev) => !prev)}
-        >
-          {isTableVisible ? "Hide Filters" : "Show Filters"}
-        </button>
         {
           <table className="border-2 border-gray-500 rounded-lg text-sm">
             <thead className="bg-gray-600 border-2 border-gray-500">
@@ -255,8 +266,21 @@ export function CourseSelectionMenu({
     void fetchCourses();
   };
 
-  const handleApplyFilters = (event: MouseEvent<HTMLButtonElement>): void => {
+  const handleApplyFilters = async (
+    event: MouseEvent<HTMLButtonElement>
+  ): Promise<void> => {
     event.preventDefault();
+
+    const courseFilters = stagedFilters.map((filter) => ({
+      option: filter.selected_option?.toString() ?? "",
+      param_code: filter.param_code ?? "",
+    }));
+
+    setSelectedFilters(courseFilters);
+
+    console.log("courseFilters:", JSON.stringify(courseFilters));
+
+    updateUserCourseFilters();
     setStagedFilters([]);
     console.log("applied filters");
   };

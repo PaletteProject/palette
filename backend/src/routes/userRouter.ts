@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getUserSettings,
+  updateUserCourseFilters,
   updateUserSettings,
 } from "../controllers/userController.js";
 import { validationErrorHandler } from "../middleware/validationErrorHandler.js";
@@ -69,7 +70,13 @@ userRouter.put(
   "/settings",
   updateUserSettingsValidator,
   validationErrorHandler,
-  updateUserSettings,
+  updateUserSettings
+);
+
+userRouter.put(
+  "/settings/course_filters",
+  validationErrorHandler,
+  updateUserCourseFilters
 );
 
 export default userRouter;

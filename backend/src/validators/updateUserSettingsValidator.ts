@@ -11,7 +11,7 @@ export const updateUserSettingsValidator: ValidationChain[] = [
     .withMessage("Canvas API token must be a string")
     .matches(/^[a-zA-Z0-9~]+$/)
     .withMessage(
-      "Canvas API token must be alphanumeric. It may include the ~ character.",
+      "Canvas API token must be alphanumeric. It may include the ~ character."
     ),
   body("preferences").isObject().withMessage("Preferences must be an object"),
   body("preferences.darkMode")
@@ -20,4 +20,5 @@ export const updateUserSettingsValidator: ValidationChain[] = [
   body("preferences.defaultScale")
     .isNumeric()
     .withMessage("preferences.defaultScale must be a number"),
+  body("course_filters").isArray(),
 ];

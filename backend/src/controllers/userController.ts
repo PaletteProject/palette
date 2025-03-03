@@ -28,7 +28,25 @@ export const updateUserSettings = asyncHandler(
     const updatedSettings = SettingsAPI.getUserSettings();
 
     res.json(
-      createSuccessResponse(updatedSettings, "Settings updated successfully"),
+      createSuccessResponse(updatedSettings, "Settings updated successfully")
     );
-  },
+  }
+);
+
+export const updateUserCourseFilters = asyncHandler(
+  (req: Request, res: Response) => {
+    SettingsAPI.updateUserCourseFilters(
+      req.body as { option: string; param_code: string }[]
+    );
+
+    // Safely retrieve the updated settings
+    const updatedSettings = SettingsAPI.getUserSettings();
+
+    res.json(
+      createSuccessResponse(
+        updatedSettings,
+        "Course filters updated successfully"
+      )
+    );
+  }
 );

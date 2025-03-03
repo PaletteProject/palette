@@ -11,4 +11,8 @@ export interface Settings {
     darkMode: boolean;
     defaultScale: number;
   };
+  course_filters?: {
+    option: string;
+    param_code: string;
+  }[];
 }
