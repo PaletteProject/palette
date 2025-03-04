@@ -11,6 +11,9 @@ import { useCourse } from "../../context/CourseProvider.tsx";
 import { PaletteActionButton } from "../buttons/PaletteActionButton.tsx";
 import { PaletteTrash } from "../buttons/PaletteTrash.tsx";
 import { LoadingDots } from "../LoadingDots.tsx";
+import { faCog } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { PaletteEye } from "../buttons/PaletteEye.tsx";
 
 export function CourseSelectionMenu({
   onSelect,
@@ -21,6 +24,10 @@ export function CourseSelectionMenu({
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [optionChecked, setOptionChecked] = useState<boolean>(false);
+  const [coursesFetched, setCoursesFetched] = useState<boolean>(false);
+
+  const [showFilterTable, setShowFilterTable] = useState<boolean>(true);
+  const [showDefaultFilters, setShowDefaultFilters] = useState<boolean>(false);
   const { setActiveCourse } = useCourse();
   const [selectedFilters, setSelectedFilters] = useState<
     { option: string; param_code: string }[]
@@ -52,7 +59,7 @@ export function CourseSelectionMenu({
       value: "course_format",
       options: ["online", "on_campus", "blended"],
       selected_option: "",
-      param_code: "",
+      param_code: "course_format",
     },
     {
       label: "State",
@@ -72,14 +79,33 @@ export function CourseSelectionMenu({
         (currentYear - 3).toString(),
       ],
       selected_option: "",
-      param_code: "",
+      param_code: "start_at",
     },
     {
       label: "Course Code",
       value: "course_code",
       options: ["CS", "CSE", "CSC", "SER", "EEE"],
       selected_option: "",
-      param_code: "",
+      param_code: "course_code[]",
+    },
+  ];
+
+  const defaultFilter = [
+    {
+      option: "online",
+      param_code: "course_format",
+    },
+    {
+      option: "available",
+      param_code: "state[]",
+    },
+    {
+      option: currentYear.toString(),
+      param_code: "start_at",
+    },
+    {
+      option: "SER",
+      param_code: "course_code[]",
     },
   ];
 
@@ -87,13 +113,16 @@ export function CourseSelectionMenu({
    * Run fetchCourses when component initially mounts.
    */
   useEffect(() => {
-    // void fetchCourses();
+    void fetchCourses();
   }, []);
 
   useEffect(() => {
     if (selectedFilters.length > 0) {
       updateUserCourseFilters();
+      console.log("filters updated");
       fetchCourses();
+      setCoursesFetched(true);
+      setShowFilterTable(false);
     }
   }, [selectedFilters]);
 
@@ -127,6 +156,7 @@ export function CourseSelectionMenu({
   const renderCourses = () => {
     return (
       <div>
+        <h2 className="text-gray-400 mb-2">Courses</h2>
         {courses.map((course: Course) => (
           <div
             key={course.id}
@@ -191,9 +221,31 @@ export function CourseSelectionMenu({
     setStagedFilters(newStagedFilters);
   };
 
+  const renderDefaultFilters = () => {
+    return (
+      <div className="flex flex-col gap-2">
+        <h2 className="text-gray-400 text-md">Suggested Filters</h2>
+        <button
+          onClick={() => {
+            setSelectedFilters(defaultFilter);
+            setShowDefaultFilters(false);
+          }}
+          className="bg-gray-600 hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full font-bold text-lg"
+        >
+          <div className="flex flex-row gap-2 justify-between">
+            {defaultFilter.map((filter) => (
+              <p className="text-white">{filter.option}</p>
+            ))}
+          </div>
+        </button>
+      </div>
+    );
+  };
+
   const renderFiltersTable = () => {
     return (
       <div className="flex flex-col gap-2">
+        <h2 className="text-gray-400 text-md">Create Custom Filter</h2>
         {
           <table className="border-2 border-gray-500 rounded-lg text-sm">
             <thead className="bg-gray-600 border-2 border-gray-500">
@@ -255,7 +307,9 @@ export function CourseSelectionMenu({
           "grid gap-2 my-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
         }
       >
-        {renderFiltersTable()}
+        {showDefaultFilters && renderDefaultFilters()}
+        {showFilterTable && renderFiltersTable()}
+        {coursesFetched && !showFilterTable && renderCourses()}
       </div>
     );
   };
@@ -271,6 +325,8 @@ export function CourseSelectionMenu({
    */
   const handleGetCourses = (event: MouseEvent<HTMLButtonElement>): void => {
     event.preventDefault();
+    setSelectedFilters([]);
+    void updateUserCourseFilters();
     void fetchCourses();
   };
 
@@ -296,6 +352,12 @@ export function CourseSelectionMenu({
     <div className={"grid gap-2 text-2xl"}>
       <div>{renderContent()}</div>
       <div className={"justify-self-end flex gap-2 items-center"}>
+        <FontAwesomeIcon
+          icon={faCog}
+          className="cursor-pointer"
+          onClick={() => setShowDefaultFilters(!showDefaultFilters)}
+          title="Edit Filters"
+        />
         {stagedFilters.length > 0 && (
           <>
             <PaletteTrash
@@ -311,12 +373,20 @@ export function CourseSelectionMenu({
             />
           </>
         )}
-        <PaletteActionButton
-          color={"BLUE"}
-          title={"Refresh"}
-          onClick={handleGetCourses}
-          autoFocus={true}
-        />
+        <div className="flex flex-row gap-4 items-center">
+          <PaletteEye
+            onClick={() => {
+              setShowFilterTable(!showFilterTable);
+              setShowDefaultFilters(false);
+            }}
+          />
+          <PaletteActionButton
+            color={"BLUE"}
+            title={"Refresh"}
+            onClick={handleGetCourses}
+            autoFocus={true}
+          />
+        </div>
       </div>
     </div>
   );

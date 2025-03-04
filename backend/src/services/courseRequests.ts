@@ -36,10 +36,11 @@ type GradedSubmission = {
 
 const RESULTS_PER_PAGE = 100;
 
-let yearThreshold = 2025;
-let courseSubject = "";
-
-const courseSubjects = ["CS", "CSE", "CSC", "SER", "EEE"];
+let yearThreshold = new Date();
+let courseFormat = "";
+let courseCode = "";
+const developerCourseCode = "DEV-2019Spring-SER515-Group5-TestShell";
+const courseCodes = ["CS", "CSE", "CSC", "SER", "EEE"];
 
 /**
  * Helper for handling course pagination from the Canvas API.
@@ -52,26 +53,31 @@ async function getAllCourses(requestBody: JSON) {
   const userSettings = SettingsAPI.getUserSettings();
   const courseFilters = userSettings.course_filters;
 
-  let courseFiltersString = "";
+  // collect and stores filters
   if (courseFilters) {
     for (const filter of courseFilters) {
-      const year = parseInt(filter.option);
-      if (!isNaN(year)) {
-        yearThreshold = year; //will be used to filter courses by year
-      } else if (courseSubjects.includes(filter.option)) {
-        courseSubject = filter.option; //will be used to filter courses by subject
-      } else {
-        courseFiltersString += `&${filter.param_code}=${filter.option}`;
+      const year = new Date(parseInt(filter.option), 0, 1);
+
+      if (!isNaN(parseInt(filter.option))) {
+        yearThreshold = year;
+        console.log("year");
+        console.log(year);
+        console.log(filter.option);
+        console.log("yearThreshold");
+        console.log(yearThreshold);
+      } else if (courseCodes.includes(filter.option)) {
+        courseCode = filter.option;
+      } else if (filter.param_code === "course_format") {
+        courseFormat = filter.option;
+      } else if (filter.param_code === "course_code") {
+        courseCode = filter.option;
       }
     }
   }
 
-  console.log("courseFiltersString BELOW");
-  console.log(courseFiltersString);
-
   do {
     fetchedCourses = await fetchAPI<CanvasCourse[]>(
-      `/courses?per_page=${RESULTS_PER_PAGE}&page=${page}&course_format=on_campus`
+      `/courses?per_page=${RESULTS_PER_PAGE}&page=${page}`
     );
 
     canvasCourses = canvasCourses.concat(fetchedCourses);
@@ -175,6 +181,11 @@ function filterCourses(canvasCourses: CanvasCourse[]): CanvasCourse[] {
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
   console.log(oneYearAgo);
 
+  // Step 0: Save the developer course so it doesnt get filtered out
+  const developerCourse = canvasCourses.find((course) => {
+    return course.course_code === developerCourseCode;
+  });
+
   // Step 1: Filter by valid enrollments (teacher or TA)
   let filteredCourses = canvasCourses.filter((course) =>
     course.enrollments?.some(
@@ -182,17 +193,25 @@ function filterCourses(canvasCourses: CanvasCourse[]): CanvasCourse[] {
     )
   );
 
-  // Step 2: Conditionally filter by start date if there are more than 5 courses
-  // todo: temp fix until custom filters are added
-  if (filteredCourses.length > 5) {
-    filteredCourses = filteredCourses.filter((course) => {
-      const startDate = course.start_at ? new Date(course.start_at) : null;
-      return startDate ? startDate >= oneYearAgo : false;
-    });
-  }
+  // Step 2: Filter by start date
+  filteredCourses = filteredCourses.filter((course) => {
+    const startDate = course.start_at ? new Date(course.start_at) : null;
+    return startDate ? startDate >= yearThreshold : false;
+  });
 
-  // console.log("Filtered courses BELOW");
-  // console.log(filteredCourses);
+  // Step 3: Filter by course format
+  filteredCourses = filteredCourses.filter((course) => {
+    return course.course_format === courseFormat;
+  });
+
+  // Step 4: Filter by course code
+  filteredCourses = filteredCourses.filter((course) => {
+    return courseCode ? course.course_code.includes(courseCode) : true;
+  });
+
+  if (developerCourse) {
+    filteredCourses.push(developerCourse);
+  }
 
   return filteredCourses;
 }
