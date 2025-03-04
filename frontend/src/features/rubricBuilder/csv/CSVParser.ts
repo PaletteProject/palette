@@ -107,7 +107,7 @@ export const parseVersionTwo = (
 
         const match = ratingText.match(/\(([^)]+)\)$/);
         const deduction = match ? parseFloat(match[1]) : 0;
-        const points = maxPoints + deduction;
+        const points = parseFloat((maxPoints + deduction).toFixed(2));
         const description = ratingText.replace(/\s*\([^)]*\)$/, "");
 
         if (!isNaN(points)) {

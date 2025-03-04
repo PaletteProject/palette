@@ -271,6 +271,7 @@ export function RubricBuilderMain(): ReactElement {
   const handleSubmitRubric = async (event: MouseEvent): Promise<void> => {
     event.preventDefault();
     console.log("submitting rubric");
+    console.log(activeRubric);
     if (!activeRubric || !activeCourse || !activeAssignment) return;
 
     setLoading(true);
@@ -323,7 +324,7 @@ export function RubricBuilderMain(): ReactElement {
     }
   };
 
-  const handleRubricTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleRubricTitleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     event.preventDefault();
     setActiveRubric({
       ...activeRubric,
@@ -584,7 +585,7 @@ export function RubricBuilderMain(): ReactElement {
 
     return (
       <form
-        className="h-full self-center grid p-10 w-full max-w-3xl my-6 gap-4 bg-gray-800 shadow-lg rounded-lg"
+        className=" w-full self-center grid p-10 my-6 gap-4 bg-gray-800 shadow-lg rounded-lg"
         onSubmit={(event) => event.preventDefault()}
       >
         <h1 className="font-extrabold text-5xl mb-2 text-center">
@@ -606,39 +607,36 @@ export function RubricBuilderMain(): ReactElement {
           </h2>
         </div>
 
-        <input
-          type="text"
+        <textarea
           placeholder="Rubric title"
-          className="rounded p-3 mb-4 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-xl truncate whitespace-nowrap"
+          className="rounded p-3 mb-4 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-xl"
           name="rubricTitle"
           id="rubricTitle"
           value={activeRubric.title}
           onChange={handleRubricTitleChange}
+          rows={1}
         />
-
-        <div className={"flex justify-end"}>
-          <PaletteActionButton
-            onClick={removeAllCriteria}
-            color={"RED"}
-            title={"Clear Form"}
-          />
-        </div>
 
         <div
           className="mt-6 grid gap-1
-    grid-cols-1
-    auto-rows-min
-    h-[40vh]
-    overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-2"
+          grid-cols-1
+          auto-rows-min
+          h-[40vh]
+          overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-2"
         >
           {renderCriteriaCards()}
         </div>
 
-        <div className="grid gap-4 mt-6">
+        <div className="flex gap-4  justify-self-end">
           <PaletteActionButton
             title={"Add Criteria"}
             onClick={handleAddCriteria}
             color={"BLUE"}
+          />
+          <PaletteActionButton
+            onClick={removeAllCriteria}
+            color={"RED"}
+            title={"Clear Form"}
           />
 
           <PaletteActionButton
@@ -679,9 +677,9 @@ export function RubricBuilderMain(): ReactElement {
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <div className="min-h-screen justify-between flex flex-col w-screen bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
+      <div className="min-h-screen justify-between flex flex-col w-screen  bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
         <Header />
-        {renderContent()}
+        <div className={"px-48"}>{renderContent()}</div>
         {!isCanvasBypassed && renderBypassButton()}
 
         <ChoiceDialog />
