@@ -12,7 +12,7 @@ export const defaultSettings: Settings = {
     darkMode: false,
     defaultScale: 1,
   },
-} as const;
+};
 
 // the settings object
 let settings: Settings | null = null;

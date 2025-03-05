@@ -23,6 +23,10 @@ export function SettingsMain(): ReactElement {
 
   const { openDialog, closeDialog } = useChoiceDialog();
 
+  const TEXT_INPUT_STYLE =
+    "w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2" +
+    " focus:ring-blue-500";
+
   // Effect to fetch user settings on component mount
   useEffect(() => {
     const fetchSettings = async () => {
@@ -144,7 +148,7 @@ export function SettingsMain(): ReactElement {
           </label>
           <input
             type="text"
-            className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={TEXT_INPUT_STYLE}
             value={settings.userName}
             onChange={(e) => handleInputChange("userName", e.target.value)}
           />
@@ -154,21 +158,18 @@ export function SettingsMain(): ReactElement {
           </label>
           <input
             type="text"
-            className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={TEXT_INPUT_STYLE}
             value={settings.token}
             onChange={(e) => handleInputChange("token", e.target.value)}
           />
         </div>
         {/* Preferences */}
-        <div>
-          <label className="block font-bold text-gray-400 mb-2">
-            Preferences
-          </label>
+        <div className={"grid gap-2"}>
+          <label className="block font-bold text-gray-400">Preferences</label>
           <div className="flex gap-4 items-center">
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
-                className="form-checkbox"
                 checked={settings.preferences.darkMode}
                 onChange={(e) =>
                   handlePreferenceChange("darkMode", e.target.checked)
@@ -176,17 +177,16 @@ export function SettingsMain(): ReactElement {
               />
               <span className="text-white">Dark Mode</span>
             </label>
-            <div>
-              <label className="block text-gray-400 mb-1">Default Scale</label>
-              <input
-                type="number"
-                className="w-24 p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={settings.preferences.defaultScale}
-                onChange={(e) =>
-                  handlePreferenceChange("defaultScale", Number(e.target.value))
-                }
-              />
-            </div>
+          </div>
+          <div>
+            <input
+              type="text"
+              name="max-points"
+              id="rating-max-points"
+              className={
+                "w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              }
+            />
           </div>
         </div>
 
