@@ -165,7 +165,7 @@ export function SettingsMain(): ReactElement {
         </div>
         {/* Preferences */}
         <div className={"grid gap-2"}>
-          <label className="block font-bold text-gray-400">Preferences</label>
+          <h2 className="block font-bold text-gray-400">Preferences</h2>
           <div className="flex gap-4 items-center">
             <label className="flex items-center gap-2">
               <input
@@ -179,14 +179,48 @@ export function SettingsMain(): ReactElement {
             </label>
           </div>
           <div>
-            <input
-              type="text"
-              name="max-points"
-              id="rating-max-points"
+            <h2 className="block font-bold text-gray-400">Default Ratings</h2>
+
+            <div
               className={
-                "w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                "grid gap-1 grid-cols-2 grid-rows-4 items-center px-40"
               }
-            />
+            >
+              <label> Max Default Rating Points</label>
+              <input
+                type="number"
+                className={TEXT_INPUT_STYLE}
+                min={0}
+                max={99}
+                value={5}
+                placeholder={""}
+              />
+
+              <label> Max Default Rating Description</label>
+              <input
+                type="text"
+                name="rating-max-points"
+                id="rating-max-points"
+                className={TEXT_INPUT_STYLE}
+              />
+              <label> Min Default Rating Points</label>
+              <input
+                type="number"
+                className={TEXT_INPUT_STYLE}
+                min={0}
+                max={99}
+                value={0}
+                placeholder={""}
+              />
+
+              <label> Min Default Rating Description</label>
+              <input
+                type="text"
+                name="rating-min-points"
+                id="rating-min-points"
+                className={TEXT_INPUT_STYLE}
+              />
+            </div>
           </div>
         </div>
 
