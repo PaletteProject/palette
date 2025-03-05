@@ -181,45 +181,49 @@ export function SettingsMain(): ReactElement {
           <div>
             <h2 className="block font-bold text-gray-400">Default Ratings</h2>
 
-            <div
-              className={
-                "grid gap-1 grid-cols-2 grid-rows-4 items-center px-40"
-              }
-            >
-              <label> Max Default Rating Points</label>
-              <input
-                type="number"
-                className={TEXT_INPUT_STYLE}
-                min={0}
-                max={99}
-                value={5}
-                placeholder={""}
-              />
+            <div className={"grid gap-1 "}>
+              <div className={"grid items-center gap-2"}>
+                <div className={"flex items-center gap-2 mt-2"}>
+                  <label className={""}> Max Points</label>
+                  <input
+                    type="number"
+                    className={`${TEXT_INPUT_STYLE} w-min`}
+                    min={0}
+                    max={99}
+                    value={5}
+                    placeholder={""}
+                  />
+                </div>
 
-              <label> Max Default Rating Description</label>
-              <input
-                type="text"
-                name="rating-max-points"
-                id="rating-max-points"
-                className={TEXT_INPUT_STYLE}
-              />
-              <label> Min Default Rating Points</label>
-              <input
-                type="number"
-                className={TEXT_INPUT_STYLE}
-                min={0}
-                max={99}
-                value={0}
-                placeholder={""}
-              />
+                <label className={"row-start-2 text-nowrap"}>
+                  {" "}
+                  Max Rating Description
+                </label>
+                <textarea
+                  className={`${TEXT_INPUT_STYLE} row-start-3 col-span-4`}
+                />
+              </div>
+              <div className={"grid items-center gap-2"}>
+                <div className={"flex items-center gap-2 mt-2"}>
+                  <label className={""}> Min Points</label>
+                  <input
+                    type="number"
+                    className={`${TEXT_INPUT_STYLE} w-min`}
+                    min={0}
+                    max={99}
+                    value={0}
+                    placeholder={""}
+                  />
+                </div>
 
-              <label> Min Default Rating Description</label>
-              <input
-                type="text"
-                name="rating-min-points"
-                id="rating-min-points"
-                className={TEXT_INPUT_STYLE}
-              />
+                <label className={"row-start-2 text-nowrap"}>
+                  {" "}
+                  Min Rating Description
+                </label>
+                <textarea
+                  className={`${TEXT_INPUT_STYLE} row-start-3 col-span-4`}
+                />
+              </div>
             </div>
           </div>
         </div>
