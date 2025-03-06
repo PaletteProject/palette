@@ -15,4 +15,12 @@ export interface Settings {
     option: string;
     param_code: string;
   }[];
+
+  course_filter_presets?: {
+    name: string;
+    filters: {
+      option: string;
+      param_code: string;
+    }[];
+  }[];
 }

@@ -84,6 +84,23 @@ export const SettingsAPI = {
     // Write the updated settings object to the settings file
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
   },
+
+  updateUserCourseFilterPresets(
+    presets: {
+      name: string;
+      filters: { option: string; param_code: string }[];
+    }[]
+  ): void {
+    if (settings === null) {
+      initializeSettings();
+    }
+
+    // Update the course filter presets in the settings object
+    settings!.course_filter_presets = presets;
+
+    // Write the updated settings object to the settings file
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+  },
 };
 
 /**

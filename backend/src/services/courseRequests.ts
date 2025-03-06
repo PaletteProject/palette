@@ -209,9 +209,9 @@ function filterCourses(canvasCourses: CanvasCourse[]): CanvasCourse[] {
     return courseCode ? course.course_code.includes(courseCode) : true;
   });
 
-  if (developerCourse) {
-    filteredCourses.push(developerCourse);
-  }
+  // if (developerCourse) {
+  //   filteredCourses.push(developerCourse);
+  // }
 
   return filteredCourses;
 }
