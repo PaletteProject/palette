@@ -71,19 +71,19 @@ userRouter.put(
   "/settings",
   updateUserSettingsValidator,
   validationErrorHandler,
-  updateUserSettings
+  updateUserSettings,
 );
 
 userRouter.put(
   "/settings/course_filters",
   validationErrorHandler,
-  updateUserCourseFilters
+  updateUserCourseFilters,
 );
 
 userRouter.put(
   "/settings/course_filter_presets",
   validationErrorHandler,
-  updateUserCourseFilterPresets
+  updateUserCourseFilterPresets,
 );
 
 export default userRouter;

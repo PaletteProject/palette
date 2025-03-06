@@ -39,5 +39,5 @@ createRoot(document.getElementById("root")!).render(
         </DialogProvider>
       </RubricProvider>
     </AssignmentProvider>
-  </CourseProvider>
+  </CourseProvider>,
 );

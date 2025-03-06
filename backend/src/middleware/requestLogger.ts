@@ -14,7 +14,7 @@ import util from "util";
 export const requestLogger = (
   req: Request,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   console
     .log

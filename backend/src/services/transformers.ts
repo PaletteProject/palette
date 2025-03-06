@@ -17,7 +17,7 @@ export function mapToPaletteCourse(canvasCourse: CanvasCourse): Course | null {
   const teacherOrTaEnrollments = canvasCourse.enrollments?.filter(
     (enrollment) =>
       (enrollment.type === "teacher" || enrollment.type === "ta") &&
-      enrollment.enrollment_state === "active"
+      enrollment.enrollment_state === "active",
   );
 
   // Return null if no matching enrollments are found
@@ -49,7 +49,7 @@ export function mapToPaletteCourse(canvasCourse: CanvasCourse): Course | null {
  * @returns Valid assignment entry to display.
  */
 export function mapToPaletteAssignment(
-  canvasAssignment: CanvasAssignment
+  canvasAssignment: CanvasAssignment,
 ): Assignment {
   return {
     id: canvasAssignment.id,
@@ -69,7 +69,7 @@ export function mapToPaletteAssignment(
  * @param canvasResponse
  */
 const mapToPaletteSubmission = (
-  canvasResponse: CanvasSubmissionResponse
+  canvasResponse: CanvasSubmissionResponse,
 ): Submission => {
   // return array of transformed comments
   const transformComments = () => {
@@ -106,7 +106,7 @@ const mapToPaletteSubmission = (
 
 export const transformSubmissions = (
   canvasResponse: CanvasSubmissionResponse[],
-  groupMap: Map<number, string>
+  groupMap: Map<number, string>,
 ) => {
   const lookUpGroup = (userId: number) => {
     const groupName = groupMap.get(userId);

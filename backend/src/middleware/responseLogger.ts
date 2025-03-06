@@ -14,7 +14,7 @@ import util from "util";
 export const responseLogger = (
   _req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   // Store the original `send` method
   const originalSend = res.send.bind(res);
