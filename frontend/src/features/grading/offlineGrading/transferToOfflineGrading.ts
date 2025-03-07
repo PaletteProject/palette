@@ -5,7 +5,6 @@ export function transferToOfflineGrading(
   activeAssignmentId: string,
   rubricId: string,
 ) {
-
   if (!activeCourseId || !activeAssignmentId || !rubricId) {
     alert("No course, assignment, or rubric selected.");
     return;
@@ -36,5 +35,4 @@ export function transferToOfflineGrading(
   // ✅ Ensure submissions are grouped correctly before saving
   localStorage.setItem(offlineSubmissionsKey, JSON.stringify(submissionsData));
   localStorage.setItem(offlineRubricKey, JSON.stringify(rubricData));
-
 }
