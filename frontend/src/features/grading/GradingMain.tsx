@@ -45,7 +45,6 @@ export function GradingMain(): ReactElement {
 
       if (activeRubric) {
         const rubricKey = `rubric_${activeRubric.id}`;
-        console.log("📥 Storing active rubric:", activeRubric);
         localStorage.setItem(rubricKey, JSON.stringify(activeRubric));
       }
     }
