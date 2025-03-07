@@ -3,10 +3,8 @@ import { useNavigate } from "react-router-dom";
 import {
   GroupedSubmissions,
   Rubric,
-  Submission,
   CanvasGradedSubmission,
 } from "palette-types";
-import { SubmissionsDashboard } from "@features";
 import { ProjectGradingView } from "../ProjectGradingView";
 import { OfflineGradingSelection } from "./offlineGradingSelection";
 
@@ -30,10 +28,15 @@ export function OfflineGradingView(): ReactElement {
       const rubricKey = `offlineRubric_${selectedCourse}_${selectedAssignment}`;
 
       try {
-        const submissions = JSON.parse(
-          localStorage.getItem(submissionsKey) || "{}",
-        );
-        const rubric = JSON.parse(localStorage.getItem(rubricKey) || "null");
+        const submissionsRaw = localStorage.getItem(submissionsKey);
+        const rubricRaw = localStorage.getItem(rubricKey);
+
+        const submissions: GroupedSubmissions = submissionsRaw
+          ? (JSON.parse(submissionsRaw) as GroupedSubmissions)
+          : {};
+        const rubric: Rubric | null = rubricRaw
+          ? (JSON.parse(rubricRaw) as Rubric)
+          : null;
 
         if (Object.keys(submissions).length === 0) {
           console.warn("No offline submissions found.");
@@ -107,7 +110,7 @@ export function OfflineGradingView(): ReactElement {
         className="bg-gray-600 text-white py-2 px-4 mt-4 rounded"
         onClick={() => navigate("/grading")}
       >
-        Back to Grading
+        Transfer Grades
       </button>
     </div>
   );

@@ -2,8 +2,6 @@ import { ReactElement, useEffect, useState } from "react";
 import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@hooks";
 import { useAssignment, useCourse, useRubric } from "@context";
-import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
-import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts";
 import { OfflineGradingView } from "./offlineGrading/offlineGradingView";
 import { transferToOfflineGrading } from "./offlineGrading/transferToOfflineGrading.ts";
 
@@ -43,7 +41,7 @@ export function GradingMain(): ReactElement {
     if (activeCourse && activeAssignment) {
       console.log("📝 Checking if submissions exist before transfer...");
 
-      fetchSubmissions();
+      void fetchSubmissions();
 
       if (activeRubric) {
         const rubricKey = `rubric_${activeRubric.id}`;
@@ -52,49 +50,6 @@ export function GradingMain(): ReactElement {
       }
     }
   }, [activeCourse, activeAssignment, activeRubric]);
-
-  /**
-   * Handle CSV Upload for group data
-   */
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-
-    if (file && activeCourse && activeAssignment) {
-      console.log("📂 Uploading file:", file.name);
-
-      parseCSV(file)
-        .then((parsedStudents) => {
-          console.log("Parsed Students:", parsedStudents);
-
-          if (parsedStudents.length > 0) {
-            const storageKey = `parsedStudents_${activeCourse.id}_${activeAssignment.id}`;
-            localStorage.setItem(storageKey, JSON.stringify(parsedStudents));
-
-            console.log(
-              "Saved parsedStudents to localStorage under key:",
-              storageKey,
-            );
-          } else {
-            console.warn("Parsed students list is empty, not saving.");
-          }
-        })
-        .catch((error) => {
-          console.error(" Error parsing CSV:", error);
-          alert("Failed to import CSV.");
-        });
-    }
-  };
-
-  /**
-   * Export all group submissions to a CSV
-   */
-  const handleExportAllGroups = () => {
-    if (activeRubric) {
-      exportAllGroupsCSV(submissions, activeRubric);
-    } else {
-      alert("Cannot export: Missing rubric.");
-    }
-  };
 
   // fetch rubric and submissions when course or assignment change
   useEffect(() => {

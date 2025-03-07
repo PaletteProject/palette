@@ -1,9 +1,4 @@
-import {
-  GroupedSubmissions,
-  Rubric,
-  Submission,
-  CanvasGradedSubmission,
-} from "palette-types";
+import { GroupedSubmissions, Rubric } from "palette-types";
 
 export function transferToOfflineGrading(
   activeCourseId: string,
@@ -32,12 +27,16 @@ export function transferToOfflineGrading(
   );
   console.log("Fetching stored rubric:", localStorage.getItem(rubricKey));
 
-  const submissionsData = JSON.parse(
-    localStorage.getItem(submissionsKey) || "{}",
-  );
-  const rubricData = JSON.parse(localStorage.getItem(rubricKey) || "null");
+  const submissionsRaw = localStorage.getItem(submissionsKey);
+  const rubricRaw = localStorage.getItem(rubricKey);
 
-  if (!submissionsData || !rubricData) {
+  const submissionsData: GroupedSubmissions = submissionsRaw
+    ? (JSON.parse(submissionsRaw) as GroupedSubmissions)
+    : {};
+  const rubricData: Rubric | null =
+    rubricRaw !== null ? (JSON.parse(rubricRaw) as Rubric) : null;
+
+  if (Object.keys(submissionsData).length === 0 || rubricData === null) {
     alert(
       "No submissions or rubric found. Make sure grading data is available.",
     );
@@ -45,12 +44,7 @@ export function transferToOfflineGrading(
   }
 
   // ✅ Ensure submissions are grouped correctly before saving
-  const groupedSubmissions: GroupedSubmissions = submissionsData;
-
-  localStorage.setItem(
-    offlineSubmissionsKey,
-    JSON.stringify(groupedSubmissions),
-  );
+  localStorage.setItem(offlineSubmissionsKey, JSON.stringify(submissionsData));
   localStorage.setItem(offlineRubricKey, JSON.stringify(rubricData));
 
   console.log("✅ Grading data successfully transferred to offline storage.");

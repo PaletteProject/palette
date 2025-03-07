@@ -13,19 +13,21 @@ export function OfflineGradingSelection({
   const [selectedAssignment, setSelectedAssignment] = useState<string>("");
 
   useEffect(() => {
-    // Retrieve available courses stored in offline mode
-    const storedCourses = JSON.parse(
-      localStorage.getItem("offlineCourses") || "[]",
-    );
+    const storedCoursesRaw = localStorage.getItem("offlineCourses");
+    const storedCourses: string[] = storedCoursesRaw
+      ? (JSON.parse(storedCoursesRaw) as string[])
+      : [];
     setAvailableCourses(storedCourses);
   }, []);
 
   useEffect(() => {
     if (selectedCourse) {
-      // Retrieve assignments for the selected course
-      const storedAssignments = JSON.parse(
-        localStorage.getItem(`offlineAssignments_${selectedCourse}`) || "[]",
+      const storedAssignmentsRaw = localStorage.getItem(
+        `offlineAssignments_${selectedCourse}`,
       );
+      const storedAssignments: string[] = storedAssignmentsRaw
+        ? (JSON.parse(storedAssignmentsRaw) as string[])
+        : [];
       setAvailableAssignments(storedAssignments);
     }
   }, [selectedCourse]);
@@ -42,7 +44,7 @@ export function OfflineGradingSelection({
         value={selectedCourse}
         onChange={(e) => {
           setSelectedCourse(e.target.value);
-          setSelectedAssignment(""); // Reset assignment selection
+          setSelectedAssignment("");
         }}
       >
         <option value="" disabled>
@@ -62,7 +64,7 @@ export function OfflineGradingSelection({
           value={selectedAssignment}
           onChange={(e) => {
             setSelectedAssignment(e.target.value);
-            onSelect(selectedCourse, e.target.value); // Update parent component
+            onSelect(selectedCourse, e.target.value);
           }}
         >
           <option value="" disabled>
