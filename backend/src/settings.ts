@@ -47,6 +47,9 @@ export const SettingsAPI = {
       } as Settings;
     }
 
+    console.log("SETTINGS");
+    console.log(settings);
+
     return settings as Settings;
   },
 

@@ -78,7 +78,7 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
     },
     GRAY: {
       bg: "bg-gray-600",
-      hover: "hover:bg-gray-700",
+      hover: "hover:bg-gray-500",
       focus: "focus:ring-gray-500",
     },
   }[color];
@@ -87,6 +87,7 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
     <button
       className={`transition-transform duration-200 ease-in-out transform 
         ${colorStyles.bg} ${colorStyles.hover} 
+        max-h-10 text-nowrap
         text-white font-bold rounded-lg py-2 px-4 
         hover:scale-105 focus:outline-none focus:ring-4 ${colorStyles.focus} focus:shadow-2xl
         ${disabled ? "cursor-not-allowed" : ""}
