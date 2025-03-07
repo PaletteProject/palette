@@ -9,6 +9,12 @@ export const defaultSettings: Settings = {
   token: "default token",
   templateCriteria: [],
   preferences: {
+    defaultRatings: {
+      maxDefaultPoints: 5,
+      maxDefaultDescription: "Well done!",
+      minDefaultPoints: 0,
+      minDefaultDescription: "Not included",
+    },
     darkMode: false,
     defaultScale: 1,
   },
@@ -41,7 +47,7 @@ export const SettingsAPI = {
       // get the old token
       return {
         ...settings,
-        token: obfuscateToken(settings!.token),
+        token: settings!.token,
       } as Settings;
     }
 
@@ -111,6 +117,9 @@ function mergeSettings(target: Partial<Settings>): Settings {
     templateCriteria:
       target.templateCriteria ?? defaultSettings.templateCriteria,
     preferences: {
+      defaultRatings:
+        target.preferences?.defaultRatings ??
+        defaultSettings.preferences.defaultRatings,
       darkMode:
         target.preferences?.darkMode ?? defaultSettings.preferences.darkMode,
       defaultScale:

@@ -157,7 +157,7 @@ export function SettingsMain(): ReactElement {
             Token Input
           </label>
           <input
-            type="text"
+            type="password"
             className={TEXT_INPUT_STYLE}
             value={settings.token}
             onChange={(e) => handleInputChange("token", e.target.value)}
@@ -178,6 +178,7 @@ export function SettingsMain(): ReactElement {
               <span className="text-white">Dark Mode</span>
             </label>
           </div>
+          {/* Default Ratings */}
           <div>
             <h2 className="block font-bold text-gray-400">Default Ratings</h2>
 
@@ -190,8 +191,25 @@ export function SettingsMain(): ReactElement {
                     className={`${TEXT_INPUT_STYLE} w-min`}
                     min={0}
                     max={99}
-                    value={5}
+                    value={settings.preferences.defaultRatings.maxDefaultPoints}
                     placeholder={""}
+                    onChange={(event) => {
+                      setSettings((prevState) => {
+                        if (!prevState) return prevState;
+
+                        const newValue = Number(event.target.value);
+                        return {
+                          ...prevState,
+                          preferences: {
+                            ...prevState.preferences,
+                            defaultRatings: {
+                              ...prevState.preferences.defaultRatings,
+                              maxDefaultPoints: isNaN(newValue) ? 0 : newValue,
+                            },
+                          },
+                        };
+                      });
+                    }}
                   />
                 </div>
 
