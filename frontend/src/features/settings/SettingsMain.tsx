@@ -189,7 +189,7 @@ export function SettingsMain(): ReactElement {
                   <input
                     type="number"
                     className={`${TEXT_INPUT_STYLE} w-min`}
-                    min={0}
+                    min={1} // ensure max is always greater than 0
                     max={99}
                     value={settings.preferences.defaultRatings.maxDefaultPoints}
                     placeholder={""}
@@ -219,6 +219,25 @@ export function SettingsMain(): ReactElement {
                 </label>
                 <textarea
                   className={`${TEXT_INPUT_STYLE} row-start-3 col-span-4`}
+                  value={
+                    settings.preferences.defaultRatings.maxDefaultDescription
+                  }
+                  onChange={(event) => {
+                    setSettings((prevState) => {
+                      if (!prevState) return prevState; // guard
+
+                      return {
+                        ...prevState,
+                        preferences: {
+                          ...prevState.preferences,
+                          defaultRatings: {
+                            ...prevState.preferences.defaultRatings,
+                            maxDefaultDescription: event.target.value,
+                          },
+                        },
+                      };
+                    });
+                  }}
                 />
               </div>
               <div className={"grid items-center gap-2"}>
@@ -228,9 +247,28 @@ export function SettingsMain(): ReactElement {
                     type="number"
                     className={`${TEXT_INPUT_STYLE} w-min`}
                     min={0}
-                    max={99}
-                    value={0}
+                    max={
+                      settings.preferences.defaultRatings.maxDefaultPoints - 1
+                    } // ensure min is less than or equal to the max
+                    value={settings.preferences.defaultRatings.minDefaultPoints}
                     placeholder={""}
+                    onChange={(event) => {
+                      setSettings((prevState) => {
+                        if (!prevState) return prevState;
+
+                        const newValue = Number(event.target.value);
+                        return {
+                          ...prevState,
+                          preferences: {
+                            ...prevState.preferences,
+                            defaultRatings: {
+                              ...prevState.preferences.defaultRatings,
+                              minDefaultPoints: isNaN(newValue) ? 0 : newValue,
+                            },
+                          },
+                        };
+                      });
+                    }}
                   />
                 </div>
 
@@ -240,6 +278,25 @@ export function SettingsMain(): ReactElement {
                 </label>
                 <textarea
                   className={`${TEXT_INPUT_STYLE} row-start-3 col-span-4`}
+                  value={
+                    settings.preferences.defaultRatings.minDefaultDescription
+                  }
+                  onChange={(event) => {
+                    setSettings((prevState) => {
+                      if (!prevState) return prevState; // guard
+
+                      return {
+                        ...prevState,
+                        preferences: {
+                          ...prevState.preferences,
+                          defaultRatings: {
+                            ...prevState.preferences.defaultRatings,
+                            minDefaultDescription: event.target.value,
+                          },
+                        },
+                      };
+                    });
+                  }}
                 />
               </div>
             </div>
