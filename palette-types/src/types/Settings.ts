@@ -12,11 +12,13 @@ export interface Settings {
     defaultScale: number;
   };
   course_filters?: {
+    id: string;
     option: string;
     param_code: string;
   }[];
 
   course_filter_presets?: {
+    id: string;
     name: string;
     filters: {
       option: string;

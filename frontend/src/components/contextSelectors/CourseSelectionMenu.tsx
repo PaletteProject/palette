@@ -4,7 +4,7 @@
  * When the user selects the grading view, this component will display the results of the request to show courses
  * they are authorized to grade.
  */
-import { MouseEvent, ReactElement, useEffect, useState } from "react";
+import { Fragment, MouseEvent, ReactElement, useEffect, useState } from "react";
 import { useFetch } from "@hooks";
 import { Course, PaletteAPIResponse, Settings } from "palette-types";
 import { useCourse } from "../../context/CourseProvider.tsx";
@@ -14,6 +14,9 @@ import { LoadingDots } from "../LoadingDots.tsx";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useChoiceDialog } from "@context";
+
+import { v4 as uuidv4 } from "uuid";
+import { ChoiceDialog } from "../modals/ChoiceDialog.tsx";
 export function CourseSelectionMenu({
   onSelect,
 }: {
@@ -31,11 +34,16 @@ export function CourseSelectionMenu({
   const [deletedPreset, setDeletedPreset] = useState<boolean>(false);
   const [presetName, setPresetName] = useState<string>("");
   const { setActiveCourse } = useCourse();
+  const { openDialog, closeDialog } = useChoiceDialog();
   const [selectedFilters, setSelectedFilters] = useState<
     { option: string; param_code: string }[]
   >([]);
   const [courseFilterPresets, setCourseFilterPresets] = useState<
-    { name: string; filters: { option: string; param_code: string }[] }[]
+    {
+      id: string;
+      name: string;
+      filters: { option: string; param_code: string }[];
+    }[]
   >([]);
   const [stagedFilters, setStagedFilters] = useState<
     {
@@ -54,7 +62,7 @@ export function CourseSelectionMenu({
     {
       method: "PUT",
       body: JSON.stringify(selectedFilters),
-    },
+    }
   );
 
   const { fetchData: updateUserCourseFilterPresets } = useFetch(
@@ -62,7 +70,7 @@ export function CourseSelectionMenu({
     {
       method: "PUT",
       body: JSON.stringify(courseFilterPresets),
-    },
+    }
   );
   const currentYear = new Date().getFullYear();
 
@@ -121,8 +129,11 @@ export function CourseSelectionMenu({
   }, [selectedFilters]);
 
   useEffect(() => {
-    updateUserCourseFilterPresets();
-    fetchUserSettings();
+    console.log("courseFilterPresets:", courseFilterPresets);
+    console.log("deletedPreset:", deletedPreset);
+    if (courseFilterPresets.length > 0 || deletedPreset) {
+      updateUserCourseFilterPresets();
+    }
   }, [courseFilterPresets]);
 
   /**
@@ -142,7 +153,7 @@ export function CourseSelectionMenu({
     } catch (error) {
       console.error(
         "An unexpected error occurred while getting courses: ",
-        error,
+        error
       );
       setErrorMessage("An unexpected error occurred while fetching courses.");
     }
@@ -162,7 +173,17 @@ export function CourseSelectionMenu({
   const renderCourses = () => {
     return (
       <div>
-        <h2 className="text-gray-400 mb-2">Courses</h2>
+        <div className="flex flex-row gap-2 items-center">
+          <h2 className="text-gray-400 mb-2">Courses</h2>
+          {!showFilterTable && (
+            <FontAwesomeIcon
+              icon={faCog}
+              className="cursor-pointer text-gray-400 text-md"
+              onClick={() => setShowFilterTable(!showFilterTable)}
+              title="Create Custom Filter"
+            />
+          )}
+        </div>
         {courses.length === 0 && (
           <div className="text-gray-300 font-normal">
             No courses available to display
@@ -191,10 +212,10 @@ export function CourseSelectionMenu({
       selected_option?: string;
       param_code?: string;
     },
-    option: string,
+    option: string
   ) => {
     const filterIndex = stagedFilters.findIndex(
-      (stagedFilter) => stagedFilter.value === filter.value,
+      (stagedFilter) => stagedFilter.value === filter.value
     );
     const stagedFilter = stagedFilters[filterIndex];
 
@@ -236,7 +257,7 @@ export function CourseSelectionMenu({
     return (
       <div className="flex flex-col gap-2">
         <div className="flex flex-row gap-2 items-center">
-          <h2 className="text-gray-400 text-md">Preset Filters</h2>
+          <h2 className="text-gray-400 text-md">Saved Presets</h2>
           {courseFilterPresets.length > 0 && (
             <FontAwesomeIcon
               icon={faCog}
@@ -251,22 +272,22 @@ export function CourseSelectionMenu({
         <div className="flex flex-col gap-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
           {courseFilterPresets.length === 0 && (
             <div className="text-gray-300 font-normal">
-              No preset filters available
+              No saved presets available
             </div>
           )}
           {courseFilterPresets.map((preset) => (
-            <>
-              <p className="text-gray-400 text-sm">
-                {preset.name || "Untitled"}
-              </p>
+            <div
+              key={preset.name || "preset-" + Math.random()}
+              className="flex flex-col items-center justify-between w-full"
+            >
               <button
-                key={preset.name}
                 onClick={() => {
                   setSelectedFilters(preset.filters);
                 }}
-                className="bg-gray-600 hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full font-bold text-lg relative"
+                title={preset.name || "Untitled"}
+                className="bg-gray-600 w-full hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full font-bold text-lg relative"
               >
-                <div className="flex flex-row items-center justify-between w-full">
+                <div className="flex flex-row items-center w-full">
                   {showPresetDeleteButtons && (
                     <div className="ml-4 mt-1">
                       <PaletteTrash
@@ -274,17 +295,19 @@ export function CourseSelectionMenu({
                         onClick={() => {
                           setCourseFilterPresets(
                             courseFilterPresets.filter(
-                              (p) => p.name !== preset.name,
-                            ),
+                              (p) => p.id !== preset.id
+                            )
                           );
+                          setDeletedPreset(true);
                         }}
                       />
                     </div>
                   )}
+
                   <div className="grid grid-cols-4 flex-1 mt-1">
                     {preDefinedFilters.map((preDefinedFilter) => {
                       const matchingFilter = preset.filters.find(
-                        (f) => f.param_code === preDefinedFilter.param_code,
+                        (f) => f.param_code === preDefinedFilter.param_code
                       );
                       return (
                         <p
@@ -302,7 +325,7 @@ export function CourseSelectionMenu({
                   </div>
                 </div>
               </button>
-            </>
+            </div>
           ))}
         </div>
       </div>
@@ -318,7 +341,7 @@ export function CourseSelectionMenu({
           value={presetName}
           onChange={(e) => setPresetName(e.target.value)}
           placeholder="Enter Preset Name before 'Save Preset' (optional). Otherwise, just click 'Apply Filters' to fetch courses."
-          className="bg-gray-600 hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-lg font-bold text-base"
+          className="bg-gray-600 hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-lg font-bold text-sm"
         />
         {
           <table className="border-2 border-gray-500 rounded-lg text-sm w-full">
@@ -344,7 +367,7 @@ export function CourseSelectionMenu({
                           id={option}
                           checked={stagedFilters.some(
                             (stagedFilter) =>
-                              stagedFilter.selected_option === option,
+                              stagedFilter.selected_option === option
                           )}
                           onChange={() => {
                             console.log("changed");
@@ -409,7 +432,7 @@ export function CourseSelectionMenu({
   };
 
   const handleApplyFilters = async (
-    event: MouseEvent<HTMLButtonElement>,
+    event: MouseEvent<HTMLButtonElement>
   ): Promise<void> => {
     event.preventDefault();
 
@@ -423,37 +446,56 @@ export function CourseSelectionMenu({
   };
 
   const handleSavePreset = async (
-    event: MouseEvent<HTMLButtonElement>,
+    event: MouseEvent<HTMLButtonElement>
   ): Promise<void> => {
     event.preventDefault();
 
     const preset = {
       name: presetName,
+      id: uuidv4(),
       filters: stagedFilters.map((filter) => ({
         option: filter.selected_option ?? "",
         param_code: filter.param_code ?? "",
       })),
     };
 
-    setCourseFilterPresets([...courseFilterPresets, preset]);
-    setStagedFilters([]);
-    setPresetName("");
+    // Check if an identical preset already exists
+    const isDuplicate = courseFilterPresets.some((existingPreset) =>
+      existingPreset.filters.every((filter) =>
+        preset.filters.some(
+          (newFilter) =>
+            newFilter.option === filter.option &&
+            newFilter.param_code === filter.param_code
+        )
+      )
+    );
 
-    void updateUserCourseFilterPresets();
+    if (!isDuplicate) {
+      setCourseFilterPresets([...courseFilterPresets, preset]);
+      setStagedFilters([]);
+      setPresetName("");
+      void updateUserCourseFilterPresets();
+    } else {
+      openDialog({
+        title: "Duplicate Preset",
+        message: "This filter combination already exists.",
+        buttons: [
+          {
+            label: "Close",
+            autoFocus: false,
+            action: () => closeDialog(),
+            color: "RED",
+          },
+        ],
+        excludeCancel: true,
+      });
+    }
   };
 
   return (
     <div className={"grid gap-2 text-2xl"}>
       <div>{renderContent()}</div>
       <div className={"justify-self-end flex gap-2 items-center"}>
-        {!showFilterTable && (
-          <FontAwesomeIcon
-            icon={faCog}
-            className="cursor-pointer text-gray-400 text-md"
-            onClick={() => setShowFilterTable(!showFilterTable)}
-            title="Edit Filters"
-          />
-        )}
         {stagedFilters.length > 0 && (
           <>
             <PaletteTrash
@@ -475,14 +517,15 @@ export function CourseSelectionMenu({
             />
           </>
         )}
-        <div className="flex flex-row gap-4 items-center">
+        <ChoiceDialog />
+        {/* <div className="flex flex-row gap-4 items-center">
           <PaletteActionButton
             color={"BLUE"}
             title={"Refresh"}
             onClick={handleGetCourses}
             autoFocus={true}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );
