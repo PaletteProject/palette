@@ -78,7 +78,6 @@ export const RubricsAPI = {
 
   /**
    * Get all rubrics in a specific course.
-   * @param {PartialRubricRequest} request - The request object containing course ID.
    * @returns {Promise<Rubric[]>} A promise that resolves to the retrieved rubrics response.
    */
   async getAllRubrics(request: RubricRequestBody): Promise<Rubric[]> {

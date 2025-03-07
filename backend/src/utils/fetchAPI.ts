@@ -142,7 +142,7 @@ function logCanvasAPIResponse<T>(
   // only if there's a body
   if (body) {
     console.log(
-      `Canvas API Response Body (parsed JSON):\n 
+      `Canvas API Response Body (parsed JSON):\n
     ${util.inspect(body, { depth: 50, colors: true })}`,
     );
   }

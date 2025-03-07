@@ -6,6 +6,7 @@ import { CoursesAPI } from "../services/courseRequests.js";
 
 export const getAllCourses = asyncHandler(async (req, res) => {
   const courses = await CoursesAPI.getCourses();
+
   const apiResponse: PaletteAPIResponse<Course[]> = {
     data: courses,
     success: true,

@@ -68,6 +68,7 @@ export function createCriterion(
   template: string = "",
   templateTitle: string = "",
   scores: number[] = [],
+  isGroupCriterion: boolean = true,
 ): Criteria {
   return {
     id,
@@ -82,6 +83,7 @@ export function createCriterion(
       this.pointsPossible = Number(calcMaxPoints(this.ratings));
     },
     scores,
+    isGroupCriterion: isGroupCriterion,
   };
 }
 

@@ -59,8 +59,11 @@ export default function CriteriaCard({
     const maxRating = sortedRatings[0]?.points || 0; // defaults to 0 if ratings array is empty
     setMaxPoints(maxRating);
 
+    console.log("waffles");
+    console.log(maxRating);
+
     // update criterion with new max points value
-    const newCriterion = { ...criterion, points: maxRating };
+    const newCriterion = { ...criterion, pointsPossible: maxRating };
     handleCriteriaUpdate(index, newCriterion);
   }, [ratings]);
 
@@ -68,7 +71,7 @@ export default function CriteriaCard({
    * Criteria change functionality.
    */
 
-  const handleDescriptionChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleDescriptionChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     const newDescription = event.target.value;
     setCriteriaDescription(newDescription);
 
@@ -176,25 +179,31 @@ export default function CriteriaCard({
         className={`hover:bg-gray-500 hover:cursor-pointer h-24 max-h-36 flex gap-2 justify-between items-center border border-gray-700 shadow-xl p-6 rounded-lg w-full bg-gray-700`}
         onDoubleClick={handleExpandCriterion}
       >
-        <div
-          className="text-gray-300 max-w-1/2 break-words whitespace-normal overflow-hidden"
-          title={criteriaDescription} // show full text on hover
-        >
-          {criteriaDescription}
-        </div>
-        <div className={"flex gap-3"}>
-          <PaletteActionButton
-            onPointerDown={(event: ReactMouseEvent) =>
-              handleRemoveCriteriaButton(event, index)
-            }
-            color={"RED"}
-            title={"Remove"}
-          />
-          <PaletteActionButton
-            onPointerDown={handleExpandCriterion}
-            color={"BLUE"}
-            title={"Edit"}
-          />
+        <div className={"flex justify-between w-full items-center gap-4"}>
+          <div
+            className="text-gray-300 w-3/5 line-clamp-3"
+            title={criteriaDescription} // show full text on hover
+          >
+            {criteriaDescription}
+          </div>
+          <div className={"flex gap-3 items-center"}>
+            <PaletteActionButton
+              onPointerDown={(event: ReactMouseEvent) =>
+                handleRemoveCriteriaButton(event, index)
+              }
+              color={"RED"}
+              title={"Remove"}
+            />
+            <PaletteActionButton
+              onPointerDown={handleExpandCriterion}
+              color={"BLUE"}
+              title={"Edit"}
+            />
+            <div className={"grid text-center"}>
+              <p>Max Points</p>
+              <p>{maxPoints}</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -212,7 +221,7 @@ export default function CriteriaCard({
     return (
       <div
         className={
-          " grid  grid-rows-[1fr_5fr_1fr] shadow-xl p-6 rounded-lg w-full bg-gray-700 "
+          " flex flex-col gap-4 shadow-xl p-6 rounded-lg w-full bg-gray-700 "
         }
         onDoubleClick={(event) => {
           // check if the clicked target is the card itself to avoid messing with child elements
@@ -223,22 +232,21 @@ export default function CriteriaCard({
       >
         {/* Card style and main grid layout for content*/}
 
-        <input
-          type="text"
+        <textarea
           placeholder={`Criteria ${index + 1} Description...`}
           className={
-            "rounded-lg p-3 text-gray-300 border border-gray-600 bg-gray-500 focus:outline-none focus:ring-2" +
-            " focus:ring-blue-500 hover:bg-gray-800 mb-2"
+            "rounded-lg p-3 text-gray-300 border border-gray-600 bg-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-800 mb-2"
           }
           value={criteriaDescription}
           onChange={handleDescriptionChange}
+          rows={2}
         />
 
         <motion.div
           layout
           className={
-            "my-2 mx-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-64" +
-            " overflow-y-auto" +
+            "my-2 mx-4 flex gap-4 max-h-64" +
+            " overflow-y-auto justify-center" +
             " scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-2"
           }
         >
@@ -283,8 +291,8 @@ export default function CriteriaCard({
             />
           </Dialog>
         </div>
-        <div className={"grid gap-2"}>
-          <p className="text-xl font-semibold mt-2 text-gray-200 bg-gray-500 px-3 py-1 rounded-lg">
+        <div className={"flex justify-end gap-3 items-center"}>
+          <p className="text-xl font-semibold  h-10 text-gray-200 bg-gray-500 px-3 py-1 rounded-lg">
             Max Points: {maxPoints}
           </p>
 
