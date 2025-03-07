@@ -6,13 +6,17 @@ export function OfflineGradingSelection({
   onSelect: (courseId: string, assignmentId: string) => void;
 }) {
   const [availableCourses, setAvailableCourses] = useState<string[]>([]);
-  const [availableAssignments, setAvailableAssignments] = useState<string[]>([]);
+  const [availableAssignments, setAvailableAssignments] = useState<string[]>(
+    [],
+  );
   const [selectedCourse, setSelectedCourse] = useState<string>("");
   const [selectedAssignment, setSelectedAssignment] = useState<string>("");
 
   useEffect(() => {
     // Retrieve available courses stored in offline mode
-    const storedCourses = JSON.parse(localStorage.getItem("offlineCourses") || "[]");
+    const storedCourses = JSON.parse(
+      localStorage.getItem("offlineCourses") || "[]",
+    );
     setAvailableCourses(storedCourses);
   }, []);
 
@@ -20,7 +24,7 @@ export function OfflineGradingSelection({
     if (selectedCourse) {
       // Retrieve assignments for the selected course
       const storedAssignments = JSON.parse(
-        localStorage.getItem(`offlineAssignments_${selectedCourse}`) || "[]"
+        localStorage.getItem(`offlineAssignments_${selectedCourse}`) || "[]",
       );
       setAvailableAssignments(storedAssignments);
     }
@@ -28,7 +32,9 @@ export function OfflineGradingSelection({
 
   return (
     <div className="mb-4">
-      <h2 className="text-xl font-semibold text-white">Select Course & Assignment</h2>
+      <h2 className="text-xl font-semibold text-white">
+        Select Course & Assignment
+      </h2>
 
       {/* Course Selection */}
       <select

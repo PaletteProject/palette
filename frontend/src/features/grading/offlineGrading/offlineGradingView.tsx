@@ -1,6 +1,11 @@
 import { ReactElement, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GroupedSubmissions, Rubric, Submission, CanvasGradedSubmission } from "palette-types";
+import {
+  GroupedSubmissions,
+  Rubric,
+  Submission,
+  CanvasGradedSubmission,
+} from "palette-types";
 import { SubmissionsDashboard } from "@features";
 import { ProjectGradingView } from "../ProjectGradingView";
 import { OfflineGradingSelection } from "./offlineGradingSelection";
@@ -8,11 +13,16 @@ import { OfflineGradingSelection } from "./offlineGradingSelection";
 export function OfflineGradingView(): ReactElement {
   const navigate = useNavigate();
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-  const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null);
-  const [offlineSubmissions, setOfflineSubmissions] = useState<GroupedSubmissions>({});
+  const [selectedAssignment, setSelectedAssignment] = useState<string | null>(
+    null,
+  );
+  const [offlineSubmissions, setOfflineSubmissions] =
+    useState<GroupedSubmissions>({});
   const [offlineRubric, setOfflineRubric] = useState<Rubric | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const [gradedSubmissionCache, setGradedSubmissionCache] = useState<CanvasGradedSubmission[]>([]);
+  const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
+    CanvasGradedSubmission[]
+  >([]);
 
   useEffect(() => {
     if (selectedCourse && selectedAssignment) {
@@ -20,7 +30,9 @@ export function OfflineGradingView(): ReactElement {
       const rubricKey = `offlineRubric_${selectedCourse}_${selectedAssignment}`;
 
       try {
-        const submissions = JSON.parse(localStorage.getItem(submissionsKey) || "{}");
+        const submissions = JSON.parse(
+          localStorage.getItem(submissionsKey) || "{}",
+        );
         const rubric = JSON.parse(localStorage.getItem(rubricKey) || "null");
 
         if (Object.keys(submissions).length === 0) {
@@ -61,18 +73,22 @@ export function OfflineGradingView(): ReactElement {
       {Object.keys(offlineSubmissions).length > 0 ? (
         <div className="mt-4">
           <h2 className="text-xl font-semibold text-white">Select a Group</h2>
-          {Object.entries(offlineSubmissions).map(([groupName, submissions]) => (
-            <button
-              key={groupName}
-              className="block bg-gray-700 text-white p-3 rounded mt-2 w-full text-left"
-              onClick={() => setSelectedGroup(groupName)}
-            >
-              {groupName} ({submissions.length} submissions)
-            </button>
-          ))}
+          {Object.entries(offlineSubmissions).map(
+            ([groupName, submissions]) => (
+              <button
+                key={groupName}
+                className="block bg-gray-700 text-white p-3 rounded mt-2 w-full text-left"
+                onClick={() => setSelectedGroup(groupName)}
+              >
+                {groupName} ({submissions.length} submissions)
+              </button>
+            ),
+          )}
         </div>
       ) : (
-        <p className="text-white mt-4">No submissions available for offline grading.</p>
+        <p className="text-white mt-4">
+          No submissions available for offline grading.
+        </p>
       )}
 
       {selectedGroup && (

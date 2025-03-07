@@ -3,10 +3,9 @@ import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@hooks";
 import { useAssignment, useCourse, useRubric } from "@context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
-import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts"; 
+import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts";
 import { OfflineGradingView } from "./offlineGrading/offlineGradingView";
-import { transferToOfflineGrading } from "./offlineGrading/transferToOfflineGrading.ts"; 
-
+import { transferToOfflineGrading } from "./offlineGrading/transferToOfflineGrading.ts";
 
 import {
   LoadingDots,
@@ -24,7 +23,6 @@ export function GradingMain(): ReactElement {
   });
 
   const [loading, setLoading] = useState<boolean>(false);
-  
 
   // context providers
   const { activeCourse } = useCourse();
@@ -32,7 +30,6 @@ export function GradingMain(): ReactElement {
   const { activeRubric } = useRubric();
   const [isOfflineMode, setIsOfflineMode] = useState<boolean>(false);
   const [transferring, setTransferring] = useState<boolean>(false);
-
 
   // url string constants
   const fetchSubmissionsURL = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions`;
@@ -45,9 +42,9 @@ export function GradingMain(): ReactElement {
   useEffect(() => {
     if (activeCourse && activeAssignment) {
       console.log("📝 Checking if submissions exist before transfer...");
-      
-      fetchSubmissions(); 
-  
+
+      fetchSubmissions();
+
       if (activeRubric) {
         const rubricKey = `rubric_${activeRubric.id}`;
         console.log("📥 Storing active rubric:", activeRubric);
@@ -55,7 +52,6 @@ export function GradingMain(): ReactElement {
       }
     }
   }, [activeCourse, activeAssignment, activeRubric]);
-  
 
   /**
    * Handle CSV Upload for group data
@@ -115,14 +111,14 @@ export function GradingMain(): ReactElement {
     try {
       const response =
         (await getSubmissions()) as PaletteAPIResponse<GroupedSubmissions>;
-  
+
       console.log("📥 Raw API Response:", response);
-  
+
       if (response.success && response.data) {
         console.log("📂 Submissions (before setting state):", response.data);
         setSubmissions(response.data);
-  
-        //Store in localStorage 
+
+        //Store in localStorage
         const submissionsKey = `submissions_${activeCourse?.id}_${activeAssignment?.id}`;
         localStorage.setItem(submissionsKey, JSON.stringify(response.data));
       }
@@ -132,44 +128,46 @@ export function GradingMain(): ReactElement {
       setLoading(false);
     }
   };
-  
-  
 
-
-const renderContent = () => {
+  const renderContent = () => {
     return (
       <>
-<div className="flex gap-4 items-center mb-4">
-  <button
-    className={`py-2 px-4 rounded font-bold ${
-      isOfflineMode ? "bg-gray-500" : "bg-blue-500"
-    } text-white`}
-    onClick={() => setIsOfflineMode(!isOfflineMode)}
-  >
-    {isOfflineMode ? "Switch to Canvas Grading" : "Switch to Offline Grading"}
-    
-  </button>
+        <div className="flex gap-4 items-center mb-4">
+          <button
+            className={`py-2 px-4 rounded font-bold ${
+              isOfflineMode ? "bg-gray-500" : "bg-blue-500"
+            } text-white`}
+            onClick={() => setIsOfflineMode(!isOfflineMode)}
+          >
+            {isOfflineMode
+              ? "Switch to Canvas Grading"
+              : "Switch to Offline Grading"}
+          </button>
 
-  {!isOfflineMode && activeAssignment && Object.keys(submissions).length > 0 && (
-    <button
-      className="bg-yellow-500 text-white font-bold py-2 px-4 rounded"
-      onClick={() => {
-        if (!transferring) {
-          setTransferring(true);
-          transferToOfflineGrading(
-            String(activeCourse?.id || ""),
-            String(activeAssignment?.id || ""),
-            String(activeRubric?.id || "")
-          );
-          setTimeout(() => setTransferring(false), 2000); // Reset after transfer
-        }
-      }}
-      disabled={transferring}
-    >
-      {transferring ? "Transferring..." : "Transfer to Offline Grading"}
-    </button>
-  )}
-</div>
+          {!isOfflineMode &&
+            activeAssignment &&
+            Object.keys(submissions).length > 0 && (
+              <button
+                className="bg-yellow-500 text-white font-bold py-2 px-4 rounded"
+                onClick={() => {
+                  if (!transferring) {
+                    setTransferring(true);
+                    transferToOfflineGrading(
+                      String(activeCourse?.id || ""),
+                      String(activeAssignment?.id || ""),
+                      String(activeRubric?.id || ""),
+                    );
+                    setTimeout(() => setTransferring(false), 2000); // Reset after transfer
+                  }
+                }}
+                disabled={transferring}
+              >
+                {transferring
+                  ? "Transferring..."
+                  : "Transfer to Offline Grading"}
+              </button>
+            )}
+        </div>
 
         {isOfflineMode ? (
           <OfflineGradingView />
