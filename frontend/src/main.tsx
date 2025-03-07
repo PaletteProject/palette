@@ -43,5 +43,5 @@ createRoot(document.getElementById("root")!).render(
         </RubricProvider>
       </AssignmentProvider>
     </CourseProvider>
-  </StrictMode>
+  </StrictMode>,
 );

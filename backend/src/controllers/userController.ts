@@ -28,15 +28,15 @@ export const updateUserSettings = asyncHandler(
     const updatedSettings = SettingsAPI.getUserSettings();
 
     res.json(
-      createSuccessResponse(updatedSettings, "Settings updated successfully")
+      createSuccessResponse(updatedSettings, "Settings updated successfully"),
     );
-  }
+  },
 );
 
 export const updateUserCourseFilters = asyncHandler(
   (req: Request, res: Response) => {
     SettingsAPI.updateUserCourseFilters(
-      req.body as { id: string; option: string; param_code: string }[]
+      req.body as { id: string; option: string; param_code: string }[],
     );
 
     // Safely retrieve the updated settings
@@ -45,10 +45,10 @@ export const updateUserCourseFilters = asyncHandler(
     res.json(
       createSuccessResponse(
         updatedSettings,
-        "Course filters updated successfully"
-      )
+        "Course filters updated successfully",
+      ),
     );
-  }
+  },
 );
 
 export const updateUserCourseFilterPresets = asyncHandler(
@@ -57,7 +57,7 @@ export const updateUserCourseFilterPresets = asyncHandler(
       req.body as {
         name: string;
         filters: { option: string; param_code: string }[];
-      }[]
+      }[],
     );
 
     // Safely retrieve the updated settings
@@ -66,8 +66,8 @@ export const updateUserCourseFilterPresets = asyncHandler(
     res.json(
       createSuccessResponse(
         updatedSettings,
-        "Course filter presets updated successfully"
-      )
+        "Course filter presets updated successfully",
+      ),
     );
-  }
+  },
 );
