@@ -23,7 +23,7 @@ export const CanvasAPIConfig = {
  */
 export async function fetchAPI<T>(
   endpoint: string,
-  options: RequestInit = {}, // default options (none)
+  options: RequestInit = {} // default options (none)
 ): Promise<T> {
   try {
     const url = `${CanvasAPIConfig.baseURL}${endpoint}`;
@@ -58,7 +58,7 @@ export async function fetchAPI<T>(
       } else {
         throw new CanvasAPIUnexpectedError(
           "Canvas API returned an unexpected error response",
-          json,
+          json
         );
       }
     }
@@ -83,13 +83,13 @@ export async function fetchAPI<T>(
 function logCanvasAPIRequest(
   request: Request,
   options: RequestInit,
-  verbose: boolean = false,
+  verbose: boolean = false
 ) {
   if (verbose) {
     // log the entire request (up to 50 levels deep) for debugging
     console.log(
       "\nCanvas API Request:\n",
-      util.inspect(request, { depth: 50, colors: true }),
+      util.inspect(request, { depth: 50, colors: true })
     );
   } else {
     // log just the method and URL for debugging
@@ -103,7 +103,7 @@ function logCanvasAPIRequest(
     ${util.inspect(JSON.parse(options.body as string), {
       depth: 50,
       colors: true,
-    })}`,
+    })}`
     );
   }
 }
@@ -117,25 +117,25 @@ function logCanvasAPIRequest(
 function logCanvasAPIResponse<T>(
   response: Response,
   body: T,
-  verbose: boolean = false,
+  verbose: boolean = false
 ) {
   if (verbose) {
     // log the whole response (up to 50 levels deep) for debugging
-    // console.log(
-    //   "\nCanvas API Response:\n",
-    //   util.inspect(response, { depth: 50, colors: true }),
-    // );
+    console.log(
+      "\nCanvas API Response:\n",
+      util.inspect(response, { depth: 50, colors: true })
+    );
   } else {
     // log just the status code for debugging
-    // console.log(`\nCanvas API Response Status: ${response.status}`);
+    console.log(`\nCanvas API Response Status: ${response.status}`);
   }
 
   // log the response body (up to 50 levels deep) for debugging
   // only if there's a body
   if (body) {
-    // console.log(
-    //   `Canvas API Response Body (parsed JSON):\n
-    // ${util.inspect(body, { depth: 50, colors: true })}`,
-    // );
+    console.log(
+      `Canvas API Response Body (parsed JSON):\n
+    ${util.inspect(body, { depth: 50, colors: true })}`
+    );
   }
 }

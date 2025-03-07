@@ -14,17 +14,17 @@ import util from "util";
 export const responseLogger = (
   _req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ): void => {
   // Store the original `send` method
   const originalSend = res.send.bind(res);
 
   // Override the `send` method
   res.send = function (body: unknown) {
-    // console.log(`\nTo Palette --> Response Status: ${res.statusCode}`);
-    // console.log(
-    //   `To Palette --> Response Body: ${util.inspect(body, { depth: 10, colors: true })}`,
-    // );
+    console.log(`\nTo Palette --> Response Status: ${res.statusCode}`);
+    console.log(
+      `To Palette --> Response Body: ${util.inspect(body, { depth: 10, colors: true })}`
+    );
 
     // Call the original `send` method with the body
     return originalSend(body);
