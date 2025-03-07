@@ -4,7 +4,7 @@
  * When the user selects the grading view, this component will display the results of the request to show courses
  * they are authorized to grade.
  */
-import { Fragment, MouseEvent, ReactElement, useEffect, useState } from "react";
+import { MouseEvent, ReactElement, useEffect, useState } from "react";
 import { useFetch } from "@hooks";
 import { Course, PaletteAPIResponse, Settings } from "palette-types";
 import { useCourse } from "../../context/CourseProvider.tsx";
@@ -121,8 +121,8 @@ export function CourseSelectionMenu({
 
   useEffect(() => {
     if (selectedFilters.length > 0) {
-      updateUserCourseFilters();
-      fetchCourses();
+      void updateUserCourseFilters();
+      void fetchCourses();
       setCoursesFetched(true);
       setShowFilterTable(false);
     }
@@ -132,7 +132,7 @@ export function CourseSelectionMenu({
     console.log("courseFilterPresets:", courseFilterPresets);
     console.log("deletedPreset:", deletedPreset);
     if (courseFilterPresets.length > 0 || deletedPreset) {
-      updateUserCourseFilterPresets();
+      void updateUserCourseFilterPresets();
     }
   }, [courseFilterPresets]);
 
@@ -372,9 +372,11 @@ export function CourseSelectionMenu({
                           onChange={() => {
                             console.log("changed");
                           }}
-                          className="mr-2 ml-2"
+                          className={`mr-2 ml-2 ${optionChecked ? "animate-pulse" : ""}`}
                           onClick={() => {
                             updateStagedFilters(filter, option);
+                            setOptionChecked(true);
+                            setTimeout(() => setOptionChecked(false), 500);
                           }}
                         />
                         <label htmlFor={option}>
@@ -420,20 +422,7 @@ export function CourseSelectionMenu({
     onSelect(false);
   };
 
-  /**
-   * Wrapper for fetchCourses when triggered by a click event on the refresh button.
-   * @param event - user clicks the "refresh" button
-   */
-  const handleGetCourses = (event: MouseEvent<HTMLButtonElement>): void => {
-    event.preventDefault();
-    setSelectedFilters([]);
-    void updateUserCourseFilters();
-    void fetchCourses();
-  };
-
-  const handleApplyFilters = async (
-    event: MouseEvent<HTMLButtonElement>
-  ): Promise<void> => {
+  const handleApplyFilters = (event: MouseEvent<HTMLButtonElement>): void => {
     event.preventDefault();
 
     const courseFilters = stagedFilters.map((filter) => ({
@@ -445,9 +434,7 @@ export function CourseSelectionMenu({
     setStagedFilters([]);
   };
 
-  const handleSavePreset = async (
-    event: MouseEvent<HTMLButtonElement>
-  ): Promise<void> => {
+  const handleSavePreset = (event: MouseEvent<HTMLButtonElement>): void => {
     event.preventDefault();
 
     const preset = {
@@ -505,27 +492,19 @@ export function CourseSelectionMenu({
             <PaletteActionButton
               color={"GREEN"}
               title={"Save Preset"}
-              onClick={(e) => handleSavePreset(e)}
+              onClick={(e) => void handleSavePreset(e)}
               autoFocus={false}
             />
 
             <PaletteActionButton
               color={"GREEN"}
               title={"Apply Filters"}
-              onClick={handleApplyFilters}
+              onClick={(e) => void handleApplyFilters(e)}
               autoFocus={false}
             />
           </>
         )}
         <ChoiceDialog />
-        {/* <div className="flex flex-row gap-4 items-center">
-          <PaletteActionButton
-            color={"BLUE"}
-            title={"Refresh"}
-            onClick={handleGetCourses}
-            autoFocus={true}
-          />
-        </div> */}
       </div>
     </div>
   );

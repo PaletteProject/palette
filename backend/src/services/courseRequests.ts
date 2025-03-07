@@ -45,7 +45,7 @@ const courseCodes = ["CS", "CSE", "CSC", "SER", "EEE"];
 /**
  * Helper for handling course pagination from the Canvas API.
  */
-async function getAllCourses(requestBody: JSON) {
+async function getAllCourses() {
   let canvasCourses: CanvasCourse[] = [];
   let page = 1;
   let fetchedCourses: CanvasCourse[];
@@ -84,7 +84,7 @@ async function getAllCourses(requestBody: JSON) {
     page++;
   } while (fetchedCourses.length === RESULTS_PER_PAGE); // continue if we received a full page
 
-  return canvasCourses;
+  return { canvasCourses, courseFilters };
 }
 
 /**
@@ -176,10 +176,16 @@ async function getAllSubmissions(courseId: string, assignmentId: string) {
  * Helper to filter courses by enrollment type and start date (for now).
  * @param canvasCourses
  */
-function filterCourses(canvasCourses: CanvasCourse[]): CanvasCourse[] {
+function filterCourses(
+  canvasCourses: CanvasCourse[],
+  courseFilters: { id: string; option: string; param_code: string }[]
+): CanvasCourse[] {
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
   console.log(oneYearAgo);
+
+  console.log("courseFilters");
+  console.log(courseFilters);
 
   // Step 0: Save the developer course so it doesnt get filtered out
   const developerCourse = canvasCourses.find((course) => {
@@ -193,26 +199,65 @@ function filterCourses(canvasCourses: CanvasCourse[]): CanvasCourse[] {
     )
   );
 
+  // console.log("Step 1: Filter by valid enrollments");
+  // console.log(filteredCourses);
+
   // Step 2: Filter by start date
-  filteredCourses = filteredCourses.filter((course) => {
-    const startDate = course.start_at ? new Date(course.start_at) : null;
-    return startDate ? startDate >= yearThreshold : false;
-  });
+  if (courseFilters.some((filter) => filter.param_code === "start_at")) {
+    filteredCourses = filteredCourses.filter((course) => {
+      const startDate =
+        course.start_at === null ? new Date() : new Date(course.start_at);
+      console.log("startDate");
+      console.log(startDate);
+      console.log("yearThreshold");
+      console.log(yearThreshold);
+      return startDate ? startDate >= yearThreshold : false;
+    });
+  }
+
+  // console.log("Step 2: Filter by start date");
+  // console.log(filteredCourses);
 
   // Step 3: Filter by course format
-  filteredCourses = filteredCourses.filter((course) => {
-    return course.course_format === courseFormat;
-  });
+  if (courseFilters.some((filter) => filter.param_code === "course_format")) {
+    filteredCourses = filteredCourses.filter((course) => {
+      return course.course_format === courseFormat;
+    });
+  }
+
+  // console.log("Step 3: Filter by course format");
+  // console.log(filteredCourses);
 
   // Step 4: Filter by course code
-  filteredCourses = filteredCourses.filter((course) => {
-    return courseCode ? course.course_code.includes(courseCode) : true;
-  });
+  if (courseFilters.some((filter) => filter.param_code === "course_code[]")) {
+    filteredCourses = filteredCourses.filter((course) => {
+      const courseCodeArray = course.course_code.split("-");
 
-  // Always include the developer course to the Palette team
-  if (developerCourse) {
+      const courseCodeArrayMinusNumbers = courseCodeArray.map((code) =>
+        code.replace(/\d+/g, "").trim()
+      );
+
+      return courseCodeArrayMinusNumbers.some((code) =>
+        code.includes(courseCode)
+      );
+    });
+  }
+
+  // console.log("Step 4: Filter by course code");
+  // console.log(filteredCourses);
+
+  // Step 5: Always include the developer course to the Palette team (if not already included)
+  if (
+    developerCourse &&
+    !filteredCourses.some(
+      (course) => course.course_code === developerCourseCode
+    )
+  ) {
     filteredCourses.push(developerCourse);
   }
+
+  console.log("Step 5: Include developer course");
+  console.log(filteredCourses);
 
   return filteredCourses;
 }
@@ -226,10 +271,10 @@ export const CoursesAPI = {
    *
    * @returns Promise for a filtered array of course objects.
    */
-  async getCourses(requestBody: JSON): Promise<Course[]> {
-    const canvasCourses = await getAllCourses(requestBody);
+  async getCourses(): Promise<Course[]> {
+    const { canvasCourses, courseFilters } = await getAllCourses();
 
-    return filterCourses(canvasCourses)
+    return filterCourses(canvasCourses, courseFilters ?? [])
       .map(mapToPaletteCourse)
       .filter((course): course is Course => course !== null);
   },
