@@ -14,7 +14,7 @@ import { LoadingDots } from "../LoadingDots.tsx";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useChoiceDialog } from "@context";
-
+import { PaletteTable } from "../buttons/PaletteTable.tsx";
 import { v4 as uuidv4 } from "uuid";
 import { ChoiceDialog } from "../modals/ChoiceDialog.tsx";
 export function CourseSelectionMenu({
@@ -62,7 +62,7 @@ export function CourseSelectionMenu({
     {
       method: "PUT",
       body: JSON.stringify(selectedFilters),
-    },
+    }
   );
 
   const { fetchData: updateUserCourseFilterPresets } = useFetch(
@@ -70,7 +70,7 @@ export function CourseSelectionMenu({
     {
       method: "PUT",
       body: JSON.stringify(courseFilterPresets),
-    },
+    }
   );
   const currentYear = new Date().getFullYear();
 
@@ -153,7 +153,7 @@ export function CourseSelectionMenu({
     } catch (error) {
       console.error(
         "An unexpected error occurred while getting courses: ",
-        error,
+        error
       );
       setErrorMessage("An unexpected error occurred while fetching courses.");
     }
@@ -173,14 +173,12 @@ export function CourseSelectionMenu({
   const renderCourses = () => {
     return (
       <div>
-        <div className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row gap-2">
           <h2 className="text-gray-400 mb-2">Courses</h2>
           {!showFilterTable && (
-            <FontAwesomeIcon
-              icon={faCog}
-              className="cursor-pointer text-gray-400 text-md"
+            <PaletteTable
               onClick={() => setShowFilterTable(!showFilterTable)}
-              title="Create Custom Filter"
+              focused={showFilterTable}
             />
           )}
         </div>
@@ -212,10 +210,10 @@ export function CourseSelectionMenu({
       selected_option?: string;
       param_code?: string;
     },
-    option: string,
+    option: string
   ) => {
     const filterIndex = stagedFilters.findIndex(
-      (stagedFilter) => stagedFilter.value === filter.value,
+      (stagedFilter) => stagedFilter.value === filter.value
     );
     const stagedFilter = stagedFilters[filterIndex];
 
@@ -295,8 +293,8 @@ export function CourseSelectionMenu({
                         onClick={() => {
                           setCourseFilterPresets(
                             courseFilterPresets.filter(
-                              (p) => p.id !== preset.id,
-                            ),
+                              (p) => p.id !== preset.id
+                            )
                           );
                           setDeletedPreset(true);
                         }}
@@ -307,7 +305,7 @@ export function CourseSelectionMenu({
                   <div className="grid grid-cols-4 flex-1 mt-1">
                     {preDefinedFilters.map((preDefinedFilter) => {
                       const matchingFilter = preset.filters.find(
-                        (f) => f.param_code === preDefinedFilter.param_code,
+                        (f) => f.param_code === preDefinedFilter.param_code
                       );
                       return (
                         <p
@@ -367,7 +365,7 @@ export function CourseSelectionMenu({
                           id={option}
                           checked={stagedFilters.some(
                             (stagedFilter) =>
-                              stagedFilter.selected_option === option,
+                              stagedFilter.selected_option === option
                           )}
                           onChange={() => {
                             console.log("changed");
@@ -452,9 +450,9 @@ export function CourseSelectionMenu({
         preset.filters.some(
           (newFilter) =>
             newFilter.option === filter.option &&
-            newFilter.param_code === filter.param_code,
-        ),
-      ),
+            newFilter.param_code === filter.param_code
+        )
+      )
     );
 
     if (!isDuplicate) {
