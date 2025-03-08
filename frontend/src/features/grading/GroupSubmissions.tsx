@@ -32,7 +32,7 @@ export function GroupSubmissions({
   const toggleGradingView = () => {
     if (!rubric) {
       alert(
-        "Assignment does not have a rubric for grading. Create a rubric and try again!",
+        "Assignment does not have a rubric for grading. Create a rubric and try again!"
       );
       return;
     }
@@ -50,13 +50,13 @@ export function GroupSubmissions({
           };
         // use reduce to aggregate scores for a single submission
         const { total: subTotal, count: subCount } = Object.values(
-          submission.rubricAssessment,
+          submission.rubricAssessment
         ).reduce(
           (acc, assessment) => ({
             total: acc.total + assessment.points,
             count: acc.count + 1,
           }),
-          { total: 0, count: 0 }, // initial accumulator for a submission
+          { total: 0, count: 0 } // initial accumulator for a submission
         );
 
         // add submission total to group totals
@@ -65,7 +65,7 @@ export function GroupSubmissions({
           count: groupAcc.count + subCount,
         };
       },
-      { total: 0, count: 0 }, // initial accumulator for the group
+      { total: 0, count: 0 } // initial accumulator for the group
     );
     return count > 0 ? total / count : 0;
   };
@@ -89,7 +89,7 @@ export function GroupSubmissions({
           <ProgressBar progress={progress} />
         </div>
         <div className={"text-center"}>
-          Average: {`${calculateGroupAverage(submissions)} Points`}
+          Average: {`${calculateGroupAverage(submissions).toFixed(2)} Points`}
         </div>
       </div>
 
