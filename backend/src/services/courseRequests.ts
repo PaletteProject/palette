@@ -77,7 +77,7 @@ async function getAllCourses() {
 
   do {
     fetchedCourses = await fetchAPI<CanvasCourse[]>(
-      `/courses?per_page=${RESULTS_PER_PAGE}&page=${page}`
+      `/courses?per_page=${RESULTS_PER_PAGE}&page=${page}`,
     );
 
     canvasCourses = canvasCourses.concat(fetchedCourses);
@@ -97,7 +97,7 @@ async function getAllAssignments(courseId: string) {
 
   do {
     fetchedAssignments = await fetchAPI<CanvasAssignment[]>(
-      `/courses/${courseId}/assignments?per_page=${RESULTS_PER_PAGE}&page=${page}`
+      `/courses/${courseId}/assignments?per_page=${RESULTS_PER_PAGE}&page=${page}`,
     );
     canvasAssignments = canvasAssignments.concat(fetchedAssignments);
     page++;
@@ -116,7 +116,7 @@ async function getAllGroups(courseId: string) {
 
   do {
     fetchedGroups = await fetchAPI<Group[]>(
-      `/courses/${courseId}/groups?per_page=${RESULTS_PER_PAGE}&page=${page}`
+      `/courses/${courseId}/groups?per_page=${RESULTS_PER_PAGE}&page=${page}`,
     );
     canvasGroups = canvasGroups.concat(fetchedGroups);
     page++;
@@ -161,7 +161,7 @@ async function getAllSubmissions(courseId: string, assignmentId: string) {
 
   do {
     fetchedSubmissions = await fetchAPI<CanvasSubmissionResponse[]>(
-      `/courses/${courseId}/assignments/${assignmentId}/submissions${SUBMISSION_QUERY_PARAMS}&per_page=${RESULTS_PER_PAGE}&page=${page}`
+      `/courses/${courseId}/assignments/${assignmentId}/submissions${SUBMISSION_QUERY_PARAMS}&per_page=${RESULTS_PER_PAGE}&page=${page}`,
     );
     canvasSubmissions = canvasSubmissions.concat(fetchedSubmissions);
     page++;
@@ -178,7 +178,7 @@ async function getAllSubmissions(courseId: string, assignmentId: string) {
  */
 function filterCourses(
   canvasCourses: CanvasCourse[],
-  courseFilters: { id: string; option: string; param_code: string }[]
+  courseFilters: { id: string; option: string; param_code: string }[],
 ): CanvasCourse[] {
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
@@ -195,8 +195,8 @@ function filterCourses(
   // Step 1: Filter by valid enrollments (teacher or TA)
   let filteredCourses = canvasCourses.filter((course) =>
     course.enrollments?.some(
-      (enrollment) => enrollment.type === "teacher" || enrollment.type === "ta"
-    )
+      (enrollment) => enrollment.type === "teacher" || enrollment.type === "ta",
+    ),
   );
 
   // console.log("Step 1: Filter by valid enrollments");
@@ -234,11 +234,11 @@ function filterCourses(
       const courseCodeArray = course.course_code.split("-");
 
       const courseCodeArrayMinusNumbers = courseCodeArray.map((code) =>
-        code.replace(/\d+/g, "").trim()
+        code.replace(/\d+/g, "").trim(),
       );
 
       return courseCodeArrayMinusNumbers.some((code) =>
-        code.includes(courseCode)
+        code.includes(courseCode),
       );
     });
   }
@@ -250,7 +250,7 @@ function filterCourses(
   if (
     developerCourse &&
     !filteredCourses.some(
-      (course) => course.course_code === developerCourseCode
+      (course) => course.course_code === developerCourseCode,
     )
   ) {
     filteredCourses.push(developerCourse);
@@ -289,10 +289,10 @@ export const CoursesAPI = {
 
   async getAssignment(
     courseId: string,
-    assignmentId: string
+    assignmentId: string,
   ): Promise<Assignment> {
     const canvasAssignment = await fetchAPI<CanvasAssignment>(
-      `/courses/${courseId}/assignments/${assignmentId}`
+      `/courses/${courseId}/assignments/${assignmentId}`,
     );
 
     return mapToPaletteAssignment(canvasAssignment);
@@ -300,13 +300,13 @@ export const CoursesAPI = {
 
   async getSubmissions(
     courseId: string,
-    assignmentId: string
+    assignmentId: string,
   ): Promise<GroupedSubmissions> {
     const canvasSubmissions = await getAllSubmissions(courseId, assignmentId);
 
     return transformSubmissions(
       canvasSubmissions,
-      await buildGroupLookupTable(courseId)
+      await buildGroupLookupTable(courseId),
     );
   },
 
@@ -314,7 +314,7 @@ export const CoursesAPI = {
     courseId: string,
     assignmentId: string,
     studentId: string,
-    submission: GradedSubmission
+    submission: GradedSubmission,
   ) {
     const isGroupComment =
       submission.group_comment !== undefined &&
@@ -333,7 +333,7 @@ export const CoursesAPI = {
 
     return await fetchAPI<null>(
       `/courses/${courseId}/assignments/${assignmentId}/submissions/${studentId}`,
-      { method: "PUT", body: JSON.stringify(submissionBody) }
+      { method: "PUT", body: JSON.stringify(submissionBody) },
     );
   },
 };
