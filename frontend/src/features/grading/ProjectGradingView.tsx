@@ -38,6 +38,7 @@ export function ProjectGradingView({
   }
 
   const [ratings, setRatings] = useState<Record<string, number | string>>({});
+  const [groupFeedback, setGroupFeedback] = useState<string>("");
   const [criterionComments, setCriterionComments] = useState<
     Record<string, string>
   >({});
@@ -243,6 +244,46 @@ export function ProjectGradingView({
     return "bg-yellow-500"; // Yellow for anything in between
   };
 
+  const getExistingGroupFeedback = (submissions: Submission[]) => {
+    const allSubmissionComments = [];
+    const seenComments = new Set<string>();
+    const existingGroupComments = [];
+
+    for (const submission of submissions) {
+      const submissionComments = submission.comments;
+      for (const comment of submissionComments) {
+        if (seenComments.has(comment.comment)) {
+          existingGroupComments.push(comment);
+        } else {
+          seenComments.add(comment.comment);
+        }
+      }
+      allSubmissionComments.push(...submissionComments);
+    }
+
+    // setGroupFeedback(allSubmissionComments.join("\n"));
+    // console.log("Existing group comments:", existingGroupComments);
+    return existingGroupComments;
+  };
+
+  const getExistingIndividualFeedback = (
+    submissions: Submission[],
+    submissionId: number
+  ) => {
+    const existingGroupFeedback = getExistingGroupFeedback(submissions);
+    const studentsComments = submissions.find(
+      (submission) => submission.id === submissionId
+    )?.comments;
+
+    const existingIndividualComments = studentsComments?.filter(
+      (comment) =>
+        !existingGroupFeedback.some(
+          (existingComment) => existingComment.comment === comment.comment
+        )
+    );
+    return existingIndividualComments;
+  };
+
   const handleClickCloseButton = () => {
     openDialog({
       title: "Lose Grading Progress?",
@@ -280,8 +321,28 @@ export function ProjectGradingView({
         }
       >
         <div className="bg-gray-700 p-6 rounded-xl shadow-lg relative w-full grid gap-4 m-4">
-          <h1 className="text-4xl text-white font-semibold">{groupName}</h1>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <h1 className="text-4xl text-white font-semibold">{groupName}</h1>
+              <PaletteBrush
+                onClick={() => {
+                  setShowGroupFeedbackTextArea(!showGroupFeedbackTextArea);
+                  setShowExistingGroupFeedback(false);
+                }}
+                title="Add Group Feedback"
+              />
+              <PaletteEye
+                onClick={() => {
+                  setShowExistingGroupFeedback(!showExistingGroupFeedback);
+                  setShowGroupFeedbackTextArea(false);
+                }}
+              />
+            </div>
+          </div>
+          {showExistingGroupFeedback && renderExistingGroupFeedback()}
+          {showGroupFeedbackTextArea && renderGroupFeedbackTextArea()}
           {renderGradingTable()}
+
           <div className={"flex gap-4 justify-end"}>
             <PaletteActionButton
               title={"Close"}
@@ -297,6 +358,39 @@ export function ProjectGradingView({
         </div>
       </div>,
       document.getElementById("portal-root") as HTMLElement
+    );
+  };
+
+  const renderGroupFeedbackTextArea = () => {
+    return (
+      <div className="flex flex-col gap-2">
+        <textarea
+          className="w-1/3 min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto 
+          scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
+          onChange={(e) => setGroupFeedback(e.target.value)}
+          value={groupFeedback}
+          placeholder="Enter feedback for the group..."
+        />
+      </div>
+    );
+  };
+
+  const renderExistingGroupFeedback = () => {
+    return (
+      <div className="flex flex-col gap-2">
+        {getExistingGroupFeedback(submissions).length > 0 ? (
+          <>
+            <h2 className="text-lg font-bold">Existing Group Comments</h2>
+            <ul className="list-disc list-inside">
+              {getExistingGroupFeedback(submissions).map((comment) => (
+                <li key={comment.id}>{comment.comment}</li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p>No existing group comments</p>
+        )}
+      </div>
     );
   };
 
