@@ -6,8 +6,19 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { GradingMain, Home, NotFoundPage, RubricBuilderMain, SettingsMain } from "@features";
-import { AssignmentProvider, CourseProvider, DialogProvider, RubricProvider } from "@context";
+import {
+  GradingMain,
+  Home,
+  NotFoundPage,
+  RubricBuilderMain,
+  SettingsMain,
+} from "@features";
+import {
+  AssignmentProvider,
+  CourseProvider,
+  DialogProvider,
+  RubricProvider,
+} from "@context";
 import TemplatesMain from "./features/templatesPage/TempatesMain.tsx";
 import { SettingsProvider } from "./context/SettingsContext.tsx";
 
