@@ -108,6 +108,40 @@ export const SettingsAPI = {
     // Write the updated settings object to the settings file
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
   },
+
+  updateUserAssignmentFilters(
+    assignmentFilters: { id: string; option: string; param_code: string }[]
+  ): void {
+    if (settings === null) {
+      initializeSettings();
+    }
+
+    // Update the assignment filters in the settings object
+    settings!.assignment_filters = assignmentFilters;
+
+    // Write the updated settings object to the settings file
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+  },
+
+  updateUserAssignmentFilterPresets(
+    presets: {
+      name: string;
+      id: string;
+      filters: { option: string; param_code: string }[];
+    }[]
+  ): void {
+    if (settings === null) {
+      initializeSettings();
+    }
+
+    // Update the assignment filter presets in the settings object
+    settings!.assignment_filter_presets = presets.map((preset) => ({
+      ...preset,
+    }));
+
+    // Write the updated settings object to the settings file
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+  },
 };
 
 /**

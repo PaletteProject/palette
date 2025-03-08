@@ -129,8 +129,6 @@ export function CourseSelectionMenu({
   }, [selectedFilters]);
 
   useEffect(() => {
-    console.log("courseFilterPresets:", courseFilterPresets);
-    console.log("deletedPreset:", deletedPreset);
     if (courseFilterPresets.length > 0 || deletedPreset) {
       void updateUserCourseFilterPresets();
     }
@@ -459,7 +457,6 @@ export function CourseSelectionMenu({
       setCourseFilterPresets([...courseFilterPresets, preset]);
       setStagedFilters([]);
       setPresetName("");
-      void updateUserCourseFilterPresets();
     } else {
       openDialog({
         title: "Duplicate Preset",

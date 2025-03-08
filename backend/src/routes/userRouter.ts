@@ -4,6 +4,8 @@ import {
   updateUserCourseFilters,
   updateUserCourseFilterPresets,
   updateUserSettings,
+  updateUserAssignmentFilterPresets,
+  updateUserAssignmentFilters,
 } from "../controllers/userController.js";
 import { validationErrorHandler } from "../middleware/validationErrorHandler.js";
 import { updateUserSettingsValidator } from "../validators/updateUserSettingsValidator.js";
@@ -71,19 +73,31 @@ userRouter.put(
   "/settings",
   updateUserSettingsValidator,
   validationErrorHandler,
-  updateUserSettings,
+  updateUserSettings
 );
 
 userRouter.put(
   "/settings/course_filters",
   validationErrorHandler,
-  updateUserCourseFilters,
+  updateUserCourseFilters
 );
 
 userRouter.put(
   "/settings/course_filter_presets",
   validationErrorHandler,
-  updateUserCourseFilterPresets,
+  updateUserCourseFilterPresets
+);
+
+userRouter.put(
+  "/settings/assignment_filters",
+  validationErrorHandler,
+  updateUserAssignmentFilters
+);
+
+userRouter.put(
+  "/settings/assignment_filter_presets",
+  validationErrorHandler,
+  updateUserAssignmentFilterPresets
 );
 
 export default userRouter;
