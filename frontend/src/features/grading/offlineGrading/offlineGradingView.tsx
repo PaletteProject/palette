@@ -62,6 +62,21 @@ export function OfflineGradingView(): ReactElement {
     criteria: [],
   };
 
+  const handleClearOfflineStorage = () => {
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith("offline")) {
+        localStorage.removeItem(key);
+        console.log(`🗑️ Deleted: ${key}`);
+      }
+    });
+
+    setOfflineSubmissions({});
+    setOfflineRubric(null);
+    setGradedSubmissionCache([]);
+
+    alert("✅ Offline grading data has been cleared!");
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold text-white">Offline Grading</h1>
@@ -111,6 +126,12 @@ export function OfflineGradingView(): ReactElement {
         onClick={() => navigate("/grading")}
       >
         Transfer Grades
+      </button>
+      <button
+        className="bg-red-600 text-white py-2 px-4 mt-4 rounded"
+        onClick={handleClearOfflineStorage}
+      >
+        Clear Offline Storage
       </button>
     </div>
   );

@@ -16,6 +16,30 @@ export function transferToOfflineGrading(
   const offlineSubmissionsKey = `offlineSubmissions_${activeCourseId}_${activeAssignmentId}`;
   const offlineRubricKey = `offlineRubric_${activeCourseId}_${activeAssignmentId}`;
 
+  const storedCoursesKey = "offlineCourses";
+  const storedAssignmentsKey = `offlineAssignments_${activeCourseId}`;
+
+  const storedCourses: string[] = JSON.parse(
+    localStorage.getItem(storedCoursesKey) || "[]",
+  ) as string[];
+
+  if (!storedCourses.includes(activeCourseId)) {
+    storedCourses.push(activeCourseId);
+    localStorage.setItem(storedCoursesKey, JSON.stringify(storedCourses));
+  }
+
+  const storedAssignments: string[] = JSON.parse(
+    localStorage.getItem(storedAssignmentsKey) || "[]",
+  ) as string[];
+
+  if (!storedAssignments.includes(activeAssignmentId)) {
+    storedAssignments.push(activeAssignmentId);
+    localStorage.setItem(
+      storedAssignmentsKey,
+      JSON.stringify(storedAssignments),
+    );
+  }
+
   const submissionsRaw = localStorage.getItem(submissionsKey);
   const rubricRaw = localStorage.getItem(rubricKey);
 
@@ -32,7 +56,6 @@ export function transferToOfflineGrading(
     return;
   }
 
-  // ✅ Ensure submissions are grouped correctly before saving
   localStorage.setItem(offlineSubmissionsKey, JSON.stringify(submissionsData));
   localStorage.setItem(offlineRubricKey, JSON.stringify(rubricData));
 }
