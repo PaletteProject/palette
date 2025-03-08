@@ -8,6 +8,12 @@ export interface Settings {
   templateCriteria: Template[];
   token: string;
   preferences: {
+    defaultRatings: {
+      maxDefaultPoints: number;
+      maxDefaultDescription: string;
+      minDefaultPoints: number;
+      minDefaultDescription: string;
+    };
     darkMode: boolean;
     defaultScale: number;
   };

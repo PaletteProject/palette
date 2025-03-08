@@ -1,5 +1,4 @@
-import { ReactElement, useEffect, useState } from "react";
-import { Settings } from "palette-types";
+import { ReactElement, useState } from "react";
 import {
   ChoiceDialog,
   Footer,
@@ -9,13 +8,12 @@ import {
 } from "@components";
 import { useFetch } from "@hooks";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { useSettings } from "../../context/SettingsContext.tsx";
 
 export function SettingsMain(): ReactElement {
-  const [settings, setSettings] = useState<Settings | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { settings, setSettings, error } = useSettings();
+  const [loading, setLoading] = useState(false);
 
-  const { fetchData: getSettings } = useFetch("/user/settings");
   const { fetchData: updateSettings } = useFetch("/user/settings", {
     method: "PUT",
     body: JSON.stringify(settings),
@@ -23,26 +21,9 @@ export function SettingsMain(): ReactElement {
 
   const { openDialog, closeDialog } = useChoiceDialog();
 
-  // Effect to fetch user settings on component mount
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await getSettings();
-        if (response.success) {
-          setSettings(response.data as Settings);
-        } else {
-          setError("Failed to fetch settings.");
-        }
-      } catch (err) {
-        console.error(err);
-        setError("An error occurred while fetching settings.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void fetchSettings();
-  }, []);
+  const TEXT_INPUT_STYLE =
+    "w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2" +
+    " focus:ring-blue-500";
 
   /**
    * Handles input change for settings fields.
@@ -144,7 +125,7 @@ export function SettingsMain(): ReactElement {
           </label>
           <input
             type="text"
-            className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={TEXT_INPUT_STYLE}
             value={settings.userName}
             onChange={(e) => handleInputChange("userName", e.target.value)}
           />
@@ -153,22 +134,19 @@ export function SettingsMain(): ReactElement {
             Token Input
           </label>
           <input
-            type="text"
-            className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            type="password"
+            className={TEXT_INPUT_STYLE}
             value={settings.token}
             onChange={(e) => handleInputChange("token", e.target.value)}
           />
         </div>
         {/* Preferences */}
-        <div>
-          <label className="block font-bold text-gray-400 mb-2">
-            Preferences
-          </label>
+        <div className={"grid gap-2"}>
+          <h2 className="block font-bold text-gray-400">Preferences</h2>
           <div className="flex gap-4 items-center">
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
-                className="form-checkbox"
                 checked={settings.preferences.darkMode}
                 onChange={(e) =>
                   handlePreferenceChange("darkMode", e.target.checked)
@@ -176,16 +154,120 @@ export function SettingsMain(): ReactElement {
               />
               <span className="text-white">Dark Mode</span>
             </label>
-            <div>
-              <label className="block text-gray-400 mb-1">Default Scale</label>
-              <input
-                type="number"
-                className="w-24 p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={settings.preferences.defaultScale}
-                onChange={(e) =>
-                  handlePreferenceChange("defaultScale", Number(e.target.value))
-                }
-              />
+          </div>
+          {/* Default Ratings */}
+          <div>
+            <h2 className="block font-bold text-gray-400">Default Ratings</h2>
+
+            <div className={"grid gap-1 "}>
+              <div className={"grid items-center gap-2"}>
+                <div className={"flex items-center gap-2 mt-2"}>
+                  <label className={""}> Max Points</label>
+                  <input
+                    type="number"
+                    className={`${TEXT_INPUT_STYLE} w-min`}
+                    min={1} // ensure max is always greater than 0
+                    max={99}
+                    value={settings.preferences.defaultRatings.maxDefaultPoints}
+                    placeholder={""}
+                    onChange={(event) => {
+                      setSettings((prevState) => {
+                        const newValue = Number(event.target.value);
+                        return {
+                          ...prevState,
+                          preferences: {
+                            ...prevState.preferences,
+                            defaultRatings: {
+                              ...prevState.preferences.defaultRatings,
+                              maxDefaultPoints: isNaN(newValue) ? 0 : newValue,
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  />
+                </div>
+
+                <label className={"row-start-2 text-nowrap"}>
+                  {" "}
+                  Max Rating Description
+                </label>
+                <textarea
+                  className={`${TEXT_INPUT_STYLE} row-start-3 col-span-4`}
+                  value={
+                    settings.preferences.defaultRatings.maxDefaultDescription
+                  }
+                  onChange={(event) => {
+                    setSettings((prevState) => {
+                      return {
+                        ...prevState,
+                        preferences: {
+                          ...prevState.preferences,
+                          defaultRatings: {
+                            ...prevState.preferences.defaultRatings,
+                            maxDefaultDescription: event.target.value,
+                          },
+                        },
+                      };
+                    });
+                  }}
+                />
+              </div>
+              <div className={"grid items-center gap-2"}>
+                <div className={"flex items-center gap-2 mt-2"}>
+                  <label className={""}> Min Points</label>
+                  <input
+                    type="number"
+                    className={`${TEXT_INPUT_STYLE} w-min`}
+                    min={0}
+                    max={
+                      settings.preferences.defaultRatings.maxDefaultPoints - 1
+                    } // ensure min is less than or equal to the max
+                    value={settings.preferences.defaultRatings.minDefaultPoints}
+                    placeholder={""}
+                    onChange={(event) => {
+                      setSettings((prevState) => {
+                        const newValue = Number(event.target.value);
+                        return {
+                          ...prevState,
+                          preferences: {
+                            ...prevState.preferences,
+                            defaultRatings: {
+                              ...prevState.preferences.defaultRatings,
+                              minDefaultPoints: isNaN(newValue) ? 0 : newValue,
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  />
+                </div>
+
+                <label className={"row-start-2 text-nowrap"}>
+                  {" "}
+                  Min Rating Description
+                </label>
+                <textarea
+                  className={`${TEXT_INPUT_STYLE} row-start-3 col-span-4`}
+                  value={
+                    settings.preferences.defaultRatings.minDefaultDescription
+                  }
+                  onChange={(event) => {
+                    setSettings((prevState) => {
+                      return {
+                        ...prevState,
+                        preferences: {
+                          ...prevState.preferences,
+                          defaultRatings: {
+                            ...prevState.preferences.defaultRatings,
+                            minDefaultDescription: event.target.value,
+                          },
+                        },
+                      };
+                    });
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
