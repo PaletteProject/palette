@@ -20,6 +20,12 @@ export interface CanvasCourse {
   default_view: "feed" | "wiki" | "modules" | "assignments" | "syllabus";
   root_account_id: number;
   enrollment_term_id: number;
+  term: {
+    id: number;
+    name: string;
+    start_at: string;
+    end_at: string;
+  };
   license?: string;
   grade_passback_setting?: string | null;
   end_at?: string | null;

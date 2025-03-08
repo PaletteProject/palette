@@ -97,10 +97,7 @@ function logCanvasAPIRequest(
     // log the entire request (up to 50 levels deep) for debugging
     console.log(
       "\nCanvas API Request:\n",
-      util.inspect(request, {
-        depth: 50,
-        colors: true,
-      }),
+      util.inspect(request, { depth: 50, colors: true }),
     );
   } else {
     // log just the method and URL for debugging
@@ -134,10 +131,7 @@ function logCanvasAPIResponse<T>(
     // log the whole response (up to 50 levels deep) for debugging
     console.log(
       "\nCanvas API Response:\n",
-      util.inspect(response, {
-        depth: 50,
-        colors: true,
-      }),
+      util.inspect(response, { depth: 50, colors: true }),
     );
   } else {
     // log just the status code for debugging
@@ -148,11 +142,8 @@ function logCanvasAPIResponse<T>(
   // only if there's a body
   if (body) {
     console.log(
-      `Canvas API Response Body (parsed JSON):\n 
-    ${util.inspect(body, {
-      depth: 50,
-      colors: true,
-    })}`,
+      `Canvas API Response Body (parsed JSON):\n
+    ${util.inspect(body, { depth: 50, colors: true })}`,
     );
   }
 }

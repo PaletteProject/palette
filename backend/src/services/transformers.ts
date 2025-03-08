@@ -30,12 +30,14 @@ export function mapToPaletteCourse(canvasCourse: CanvasCourse): Course | null {
     name: canvasCourse.name,
     courseCode: canvasCourse.course_code,
     termId: canvasCourse.enrollment_term_id,
+    term: canvasCourse.term,
     isPublic: canvasCourse.is_public,
     defaultView: canvasCourse.default_view,
     enrollments: teacherOrTaEnrollments.map((enrollment) => ({
       type: enrollment.type as "teacher" | "ta", // Type assertions to ensure compatibility
       enrollmentState: enrollment.enrollment_state,
     })),
+    courseFormat: canvasCourse.course_format,
   } as Course;
 }
 

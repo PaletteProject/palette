@@ -23,7 +23,6 @@ export const getSubmissions = asyncHandler(async (req, res) => {
 
 export const submitGrades = asyncHandler(async (req, res) => {
   console.log("got some grades to submit");
-
   const canvasResponse = await CoursesAPI.putSubmission(
     req.params.course_id,
     req.params.assignment_id,
@@ -35,7 +34,7 @@ export const submitGrades = asyncHandler(async (req, res) => {
 
   const apiResponse: PaletteAPIResponse<null> = {
     success: true,
-    message: "got some grades",
+    message: "submitted grades",
   };
 
   res.json(apiResponse);
