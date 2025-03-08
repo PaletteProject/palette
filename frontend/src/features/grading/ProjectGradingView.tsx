@@ -145,6 +145,16 @@ export function ProjectGradingView({
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
+  useEffect(() => {
+    if (activeStudentId !== null) {
+      const existingFeedback = getExistingIndividualFeedback(
+        submissions,
+        activeStudentId
+      );
+      setExistingIndividualFeedback(existingFeedback || null);
+    }
+  }, [submissions, activeStudentId]);
+
   /**
    * Update ratings state on changes.
    */
@@ -195,7 +205,7 @@ export function ProjectGradingView({
         } = {};
 
         rubric.criteria.forEach((criterion) => {
-          const selectedPoints = ratings[`${criterion.id}-${submission.id}`];
+          const selectedPoints = ratings[`${submission.id}-${criterion.id}`];
           const selectedRating = criterion.ratings.find(
             (rating) => rating.points === selectedPoints
           );
@@ -205,23 +215,43 @@ export function ProjectGradingView({
               // criterion from canvas API will always have an ID
               points: selectedRating.points,
               rating_id: selectedRating.id, // rating ID from Canvas API
-              comments: "", // placeholder for comments
+              comments: criterionComments[criterion.id] || "", // placeholder for comments
             };
           }
         });
 
+        let individualComment = undefined;
+        if (individualFeedbacks[submission.id]) {
+          individualComment = {
+            text_comment: individualFeedbacks[submission.id],
+            group_comment: false as const,
+          };
+        }
+
         return {
           submission_id: submission.id,
           user: submission.user,
+          individual_comment: individualComment,
+          group_comment: undefined, // Assume there are no group comments. Check for it and add it to the first submission outside of map below.
           rubric_assessment: rubricAssessment,
         };
       }
     );
 
+    // Add a group comment to the first submission if it exists
+    // This should affect all submissions on canvas side.
+    // No need to add it to all submissions.
+    if (groupFeedback !== "") {
+      gradedSubmissions[0].group_comment = {
+        text_comment: groupFeedback,
+        group_comment: true as const,
+        sent: false,
+      };
+    }
+
     /**
      * Store graded submissions in cache
      */
-
     setGradedSubmissionCache((prev) => prev.concat(gradedSubmissions));
 
     onClose();

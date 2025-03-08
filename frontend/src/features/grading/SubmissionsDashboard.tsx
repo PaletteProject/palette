@@ -26,10 +26,6 @@ export function SubmissionsDashboard({
   const { activeRubric } = useRubric();
 
   const { openDialog, closeDialog } = useChoiceDialog();
-  useEffect(() => {
-    console.log("activeAssignment", activeAssignment?.id);
-    console.log("activeCourse", activeCourse?.id);
-  }, [activeAssignment, activeCourse]);
 
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
@@ -44,17 +40,13 @@ export function SubmissionsDashboard({
     // This is being set in ProjectGradingView.tsx in handleSaveGrades()
 
     if (gradedSubmissions[0].group_comment) {
-      console.log(
-        "gradedSubmissions[0].group_comment",
-        gradedSubmissions[0].group_comment,
-      );
       await fetch(
         `${BASE_URL}${GRADING_ENDPOINT}${gradedSubmissions[0].user.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(gradedSubmissions[0]),
-        },
+        }
       );
       gradedSubmissions[0].group_comment.sent = true; // set it to sent so that it doesn't get sent again
     }
@@ -126,11 +118,11 @@ export function SubmissionsDashboard({
               (count, submission) => {
                 return submission.graded ? count + 1 : count;
               },
-              0, // initial value for counter
+              0 // initial value for counter
             );
 
             return Math.floor(
-              (gradedSubmissionCount / groupSubmissions.length) * 100,
+              (gradedSubmissionCount / groupSubmissions.length) * 100
             );
           };
           return (
