@@ -76,7 +76,7 @@ export const SettingsAPI = {
   },
 
   updateUserCourseFilters(
-    courseFilters: { id: string; option: string; param_code: string }[],
+    courseFilters: { id: string; option: string; param_code: string }[]
   ): void {
     if (settings === null) {
       initializeSettings();
@@ -92,8 +92,9 @@ export const SettingsAPI = {
   updateUserCourseFilterPresets(
     presets: {
       name: string;
+      id: string;
       filters: { option: string; param_code: string }[];
-    }[],
+    }[]
   ): void {
     if (settings === null) {
       initializeSettings();
@@ -102,7 +103,6 @@ export const SettingsAPI = {
     // Update the course filter presets in the settings object
     settings!.course_filter_presets = presets.map((preset) => ({
       ...preset,
-      id: uuidv4(),
     }));
 
     // Write the updated settings object to the settings file
@@ -121,7 +121,7 @@ function initializeSettings() {
   } else {
     try {
       const loadedSettings = JSON.parse(
-        fs.readFileSync(SETTINGS_PATH, "utf-8"),
+        fs.readFileSync(SETTINGS_PATH, "utf-8")
       ) as Partial<Settings>;
       // Fill in any missing fields with default values
       settings = mergeSettings(loadedSettings);
