@@ -51,8 +51,6 @@ export const RubricProvider = ({ children }: { children: ReactNode }) => {
 
       try {
         const response = await getRubric();
-        console.log("pancakes");
-        console.log(response);
         setActiveRubric((response.data as Rubric) ?? createRubric());
       } catch (error) {
         console.error("Failed to fetch rubric:", error);

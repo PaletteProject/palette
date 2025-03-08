@@ -9,9 +9,10 @@ import {
 } from "@components";
 import { useFetch } from "@hooks";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { useSettings } from "../../context/SettingsContext.tsx";
 
 export function SettingsMain(): ReactElement {
-  const [settings, setSettings] = useState<Settings | undefined>(undefined);
+  const { settings, setSettings } = useSettings();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -33,7 +34,10 @@ export function SettingsMain(): ReactElement {
       try {
         const response = await getSettings();
         if (response.success) {
-          setSettings(response.data as Settings);
+          setSettings((prevSettings) => ({
+            ...prevSettings,
+            ...(response.data as Settings),
+          }));
         } else {
           setError("Failed to fetch settings.");
         }
@@ -195,8 +199,6 @@ export function SettingsMain(): ReactElement {
                     placeholder={""}
                     onChange={(event) => {
                       setSettings((prevState) => {
-                        if (!prevState) return prevState;
-
                         const newValue = Number(event.target.value);
                         return {
                           ...prevState,
@@ -224,8 +226,6 @@ export function SettingsMain(): ReactElement {
                   }
                   onChange={(event) => {
                     setSettings((prevState) => {
-                      if (!prevState) return prevState; // guard
-
                       return {
                         ...prevState,
                         preferences: {
@@ -254,8 +254,6 @@ export function SettingsMain(): ReactElement {
                     placeholder={""}
                     onChange={(event) => {
                       setSettings((prevState) => {
-                        if (!prevState) return prevState;
-
                         const newValue = Number(event.target.value);
                         return {
                           ...prevState,
@@ -283,8 +281,6 @@ export function SettingsMain(): ReactElement {
                   }
                   onChange={(event) => {
                     setSettings((prevState) => {
-                      if (!prevState) return prevState; // guard
-
                       return {
                         ...prevState,
                         preferences: {
