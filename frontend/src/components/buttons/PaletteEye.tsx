@@ -1,15 +1,20 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 interface PaletteEyeProps {
   onClick: () => void;
+  focused: boolean;
 }
 
-export const PaletteEye = ({ onClick }: PaletteEyeProps) => {
+export const PaletteEye = ({ onClick, focused }: PaletteEyeProps) => {
   return (
-    <div onClick={onClick} className="cursor-pointer">
-      <FontAwesomeIcon icon={faEye} title="View Existing Feedback" />
+    <div onClick={onClick}>
+      <FontAwesomeIcon
+        icon={focused ? faEyeSlash : faEye}
+        title="View Existing Feedback"
+        className={`cursor-pointer ${focused ? "text-blue-400" : "text-white"}`}
+      />
     </div>
   );
 };
