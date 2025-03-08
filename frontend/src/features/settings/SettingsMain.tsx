@@ -1,5 +1,4 @@
-import { ReactElement, useEffect, useState } from "react";
-import { Settings } from "palette-types";
+import { ReactElement, useState } from "react";
 import {
   ChoiceDialog,
   Footer,
@@ -12,11 +11,9 @@ import { useChoiceDialog } from "../../context/DialogContext.tsx";
 import { useSettings } from "../../context/SettingsContext.tsx";
 
 export function SettingsMain(): ReactElement {
-  const { settings, setSettings } = useSettings();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { settings, setSettings, error } = useSettings();
+  const [loading, setLoading] = useState(false);
 
-  const { fetchData: getSettings } = useFetch("/user/settings");
   const { fetchData: updateSettings } = useFetch("/user/settings", {
     method: "PUT",
     body: JSON.stringify(settings),
@@ -27,30 +24,6 @@ export function SettingsMain(): ReactElement {
   const TEXT_INPUT_STYLE =
     "w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2" +
     " focus:ring-blue-500";
-
-  // Effect to fetch user settings on component mount
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await getSettings();
-        if (response.success) {
-          setSettings((prevSettings) => ({
-            ...prevSettings,
-            ...(response.data as Settings),
-          }));
-        } else {
-          setError("Failed to fetch settings.");
-        }
-      } catch (err) {
-        console.error(err);
-        setError("An error occurred while fetching settings.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void fetchSettings();
-  }, []);
 
   /**
    * Handles input change for settings fields.

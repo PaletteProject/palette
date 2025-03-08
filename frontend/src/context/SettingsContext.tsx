@@ -32,11 +32,13 @@ const DEFAULT_SETTINGS: Settings = {
 type SettingsContextProps = {
   settings: Settings;
   setSettings: Dispatch<SetStateAction<Settings>>;
+  error: string;
 };
 
 const SettingsContext = createContext<SettingsContextProps>({
   settings: DEFAULT_SETTINGS,
   setSettings: () => {},
+  error: "",
 });
 
 export const useSettings = () => useContext(SettingsContext);
@@ -44,6 +46,7 @@ export const useSettings = () => useContext(SettingsContext);
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const { fetchData: getSettings } = useFetch("/user/settings");
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -55,7 +58,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
             ...(response.data as Settings),
           }));
         } else {
-          throw new Error("Failed to fetch settings");
+          setError("Failed to fetch settings, loading defaults.");
+          setSettings(DEFAULT_SETTINGS);
         }
       } catch (error) {
         console.error(error);
@@ -66,7 +70,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     void fetchSettings();
   }, []);
   return (
-    <SettingsContext.Provider value={{ settings, setSettings }}>
+    <SettingsContext.Provider value={{ settings, setSettings, error }}>
       {children}
     </SettingsContext.Provider>
   );
