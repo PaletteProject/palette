@@ -38,13 +38,6 @@ export function ProjectGradingView({
   }
 
   const [ratings, setRatings] = useState<Record<string, number | string>>({});
-  const [groupFeedback, setGroupFeedback] = useState<string>("");
-
-  // group grading checkbox state
-  const [checkedCriteria, setCheckedCriteria] = useState<{
-    [key: string]: boolean;
-  }>({});
-
   const [criterionComments, setCriterionComments] = useState<
     Record<string, string>
   >({});
@@ -78,8 +71,11 @@ export function ProjectGradingView({
     useState<boolean>(false);
   const [showCriterionCommentTextArea, setShowCriterionCommentTextArea] =
     useState<boolean>(false);
+  // group grading checkbox state
+  const [checkedCriteria, setCheckedCriteria] = useState<{
+    [key: string]: boolean;
+  }>({});
 
-  // Dialog state
   const { openDialog, closeDialog } = useChoiceDialog();
 
   const existingCriterionComments = submissions[0].rubricAssessment
@@ -88,15 +84,29 @@ export function ProjectGradingView({
           acc[criterionId] = criterion.comments;
           return acc;
         },
-        {} as Record<string, string>,
+        {} as Record<string, string>
       )
     : {};
 
+  const setInitialGroupFlags = () => {
+    const newFlags = rubric.criteria.reduce(
+      (acc, criterion) => {
+        acc[criterion.id] = criterion.isGroupCriterion;
+        return acc;
+      },
+      {} as Record<string, boolean>
+    );
+
+    setCheckedCriteria(newFlags);
+  };
+
   /**
-   * Initialize ratings when grading modal opens. Maps criterion directly from rubric.
+   * Initialize project grading view.
    */
   useEffect(() => {
     if (isOpen) {
+      setInitialGroupFlags();
+
       const initialRatings: Record<string, number | string> = {};
 
       // process the cached submissions, prioritizing the latest in progress grades over what Canvas current has saved.
@@ -105,9 +115,9 @@ export function ProjectGradingView({
 
         if (rubric_assessment) {
           for (const [criterionId, assessment] of Object.entries(
-            rubric_assessment,
+            rubric_assessment
           )) {
-            initialRatings[`${submission_id}-${criterionId}`] =
+            initialRatings[`${criterionId}-${submission_id}`] =
               assessment.points ?? "";
           }
         }
@@ -117,12 +127,12 @@ export function ProjectGradingView({
       submissions.forEach((submission) => {
         if (submission.rubricAssessment) {
           for (const [criterionId, assessment] of Object.entries(
-            submission.rubricAssessment,
+            submission.rubricAssessment
           )) {
             // avoid overwriting data from cache
-            const key = `${submission.id}-${criterionId}`;
+            const key = `${criterionId}-${submission.id}`;
             if (!(key in initialRatings)) {
-              initialRatings[`${submission.id}-${criterionId}`] =
+              initialRatings[`${criterionId}-${submission.id}`] =
                 assessment.points ?? "";
             }
           }
@@ -130,18 +140,9 @@ export function ProjectGradingView({
       });
 
       setRatings(initialRatings);
+      console.log(initialRatings);
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
-
-  useEffect(() => {
-    if (activeStudentId !== null) {
-      const existingFeedback = getExistingIndividualFeedback(
-        submissions,
-        activeStudentId,
-      );
-      setExistingIndividualFeedback(existingFeedback || null);
-    }
-  }, [submissions, activeStudentId]);
 
   /**
    * Update ratings state on changes.
@@ -150,14 +151,14 @@ export function ProjectGradingView({
     submissionId: number,
     criterionId: string,
     value: string,
-    applyToGroup: boolean,
+    applyToGroup: boolean
   ) => {
     setRatings((prev) => {
       const newValue = value === "" ? "" : Number(value);
 
       const updatedRatings = {
         ...prev,
-        [`${submissionId}-${criterionId}`]: newValue,
+        [`${criterionId}-${submissionId}`]: newValue,
       };
 
       if (applyToGroup) {
@@ -165,7 +166,7 @@ export function ProjectGradingView({
         submissions.forEach((submission) => {
           // iterate over submissions directly rather than existing ratings to ensure we include the entries that
           // haven't been graded yet
-          updatedRatings[`${submission.id}-${criterionId}`] = newValue;
+          updatedRatings[`${criterionId}-${submission.id}`] = newValue;
         });
       }
 
@@ -193,9 +194,9 @@ export function ProjectGradingView({
         } = {};
 
         rubric.criteria.forEach((criterion) => {
-          const selectedPoints = ratings[`${submission.id}-${criterion.id}`];
+          const selectedPoints = ratings[`${criterion.id}-${submission.id}`];
           const selectedRating = criterion.ratings.find(
-            (rating) => rating.points === selectedPoints,
+            (rating) => rating.points === selectedPoints
           );
 
           if (selectedRating) {
@@ -203,43 +204,23 @@ export function ProjectGradingView({
               // criterion from canvas API will always have an ID
               points: selectedRating.points,
               rating_id: selectedRating.id, // rating ID from Canvas API
-              comments: criterionComments[criterion.id] || "", // placeholder for comments
+              comments: "", // placeholder for comments
             };
           }
         });
 
-        let individualComment = undefined;
-        if (individualFeedbacks[submission.id]) {
-          individualComment = {
-            text_comment: individualFeedbacks[submission.id],
-            group_comment: false as const,
-          };
-        }
-
         return {
           submission_id: submission.id,
           user: submission.user,
-          individual_comment: individualComment,
-          group_comment: undefined, // Assume there are no group comments. Check for it and add it to the first submission outside of map below.
           rubric_assessment: rubricAssessment,
         };
-      },
+      }
     );
-
-    // Add a group comment to the first submission if it exists
-    // This should affect all submissions on canvas side.
-    // No need to add it to all submissions.
-    if (groupFeedback !== "") {
-      gradedSubmissions[0].group_comment = {
-        text_comment: groupFeedback,
-        group_comment: true as const,
-        sent: false,
-      };
-    }
 
     /**
      * Store graded submissions in cache
      */
+
     setGradedSubmissionCache((prev) => prev.concat(gradedSubmissions));
 
     onClose();
@@ -250,7 +231,7 @@ export function ProjectGradingView({
    */
   const getBackgroundColor = (
     value: number | string,
-    criterion: Criteria,
+    criterion: Criteria
   ): string => {
     if (value === "") return "bg-gray-800"; // Default background color
 
@@ -291,46 +272,6 @@ export function ProjectGradingView({
     });
   };
 
-  const getExistingGroupFeedback = (submissions: Submission[]) => {
-    const allSubmissionComments = [];
-    const seenComments = new Set<string>();
-    const existingGroupComments = [];
-
-    for (const submission of submissions) {
-      const submissionComments = submission.comments;
-      for (const comment of submissionComments) {
-        if (seenComments.has(comment.comment)) {
-          existingGroupComments.push(comment);
-        } else {
-          seenComments.add(comment.comment);
-        }
-      }
-      allSubmissionComments.push(...submissionComments);
-    }
-
-    // setGroupFeedback(allSubmissionComments.join("\n"));
-    // console.log("Existing group comments:", existingGroupComments);
-    return existingGroupComments;
-  };
-
-  const getExistingIndividualFeedback = (
-    submissions: Submission[],
-    submissionId: number,
-  ) => {
-    const existingGroupFeedback = getExistingGroupFeedback(submissions);
-    const studentsComments = submissions.find(
-      (submission) => submission.id === submissionId,
-    )?.comments;
-
-    const existingIndividualComments = studentsComments?.filter(
-      (comment) =>
-        !existingGroupFeedback.some(
-          (existingComment) => existingComment.comment === comment.comment,
-        ),
-    );
-    return existingIndividualComments;
-  };
-
   const renderGradingPopup = () => {
     return createPortal(
       <div
@@ -339,28 +280,8 @@ export function ProjectGradingView({
         }
       >
         <div className="bg-gray-700 p-6 rounded-xl shadow-lg relative w-full grid gap-4 m-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <h1 className="text-4xl text-white font-semibold">{groupName}</h1>
-              <PaletteBrush
-                onClick={() => {
-                  setShowGroupFeedbackTextArea(!showGroupFeedbackTextArea);
-                  setShowExistingGroupFeedback(false);
-                }}
-                title="Add Group Feedback"
-              />
-              <PaletteEye
-                onClick={() => {
-                  setShowExistingGroupFeedback(!showExistingGroupFeedback);
-                  setShowGroupFeedbackTextArea(false);
-                }}
-              />
-            </div>
-          </div>
-          {showExistingGroupFeedback && renderExistingGroupFeedback()}
-          {showGroupFeedbackTextArea && renderGroupFeedbackTextArea()}
+          <h1 className="text-4xl text-white font-semibold">{groupName}</h1>
           {renderGradingTable()}
-
           <div className={"flex gap-4 justify-end"}>
             <PaletteActionButton
               title={"Close"}
@@ -375,40 +296,7 @@ export function ProjectGradingView({
           </div>
         </div>
       </div>,
-      document.getElementById("portal-root") as HTMLElement,
-    );
-  };
-
-  const renderGroupFeedbackTextArea = () => {
-    return (
-      <div className="flex flex-col gap-2">
-        <textarea
-          className="w-1/3 min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto 
-          scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
-          onChange={(e) => setGroupFeedback(e.target.value)}
-          value={groupFeedback}
-          placeholder="Enter feedback for the group..."
-        />
-      </div>
-    );
-  };
-
-  const renderExistingGroupFeedback = () => {
-    return (
-      <div className="flex flex-col gap-2">
-        {getExistingGroupFeedback(submissions).length > 0 ? (
-          <>
-            <h2 className="text-lg font-bold">Existing Group Comments</h2>
-            <ul className="list-disc list-inside">
-              {getExistingGroupFeedback(submissions).map((comment) => (
-                <li key={comment.id}>{comment.comment}</li>
-              ))}
-            </ul>
-          </>
-        ) : (
-          <p>No existing group comments</p>
-        )}
-      </div>
+      document.getElementById("portal-root") as HTMLElement
     );
   };
 
@@ -506,7 +394,7 @@ export function ProjectGradingView({
           <PaletteBrush
             onClick={() => {
               setActiveStudentId(
-                activeStudentId === submission.id ? null : submission.id,
+                activeStudentId === submission.id ? null : submission.id
               );
               setShowIndividualFeedbackTextArea(true);
               setShowExistingIndividualFeedback(false);
@@ -516,7 +404,7 @@ export function ProjectGradingView({
           <PaletteEye
             onClick={() => {
               setActiveStudentId((prev) =>
-                prev === submission.id ? null : submission.id,
+                prev === submission.id ? null : submission.id
               );
               setShowExistingIndividualFeedback(true);
               setShowIndividualFeedbackTextArea(false);
@@ -539,7 +427,7 @@ export function ProjectGradingView({
           <PaletteBrush
             onClick={() => {
               setActiveCriterion(
-                activeCriterion === criterion.id ? null : criterion.id,
+                activeCriterion === criterion.id ? null : criterion.id
               );
               setShowCriterionCommentTextArea(true);
               setShowExistingCriterionComment(false);
@@ -549,7 +437,7 @@ export function ProjectGradingView({
           <PaletteEye
             onClick={() => {
               setActiveCriterion(
-                activeCriterion === criterion.id ? null : criterion.id,
+                activeCriterion === criterion.id ? null : criterion.id
               );
               setShowExistingCriterionComment(true);
               setShowCriterionCommentTextArea(false);
@@ -618,7 +506,7 @@ export function ProjectGradingView({
                     <select
                       className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
                         ratings[`${criterion.id}-${submission.id}`] ?? "",
-                        criterion,
+                        criterion
                       )}`}
                       value={ratings[`${criterion.id}-${submission.id}`] ?? ""}
                       onChange={(e) =>
@@ -626,7 +514,7 @@ export function ProjectGradingView({
                           submission.id,
                           criterion.id,
                           e.target.value,
-                          checkedCriteria[criterion.id],
+                          checkedCriteria[criterion.id]
                         )
                       }
                     >
