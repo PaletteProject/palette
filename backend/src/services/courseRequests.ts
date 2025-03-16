@@ -17,6 +17,7 @@ import {
 } from "./transformers.js";
 import { GroupedSubmissions } from "palette-types/dist/types/GroupedSubmissions";
 import { SettingsAPI } from "../settings.js";
+import { getMonthName, monthCompare } from "../utils/time.js";
 const SUBMISSION_QUERY_PARAMS =
   "?include[]=group&include[]=user&include[]=submission_comments&grouped=true&include[]=rubric_assessment";
 
@@ -318,21 +319,23 @@ function filterAssignments(
         assignment.created_at === null
           ? new Date()
           : new Date(assignment.created_at);
+
+      const monthCreated = getMonthName(createdAt.getMonth());
       console.log(
         "createdAt:      ",
-        createdAt.getFullYear(),
-        createdAt.getMonth(),
-        createdAt.getDate()
+        monthCreated,
+        createdAt.getDate(),
+        createdAt.getFullYear()
       );
       console.log("monthString:    ", monthString);
-      console.log("result:         ", createdAt >= monthThreshold);
+      console.log("result:         ", monthCompare(monthCreated, monthString));
       console.log("--------------------------------");
-      return createdAt >= monthThreshold;
+      return monthCompare(monthCreated, monthString);
     });
   }
 
-  console.log("Step 2: Filter by created at");
-  console.log(filteredAssignments);
+  // console.log("Step 2: Filter by created at");
+  // console.log(filteredAssignments);
 
   if (assignmentFilters.some((filter) => filter.param_code === "published")) {
     filteredAssignments = filteredAssignments.filter((assignment) => {
