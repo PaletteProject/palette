@@ -14,6 +14,8 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { getMonthName } from "../../utils/time";
+
 export function AssignmentSelectionMenu({
   onSelect,
 }: {
@@ -33,6 +35,7 @@ export function AssignmentSelectionMenu({
   const [showAssignments, setShowAssignments] = useState<boolean>(false);
   const [showSearchBar, setShowSearchBar] = useState<boolean>(true);
   const [settingsFetched, setSettingsFetched] = useState<boolean>(false);
+  const [getAll, setGetAll] = useState<boolean>(false);
   const [selectedFilters, setSelectedFilters] = useState<
     { option: string; param_code: string }[]
   >([]);
@@ -79,36 +82,9 @@ export function AssignmentSelectionMenu({
 
   const currentMonth = new Date().getMonth() + 1;
 
-  function getMonthName(month: number) {
-    if (month <= 0) {
-      month = month + 12;
-    }
-    const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    return monthNames[month - 1];
-  }
   const preDefinedFilters = [
     {
-      label: "Published",
-      value: "published",
-      options: ["published", "unpublished"],
-      selected_option: "",
-      param_code: "published",
-    },
-    {
-      label: "Created At",
+      label: "Created At Threshold",
       value: "created_at",
       options: [
         getMonthName(currentMonth),
@@ -128,18 +104,16 @@ export function AssignmentSelectionMenu({
   }, []);
 
   useEffect(() => {
-    if (selectedFilters.length > 0) {
+    if (selectedFilters.length > 0 || getAll) {
       console.log("selectedFilters:", selectedFilters);
       void updateUserAssignmentFilters();
       void fetchAssignments();
-      setAssignmentsFetched(true);
+      setShowAssignments(true);
       setShowFilterTable(false);
     }
   }, [selectedFilters]);
 
   useEffect(() => {
-    console.log("assignmentFilterPresets:", assignmentFilterPresets);
-    console.log("deletedPreset:", deletedPreset);
     if (assignmentFilterPresets.length > 0 || deletedPreset) {
       void updateUserAssignmentFilterPresets();
     }
@@ -218,10 +192,10 @@ export function AssignmentSelectionMenu({
           className="bg-gray-600 hover:bg-gray-500 px-3 py-3 cursor-pointer rounded-lg font-bold text-sm w-full"
         />
         <PaletteActionButton
-          color={"BLUE"}
-          title={"Search"}
+          color={searchQuery == "" ? "GREEN" : "BLUE"}
+          title={searchQuery == "" ? "All" : "Search"}
           onClick={handleSearchAssignments}
-          autoFocus={true}
+          autoFocus={false}
         />
       </div>
     );
@@ -275,7 +249,7 @@ export function AssignmentSelectionMenu({
     setStagedFilters(newStagedFilters);
   };
 
-  const renderPresetFilters = () => {
+  const renderPresetSection = () => {
     return (
       <div className="flex flex-col gap-2">
         <div className="flex flex-row gap-2 items-center">
@@ -326,7 +300,7 @@ export function AssignmentSelectionMenu({
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 flex-1 mt-1">
+                  <div className="flex flex-row gap-2 mt-1">
                     {preDefinedFilters.map((preDefinedFilter) => {
                       const matchingFilter = preset.filters.find(
                         (f) => f.param_code === preDefinedFilter.param_code
@@ -334,7 +308,7 @@ export function AssignmentSelectionMenu({
                       return (
                         <p
                           key={preDefinedFilter.value}
-                          className={`text-center ${
+                          className={`text-center flex items-center justify-center h-full ${
                             matchingFilter?.option
                               ? "text-white"
                               : "text-gray-500"
@@ -362,17 +336,22 @@ export function AssignmentSelectionMenu({
         {
           <table className="border-2 border-gray-500 rounded-lg text-sm w-full">
             <thead className="bg-gray-600 border-2 border-gray-500">
-              <tr className="grid grid-cols-2">
+              <tr className="grid grid-cols-1">
                 {/* Filter Labels */}
                 {preDefinedFilters.map((filter) => (
                   <th key={filter.value} className="border-2 border-gray-500">
-                    {filter.label}
+                    {filter.label}{" "}
+                    {filter.label === "Created At Threshold" ? (
+                      <p className="text-gray-400 text-xs">
+                        Assignments created after this month will be shown
+                      </p>
+                    ) : null}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              <tr className="grid grid-cols-2">
+              <tr className="grid grid-cols-1">
                 {/* Filter Options */}
                 {preDefinedFilters.map((filter) => (
                   <td key={filter.value} className="border-2 border-gray-500">
@@ -467,6 +446,13 @@ export function AssignmentSelectionMenu({
     setStagedFilters([]);
   };
 
+  const handleGetAll = (event: MouseEvent<HTMLButtonElement>): void => {
+    event.preventDefault();
+    setGetAll(true);
+    setSelectedFilters([]);
+    setStagedFilters([]);
+  };
+
   const fetchAssignments = async () => {
     setLoading(true);
     try {
@@ -517,19 +503,11 @@ export function AssignmentSelectionMenu({
           focused={showFilterTable}
         />
       </div>
-      {showSearchBar && renderSearchBar()}
+      {showSearchBar && !assignmentsFetched && renderSearchBar()}
       {showFilterTable ? <div>{renderAssignmentFilterTable()}</div> : null}
-      {assignmentsFetched ? renderAssignments() : null}
-      {renderPresetFilters()}
+      {showAssignments ? renderAssignments() : null}
+      {renderPresetSection()}
       <div className={"justify-self-end flex flex-row gap-2 items-center"}>
-        {assignmentsFetched ? (
-          <PaletteActionButton
-            color={"BLUE"}
-            title={"Refresh"}
-            onClick={handleGetAssignments}
-            autoFocus={true}
-          />
-        ) : null}
         {stagedFilters.length > 0 && (
           <>
             <PaletteTrash
@@ -551,6 +529,12 @@ export function AssignmentSelectionMenu({
             />
           </>
         )}
+        <PaletteActionButton
+          color={"GREEN"}
+          title={"Get All"}
+          onClick={(e) => void handleGetAll(e)}
+          autoFocus={false}
+        />
         <ChoiceDialog />
       </div>
     </div>

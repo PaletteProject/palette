@@ -37,8 +37,11 @@ type GradedSubmission = {
 const RESULTS_PER_PAGE = 100;
 
 let yearThreshold = new Date();
+let monthThreshold = new Date();
+let monthString = "";
 let courseFormat = "";
 let courseCode = "";
+let assignmentPublished = false;
 const developerCourseCode = "DEV-2019Spring-SER515-Group5-TestShell";
 const courseCodes = ["CS", "CSE", "CSC", "SER", "EEE"];
 
@@ -100,7 +103,11 @@ async function getAllAssignments(courseId: string) {
   console.log("assignmentFilters");
   console.log(assignmentFilters);
 
-  // TODO: Pre filtering based on params
+  if (assignmentFilters) {
+    monthString =
+      assignmentFilters.find((filter) => filter.param_code === "created_at")
+        ?.option ?? "";
+  }
 
   do {
     fetchedAssignments = await fetchAPI<CanvasAssignment[]>(
@@ -282,22 +289,63 @@ function filterAssignments(
   assignmentFilters: { id: string; option: string; param_code: string }[]
 ): CanvasAssignment[] {
   // Step 1: Filter by name
-  // const searchQuery = assignmentFilters.find(
-  //   (filter) => filter.param_code === "name"
-  // )?.option;
+  const searchQuery = assignmentFilters.find(
+    (filter) => filter.param_code === "name"
+  )?.option;
 
-  // console.log("searchQuery");
-  // console.log(searchQuery);
+  console.log("searchQuery");
+  console.log(searchQuery);
 
-  // if (searchQuery) {
-  //   canvasAssignments = canvasAssignments.filter((assignment) => {
-  //     console.log("assignment.name");
-  //     console.log(assignment.name);
-  //     return assignment.name.toLowerCase().includes(searchQuery.toLowerCase());
-  //   });
-  // }
+  let filteredAssignments = canvasAssignments.filter((assignment) => {
+    return assignment.published === true;
+  });
 
-  return canvasAssignments;
+  // Filter by name
+  if (searchQuery && searchQuery !== "") {
+    filteredAssignments = canvasAssignments.filter((assignment) => {
+      return assignment.name.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+    return filteredAssignments; // leave the function early
+  }
+
+  // console.log("Step 1: Filter by name");
+  // console.log(filteredAssignments);
+
+  // Filter by created at
+  if (assignmentFilters.some((filter) => filter.param_code === "created_at")) {
+    filteredAssignments = filteredAssignments.filter((assignment) => {
+      const createdAt =
+        assignment.created_at === null
+          ? new Date()
+          : new Date(assignment.created_at);
+      console.log(
+        "createdAt:      ",
+        createdAt.getFullYear(),
+        createdAt.getMonth(),
+        createdAt.getDate()
+      );
+      console.log("monthString:    ", monthString);
+      console.log("result:         ", createdAt >= monthThreshold);
+      console.log("--------------------------------");
+      return createdAt >= monthThreshold;
+    });
+  }
+
+  console.log("Step 2: Filter by created at");
+  console.log(filteredAssignments);
+
+  if (assignmentFilters.some((filter) => filter.param_code === "published")) {
+    filteredAssignments = filteredAssignments.filter((assignment) => {
+      // console.log("assignment.published");
+      // console.log(assignment.published);
+      return assignment.published === assignmentPublished;
+    });
+  }
+
+  // console.log("Step 3: Filter by published");
+  // console.log(filteredAssignments);
+
+  return filteredAssignments;
 }
 
 /**
@@ -330,8 +378,6 @@ export const CoursesAPI = {
       canvasAssignments,
       assignmentFilters ?? []
     );
-    console.log("filteredAssignments");
-    console.log(filteredAssignments.length);
     return filteredAssignments.map(mapToPaletteAssignment);
   },
 
