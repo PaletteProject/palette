@@ -86,12 +86,6 @@ export function RubricBuilderMain(): ReactElement {
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
 
-  /**
-   * Custom fetch hooks provide a `fetchData` callback to send any type of fetch request.
-   *
-   * See PaletteAPIRequest for options structure.
-   */
-
   useEffect(() => {
     if (!activeCourse || !activeAssignment) return;
     if (hasExistingRubric) handleExistingRubric();
