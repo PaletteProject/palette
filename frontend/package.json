@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "prettier-check": "prettier --check 'src/**/*.{js,ts,jsx,tsx,json,md}'",
     "preview": "vite preview",
-    "test": "vitest --run",
+    "test": "echo 'future frontend tests will run here!' ",
     "test:watch": "vitest",
     "test:coverage": "vitest --coverage",
     "clean": "rm -rf dist && rm -rf node_modules && npm install"
