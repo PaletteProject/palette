@@ -21,6 +21,8 @@ export const defaultSettings: Settings = {
   },
   course_filters: [],
   course_filter_presets: [],
+  assignment_filters: [],
+  assignment_filter_presets: [],
 } as const;
 
 // the settings object
@@ -200,6 +202,11 @@ function mergeSettings(target: Partial<Settings>): Settings {
     course_filters: target.course_filters ?? defaultSettings.course_filters,
     course_filter_presets:
       target.course_filter_presets ?? defaultSettings.course_filter_presets,
+    assignment_filters:
+      target.assignment_filters ?? defaultSettings.assignment_filters,
+    assignment_filter_presets:
+      target.assignment_filter_presets ??
+      defaultSettings.assignment_filter_presets,
   };
 }
 

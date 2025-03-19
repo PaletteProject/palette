@@ -273,8 +273,8 @@ function filterCourses(
     filteredCourses.push(developerCourse);
   }
 
-  console.log("Step 5: Include developer course");
-  console.log(filteredCourses);
+  // console.log("Step 5: Include developer course");
+  // console.log(filteredCourses);
 
   return filteredCourses;
 }
@@ -297,6 +297,7 @@ function filterAssignments(
   console.log("searchQuery");
   console.log(searchQuery);
 
+  // By default, give the user the published assignments
   let filteredAssignments = canvasAssignments.filter((assignment) => {
     return assignment.published === true;
   });
@@ -335,17 +336,6 @@ function filterAssignments(
   }
 
   // console.log("Step 2: Filter by created at");
-  // console.log(filteredAssignments);
-
-  if (assignmentFilters.some((filter) => filter.param_code === "published")) {
-    filteredAssignments = filteredAssignments.filter((assignment) => {
-      // console.log("assignment.published");
-      // console.log(assignment.published);
-      return assignment.published === assignmentPublished;
-    });
-  }
-
-  // console.log("Step 3: Filter by published");
   // console.log(filteredAssignments);
 
   return filteredAssignments;
