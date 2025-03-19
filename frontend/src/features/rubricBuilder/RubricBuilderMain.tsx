@@ -320,8 +320,6 @@ export function RubricBuilderMain(): ReactElement {
     );
   }, [activeRubric?.criteria]);
 
-
-
   /**
    * Callback function to trigger the creation of a new criterion on the rubric.
    * @param event user clicks "add criteria"
