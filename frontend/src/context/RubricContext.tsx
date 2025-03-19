@@ -1,4 +1,3 @@
-import { PaletteAPIResponse, Rubric } from "palette-types";
 import {
   createContext,
   ReactNode,
@@ -6,9 +5,11 @@ import {
   useEffect,
   useState,
 } from "react";
+import { PaletteAPIResponse, Rubric } from "palette-types";
 import { useFetch } from "@hooks";
 import { useCourse } from "./CourseProvider.tsx";
 import { useAssignment } from "./AssignmentProvider.tsx";
+import { useSettings } from "./SettingsContext.tsx";
 import { createRubric } from "@utils";
 
 type RubricProviderProps = {
@@ -17,12 +18,7 @@ type RubricProviderProps = {
   getRubric: () => Promise<PaletteAPIResponse<Rubric>>;
 };
 
-const RubricContext = createContext<RubricProviderProps>({
-  activeRubric: createRubric(),
-  setActiveRubric: () => {},
-  getRubric: () =>
-    Promise.resolve({ data: createRubric() } as PaletteAPIResponse<Rubric>),
-});
+const RubricContext = createContext<RubricProviderProps | undefined>(undefined);
 
 export const useRubric = () => {
   const context = useContext(RubricContext);
@@ -33,17 +29,20 @@ export const useRubric = () => {
 };
 
 /**
- * Provides the context globally throughout the React application.
+ * Provides the rubric context globally.
  */
 export const RubricProvider = ({ children }: { children: ReactNode }) => {
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
+  const { settings } = useSettings();
 
   const { fetchData: getRubric } = useFetch<Rubric>(
     `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}`,
   );
 
-  const [activeRubric, setActiveRubric] = useState<Rubric>(createRubric());
+  const [activeRubric, setActiveRubric] = useState<Rubric>(() =>
+    createRubric(settings),
+  );
 
   useEffect(() => {
     const fetchRubric = async () => {
@@ -51,17 +50,15 @@ export const RubricProvider = ({ children }: { children: ReactNode }) => {
 
       try {
         const response = await getRubric();
-        console.log("pancakes");
-        console.log(response);
-        setActiveRubric((response.data as Rubric) ?? createRubric());
+        setActiveRubric((response.data as Rubric) ?? createRubric(settings));
       } catch (error) {
         console.error("Failed to fetch rubric:", error);
-        setActiveRubric(createRubric());
+        setActiveRubric(createRubric(settings));
       }
     };
 
     void fetchRubric();
-  }, [activeCourse?.id, activeAssignment?.rubricId]);
+  }, [activeCourse?.id, activeAssignment?.rubricId, settings]);
 
   return (
     <RubricContext.Provider

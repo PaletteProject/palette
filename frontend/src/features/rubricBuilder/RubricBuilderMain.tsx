@@ -30,12 +30,14 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useFetch } from "@hooks";
-import { createCriterion, createRubric } from "@utils";
+
 import { Criteria, PaletteAPIResponse, Rubric, Template } from "palette-types";
 import { CSVExport, CSVImport } from "@features";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAssignment, useCourse, useRubric } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { useSettings } from "../../context/SettingsContext.tsx";
+import { createCriterion, createRubric } from "@utils";
 
 export function RubricBuilderMain(): ReactElement {
   const { activeRubric, setActiveRubric, getRubric } = useRubric();
@@ -130,7 +132,7 @@ export function RubricBuilderMain(): ReactElement {
    * Fires when user selects an assignment that doesn't have a rubric id associated with it.
    */
   const handleNewRubric = () => {
-    const newRubric = createRubric();
+    const newRubric = createRubric(settings);
     setActiveRubric(newRubric);
 
     openDialog({
@@ -205,7 +207,7 @@ export function RubricBuilderMain(): ReactElement {
    */
   const startNewRubric = () => {
     closeDialog();
-    const newRubric = createRubric();
+    const newRubric = createRubric(settings);
     setActiveRubric(newRubric); // set the active rubric to a fresh rubric
   };
 
@@ -352,6 +354,8 @@ export function RubricBuilderMain(): ReactElement {
     );
   }, [activeRubric?.criteria]);
 
+  const { settings } = useSettings();
+
   /**
    * Callback function to trigger the creation of a new criterion on the rubric.
    * @param event user clicks "add criteria"
@@ -359,7 +363,7 @@ export function RubricBuilderMain(): ReactElement {
   const handleAddCriteria = (event: MouseEvent) => {
     event.preventDefault();
     if (!activeRubric) return;
-    const newCriteria = [...activeRubric.criteria, createCriterion()];
+    const newCriteria = [...activeRubric.criteria, createCriterion(settings)];
     setActiveRubric({ ...activeRubric, criteria: newCriteria });
     setActiveCriterionIndex(newCriteria.length - 1);
   };
@@ -548,7 +552,7 @@ export function RubricBuilderMain(): ReactElement {
    */
   useEffect(() => {
     if (isCanvasBypassed && !activeRubric) {
-      setActiveRubric(createRubric());
+      setActiveRubric(createRubric(settings));
     }
     if (!activeRubric) return;
     localStorage.setItem("rubric", JSON.stringify(activeRubric));
@@ -679,7 +683,7 @@ export function RubricBuilderMain(): ReactElement {
     <DndContext onDragEnd={handleDragEnd}>
       <div className="min-h-screen justify-between flex flex-col w-screen  bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
         <Header />
-        <div className={"px-48"}>{renderContent()}</div>
+        <div className={"px-48 flex justify-center"}>{renderContent()}</div>
         {!isCanvasBypassed && renderBypassButton()}
 
         <ChoiceDialog />
