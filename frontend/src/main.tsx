@@ -50,5 +50,5 @@ createRoot(document.getElementById("root")!).render(
         </AssignmentProvider>
       </CourseProvider>
     </SettingsProvider>
-  </StrictMode>
+  </StrictMode>,
 );
