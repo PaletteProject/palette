@@ -12,7 +12,11 @@ import {
   PaletteTrash,
 } from "@components";
 import { v4 as uuidv4 } from "uuid";
-import { faCog } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCog,
+  faChevronDown,
+  faChevronUp,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getMonthName } from "../../utils/time";
 
@@ -33,13 +37,10 @@ export function AssignmentSelectionMenu({
   const [presetName, setPresetName] = useState<string>("");
   const [showFilterTable, setShowFilterTable] = useState<boolean>(false);
   const [showAssignments, setShowAssignments] = useState<boolean>(false);
-  const [showSearchBar, setShowSearchBar] = useState<boolean>(true);
-  const [settingsFetched, setSettingsFetched] = useState<boolean>(false);
-  const [getAll, setGetAll] = useState<boolean>(false);
+  const [selectedFilterName, setSelectedFilterName] = useState<string>("");
   const [selectedFilters, setSelectedFilters] = useState<
     { option: string; param_code: string }[]
   >([]);
-  const [assignmentsFetched, setAssignmentsFetched] = useState<boolean>(false);
   const [stagedFilters, setStagedFilters] = useState<
     {
       label: string;
@@ -59,6 +60,9 @@ export function AssignmentSelectionMenu({
   const { activeCourse } = useCourse();
   const { setActiveAssignment } = useAssignment();
   const { fetchData: getUserSettings } = useFetch("/user/settings");
+  const [isAssignmentsExpanded, setIsAssignmentsExpanded] =
+    useState<boolean>(true);
+  const [isPresetsExpanded, setIsPresetsExpanded] = useState<boolean>(false);
 
   const { fetchData: getAssignments } = useFetch(
     `/courses/${activeCourse?.id}/assignments`
@@ -100,11 +104,10 @@ export function AssignmentSelectionMenu({
   useEffect(() => {
     if (!activeCourse) return;
     void fetchUserSettings();
-    setSettingsFetched(true);
   }, []);
 
   useEffect(() => {
-    if (selectedFilters.length > 0 || getAll) {
+    if (selectedFilters.length > 0) {
       console.log("selectedFilters:", selectedFilters);
       void updateUserAssignmentFilters();
       void fetchAssignments();
@@ -124,6 +127,8 @@ export function AssignmentSelectionMenu({
   ): void => {
     event.preventDefault();
 
+    // If the search query is empty, get all assignments.
+    // This is implied in the backend.
     setSelectedFilters([
       {
         option: searchQuery,
@@ -183,17 +188,29 @@ export function AssignmentSelectionMenu({
   const renderSearchBar = () => {
     return (
       <div className="flex flex-row gap-2 items-center">
-        <input
-          type="text"
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-          }}
-          placeholder="Search for an assignment by name"
-          className="bg-gray-600 hover:bg-gray-500 px-3 py-3 cursor-pointer rounded-lg font-bold text-sm w-full"
-        />
+        <div className="relative flex-grow">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+            }}
+            placeholder="Search for an assignment by name"
+            className="bg-gray-600 hover:bg-gray-500 px-3 py-3 cursor-pointer rounded-lg font-bold text-sm w-full pr-8"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              type="button"
+            >
+              ✕
+            </button>
+          )}
+        </div>
         <PaletteActionButton
           color={searchQuery == "" ? "GREEN" : "BLUE"}
-          title={searchQuery == "" ? "All" : "Search"}
+          title={searchQuery == "" ? "Get All" : "Search"}
           onClick={handleSearchAssignments}
           autoFocus={false}
         />
@@ -251,80 +268,99 @@ export function AssignmentSelectionMenu({
 
   const renderPresetSection = () => {
     return (
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-row gap-2 items-center">
-          <h2 className="text-gray-400 text-md">Saved Presets</h2>
-          {assignmentFilterPresets.length > 0 && (
-            <FontAwesomeIcon
-              icon={faCog}
-              className="cursor-pointer text-gray-400 text-md"
-              onClick={() => {
-                setShowPresetDeleteButtons(!showPresetDeleteButtons);
-              }}
-            />
-          )}
-        </div>
-        <hr className="w-full border-gray-500" />
-        <div className="flex flex-col gap-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
-          {assignmentFilterPresets.length === 0 && (
-            <div className="text-gray-300 font-normal">
-              No saved presets available
+      <>
+        <hr className="w-full border-gray-500 mt-2 mb-2 border-2" />
+        <div className="flex flex-col gap-2 bg-gray-800 rounded-lg">
+          <div
+            onClick={() => setIsPresetsExpanded(!isPresetsExpanded)}
+            className="flex justify-between items-center px-3 mt-2 mb-2 rounded-lg"
+          >
+            <div className="flex flex-row gap-2 items-center hover:bg-gray-700 cursor-pointer rounded-lg px-2">
+              <span className="font-bold">
+                Saved Presets ({assignmentFilterPresets.length})
+              </span>
+              <FontAwesomeIcon
+                icon={isPresetsExpanded ? faChevronUp : faChevronDown}
+                className="text-gray-400"
+              />
+              {assignmentFilterPresets.length > 0 && isPresetsExpanded && (
+                <FontAwesomeIcon
+                  icon={faCog}
+                  className="cursor-pointer text-gray-400 text-md ml-2"
+                  onClick={(e: MouseEvent) => {
+                    e.stopPropagation();
+                    setShowPresetDeleteButtons(!showPresetDeleteButtons);
+                  }}
+                />
+              )}
             </div>
-          )}
-          {assignmentFilterPresets.map((preset) => (
-            <div
-              key={preset.name || "preset-" + Math.random()}
-              className="flex flex-col items-center justify-between w-full"
-            >
-              <button
-                onClick={() => {
-                  setSelectedFilters(preset.filters);
-                }}
-                title={preset.name || "Untitled"}
-                className="bg-gray-600 w-full hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full font-bold text-lg relative"
-              >
-                <div className="flex flex-row items-center w-full">
-                  {showPresetDeleteButtons && (
-                    <div className="ml-4 mt-1">
-                      <PaletteTrash
-                        title={"Delete Preset"}
-                        onClick={() => {
-                          setAssignmentFilterPresets(
-                            assignmentFilterPresets.filter(
-                              (p) => p.id !== preset.id
-                            )
-                          );
-                          setDeletedPreset(true);
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  <div className="flex flex-row gap-2 mt-1">
-                    {preDefinedFilters.map((preDefinedFilter) => {
-                      const matchingFilter = preset.filters.find(
-                        (f) => f.param_code === preDefinedFilter.param_code
-                      );
-                      return (
-                        <p
-                          key={preDefinedFilter.value}
-                          className={`text-center flex items-center justify-center h-full ${
-                            matchingFilter?.option
-                              ? "text-white"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          {matchingFilter?.option ?? "N/A"}
-                        </p>
-                      );
-                    })}
+          </div>
+          {isPresetsExpanded && (
+            <div className="ml-2 mr-2 mt-2 mb-2">
+              <div className="flex flex-col gap-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
+                {assignmentFilterPresets.length === 0 && (
+                  <div className="text-gray-300 font-normal">
+                    No saved presets available
                   </div>
-                </div>
-              </button>
+                )}
+                {assignmentFilterPresets.map((preset) => (
+                  <div
+                    key={preset.name || "preset-" + Math.random()}
+                    className="flex flex-col items-center justify-between w-full"
+                  >
+                    <button
+                      onClick={() => {
+                        setSelectedFilters(preset.filters);
+                      }}
+                      title={preset.name || "Untitled"}
+                      className="bg-gray-600 w-full hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full font-bold text-lg relative"
+                    >
+                      <div className="flex flex-row items-center w-full">
+                        {showPresetDeleteButtons && (
+                          <div className="ml-4 mt-1">
+                            <PaletteTrash
+                              title={"Delete Preset"}
+                              onClick={() => {
+                                setAssignmentFilterPresets(
+                                  assignmentFilterPresets.filter(
+                                    (p) => p.id !== preset.id
+                                  )
+                                );
+                                setDeletedPreset(true);
+                              }}
+                            />
+                          </div>
+                        )}
+
+                        <div className="flex flex-row gap-2 mt-1">
+                          {preDefinedFilters.map((preDefinedFilter) => {
+                            const matchingFilter = preset.filters.find(
+                              (f) =>
+                                f.param_code === preDefinedFilter.param_code
+                            );
+                            return (
+                              <p
+                                key={preDefinedFilter.value}
+                                className={`text-center flex items-center justify-center h-full ${
+                                  matchingFilter?.option
+                                    ? "text-white"
+                                    : "text-gray-500"
+                                }`}
+                              >
+                                {matchingFilter?.option ?? "N/A"}
+                              </p>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
+          )}
         </div>
-      </div>
+      </>
     );
   };
 
@@ -403,29 +439,63 @@ export function AssignmentSelectionMenu({
         </div>
       );
     }
-    if (assignments.length === 0)
-      return <div>No assignments are available to display</div>;
+    if (assignments.length === 0 && selectedFilterName !== "")
+      return (
+        <div className="text-red-500 font-medium mt-2">
+          No assignments are available to display
+        </div>
+      );
+
+    if (assignments.length === 0 && selectedFilterName === "")
+      return (
+        <div className="text-red-500 font-medium mt-2">
+          Assignment not found
+        </div>
+      );
 
     return (
-      <div
-        className={
-          "grid gap-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
-        }
-      >
-        <div className={"grid gap-2 mt-0.5"}>
-          {assignments.map((assignment: Assignment) => (
-            <div
-              key={assignment.id}
-              className={
-                "flex gap-4 bg-gray-600 hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full text-lg font-bold"
-              }
-              onClick={() => handleAssignmentSelection(assignment)}
-            >
-              <h3>{assignment.name}</h3>
+      <>
+        <hr className="w-full border-gray-500 mt-2 mb-2" />
+        <div className="flex flex-col gap-2 bg-gray-800 rounded-lg">
+          <div
+            onClick={() => setIsAssignmentsExpanded(!isAssignmentsExpanded)}
+            className="flex justify-between items-center px-3 mt-2 mb-2 rounded-lg "
+          >
+            <div className="flex flex-row gap-2 items-center hover:bg-gray-700 cursor-pointer rounded-lg px-2">
+              <span className="font-bold">
+                Assignments ({assignments.length})
+              </span>
+              <FontAwesomeIcon
+                icon={isAssignmentsExpanded ? faChevronUp : faChevronDown}
+                className="text-gray-400"
+              />
             </div>
-          ))}
+          </div>
+          {isAssignmentsExpanded && (
+            <div className="ml-2 mr-2 mt-2 mb-2">
+              <div
+                className={
+                  "grid gap-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
+                }
+              >
+                <div className={"grid gap-2 mt-0.5 pr-2"}>
+                  {assignments.map((assignment: Assignment) => (
+                    <div
+                      key={assignment.id}
+                      className={
+                        "flex gap-4 bg-gray-600 hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full text-lg font-bold"
+                      }
+                      onClick={() => handleAssignmentSelection(assignment)}
+                    >
+                      <h3>{assignment.name}</h3>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      </>
     );
   };
 
@@ -442,14 +512,9 @@ export function AssignmentSelectionMenu({
       param_code: filter.param_code ?? "",
     }));
 
-    setSelectedFilters(assignmentFilters);
-    setStagedFilters([]);
-  };
+    setSelectedFilterName(assignmentFilters[0].option);
 
-  const handleGetAll = (event: MouseEvent<HTMLButtonElement>): void => {
-    event.preventDefault();
-    setGetAll(true);
-    setSelectedFilters([]);
+    setSelectedFilters(assignmentFilters);
     setStagedFilters([]);
   };
 
@@ -486,11 +551,6 @@ export function AssignmentSelectionMenu({
     }
   };
 
-  const handleGetAssignments = (event: MouseEvent<HTMLButtonElement>): void => {
-    event.preventDefault();
-    void fetchAssignments();
-  };
-
   return (
     <div className={"grid gap-2 text-xl mt-2"}>
       <div className={"flex flex-row gap-2 items-center"}>
@@ -503,7 +563,13 @@ export function AssignmentSelectionMenu({
           focused={showFilterTable}
         />
       </div>
-      {showSearchBar && !assignmentsFetched && renderSearchBar()}
+      {renderSearchBar()}
+
+      {selectedFilterName && (
+        <p className="text-gray-400 text-md">
+          Showing assignments created after {selectedFilterName}
+        </p>
+      )}
       {showFilterTable ? <div>{renderAssignmentFilterTable()}</div> : null}
       {showAssignments ? renderAssignments() : null}
       {renderPresetSection()}
@@ -529,12 +595,6 @@ export function AssignmentSelectionMenu({
             />
           </>
         )}
-        <PaletteActionButton
-          color={"GREEN"}
-          title={"Get All"}
-          onClick={(e) => void handleGetAll(e)}
-          autoFocus={false}
-        />
         <ChoiceDialog />
       </div>
     </div>

@@ -39,7 +39,7 @@ export function CourseSelectionMenu({
   const [presetName, setPresetName] = useState<string>("");
   const { setActiveCourse } = useCourse();
   const { openDialog, closeDialog } = useChoiceDialog();
-  const [isPresetsExpanded, setIsPresetsExpanded] = useState<boolean>(true);
+  const [isPresetsExpanded, setIsPresetsExpanded] = useState<boolean>(false);
   const [selectedFilters, setSelectedFilters] = useState<
     { option: string; param_code: string }[]
   >([]);
