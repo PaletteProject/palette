@@ -20,6 +20,7 @@ export const defaultSettings: Settings = {
     defaultScale: 1,
   },
   course_filters: [],
+  course_filter_presets: [],
 } as const;
 
 // the settings object
@@ -197,6 +198,8 @@ function mergeSettings(target: Partial<Settings>): Settings {
         defaultSettings.preferences.defaultScale,
     },
     course_filters: target.course_filters ?? defaultSettings.course_filters,
+    course_filter_presets:
+      target.course_filter_presets ?? defaultSettings.course_filter_presets,
   };
 }
 
