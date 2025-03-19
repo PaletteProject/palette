@@ -96,7 +96,18 @@ export function ProjectGradingView({
         }
       });
 
-      setRatings(initialRatings);
+      const savedOfflineGrades = localStorage.getItem("offlineGradingCache");
+      if (savedOfflineGrades) {
+        const parsedGrades = JSON.parse(savedOfflineGrades);
+        parsedGrades.forEach((gradedSubmission: CanvasGradedSubmission) => {
+          for (const [criterionId, assessment] of Object.entries(gradedSubmission.rubric_assessment)) {
+            initialRatings[`${criterionId}-${gradedSubmission.submission_id}`] = assessment.points ?? "";
+          }
+        });
+      }
+
+    setRatings(initialRatings);
+
       console.log(initialRatings);
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
@@ -178,8 +189,25 @@ export function ProjectGradingView({
      * Store graded submissions in cache
      */
 
-    setGradedSubmissionCache((prev) => prev.concat(gradedSubmissions));
-
+    setGradedSubmissionCache((prev) => {
+      const updatedCache = [...prev];
+    
+      gradedSubmissions.forEach((gradedSubmission) => {
+        const index = updatedCache.findIndex((s) => s.submission_id === gradedSubmission.submission_id);
+        
+        if (index > -1) {
+          updatedCache[index] = gradedSubmission; // Update existing entry
+        } else {
+          updatedCache.push(gradedSubmission); // Add new entry
+        }
+      });
+    
+      // ✅ Save to localStorage for Offline Grading
+      localStorage.setItem("offlineGradingCache", JSON.stringify(updatedCache));
+    
+      return updatedCache;
+    });
+    
     onClose();
   };
 

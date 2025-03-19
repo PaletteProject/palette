@@ -66,8 +66,6 @@ export function GradingMain(): ReactElement {
       const response =
         (await getSubmissions()) as PaletteAPIResponse<GroupedSubmissions>;
 
-      console.log("📥 Raw API Response:", response);
-
       if (response.success && response.data) {
         console.log("📂 Submissions (before setting state):", response.data);
         setSubmissions(response.data);
