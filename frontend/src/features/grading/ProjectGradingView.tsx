@@ -12,6 +12,7 @@ import { createPortal } from "react-dom";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { calculateSubmissionTotal } from "../../utils/SubmissionUtils.ts";
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -275,7 +276,7 @@ export function ProjectGradingView({
                   key={submission.id}
                   className="border border-gray-500 px-4 py-2"
                 >
-                  <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
+                  <p>{`${submission.user.name} (${submission.user.asurite}) Total Points: ${calculateSubmissionTotal(submission)}`}</p>
                 </th>
               ))}
             </tr>
