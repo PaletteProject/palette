@@ -82,7 +82,7 @@ export const SettingsAPI = {
   },
 
   updateUserCourseFilters(
-    courseFilters: { id: string; option: string; param_code: string }[]
+    courseFilters: { id: string; option: string; param_code: string }[],
   ): void {
     if (settings === null) {
       initializeSettings();
@@ -99,7 +99,7 @@ export const SettingsAPI = {
     presets: {
       name: string;
       filters: { option: string; param_code: string }[];
-    }[]
+    }[],
   ): void {
     if (settings === null) {
       initializeSettings();
@@ -127,7 +127,7 @@ function initializeSettings() {
   } else {
     try {
       const loadedSettings = JSON.parse(
-        fs.readFileSync(SETTINGS_PATH, "utf-8")
+        fs.readFileSync(SETTINGS_PATH, "utf-8"),
       ) as Partial<Settings>;
       // Fill in any missing fields with default values
       settings = mergeSettings(loadedSettings);
