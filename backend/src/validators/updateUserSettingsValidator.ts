@@ -20,4 +20,5 @@ export const updateUserSettingsValidator: ValidationChain[] = [
   body("preferences.defaultScale")
     .isNumeric()
     .withMessage("preferences.defaultScale must be a number"),
+  body("course_filters").isArray(),
 ];
