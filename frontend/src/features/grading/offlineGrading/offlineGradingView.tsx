@@ -7,20 +7,16 @@ import {
 } from "palette-types";
 import { ProjectGradingView } from "../ProjectGradingView";
 import { OfflineGradingSelection } from "./offlineGradingSelection";
+import { transferOfflineToTokenGrading } from "./transferOfflineToTokenGrading";
 
 export function OfflineGradingView(): ReactElement {
   const navigate = useNavigate();
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-  const [selectedAssignment, setSelectedAssignment] = useState<string | null>(
-    null,
-  );
-  const [offlineSubmissions, setOfflineSubmissions] =
-    useState<GroupedSubmissions>({});
+  const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null);
+  const [offlineSubmissions, setOfflineSubmissions] = useState<GroupedSubmissions>({});
   const [offlineRubric, setOfflineRubric] = useState<Rubric | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
-    CanvasGradedSubmission[]
-  >([]);
+  const [gradedSubmissionCache, setGradedSubmissionCache] = useState<CanvasGradedSubmission[]>([]);
 
   useEffect(() => {
     if (selectedCourse && selectedAssignment) {
@@ -91,22 +87,18 @@ export function OfflineGradingView(): ReactElement {
       {Object.keys(offlineSubmissions).length > 0 ? (
         <div className="mt-4">
           <h2 className="text-xl font-semibold text-white">Select a Group</h2>
-          {Object.entries(offlineSubmissions).map(
-            ([groupName, submissions]) => (
-              <button
-                key={groupName}
-                className="block bg-gray-700 text-white p-3 rounded mt-2 w-full text-left"
-                onClick={() => setSelectedGroup(groupName)}
-              >
-                {groupName} ({submissions.length} submissions)
-              </button>
-            ),
-          )}
+          {Object.entries(offlineSubmissions).map(([groupName, submissions]) => (
+            <button
+              key={groupName}
+              className="block bg-gray-700 text-white p-3 rounded mt-2 w-full text-left"
+              onClick={() => setSelectedGroup(groupName)}
+            >
+              {groupName} ({submissions.length} submissions)
+            </button>
+          ))}
         </div>
       ) : (
-        <p className="text-white mt-4">
-          No submissions available for offline grading.
-        </p>
+        <p className="text-white mt-4">No submissions available for offline grading.</p>
       )}
 
       {selectedGroup && (
@@ -121,11 +113,14 @@ export function OfflineGradingView(): ReactElement {
         />
       )}
 
+      {/* Transfer Offline Grading to Token-Based Grading */}
       <button
-        className="bg-gray-600 text-white py-2 px-4 mt-4 rounded"
-        onClick={() => navigate("/grading")}
+        className="bg-blue-500 text-white py-2 px-4 mt-4 rounded"
+        onClick={() =>
+          transferOfflineToTokenGrading(setGradedSubmissionCache, selectedCourse, selectedAssignment)
+        }
       >
-        Transfer Grades
+        Transfer to Token-Based Grading
       </button>
       <button
         className="bg-red-600 text-white py-2 px-4 mt-4 rounded"
@@ -133,6 +128,7 @@ export function OfflineGradingView(): ReactElement {
       >
         Clear Offline Storage
       </button>
+
     </div>
   );
 }
