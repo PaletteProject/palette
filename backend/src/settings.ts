@@ -1,5 +1,6 @@
 import { Settings } from "palette-types";
 import fs from "fs";
+import { v4 as uuidv4 } from "uuid";
 
 // the settings path
 const SETTINGS_PATH = "./settings.json";
@@ -18,7 +19,8 @@ export const defaultSettings: Settings = {
     darkMode: false,
     defaultScale: 1,
   },
-};
+  course_filters: [],
+} as const;
 
 // the settings object
 let settings: Settings | null = null;
@@ -78,6 +80,40 @@ export const SettingsAPI = {
     });
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
   },
+
+  updateUserCourseFilters(
+    courseFilters: { id: string; option: string; param_code: string }[],
+  ): void {
+    if (settings === null) {
+      initializeSettings();
+    }
+
+    // Update the course filters in the settings object
+    settings!.course_filters = courseFilters;
+
+    // Write the updated settings object to the settings file
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+  },
+
+  updateUserCourseFilterPresets(
+    presets: {
+      name: string;
+      filters: { option: string; param_code: string }[];
+    }[],
+  ): void {
+    if (settings === null) {
+      initializeSettings();
+    }
+
+    // Update the course filter presets in the settings object
+    settings!.course_filter_presets = presets.map((preset) => ({
+      ...preset,
+      id: uuidv4(),
+    }));
+
+    // Write the updated settings object to the settings file
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+  },
 };
 
 /**
@@ -126,6 +162,7 @@ function mergeSettings(target: Partial<Settings>): Settings {
         target.preferences?.defaultScale ??
         defaultSettings.preferences.defaultScale,
     },
+    course_filters: target.course_filters ?? defaultSettings.course_filters,
   };
 }
 

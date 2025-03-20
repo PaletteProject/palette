@@ -1,22 +1,22 @@
 import React, { useRef, useState } from "react";
-import { importCsv, VERSION_ONE, VERSION_TWO } from "@utils";
+import { importCsv } from "@utils";
 import { Dialog, PaletteActionButton } from "@components";
 import { Criteria, Rubric } from "palette-types";
 import { useRubric } from "@context";
+import { useSettings } from "../../../context/SettingsContext.tsx";
 
 export const CSVImport = () => {
   const { activeRubric, setActiveRubric } = useRubric();
+  const { settings } = useSettings();
 
-  const [showVersionModal, setShowVersionModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [selectedVersion, setSelectedVersion] = useState<number | null>(null);
 
   const closeErrorDialog = () => setErrorMessage(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || selectedVersion === null) return;
+    if (!file) return;
 
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
     if (fileExtension !== "csv") {
@@ -24,13 +24,7 @@ export const CSVImport = () => {
       return;
     }
 
-    importCsv(file, selectedVersion, handleImportSuccess, handleImportError);
-  };
-
-  const triggerFile = (version: number) => {
-    setSelectedVersion(version);
-    fileInputRef.current?.click();
-    setShowVersionModal(false);
+    importCsv(file, settings, handleImportSuccess, handleImportError);
   };
 
   /**
@@ -94,31 +88,14 @@ export const CSVImport = () => {
 
   return (
     <div className="flex flex-col items-center">
+      {/*hidden file input element is stored in a useRef hook. When the user clicks the import csv button,
+         programmatically trigger the file input dialog.*/}
       <PaletteActionButton
-        onClick={() => setShowVersionModal(true)}
+        onClick={() => fileInputRef.current?.click()}
         title={"Import CSV"}
         color={"BLUE"}
       />
-      <Dialog
-        isOpen={showVersionModal}
-        onClose={() => setShowVersionModal(false)}
-        title="Select Import Version"
-      >
-        <div className="flex flex-col gap-4">
-          <button
-            onClick={() => triggerFile(VERSION_ONE)}
-            className="bg-green-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
-            Version 1 (Legacy)
-          </button>
-          <button
-            onClick={() => triggerFile(VERSION_TWO)}
-            className="bg-yellow-600 text-white font-bold rounded-lg py-2 px-4 transition duration-300 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-          >
-            Version 2 (New)
-          </button>
-        </div>
-      </Dialog>
+
       <Dialog isOpen={!!errorMessage} onClose={closeErrorDialog} title="Error">
         <p>{errorMessage}</p>
         <button
@@ -152,9 +129,6 @@ export const CSVImport = () => {
         onChange={handleFileChange}
         className="hidden"
       />
-      <label htmlFor="file-input" aria-label="file-input">
-        <button className="hidden">Upload File</button>
-      </label>
     </div>
   );
 };

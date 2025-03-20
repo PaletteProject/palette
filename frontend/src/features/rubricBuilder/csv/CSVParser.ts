@@ -1,5 +1,5 @@
 import Papa from "papaparse";
-import { Criteria } from "palette-types";
+import { Criteria, Settings } from "palette-types";
 import { createCriterion, createRating } from "@utils";
 
 export const VERSION_ONE = 1;
@@ -39,49 +39,10 @@ const parseRowData = (
   }
 };
 
-// Parsing logic for Version 1
-export const parseVersionOne = (
-  data: string[][],
-  onSuccess: ParseCallback,
-  onError: ErrorCallback,
-) => {
-  parseRowData(
-    data,
-    (row) => {
-      const criterionTitle = row[0]?.trim();
-      const maxPoints = row[1] ? parseFloat(row[1]) : NaN;
-
-      if (!criterionTitle || isNaN(maxPoints)) return null;
-
-      const criterion: Criteria = createCriterion(
-        criterionTitle,
-        "",
-        [],
-        maxPoints,
-      );
-      let hasValidRating = false;
-      for (let i = 1; i < row.length; i += 2) {
-        const points = Number(row[i]) || 0;
-        const description = row[i + 1]?.trim() || "";
-        if (points !== 0 || description) {
-          hasValidRating = true;
-          criterion.ratings.push(createRating(points, description));
-        }
-      }
-      // Skip if there are no valid ratings or descriptions
-      if (!hasValidRating) return null;
-
-      criterion.updatePoints();
-      return criterion;
-    },
-    onSuccess,
-    onError,
-  );
-};
-
 // Parsing logic for Version 2
-export const parseVersionTwo = (
+export const parseCsv = (
   data: string[][],
+  settings: Settings,
   onSuccess: ParseCallback,
   onError: ErrorCallback,
 ) => {
@@ -94,12 +55,12 @@ export const parseVersionTwo = (
 
       if (!criterionTitle || isNaN(maxPoints)) return null;
 
-      const criterion: Criteria = createCriterion(
-        criterionTitle,
-        longDescription || "",
-        [],
-        maxPoints,
-      );
+      const criterion: Criteria = createCriterion(settings, {
+        description: criterionTitle,
+        longDescription: longDescription,
+        points: maxPoints,
+        ratings: [],
+      });
 
       for (let i = 3; i < row.length; i++) {
         const ratingText = row[i]?.trim();
@@ -125,7 +86,7 @@ export const parseVersionTwo = (
 // Main utility to handle CSV parsing
 export const importCsv = (
   file: File,
-  version: number,
+  settings: Settings,
   onSuccess: ParseCallback,
   onError: ErrorCallback,
 ) => {
@@ -141,13 +102,7 @@ export const importCsv = (
         return;
       }
 
-      if (version === VERSION_ONE) {
-        parseVersionOne(parsedData, onSuccess, onError);
-      } else if (version === VERSION_TWO) {
-        parseVersionTwo(parsedData, onSuccess, onError);
-      } else {
-        onError("Unsupported version for CSV parsing.");
-      }
+      parseCsv(parsedData, settings, onSuccess, onError);
     },
     error: (error) => {
       onError(`Error parsing CSV: ${error.message}`);
