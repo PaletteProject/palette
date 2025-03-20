@@ -3,9 +3,11 @@ import { importCsv, VERSION_ONE, VERSION_TWO } from "@utils";
 import { Dialog, PaletteActionButton } from "@components";
 import { Criteria, Rubric } from "palette-types";
 import { useRubric } from "@context";
+import { useSettings } from "../../../context/SettingsContext.tsx";
 
 export const CSVImport = () => {
   const { activeRubric, setActiveRubric } = useRubric();
+  const { settings } = useSettings();
 
   const [showVersionModal, setShowVersionModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -24,7 +26,13 @@ export const CSVImport = () => {
       return;
     }
 
-    importCsv(file, selectedVersion, handleImportSuccess, handleImportError);
+    importCsv(
+      file,
+      selectedVersion,
+      settings,
+      handleImportSuccess,
+      handleImportError,
+    );
   };
 
   const triggerFile = (version: number) => {

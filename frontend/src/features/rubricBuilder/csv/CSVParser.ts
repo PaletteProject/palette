@@ -1,5 +1,5 @@
 import Papa from "papaparse";
-import { Criteria } from "palette-types";
+import { Criteria, Settings } from "palette-types";
 import { createCriterion, createRating } from "@utils";
 
 export const VERSION_ONE = 1;
@@ -42,6 +42,7 @@ const parseRowData = (
 // Parsing logic for Version 1
 export const parseVersionOne = (
   data: string[][],
+  settings: Settings,
   onSuccess: ParseCallback,
   onError: ErrorCallback,
 ) => {
@@ -53,12 +54,10 @@ export const parseVersionOne = (
 
       if (!criterionTitle || isNaN(maxPoints)) return null;
 
-      const criterion: Criteria = createCriterion(
-        criterionTitle,
-        "",
-        [],
-        maxPoints,
-      );
+      const criterion: Criteria = createCriterion(settings, {
+        description: criterionTitle,
+        points: maxPoints,
+      });
       let hasValidRating = false;
       for (let i = 1; i < row.length; i += 2) {
         const points = Number(row[i]) || 0;
@@ -82,6 +81,7 @@ export const parseVersionOne = (
 // Parsing logic for Version 2
 export const parseVersionTwo = (
   data: string[][],
+  settings: Settings,
   onSuccess: ParseCallback,
   onError: ErrorCallback,
 ) => {
@@ -94,12 +94,11 @@ export const parseVersionTwo = (
 
       if (!criterionTitle || isNaN(maxPoints)) return null;
 
-      const criterion: Criteria = createCriterion(
-        criterionTitle,
-        longDescription || "",
-        [],
-        maxPoints,
-      );
+      const criterion: Criteria = createCriterion(settings, {
+        description: criterionTitle,
+        longDescription: longDescription,
+        points: maxPoints,
+      });
 
       for (let i = 3; i < row.length; i++) {
         const ratingText = row[i]?.trim();
@@ -126,6 +125,7 @@ export const parseVersionTwo = (
 export const importCsv = (
   file: File,
   version: number,
+  settings: Settings,
   onSuccess: ParseCallback,
   onError: ErrorCallback,
 ) => {
@@ -140,11 +140,10 @@ export const importCsv = (
         onError("The file is empty or not formatted correctly.");
         return;
       }
-
       if (version === VERSION_ONE) {
-        parseVersionOne(parsedData, onSuccess, onError);
+        parseVersionOne(parsedData, settings, onSuccess, onError);
       } else if (version === VERSION_TWO) {
-        parseVersionTwo(parsedData, onSuccess, onError);
+        parseVersionTwo(parsedData, settings, onSuccess, onError);
       } else {
         onError("Unsupported version for CSV parsing.");
       }
