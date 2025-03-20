@@ -1,7 +1,7 @@
 import { Submission } from "palette-types";
 
 export const calculateSubmissionTotal = (submission: Submission) => {
-  if (!submission) return 0;
+  if (!submission || !submission.rubricAssessment) return 0;
   // determine total score for the submission
   const { total } = Object.values(submission.rubricAssessment).reduce(
     (accumulator, assessment) => ({
