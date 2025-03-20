@@ -98,6 +98,7 @@ export const parseVersionTwo = (
         description: criterionTitle,
         longDescription: longDescription,
         points: maxPoints,
+        ratings: [],
       });
 
       for (let i = 3; i < row.length; i++) {
