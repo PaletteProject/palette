@@ -1,6 +1,7 @@
 import { Submission } from "palette-types";
 
 export const calculateSubmissionTotal = (submission: Submission) => {
+  if (!submission) return 0;
   // determine total score for the submission
   const { total } = Object.values(submission.rubricAssessment).reduce(
     (accumulator, assessment) => ({
@@ -13,10 +14,14 @@ export const calculateSubmissionTotal = (submission: Submission) => {
 };
 
 export const calculateGroupAverage = (submissions: Submission[]): string => {
+  if (!submissions) return String(0); // guard for empty submission collection
+
   let totalPoints = 0;
   let validSubmissionCount = 0;
 
   submissions.forEach((submission) => {
+    if (!submission) return;
+
     if (submission.rubricAssessment) {
       totalPoints += calculateSubmissionTotal(submission);
       validSubmissionCount++;

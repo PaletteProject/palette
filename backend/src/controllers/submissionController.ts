@@ -1,6 +1,6 @@
 import asyncHandler from "express-async-handler";
 import { CoursesAPI } from "../services/courseRequests.js";
-import { CanvasGradedSubmission, PaletteAPIResponse } from "palette-types";
+import { PaletteAPIResponse, PaletteGradedSubmission } from "palette-types";
 import { GroupedSubmissions } from "palette-types/dist/types/GroupedSubmissions";
 
 export const getSubmissions = asyncHandler(async (req, res) => {
@@ -23,19 +23,18 @@ export const getSubmissions = asyncHandler(async (req, res) => {
 
 export const submitGrades = asyncHandler(async (req, res) => {
   console.log("got some grades to submit");
-
   const canvasResponse = await CoursesAPI.putSubmission(
     req.params.course_id,
     req.params.assignment_id,
     req.params.student_id,
-    req.body as CanvasGradedSubmission,
+    req.body as PaletteGradedSubmission,
   );
 
   console.log(canvasResponse);
 
   const apiResponse: PaletteAPIResponse<null> = {
     success: true,
-    message: "got some grades",
+    message: "submitted grades",
   };
 
   res.json(apiResponse);
