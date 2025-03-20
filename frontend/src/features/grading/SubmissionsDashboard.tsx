@@ -1,4 +1,4 @@
-import { CanvasGradedSubmission, GroupedSubmissions } from "palette-types";
+import { GroupedSubmissions, PaletteGradedSubmission } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
 import { Dispatch, SetStateAction, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
@@ -18,7 +18,7 @@ export function SubmissionsDashboard({
 }: SubmissionDashboardProps) {
   // graded submissions to be sent to Canvas
   const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
-    CanvasGradedSubmission[]
+    PaletteGradedSubmission[]
   >([]);
 
   const { activeCourse } = useCourse();
@@ -33,7 +33,7 @@ export function SubmissionsDashboard({
   /**
    * Submit all graded submissions in the cache
    */
-  const submitGrades = async (gradedSubmissions: CanvasGradedSubmission[]) => {
+  const submitGrades = async (gradedSubmissions: PaletteGradedSubmission[]) => {
     // if the first submission has a group comment, update the group comment for all submissions
     // ATTENTION: This code ofcourse assumes that the groupFeedback will always be added to the first graded submission.
     // Not a bad assumption, but if it were to change, this code would break.

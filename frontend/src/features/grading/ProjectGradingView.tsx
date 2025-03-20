@@ -3,16 +3,20 @@
  */
 
 import {
-  CanvasGradedSubmission,
   Criteria,
+  PaletteGradedSubmission,
   Rubric,
   Submission,
 } from "palette-types";
 import { createPortal } from "react-dom";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { ChoiceDialog, PaletteActionButton } from "@components";
+import {
+  ChoiceDialog,
+  PaletteActionButton,
+  PaletteBrush,
+  PaletteEye,
+} from "@components";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
-import { PaletteBrush, PaletteEye } from "@components";
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -20,8 +24,8 @@ type ProjectGradingViewProps = {
   rubric: Rubric;
   isOpen: boolean;
   onClose: () => void; // event handler defined in GroupSubmissions.tsx
-  setGradedSubmissionCache: Dispatch<SetStateAction<CanvasGradedSubmission[]>>;
-  gradedSubmissionCache: CanvasGradedSubmission[];
+  setGradedSubmissionCache: Dispatch<SetStateAction<PaletteGradedSubmission[]>>;
+  gradedSubmissionCache: PaletteGradedSubmission[];
 };
 
 export function ProjectGradingView({
@@ -193,7 +197,7 @@ export function ProjectGradingView({
   };
 
   const handleSaveGrades = () => {
-    const gradedSubmissions: CanvasGradedSubmission[] = submissions.map(
+    const gradedSubmissions: PaletteGradedSubmission[] = submissions.map(
       (submission) => {
         // build rubric assessment object in Canvas format directly (reduces transformations needed later)
         const rubricAssessment: {

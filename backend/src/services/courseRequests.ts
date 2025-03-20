@@ -7,7 +7,9 @@ import {
   Assignment,
   CanvasAssignment,
   CanvasCourse,
+  CanvasGradedSubmission,
   Course,
+  PaletteGradedSubmission,
 } from "palette-types";
 import { CanvasSubmissionResponse } from "palette-types/dist/canvasProtocol/canvasSubmissionResponse";
 import {
@@ -17,22 +19,9 @@ import {
 } from "./transformers.js";
 import { GroupedSubmissions } from "palette-types/dist/types/GroupedSubmissions";
 import { SettingsAPI } from "../settings.js";
+
 const SUBMISSION_QUERY_PARAMS =
   "?include[]=group&include[]=user&include[]=submission_comments&grouped=true&include[]=rubric_assessment";
-
-type GradedSubmission = {
-  submission_id: number;
-  user: { id: number; name: string; asurite: string };
-  rubric_assessment: {
-    [p: string]: { points: number; rating_id: string; comments: string };
-  };
-  individual_comment?: { text_comment: string; group_comment: boolean };
-  group_comment?: {
-    text_comment: string;
-    group_comment: boolean;
-    sent: boolean;
-  };
-};
 
 const RESULTS_PER_PAGE = 100;
 
@@ -174,7 +163,7 @@ async function getAllSubmissions(courseId: string, assignmentId: string) {
 
 /**
  * Helper to filter courses by enrollment type and start date (for now).
- * @param canvasCourses
+ *
  */
 function filterCourses(
   canvasCourses: CanvasCourse[],
@@ -187,7 +176,7 @@ function filterCourses(
   console.log("courseFilters");
   console.log(courseFilters);
 
-  // Step 0: Save the developer course so it doesnt get filtered out
+  // Step 0: Save the developer course so it doesn't get filtered out
   const developerCourse = canvasCourses.find((course) => {
     return course.course_code === developerCourseCode;
   });
@@ -314,22 +303,22 @@ export const CoursesAPI = {
     courseId: string,
     assignmentId: string,
     studentId: string,
-    submission: GradedSubmission,
+    submission: PaletteGradedSubmission,
   ) {
     const isGroupComment =
-      submission.group_comment !== undefined &&
-      submission.group_comment.sent === false;
+      submission.group_comment !== undefined && !submission.group_comment.sent;
 
     const submissionBody = {
+      submission_id: submission.submission_id,
+      user: submission.user,
+      rubric_assessment: submission.rubric_assessment,
       comment: {
         text_comment: isGroupComment
           ? submission.group_comment?.text_comment
           : submission.individual_comment?.text_comment,
         group_comment: isGroupComment,
       },
-    };
-    console.log("submissionBody");
-    console.log(submissionBody);
+    } as CanvasGradedSubmission;
 
     return await fetchAPI<null>(
       `/courses/${courseId}/assignments/${assignmentId}/submissions/${studentId}`,
