@@ -27,8 +27,14 @@ export function GroupSubmissions({
   const { activeRubric } = useRubric();
 
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
+  const [averageScore, setAverageScore] = useState(
+    calculateGroupAverage(submissions),
+  );
 
-  const handleGradingViewClose = () => setGradingViewOpen(false);
+  const handleGradingViewClose = () => {
+    setAverageScore(calculateGroupAverage(submissions));
+    setGradingViewOpen(false);
+  };
 
   const toggleGradingView = () => {
     if (!rubric) {
@@ -59,7 +65,7 @@ export function GroupSubmissions({
           <ProgressBar progress={progress} />
         </div>
         <div className={"text-center"}>
-          Average: {`${calculateGroupAverage(submissions).toFixed(2)} Points`}
+          Canvas Avg: {`${averageScore} Points`}
         </div>
       </div>
 
