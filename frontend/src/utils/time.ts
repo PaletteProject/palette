@@ -18,7 +18,7 @@ export function getMonthName(month: number): string {
   // If the requested month is after the current month, use previous year
   if (month <= 0) month = month + 12; //normalize to 1-12
 
-  const year = month > currentMonth ? currentYear - 1 : currentYear;
+  const year = month < currentMonth ? currentYear - 1 : currentYear;
 
   const months = [
     "January",

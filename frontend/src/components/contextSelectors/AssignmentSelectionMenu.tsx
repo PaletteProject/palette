@@ -65,7 +65,7 @@ export function AssignmentSelectionMenu({
   const [isPresetsExpanded, setIsPresetsExpanded] = useState<boolean>(false);
 
   const { fetchData: getAssignments } = useFetch(
-    `/courses/${activeCourse?.id}/assignments`,
+    `/courses/${activeCourse?.id}/assignments`
   );
 
   const { fetchData: updateUserAssignmentFilters } = useFetch(
@@ -73,7 +73,7 @@ export function AssignmentSelectionMenu({
     {
       method: "PUT",
       body: JSON.stringify(selectedFilters),
-    },
+    }
   );
 
   const { fetchData: updateUserAssignmentFilterPresets } = useFetch(
@@ -81,23 +81,24 @@ export function AssignmentSelectionMenu({
     {
       method: "PUT",
       body: JSON.stringify(assignmentFilterPresets),
-    },
+    }
   );
 
   const currentMonth = new Date().getMonth() + 1;
 
   const preDefinedFilters = [
     {
-      label: "Created At Threshold",
-      value: "created_at",
+      label: "Due In This Month",
+      value: "due_at",
       options: [
         getMonthName(currentMonth),
-        getMonthName(currentMonth - 1),
-        getMonthName(currentMonth - 2),
-        getMonthName(currentMonth - 3),
+        getMonthName(currentMonth + 1),
+        getMonthName(currentMonth + 2),
+        getMonthName(currentMonth + 3),
+        getMonthName(currentMonth + 4),
       ],
       selected_option: "",
-      param_code: "created_at",
+      param_code: "due_at",
     },
   ];
 
@@ -123,7 +124,7 @@ export function AssignmentSelectionMenu({
   }, [assignmentFilterPresets]);
 
   const handleSearchAssignments = (
-    event: MouseEvent<HTMLButtonElement>,
+    event: MouseEvent<HTMLButtonElement>
   ): void => {
     event.preventDefault();
 
@@ -158,9 +159,9 @@ export function AssignmentSelectionMenu({
         preset.filters.some(
           (newFilter) =>
             newFilter.option === filter.option &&
-            newFilter.param_code === filter.param_code,
-        ),
-      ),
+            newFilter.param_code === filter.param_code
+        )
+      )
     );
 
     if (!isDuplicate) {
@@ -226,13 +227,14 @@ export function AssignmentSelectionMenu({
       selected_option?: string;
       param_code?: string;
     },
-    option: string,
+    option: string
   ) => {
     const filterIndex = stagedFilters.findIndex(
-      (stagedFilter) => stagedFilter.value === filter.value,
+      (stagedFilter) => stagedFilter.value === filter.value
     );
     const stagedFilter = stagedFilters[filterIndex];
-
+    console.log("filter:", filter);
+    console.log("option:", option);
     // Create a new staged filter object to avoid mutation
     const updatedStagedFilter = {
       label: filter.label,
@@ -323,8 +325,8 @@ export function AssignmentSelectionMenu({
                               onClick={() => {
                                 setAssignmentFilterPresets(
                                   assignmentFilterPresets.filter(
-                                    (p) => p.id !== preset.id,
-                                  ),
+                                    (p) => p.id !== preset.id
+                                  )
                                 );
                                 setDeletedPreset(true);
                               }}
@@ -336,7 +338,7 @@ export function AssignmentSelectionMenu({
                           {preDefinedFilters.map((preDefinedFilter) => {
                             const matchingFilter = preset.filters.find(
                               (f) =>
-                                f.param_code === preDefinedFilter.param_code,
+                                f.param_code === preDefinedFilter.param_code
                             );
                             return (
                               <p
@@ -376,12 +378,7 @@ export function AssignmentSelectionMenu({
                 {/* Filter Labels */}
                 {preDefinedFilters.map((filter) => (
                   <th key={filter.value} className="border-2 border-gray-500">
-                    {filter.label}{" "}
-                    {filter.label === "Created At Threshold" ? (
-                      <p className="text-gray-400 text-xs">
-                        Assignments created after this month will be shown
-                      </p>
-                    ) : null}
+                    {filter.label}
                   </th>
                 ))}
               </tr>
@@ -398,7 +395,7 @@ export function AssignmentSelectionMenu({
                           id={option}
                           checked={stagedFilters.some(
                             (stagedFilter) =>
-                              stagedFilter.selected_option === option,
+                              stagedFilter.selected_option === option
                           )}
                           onChange={() => {
                             console.log("changed");
@@ -533,10 +530,10 @@ export function AssignmentSelectionMenu({
     } catch (error) {
       console.error(
         "An unexpected error occurred while getting assignments: ",
-        error,
+        error
       );
       setErrorMessage(
-        "An unexpected error occurred while fetching assignments.",
+        "An unexpected error occurred while fetching assignments."
       );
     }
     setLoading(false);
@@ -546,7 +543,7 @@ export function AssignmentSelectionMenu({
     const response = (await getUserSettings()) as PaletteAPIResponse<Settings>;
     if (response.success) {
       setAssignmentFilterPresets(
-        response.data?.assignment_filter_presets ?? [],
+        response.data?.assignment_filter_presets ?? []
       );
     }
   };
@@ -567,7 +564,7 @@ export function AssignmentSelectionMenu({
 
       {selectedFilterName && (
         <p className="text-gray-400 text-md">
-          Showing assignments created after {selectedFilterName}
+          Showing assignments due in {selectedFilterName}
         </p>
       )}
       {showFilterTable ? <div>{renderAssignmentFilterTable()}</div> : null}

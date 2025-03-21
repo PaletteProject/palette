@@ -282,9 +282,6 @@ function filterAssignments(
     (filter) => filter.param_code === "name"
   )?.option;
 
-  console.log("searchQuery");
-  console.log(searchQuery);
-
   // By default, give the user the published assignments
   let filteredAssignments = canvasAssignments.filter((assignment) => {
     return assignment.published === true;
@@ -301,33 +298,30 @@ function filterAssignments(
   // console.log("Step 1: Filter by name");
   // console.log(filteredAssignments);
 
-  // Filter by created at
-  if (assignmentFilters.some((filter) => filter.param_code === "created_at")) {
-    filteredAssignments = filteredAssignments.filter((assignment) => {
-      const createdAt =
-        assignment.created_at === null
-          ? new Date()
-          : new Date(assignment.created_at);
+  // Filter by due date
 
-      const monthCreated = getMonthName(createdAt.getMonth());
-      console.log(
-        "createdAt:      ",
-        monthCreated,
-        createdAt.getDate(),
-        createdAt.getFullYear()
-      );
-      console.log("userMonth:    ", monthString);
-      console.log(
-        "monthCreated < userMonth:         ",
-        monthCompare(monthCreated, monthString)
-      );
+  const monthFilter = assignmentFilters.find(
+    (filter) => filter.param_code === "due_at"
+  );
+
+  if (monthFilter) {
+    filteredAssignments = filteredAssignments.filter((assignment) => {
+      const dueDate = assignment.due_at ? new Date(assignment.due_at) : null;
+      const monthWindow = new Date(monthFilter.option);
+      console.log("dueAt:        ", dueDate);
+      console.log("userMonth:    ", monthWindow);
+
       console.log("--------------------------------");
-      return monthCompare(monthCreated, monthString);
+      return (
+        dueDate !== null &&
+        dueDate.getMonth() === monthWindow.getMonth() &&
+        dueDate.getFullYear() === monthWindow.getFullYear()
+      );
     });
   }
 
   // console.log("Step 2: Filter by created at");
-  console.log(filteredAssignments);
+  // console.log(filteredAssignments);
 
   return filteredAssignments;
 }
