@@ -115,4 +115,6 @@ export interface CanvasAssignment {
     comment: string;
     created_at: string;
   }[];
+  assignment_visibility: string;
+  all_dates: string;
 }

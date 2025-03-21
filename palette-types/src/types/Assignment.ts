@@ -9,4 +9,5 @@ export interface Assignment {
   dueDate: string;
   pointsPossible: number;
   rubricId: number | undefined; // associated rubric
+  createdAt: string;
 }

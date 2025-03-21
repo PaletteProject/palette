@@ -256,13 +256,10 @@ export function ProjectGradingView({
       };
     }
 
-    console.log("gradedSubmissions after concat", gradedSubmissions);
-
     /**
      * Store graded submissions in cache
      */
     setGradedSubmissionCache((prev) => {
-      console.log("prev", prev);
       return prev.concat(gradedSubmissions);
     });
 

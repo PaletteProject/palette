@@ -31,4 +31,16 @@ export interface Settings {
       param_code: string;
     }[];
   }[];
+
+  assignment_filters?: {
+    id: string;
+    option: string;
+    param_code: string;
+  }[];
+
+  assignment_filter_presets?: {
+    id: string;
+    name: string;
+    filters: { option: string; param_code: string }[];
+  }[];
 }

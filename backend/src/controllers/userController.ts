@@ -71,3 +71,47 @@ export const updateUserCourseFilterPresets = asyncHandler(
     );
   },
 );
+
+export const updateUserAssignmentFilters = asyncHandler(
+  (req: Request, res: Response) => {
+    SettingsAPI.updateUserAssignmentFilters(
+      req.body as {
+        id: string;
+        option: string;
+        param_code: string;
+      }[],
+    );
+
+    // Safely retrieve the updated settings
+    const updatedSettings = SettingsAPI.getUserSettings();
+
+    res.json(
+      createSuccessResponse(
+        updatedSettings,
+        "Assignment filters updated successfully",
+      ),
+    );
+  },
+);
+
+export const updateUserAssignmentFilterPresets = asyncHandler(
+  (req: Request, res: Response) => {
+    SettingsAPI.updateUserAssignmentFilterPresets(
+      req.body as {
+        id: string;
+        name: string;
+        filters: { option: string; param_code: string }[];
+      }[],
+    );
+
+    // Safely retrieve the updated settings
+    const updatedSettings = SettingsAPI.getUserSettings();
+
+    res.json(
+      createSuccessResponse(
+        updatedSettings,
+        "Assignment filter presets updated successfully",
+      ),
+    );
+  },
+);
