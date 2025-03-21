@@ -25,25 +25,30 @@ import { SettingsProvider } from "./context/SettingsContext.tsx";
 
 // Defined a "root" div in index.html that we pull in here and then call the React render method.
 createRoot(document.getElementById("root")!).render(
-  <SettingsProvider>
-    <CourseProvider>
-      <AssignmentProvider>
-        <RubricProvider>
-          <DialogProvider>
-            <Router>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/templates" element={<TemplatesMain />} />
-                <Route path="/rubric-builder" element={<RubricBuilderMain />} />
-                <Route path="/grading" element={<GradingMain />} />
-                <Route path="/settings" element={<SettingsMain />} />
-                {/*Any route that doesn't match the routes defined above will go to the 404 page*/}
-                <Route path={"*"} element={<NotFoundPage />} />
-              </Routes>
-            </Router>
-          </DialogProvider>
-        </RubricProvider>
-      </AssignmentProvider>
-    </CourseProvider>
-  </SettingsProvider>
+  <StrictMode>
+    <SettingsProvider>
+      <CourseProvider>
+        <AssignmentProvider>
+          <RubricProvider>
+            <DialogProvider>
+              <Router>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/templates" element={<TemplatesMain />} />
+                  <Route
+                    path="/rubric-builder"
+                    element={<RubricBuilderMain />}
+                  />
+                  <Route path="/grading" element={<GradingMain />} />
+                  <Route path="/settings" element={<SettingsMain />} />
+                  {/*Any route that doesn't match the routes defined above will go to the 404 page*/}
+                  <Route path={"*"} element={<NotFoundPage />} />
+                </Routes>
+              </Router>
+            </DialogProvider>
+          </RubricProvider>
+        </AssignmentProvider>
+      </CourseProvider>
+    </SettingsProvider>
+  </StrictMode>
 );
