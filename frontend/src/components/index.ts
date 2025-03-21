@@ -14,7 +14,10 @@ export * from "./buttons/PaletteActionButton.tsx";
 export * from "./buttons/PaletteBrush.tsx";
 export * from "./buttons/PaletteEye.tsx";
 export * from "./buttons/PaletteTrash.tsx";
+<<<<<<< HEAD
 export * from "./buttons/PaletteTable.tsx";
+=======
+>>>>>>> main
 export * from "./contextSelectors/NoCourseSelected.tsx";
 export * from "./contextSelectors/NoAssignmentSelected.tsx";
 export * from "./layout/MainPageTemplate.tsx";

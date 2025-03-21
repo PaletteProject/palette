@@ -3,16 +3,25 @@
  */
 
 import {
-  CanvasGradedSubmission,
   Criteria,
+  PaletteGradedSubmission,
   Rubric,
   Submission,
 } from "palette-types";
 import { createPortal } from "react-dom";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { ChoiceDialog, PaletteActionButton } from "@components";
+import {
+  ChoiceDialog,
+  PaletteActionButton,
+  PaletteBrush,
+  PaletteEye,
+} from "@components";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+<<<<<<< HEAD
 import { PaletteBrush, PaletteEye } from "@components";
+=======
+import { calculateSubmissionTotal } from "../../utils/SubmissionUtils.ts";
+>>>>>>> main
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -20,8 +29,8 @@ type ProjectGradingViewProps = {
   rubric: Rubric;
   isOpen: boolean;
   onClose: () => void; // event handler defined in GroupSubmissions.tsx
-  setGradedSubmissionCache: Dispatch<SetStateAction<CanvasGradedSubmission[]>>;
-  gradedSubmissionCache: CanvasGradedSubmission[];
+  setGradedSubmissionCache: Dispatch<SetStateAction<PaletteGradedSubmission[]>>;
+  gradedSubmissionCache: PaletteGradedSubmission[];
 };
 
 export function ProjectGradingView({
@@ -193,7 +202,7 @@ export function ProjectGradingView({
   };
 
   const handleSaveGrades = () => {
-    const gradedSubmissions: CanvasGradedSubmission[] = submissions.map(
+    const gradedSubmissions: PaletteGradedSubmission[] = submissions.map(
       (submission) => {
         // build rubric assessment object in Canvas format directly (reduces transformations needed later)
         const rubricAssessment: {
@@ -238,6 +247,11 @@ export function ProjectGradingView({
       },
     );
 
+<<<<<<< HEAD
+=======
+    console.log("gradedSubmissions before concat", gradedSubmissions);
+
+>>>>>>> main
     // Add a group comment to the first submission if it exists
     // This should affect all submissions on canvas side.
     // No need to add it to all submissions.
@@ -249,10 +263,22 @@ export function ProjectGradingView({
       };
     }
 
+<<<<<<< HEAD
     /**
      * Store graded submissions in cache
      */
     setGradedSubmissionCache((prev) => prev.concat(gradedSubmissions));
+=======
+    console.log("gradedSubmissions after concat", gradedSubmissions);
+
+    /**
+     * Store graded submissions in cache
+     */
+    setGradedSubmissionCache((prev) => {
+      console.log("prev", prev);
+      return prev.concat(gradedSubmissions);
+    });
+>>>>>>> main
 
     onClose();
   };
@@ -397,7 +423,11 @@ export function ProjectGradingView({
     return (
       <div className="flex flex-col gap-2">
         <textarea
+<<<<<<< HEAD
           className="w-1/3 min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto 
+=======
+          className="w-1/3 min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto
+>>>>>>> main
           scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
           onChange={(e) => setGroupFeedback(e.target.value)}
           value={groupFeedback}
@@ -430,7 +460,11 @@ export function ProjectGradingView({
     return (
       <div className="w-full">
         <textarea
+<<<<<<< HEAD
           className="w-full min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto 
+=======
+          className="w-full min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto
+>>>>>>> main
           scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
           onChange={(e) => {
             setIndividualFeedbacks((prev) => ({
@@ -476,7 +510,11 @@ export function ProjectGradingView({
     return (
       <div className="flex flex-col w-full gap-2 ">
         <textarea
+<<<<<<< HEAD
           className="w-full min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto 
+=======
+          className="w-full min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto
+>>>>>>> main
           scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
           onChange={(e) =>
             setCriterionComments((prev) => ({
@@ -516,7 +554,14 @@ export function ProjectGradingView({
     return (
       <div className="flex flex-col w-full items-center gap-2">
         <div className="flex items-center justify-center gap-4 text-center">
+<<<<<<< HEAD
           <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
+=======
+          <div className={"flex justify-between"}>
+            <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
+            <p>{`Canvas Score ${calculateSubmissionTotal(submission)}`}</p>
+          </div>
+>>>>>>> main
           <PaletteBrush
             onClick={() => {
               setActiveStudentId(
@@ -607,6 +652,10 @@ export function ProjectGradingView({
                   className="border border-gray-500 px-4 py-2"
                 >
                   {renderStudentHeaderControls(submission)}
+<<<<<<< HEAD
+=======
+                  {/*  todo add back the submission total*/}
+>>>>>>> main
                 </th>
               ))}
             </tr>

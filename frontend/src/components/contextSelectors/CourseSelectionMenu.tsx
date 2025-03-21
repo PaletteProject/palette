@@ -67,7 +67,7 @@ export function CourseSelectionMenu({
     {
       method: "PUT",
       body: JSON.stringify(selectedFilters),
-    },
+    }
   );
 
   const { fetchData: updateUserCourseFilterPresets } = useFetch(
@@ -75,7 +75,7 @@ export function CourseSelectionMenu({
     {
       method: "PUT",
       body: JSON.stringify(courseFilterPresets),
-    },
+    }
   );
   const currentYear = new Date().getFullYear();
 
@@ -156,7 +156,7 @@ export function CourseSelectionMenu({
     } catch (error) {
       console.error(
         "An unexpected error occurred while getting courses: ",
-        error,
+        error
       );
       setErrorMessage("An unexpected error occurred while fetching courses.");
     }
@@ -213,10 +213,10 @@ export function CourseSelectionMenu({
       selected_option?: string;
       param_code?: string;
     },
-    option: string,
+    option: string
   ) => {
     const filterIndex = stagedFilters.findIndex(
-      (stagedFilter) => stagedFilter.value === filter.value,
+      (stagedFilter) => stagedFilter.value === filter.value
     );
     const stagedFilter = stagedFilters[filterIndex];
 
@@ -311,8 +311,8 @@ export function CourseSelectionMenu({
                               onClick={() => {
                                 setCourseFilterPresets(
                                   courseFilterPresets.filter(
-                                    (p) => p.id !== preset.id,
-                                  ),
+                                    (p) => p.id !== preset.id
+                                  )
                                 );
                                 setDeletedPreset(true);
                               }}
@@ -324,7 +324,7 @@ export function CourseSelectionMenu({
                           {preDefinedFilters.map((preDefinedFilter) => {
                             const matchingFilter = preset.filters.find(
                               (f) =>
-                                f.param_code === preDefinedFilter.param_code,
+                                f.param_code === preDefinedFilter.param_code
                             );
                             return (
                               <p
@@ -387,7 +387,7 @@ export function CourseSelectionMenu({
                           id={option}
                           checked={stagedFilters.some(
                             (stagedFilter) =>
-                              stagedFilter.selected_option === option,
+                              stagedFilter.selected_option === option
                           )}
                           onChange={() => {
                             console.log("changed");
@@ -472,9 +472,9 @@ export function CourseSelectionMenu({
         preset.filters.some(
           (newFilter) =>
             newFilter.option === filter.option &&
-            newFilter.param_code === filter.param_code,
-        ),
-      ),
+            newFilter.param_code === filter.param_code
+        )
+      )
     );
 
     if (!isDuplicate) {

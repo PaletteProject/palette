@@ -1,9 +1,10 @@
-import { CanvasGradedSubmission, Rubric, Submission } from "palette-types";
+import { PaletteGradedSubmission, Rubric, Submission } from "palette-types";
 import { ProgressBar } from "@features";
 import { ProjectGradingView } from "./ProjectGradingView.tsx";
 import { Dispatch, SetStateAction, useState } from "react";
 import { PaletteActionButton } from "@components";
 import { useRubric } from "@context";
+import { calculateGroupAverage } from "../../utils/SubmissionUtils.ts";
 
 interface GroupSubmissionsProps {
   groupName: string;
@@ -11,8 +12,8 @@ interface GroupSubmissionsProps {
   submissions: Submission[];
   rubric: Rubric;
   fetchSubmissions: () => Promise<void>;
-  setGradedSubmissionCache: Dispatch<SetStateAction<CanvasGradedSubmission[]>>;
-  gradedSubmissionCache: CanvasGradedSubmission[];
+  setGradedSubmissionCache: Dispatch<SetStateAction<PaletteGradedSubmission[]>>;
+  gradedSubmissionCache: PaletteGradedSubmission[];
 }
 
 export function GroupSubmissions({
@@ -26,8 +27,14 @@ export function GroupSubmissions({
   const { activeRubric } = useRubric();
 
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
+  const [averageScore, setAverageScore] = useState(
+    calculateGroupAverage(submissions),
+  );
 
-  const handleGradingViewClose = () => setGradingViewOpen(false);
+  const handleGradingViewClose = () => {
+    setAverageScore(calculateGroupAverage(submissions));
+    setGradingViewOpen(false);
+  };
 
   const toggleGradingView = () => {
     if (!rubric) {
@@ -37,37 +44,6 @@ export function GroupSubmissions({
       return;
     }
     setGradingViewOpen(true);
-  };
-
-  const calculateGroupAverage = (submissions: Submission[]): number => {
-    const { total, count } = submissions.reduce(
-      (groupAcc, submission) => {
-        // make sure submission has a rubric assessment, otherwise throw it out
-        if (!submission.rubricAssessment)
-          return {
-            total: groupAcc.total,
-            count: groupAcc.count,
-          };
-        // use reduce to aggregate scores for a single submission
-        const { total: subTotal, count: subCount } = Object.values(
-          submission.rubricAssessment,
-        ).reduce(
-          (acc, assessment) => ({
-            total: acc.total + assessment.points,
-            count: acc.count + 1,
-          }),
-          { total: 0, count: 0 }, // initial accumulator for a submission
-        );
-
-        // add submission total to group totals
-        return {
-          total: groupAcc.total + subTotal,
-          count: groupAcc.count + subCount,
-        };
-      },
-      { total: 0, count: 0 }, // initial accumulator for the group
-    );
-    return count > 0 ? total / count : 0;
   };
 
   return (
@@ -89,7 +65,7 @@ export function GroupSubmissions({
           <ProgressBar progress={progress} />
         </div>
         <div className={"text-center"}>
-          Average: {`${calculateGroupAverage(submissions).toFixed(2)} Points`}
+          Canvas Avg: {`${averageScore} Points`}
         </div>
       </div>
 
