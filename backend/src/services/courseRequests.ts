@@ -19,8 +19,7 @@ import {
 } from "./transformers.js";
 import { GroupedSubmissions } from "palette-types/dist/types/GroupedSubmissions";
 import { SettingsAPI } from "../settings.js";
-import { monthCompare } from "src/utils/time.js";
-import { getMonthName } from "src/utils/time.js";
+import { monthCompare, getMonthName } from "../utils/time.js";
 
 const SUBMISSION_QUERY_PARAMS =
   "?include[]=group&include[]=user&include[]=submission_comments&grouped=true&include[]=rubric_assessment";

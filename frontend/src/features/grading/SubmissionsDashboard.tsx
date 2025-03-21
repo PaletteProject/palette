@@ -33,11 +33,7 @@ export function SubmissionsDashboard({
   /**
    * Submit all graded submissions in the cache
    */
-<<<<<<< HEAD
-  const submitGrades = async (gradedSubmissions: CanvasGradedSubmission[]) => {
-=======
   const submitGrades = async (gradedSubmissions: PaletteGradedSubmission[]) => {
->>>>>>> main
     // if the first submission has a group comment, update the group comment for all submissions
     // ATTENTION: This code ofcourse assumes that the groupFeedback will always be added to the first graded submission.
     // Not a bad assumption, but if it were to change, this code would break.
@@ -50,7 +46,7 @@ export function SubmissionsDashboard({
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(gradedSubmissions[0]),
-        },
+        }
       );
       gradedSubmissions[0].group_comment.sent = true; // set it to sent so that it doesn't get sent again
     }
@@ -122,11 +118,11 @@ export function SubmissionsDashboard({
               (count, submission) => {
                 return submission.graded ? count + 1 : count;
               },
-              0, // initial value for counter
+              0 // initial value for counter
             );
 
             return Math.floor(
-              (gradedSubmissionCount / groupSubmissions.length) * 100,
+              (gradedSubmissionCount / groupSubmissions.length) * 100
             );
           };
           return (
