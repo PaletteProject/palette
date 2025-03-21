@@ -65,7 +65,7 @@ export function AssignmentSelectionMenu({
   const [isPresetsExpanded, setIsPresetsExpanded] = useState<boolean>(false);
 
   const { fetchData: getAssignments } = useFetch(
-    `/courses/${activeCourse?.id}/assignments`
+    `/courses/${activeCourse?.id}/assignments`,
   );
 
   const { fetchData: updateUserAssignmentFilters } = useFetch(
@@ -73,7 +73,7 @@ export function AssignmentSelectionMenu({
     {
       method: "PUT",
       body: JSON.stringify(selectedFilters),
-    }
+    },
   );
 
   const { fetchData: updateUserAssignmentFilterPresets } = useFetch(
@@ -81,7 +81,7 @@ export function AssignmentSelectionMenu({
     {
       method: "PUT",
       body: JSON.stringify(assignmentFilterPresets),
-    }
+    },
   );
 
   const currentMonth = new Date().getMonth() + 1;
@@ -124,7 +124,7 @@ export function AssignmentSelectionMenu({
   }, [assignmentFilterPresets]);
 
   const handleSearchAssignments = (
-    event: MouseEvent<HTMLButtonElement>
+    event: MouseEvent<HTMLButtonElement>,
   ): void => {
     event.preventDefault();
 
@@ -159,9 +159,9 @@ export function AssignmentSelectionMenu({
         preset.filters.some(
           (newFilter) =>
             newFilter.option === filter.option &&
-            newFilter.param_code === filter.param_code
-        )
-      )
+            newFilter.param_code === filter.param_code,
+        ),
+      ),
     );
 
     if (!isDuplicate) {
@@ -227,10 +227,10 @@ export function AssignmentSelectionMenu({
       selected_option?: string;
       param_code?: string;
     },
-    option: string
+    option: string,
   ) => {
     const filterIndex = stagedFilters.findIndex(
-      (stagedFilter) => stagedFilter.value === filter.value
+      (stagedFilter) => stagedFilter.value === filter.value,
     );
     const stagedFilter = stagedFilters[filterIndex];
     console.log("filter:", filter);
@@ -325,8 +325,8 @@ export function AssignmentSelectionMenu({
                               onClick={() => {
                                 setAssignmentFilterPresets(
                                   assignmentFilterPresets.filter(
-                                    (p) => p.id !== preset.id
-                                  )
+                                    (p) => p.id !== preset.id,
+                                  ),
                                 );
                                 setDeletedPreset(true);
                               }}
@@ -338,7 +338,7 @@ export function AssignmentSelectionMenu({
                           {preDefinedFilters.map((preDefinedFilter) => {
                             const matchingFilter = preset.filters.find(
                               (f) =>
-                                f.param_code === preDefinedFilter.param_code
+                                f.param_code === preDefinedFilter.param_code,
                             );
                             return (
                               <p
@@ -395,7 +395,7 @@ export function AssignmentSelectionMenu({
                           id={option}
                           checked={stagedFilters.some(
                             (stagedFilter) =>
-                              stagedFilter.selected_option === option
+                              stagedFilter.selected_option === option,
                           )}
                           onChange={() => {
                             console.log("changed");
@@ -530,10 +530,10 @@ export function AssignmentSelectionMenu({
     } catch (error) {
       console.error(
         "An unexpected error occurred while getting assignments: ",
-        error
+        error,
       );
       setErrorMessage(
-        "An unexpected error occurred while fetching assignments."
+        "An unexpected error occurred while fetching assignments.",
       );
     }
     setLoading(false);
@@ -543,7 +543,7 @@ export function AssignmentSelectionMenu({
     const response = (await getUserSettings()) as PaletteAPIResponse<Settings>;
     if (response.success) {
       setAssignmentFilterPresets(
-        response.data?.assignment_filter_presets ?? []
+        response.data?.assignment_filter_presets ?? [],
       );
     }
   };

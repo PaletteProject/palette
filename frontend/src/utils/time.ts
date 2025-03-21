@@ -5,7 +5,7 @@ export const formatDate = () => new Date().toLocaleString().replace(/\//g, "-");
 
 export function getDateString(
   month: number,
-  year = new Date().getFullYear()
+  year = new Date().getFullYear(),
 ): Date {
   return new Date(year, month, 0);
 }
@@ -35,6 +35,5 @@ export function getMonthName(month: number): string {
     "December",
   ];
 
-  const lastDay = new Date(year, month, 0).getDate();
   return `${months[month - 1]} ${year}`;
 }

@@ -46,7 +46,7 @@ export function SubmissionsDashboard({
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(gradedSubmissions[0]),
-        }
+        },
       );
       gradedSubmissions[0].group_comment.sent = true; // set it to sent so that it doesn't get sent again
     }
@@ -118,11 +118,11 @@ export function SubmissionsDashboard({
               (count, submission) => {
                 return submission.graded ? count + 1 : count;
               },
-              0 // initial value for counter
+              0, // initial value for counter
             );
 
             return Math.floor(
-              (gradedSubmissionCount / groupSubmissions.length) * 100
+              (gradedSubmissionCount / groupSubmissions.length) * 100,
             );
           };
           return (
