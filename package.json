@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev -w frontend\" \"npm run dev -w backend\"",
-    "build": "npm run build -w backend && npm run build -w palette-types",
+    "build": "npm run build -w palette-types && npm run build -w backend",
     "build:all": "npm run build --workspaces",
     "clean": "npm run clean --workspaces",
     "lint": "eslint . ",

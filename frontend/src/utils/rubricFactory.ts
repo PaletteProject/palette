@@ -15,12 +15,14 @@ const DEFAULT_CRITERIA_COUNT = 1;
 function populateDefaultRatings(settings: Settings): Rating[] {
   return [
     createRating(
-      settings.preferences.defaultRatings.maxDefaultPoints,
-      settings.preferences.defaultRatings.maxDefaultDescription,
+      settings.preferences?.defaultRatings?.maxDefaultPoints ?? 5,
+      settings.preferences?.defaultRatings?.maxDefaultDescription ??
+        "Update the max description",
     ),
     createRating(
-      settings.preferences.defaultRatings.minDefaultPoints,
-      settings.preferences.defaultRatings.minDefaultDescription,
+      settings.preferences?.defaultRatings?.minDefaultPoints ?? 0,
+      settings.preferences?.defaultRatings?.minDefaultDescription ??
+        "Update the min description",
     ),
   ];
 }
@@ -54,19 +56,36 @@ export function createRubric(
 }
 
 /**
+ * Options object for createCriterion to only pass required optional params.
+ */
+interface CriterionOptions {
+  description?: string;
+  longDescription?: string;
+  ratings?: Rating[];
+  points?: number;
+  id?: string;
+  template?: string;
+  templateTitle?: string;
+  scores?: number[];
+  isGroupCriterion?: boolean;
+}
+
+/**
  * Criterion factory function.
  */
 export function createCriterion(
   settings: Settings,
-  description: string = "",
-  longDescription: string = "",
-  ratings: Rating[] = populateDefaultRatings(settings),
-  points: number = ratings.reduce((sum, rating) => sum + rating.points, 0),
-  id: string = "",
-  template: string = "",
-  templateTitle: string = "",
-  scores: number[] = [],
-  isGroupCriterion: boolean = true,
+  {
+    description = "",
+    longDescription = "",
+    ratings = populateDefaultRatings(settings),
+    points = ratings.reduce((sum, rating) => sum + rating.points, 0),
+    id = "",
+    template = "",
+    templateTitle = "",
+    scores = [],
+    isGroupCriterion = true,
+  }: CriterionOptions = {},
 ): Criteria {
   return {
     id,

@@ -34,42 +34,46 @@ import { useFetch } from "@hooks";
 import { Criteria, PaletteAPIResponse, Rubric, Template } from "palette-types";
 import { CSVExport, CSVImport } from "@features";
 import { AnimatePresence, motion } from "framer-motion";
-import { useAssignment, useCourse, useRubric } from "@context";
+
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 import { useSettings } from "../../context/SettingsContext.tsx";
 import { createCriterion, createRubric } from "@utils";
+import { useRubricBuilder } from "../../hooks/useRubricBuilder.ts";
+import { useTemplate } from "../../hooks/useTemplate.ts";
 
 export function RubricBuilderMain(): ReactElement {
-  const { activeRubric, setActiveRubric, getRubric } = useRubric();
+  const {
+    activeRubric,
+    setActiveRubric,
+    activeCourse,
+    activeAssignment,
+    getRubric,
+    postRubric,
+    putRubric,
+    activeCriterionIndex,
+    setActiveCriterionIndex,
+    isCanvasBypassed,
+    setIsCanvasBypassed,
+    hasExistingRubric,
+    setHasExistingRubric,
+    loading,
+    setLoading,
+    isNewRubric,
+    setIsNewRubric,
+  } = useRubricBuilder();
 
-  /**
-   * Rubric Builder State
-   */
-
-  // tracks which criterion card is displaying the detailed view (limited to one at a time)
-  const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
-  // result of hook checking if active assignment has an existing rubric
-  const [hasExistingRubric, setHasExistingRubric] = useState(false);
-  // flag for if loading component should be rendered
-  const [loading, setLoading] = useState(false);
-  // flag to determine if new rubric should be sent via POST or updated via PUT
-  const [isNewRubric, setIsNewRubric] = useState(false);
-
-  const [isCanvasBypassed, setIsCanvasBypassed] = useState(false);
-
-  // this template tracks the template that is currently being updated
-  const [updatingTemplate, setUpdatingTemplate] = useState<Template | null>(
-    null,
-  );
-
-  // this template tracks the template that is currently being imported
-  const [importingTemplate, setImportingTemplate] = useState<Template | null>(
-    null,
-  );
-
-  const [templateInputActive, setTemplateInputActive] = useState(false);
+  const { settings } = useSettings();
 
   const { openDialog, closeDialog } = useChoiceDialog();
+
+  const {
+    updatingTemplate,
+    importingTemplate,
+    templateInputActive,
+    setImportingTemplate,
+    setUpdatingTemplate,
+    setTemplateInputActive,
+  } = useTemplate();
 
   const closePopUp = useCallback(
     () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
@@ -82,42 +86,11 @@ export function RubricBuilderMain(): ReactElement {
     message: "",
   });
 
-  /**
-   * Active Course and Assignment State (Context)
-   */
-  const { activeCourse } = useCourse();
-  const { activeAssignment } = useAssignment();
-
-  /**
-   * Custom fetch hooks provide a `fetchData` callback to send any type of fetch request.
-   *
-   * See PaletteAPIRequest for options structure.
-   */
-
   useEffect(() => {
     if (!activeCourse || !activeAssignment) return;
     if (hasExistingRubric) handleExistingRubric();
     if (!hasExistingRubric) handleNewRubric();
   }, [hasExistingRubric]);
-
-  /**
-   * Updates active assignment with new or updated rubric.
-   */
-  const { fetchData: putRubric } = useFetch(
-    `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}/${activeAssignment?.id}`,
-    {
-      method: "PUT",
-      body: JSON.stringify(activeRubric),
-    },
-  );
-
-  const { fetchData: postRubric } = useFetch(
-    `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.id}`,
-    {
-      method: "POST",
-      body: JSON.stringify(activeRubric),
-    },
-  );
 
   /* this is for updating the existing templates with most
   recent version of the criteria before saving the rubric
@@ -164,15 +137,7 @@ export function RubricBuilderMain(): ReactElement {
   }, [importingTemplate]);
 
   useEffect(() => {
-    if (!activeCourse) {
-      console.warn("Select a course before trying to fetch rubric");
-      return;
-    }
-
-    if (!activeAssignment) {
-      console.warn("Select a assignment before trying to fetch rubric");
-      return;
-    }
+    if (!activeCourse || !activeAssignment) return;
 
     setLoading(true);
 
@@ -193,6 +158,7 @@ export function RubricBuilderMain(): ReactElement {
       setActiveRubric(response.data as Rubric);
       setLoading(false);
     };
+
     void checkRubricExists();
   }, [activeCourse, activeAssignment]);
 
@@ -353,8 +319,6 @@ export function RubricBuilderMain(): ReactElement {
       ) ?? 0 // fallback value if criterion is undefined
     );
   }, [activeRubric?.criteria]);
-
-  const { settings } = useSettings();
 
   /**
    * Callback function to trigger the creation of a new criterion on the rubric.
