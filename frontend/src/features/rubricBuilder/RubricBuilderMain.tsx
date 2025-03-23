@@ -10,7 +10,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import CriteriaInput from "./CriteriaCard.tsx";
 import TemplateUpload from "./TemplateUpload.tsx";
 import { createTemplate } from "src/utils/templateFactory.ts";
 import {
@@ -25,21 +24,17 @@ import {
   PopUp,
 } from "@components";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import { useFetch } from "@hooks";
 
 import { Criteria, PaletteAPIResponse, Rubric, Template } from "palette-types";
 import { CSVExport, CSVImport } from "@features";
-import { AnimatePresence, motion } from "framer-motion";
 
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 import { useSettings } from "../../context/SettingsContext.tsx";
 import { createCriterion, createRubric } from "@utils";
 import { useRubricBuilder } from "../../hooks/useRubricBuilder.ts";
 import { useTemplate } from "../../hooks/useTemplate.ts";
+import CriteriaList from "./CriteriaList.tsx";
 
 export function RubricBuilderMain(): ReactElement {
   const {
@@ -476,38 +471,13 @@ export function RubricBuilderMain(): ReactElement {
   const renderCriteriaCards = () => {
     if (!activeRubric) return;
     return (
-      <SortableContext
-        items={activeRubric.criteria.map((criterion) => criterion.key)}
-        strategy={verticalListSortingStrategy}
-      >
-        <AnimatePresence>
-          {activeRubric.criteria.map((criterion, index) => (
-            <motion.div
-              key={criterion.key}
-              initial={{
-                opacity: 0,
-                y: 50,
-              }} // Starting state (entry animation)
-              animate={{
-                opacity: 1,
-                y: 0,
-              }} // Animate to this state when in the DOM
-              exit={{ opacity: 0, x: 50 }} // Ending state (exit animation)
-              transition={{ duration: 0.3 }} // Controls the duration of the animations
-              className="my-1"
-            >
-              <CriteriaInput
-                index={index}
-                activeCriterionIndex={activeCriterionIndex}
-                criterion={criterion}
-                handleCriteriaUpdate={handleUpdateCriterion}
-                removeCriterion={handleRemoveCriterion}
-                setActiveCriterionIndex={setActiveCriterionIndex}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </SortableContext>
+      <CriteriaList
+        criteria={activeRubric.criteria}
+        activeCriterionIndex={activeCriterionIndex}
+        onUpdateCriteria={handleUpdateCriterion}
+        onRemoveCriteria={handleRemoveCriterion}
+        setActiveCriterionIndex={setActiveCriterionIndex}
+      />
     );
   };
 
