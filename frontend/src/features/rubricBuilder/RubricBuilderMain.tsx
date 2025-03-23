@@ -12,7 +12,6 @@ import {
   NoAssignmentSelected,
   NoCourseSelected,
 } from "@components";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
 
 import { Rubric } from "palette-types";
 
@@ -133,28 +132,6 @@ export function RubricBuilderMain(): ReactElement {
   };
 
   /**
-   * Fires when a drag event ends, resorting the rubric criteria.
-   * @param event - drag end event
-   */
-  const handleDragEnd = (event: DragEndEvent) => {
-    if (!activeRubric) return;
-    if (event.over) {
-      const oldIndex = activeRubric.criteria.findIndex(
-        (criterion) => criterion.key === event.active.id,
-      );
-      const newIndex = activeRubric.criteria.findIndex(
-        (criterion) => criterion.key === event.over!.id, // assert not null for type safety
-      );
-
-      const updatedCriteria = [...activeRubric.criteria];
-      const [movedCriterion] = updatedCriteria.splice(oldIndex, 1);
-      updatedCriteria.splice(newIndex, 0, movedCriterion);
-
-      setActiveRubric({ ...activeRubric, criteria: updatedCriteria });
-    }
-  };
-
-  /**
    * Effect to load a default rubric if canvas api is bypassed
    */
   useEffect(() => {
@@ -203,28 +180,24 @@ export function RubricBuilderMain(): ReactElement {
   };
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
-      <div className="min-h-screen justify-between flex flex-col w-screen  bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
-        <Header />
-        <div className={"px-48 flex justify-center"}>{renderContent()}</div>
-        {!isOfflineMode && renderOfflineToggleButton()}
+    <div className="min-h-screen justify-between flex flex-col w-screen  bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
+      <Header />
+      <div className={"px-48 flex justify-center"}>{renderContent()}</div>
+      {!isOfflineMode && renderOfflineToggleButton()}
 
-        {/*Used for modal notifications*/}
-        <ChoiceDialog />
+      {/*Used for modal notifications*/}
+      <ChoiceDialog />
 
-        {/* Template Import Dialog */}
-        <Dialog
-          isOpen={templateInputActive}
-          onClose={() => setTemplateInputActive(false)}
-          title={"Import Template:"}
-        >
-          <TemplateUpload
-            closeImportCard={() => setTemplateInputActive(false)}
-          />
-        </Dialog>
-        {/* Sticky Footer with Gradient */}
-        <Footer />
-      </div>
-    </DndContext>
+      {/* Template Import Dialog */}
+      <Dialog
+        isOpen={templateInputActive}
+        onClose={() => setTemplateInputActive(false)}
+        title={"Import Template:"}
+      >
+        <TemplateUpload closeImportCard={() => setTemplateInputActive(false)} />
+      </Dialog>
+      {/* Sticky Footer with Gradient */}
+      <Footer />
+    </div>
   );
 }

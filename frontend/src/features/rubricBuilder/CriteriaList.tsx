@@ -8,6 +8,8 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { useRubric } from "@context";
 
 type CriteriaListPropsType = {
   criteria: Criteria[];
@@ -24,38 +26,62 @@ export default function CriteriaList({
   onRemoveCriteria,
   setActiveCriterionIndex,
 }: CriteriaListPropsType) {
+  const { activeRubric, setActiveRubric } = useRubric();
+  /**
+   * Fires when a drag event ends, resorting the rubric criteria.
+   * @param event - drag end event
+   */
+  const handleDragEnd = (event: DragEndEvent) => {
+    if (!activeRubric) return;
+    if (event.over) {
+      const oldIndex = criteria.findIndex(
+        (criterion) => criterion.key === event.active.id,
+      );
+      const newIndex = criteria.findIndex(
+        (criterion) => criterion.key === event.over!.id, // assert not null for type safety
+      );
+
+      const updatedCriteria = [...criteria];
+      const [movedCriterion] = updatedCriteria.splice(oldIndex, 1);
+      updatedCriteria.splice(newIndex, 0, movedCriterion);
+
+      setActiveRubric({ ...activeRubric, criteria: updatedCriteria });
+    }
+  };
   return (
-    <SortableContext
-      items={criteria.map((criterion) => criterion.key)}
-      strategy={verticalListSortingStrategy}
-    >
-      <AnimatePresence>
-        {criteria.map((criterion, index) => (
-          <motion.div
-            key={criterion.key}
-            initial={{
-              opacity: 0,
-              y: 50,
-            }} // Starting state (entry animation)
-            animate={{
-              opacity: 1,
-              y: 0,
-            }} // Animate to this state when in the DOM
-            exit={{ opacity: 0, x: 50 }} // Ending state (exit animation)
-            transition={{ duration: 0.3 }} // Controls the duration of the animations
-            className="my-1"
-          >
-            <CriteriaInput
-              index={index}
-              activeCriterionIndex={activeCriterionIndex}
-              criterion={criterion}
-              handleCriteriaUpdate={onUpdateCriteria}
-              removeCriterion={onRemoveCriteria}
-              setActiveCriterionIndex={setActiveCriterionIndex}
-            />
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </SortableContext>
+    <DndContext onDragEnd={handleDragEnd}>
+      <SortableContext
+        items={criteria.map((criterion) => criterion.key)}
+        strategy={verticalListSortingStrategy}
+      >
+        <AnimatePresence>
+          {criteria.map((criterion, index) => (
+            <motion.div
+              key={criterion.key}
+              initial={{
+                opacity: 0,
+                y: 50,
+              }} // Starting state (entry animation)
+              animate={{
+                opacity: 1,
+                y: 0,
+              }} // Animate to this state when in the DOM
+              exit={{ opacity: 0, x: 50 }} // Ending state (exit animation)
+              transition={{ duration: 0.3 }} // Controls the duration of the animations
+              className="my-1"
+            >
+              <CriteriaInput
+                index={index}
+                activeCriterionIndex={activeCriterionIndex}
+                criterion={criterion}
+                handleCriteriaUpdate={onUpdateCriteria}
+                removeCriterion={onRemoveCriteria}
+                setActiveCriterionIndex={setActiveCriterionIndex}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </SortableContext>
+    </DndContext>
   );
 }
