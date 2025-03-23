@@ -2,7 +2,14 @@ import { CSVExport, CSVImport } from "@features";
 import { PaletteActionButton } from "@components";
 import CriteriaList from "./CriteriaList.tsx";
 import { Criteria, PaletteAPIResponse, Template } from "palette-types";
-import { ChangeEvent, MouseEvent, useEffect, useMemo } from "react";
+import {
+  ChangeEvent,
+  Dispatch,
+  MouseEvent,
+  SetStateAction,
+  useEffect,
+  useMemo,
+} from "react";
 import { useChoiceDialog } from "@context";
 import { createCriterion } from "@utils";
 import { useSettings } from "../../context/SettingsContext.tsx";
@@ -10,7 +17,16 @@ import { useRubricBuilder } from "../../hooks/useRubricBuilder.ts";
 import { createTemplate } from "../../utils/templateFactory.ts";
 import { useTemplate } from "../../hooks/useTemplate.ts";
 
-export function RubricForm() {
+// useTemplate() returns different instances of state >:( so we have to pass it here from rubric main
+interface RubricFormProps {
+  templateInputActive: boolean;
+  setTemplateInputActive: Dispatch<SetStateAction<boolean>>;
+}
+
+export function RubricForm({
+  templateInputActive,
+  setTemplateInputActive,
+}: RubricFormProps) {
   const { settings } = useSettings();
   const { openDialog, closeDialog } = useChoiceDialog();
   const {
@@ -31,16 +47,12 @@ export function RubricForm() {
     setUpdatingTemplate,
     putTemplate,
     importingTemplate,
-    templateInputActive,
-    setTemplateInputActive,
   } = useTemplate();
 
   useEffect(() => {
     const updateTemplate = async () => {
-      if (!importingTemplate) {
-        console.warn("No template provided for update.");
-        return;
-      }
+      if (!importingTemplate) return;
+
       const response = await putTemplate();
       if (response.success) {
         console.log("template usage count updated successfully");
@@ -89,11 +101,6 @@ export function RubricForm() {
     const newCriteria = [...activeRubric.criteria, createCriterion(settings)];
     setActiveRubric({ ...activeRubric, criteria: newCriteria });
     setActiveCriterionIndex(newCriteria.length - 1);
-  };
-
-  const removeAllCriteria = () => {
-    const newCriteria: Criteria[] = []; // empty array to reset all criteria
-    setActiveRubric({ ...activeRubric, criteria: newCriteria });
   };
 
   const handleSubmitRubric = async (event: MouseEvent): Promise<void> => {
@@ -210,6 +217,29 @@ export function RubricForm() {
     });
   };
 
+  const removeAllCriteria = () => {
+    const newCriteria: Criteria[] = []; // empty array to reset all criteria
+    setActiveRubric({ ...activeRubric, criteria: newCriteria });
+  };
+
+  const onRemoveAllCriteria = () => {
+    openDialog({
+      excludeCancel: false,
+      title: "Confirm Criterion Removal",
+      message: `Are you sure you want to remove all criteria? This action is permanent.`,
+      buttons: [
+        {
+          autoFocus: true,
+          label: "Purge them all!",
+          action: () => {
+            removeAllCriteria();
+            closeDialog();
+          },
+        },
+      ],
+    });
+  };
+
   /**
    * Callback function to update a target criterion with new changes within the rubric.
    * @param index target criterion index to update
@@ -224,6 +254,7 @@ export function RubricForm() {
 
   const handleOpenTemplateImport = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    console.log("active template: ", templateInputActive);
     if (!templateInputActive) {
       setTemplateInputActive(true);
     }
@@ -244,7 +275,7 @@ export function RubricForm() {
           <CSVExport />
           <PaletteActionButton
             title={"Templates"}
-            onClick={handleOpenTemplateImport}
+            onClick={(event) => handleOpenTemplateImport(event)}
           />
         </div>
 
@@ -286,7 +317,7 @@ export function RubricForm() {
           color={"BLUE"}
         />
         <PaletteActionButton
-          onClick={removeAllCriteria}
+          onClick={onRemoveAllCriteria}
           color={"RED"}
           title={"Clear Form"}
         />

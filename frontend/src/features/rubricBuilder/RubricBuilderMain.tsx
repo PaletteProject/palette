@@ -14,7 +14,7 @@ import {
 } from "@components";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 
-import { Criteria, Rubric, Template } from "palette-types";
+import { Rubric } from "palette-types";
 
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 import { useSettings } from "../../context/SettingsContext.tsx";
@@ -40,15 +40,8 @@ export function RubricBuilderMain(): ReactElement {
   } = useRubricBuilder();
 
   const { settings } = useSettings();
-
   const { openDialog, closeDialog } = useChoiceDialog();
-
-  const {
-    templateInputActive,
-    setImportingTemplate,
-    setUpdatingTemplate,
-    setTemplateInputActive,
-  } = useTemplate();
+  const { templateInputActive, setTemplateInputActive } = useTemplate();
 
   useEffect(() => {
     if (!activeCourse || !activeAssignment) return;
@@ -100,10 +93,6 @@ export function RubricBuilderMain(): ReactElement {
 
     void checkRubricExists();
   }, [activeCourse, activeAssignment]);
-
-  /**
-   * Rubric change event handlers
-   */
 
   /**
    * If user selects replace existing rubric, the program creates a new rubric for the user to edit.
@@ -165,69 +154,6 @@ export function RubricBuilderMain(): ReactElement {
     }
   };
 
-  const handleImportTemplate = (template: Template) => {
-    const updatedTemplate = {
-      ...template,
-      usageCount: template.usageCount + 1,
-      lastUsed: new Date().toISOString(),
-    };
-
-    setUpdatingTemplate(updatedTemplate);
-    if (!activeRubric) return;
-
-    const currentCriteria = activeRubric.criteria;
-    const newCriteria = template.criteria;
-
-    if (newCriteria.length === 0) {
-      openDialog({
-        title: "No Criteria Detected",
-        message: "This template has no criteria",
-        buttons: [],
-      });
-      return;
-    }
-
-    // Split into unique and duplicate criteria
-    const { unique, duplicates } = newCriteria.reduce(
-      (acc, newCriterion) => {
-        const isDuplicate = currentCriteria.some(
-          (existingCriterion) =>
-            existingCriterion.key.trim().toLowerCase() ===
-            newCriterion.key.trim().toLowerCase(),
-        );
-
-        if (isDuplicate) {
-          acc.duplicates.push(newCriterion);
-        } else {
-          acc.unique.push(newCriterion);
-        }
-
-        return acc;
-      },
-      { unique: [] as Criteria[], duplicates: [] as Criteria[] },
-    );
-
-    // Log information about duplicates if any were found
-    if (duplicates.length > 0) {
-      const duplicateDescriptions = duplicates
-        .map((criterion) => criterion.description)
-        .join(", ");
-
-      openDialog({
-        title: "Duplicate Criteria Detected",
-        message: `Looks like you already imported this one. Duplicate criteria: ${duplicateDescriptions}`,
-        buttons: [],
-      });
-      return;
-    }
-
-    setActiveRubric({
-      ...activeRubric,
-      criteria: [...currentCriteria, ...unique],
-    });
-    setImportingTemplate(updatedTemplate);
-  };
-
   /**
    * Effect to load a default rubric if canvas api is bypassed
    */
@@ -244,11 +170,22 @@ export function RubricBuilderMain(): ReactElement {
    */
   const renderContent = () => {
     if (loading) return <LoadingDots />;
-    if (isOfflineMode) return <RubricForm />;
+    if (isOfflineMode)
+      return (
+        <RubricForm
+          templateInputActive={templateInputActive}
+          setTemplateInputActive={setTemplateInputActive}
+        />
+      );
     if (!activeCourse) return <NoCourseSelected />;
     if (!activeAssignment) return <NoAssignmentSelected />;
 
-    return <RubricForm />;
+    return (
+      <RubricForm
+        templateInputActive={templateInputActive}
+        setTemplateInputActive={setTemplateInputActive}
+      />
+    );
   };
 
   const renderOfflineToggleButton = () => {
@@ -259,7 +196,7 @@ export function RubricBuilderMain(): ReactElement {
           type={"button"}
           onClick={() => setIsOfflineMode((prev) => !prev)} // Toggle bypass
         >
-          {isOfflineMode ? "Use Canvas API" : "Offline Mode"}
+          {isOfflineMode ? "Use Canvas API" : "Enable Offline Mode"}
         </button>
       </div>
     );
@@ -283,7 +220,6 @@ export function RubricBuilderMain(): ReactElement {
         >
           <TemplateUpload
             closeImportCard={() => setTemplateInputActive(false)}
-            onTemplateSelected={handleImportTemplate}
           />
         </Dialog>
         {/* Sticky Footer with Gradient */}
