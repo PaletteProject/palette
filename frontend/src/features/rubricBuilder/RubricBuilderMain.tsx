@@ -463,25 +463,6 @@ export function RubricBuilderMain(): ReactElement {
   };
 
   /**
-   * Render a card for each criterion in the active rubric.
-   *
-   * The Sortable Context wrapper allows the drag and drop to dynamically apply sorting. The Animate Presence wrapper
-   * with the motion.div enable the transitions in and out.
-   */
-  const renderCriteriaCards = () => {
-    if (!activeRubric) return;
-    return (
-      <CriteriaList
-        criteria={activeRubric.criteria}
-        activeCriterionIndex={activeCriterionIndex}
-        onUpdateCriteria={handleUpdateCriterion}
-        onRemoveCriteria={handleRemoveCriterion}
-        setActiveCriterionIndex={setActiveCriterionIndex}
-      />
-    );
-  };
-
-  /**
    * Effect to load a default rubric if canvas api is bypassed
    */
   useEffect(() => {
@@ -562,7 +543,15 @@ export function RubricBuilderMain(): ReactElement {
           h-[40vh]
           overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 p-2"
         >
-          {renderCriteriaCards()}
+          {activeRubric && (
+            <CriteriaList
+              criteria={activeRubric.criteria}
+              activeCriterionIndex={activeCriterionIndex}
+              onUpdateCriteria={handleUpdateCriterion}
+              onRemoveCriteria={handleRemoveCriterion}
+              setActiveCriterionIndex={setActiveCriterionIndex}
+            />
+          )}
         </div>
 
         <div className="flex gap-4  justify-self-end">
