@@ -1,7 +1,7 @@
 /**
  * Rubric Builder view.
  */
-import { ReactElement, useCallback, useEffect, useState } from "react";
+import { ReactElement, useEffect } from "react";
 import TemplateUpload from "./TemplateUpload.tsx";
 import {
   ChoiceDialog,
@@ -11,7 +11,6 @@ import {
   LoadingDots,
   NoAssignmentSelected,
   NoCourseSelected,
-  PopUp,
 } from "@components";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 
@@ -50,17 +49,6 @@ export function RubricBuilderMain(): ReactElement {
     setUpdatingTemplate,
     setTemplateInputActive,
   } = useTemplate();
-
-  const closePopUp = useCallback(
-    () => setPopUp((prevPopUp) => ({ ...prevPopUp, isOpen: false })),
-    [],
-  );
-
-  const [popUp, setPopUp] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-  });
 
   useEffect(() => {
     if (!activeCourse || !activeAssignment) return;
@@ -191,10 +179,10 @@ export function RubricBuilderMain(): ReactElement {
     const newCriteria = template.criteria;
 
     if (newCriteria.length === 0) {
-      setPopUp({
-        isOpen: true,
-        title: "Oops!",
-        message: `This template has no criteria`,
+      openDialog({
+        title: "No Criteria Detected",
+        message: "This template has no criteria",
+        buttons: [],
       });
       return;
     }
@@ -224,10 +212,11 @@ export function RubricBuilderMain(): ReactElement {
       const duplicateDescriptions = duplicates
         .map((criterion) => criterion.description)
         .join(", ");
-      setPopUp({
-        isOpen: true,
-        title: "Oops!",
+
+      openDialog({
+        title: "Duplicate Criteria Detected",
         message: `Looks like you already imported this one. Duplicate criteria: ${duplicateDescriptions}`,
+        buttons: [],
       });
       return;
     }
@@ -283,14 +272,8 @@ export function RubricBuilderMain(): ReactElement {
         <div className={"px-48 flex justify-center"}>{renderContent()}</div>
         {!isOfflineMode && renderOfflineToggleButton()}
 
+        {/*Used for modal notifications*/}
         <ChoiceDialog />
-
-        <PopUp
-          show={popUp.isOpen}
-          onHide={closePopUp}
-          title={popUp.title}
-          message={popUp.message}
-        />
 
         {/* Template Import Dialog */}
         <Dialog
@@ -303,7 +286,6 @@ export function RubricBuilderMain(): ReactElement {
             onTemplateSelected={handleImportTemplate}
           />
         </Dialog>
-
         {/* Sticky Footer with Gradient */}
         <Footer />
       </div>
