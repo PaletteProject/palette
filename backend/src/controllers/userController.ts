@@ -28,15 +28,15 @@ export const updateUserSettings = asyncHandler(
     const updatedSettings = SettingsAPI.getUserSettings();
 
     res.json(
-      createSuccessResponse(updatedSettings, "Settings updated successfully"),
+      createSuccessResponse(updatedSettings, "Settings updated successfully")
     );
-  },
+  }
 );
 
 export const updateUserCourseFilters = asyncHandler(
   (req: Request, res: Response) => {
     SettingsAPI.updateUserCourseFilters(
-      req.body as { id: string; option: string; param_code: string }[],
+      req.body as { id: string; option: string; param_code: string }[]
     );
 
     // Safely retrieve the updated settings
@@ -45,10 +45,10 @@ export const updateUserCourseFilters = asyncHandler(
     res.json(
       createSuccessResponse(
         updatedSettings,
-        "Course filters updated successfully",
-      ),
+        "Course filters updated successfully"
+      )
     );
-  },
+  }
 );
 
 export const updateUserCourseFilterPresets = asyncHandler(
@@ -57,7 +57,7 @@ export const updateUserCourseFilterPresets = asyncHandler(
       req.body as {
         name: string;
         filters: { option: string; param_code: string }[];
-      }[],
+      }[]
     );
 
     // Safely retrieve the updated settings
@@ -66,10 +66,10 @@ export const updateUserCourseFilterPresets = asyncHandler(
     res.json(
       createSuccessResponse(
         updatedSettings,
-        "Course filter presets updated successfully",
-      ),
+        "Course filter presets updated successfully"
+      )
     );
-  },
+  }
 );
 
 export const updateUserAssignmentFilters = asyncHandler(
@@ -79,7 +79,7 @@ export const updateUserAssignmentFilters = asyncHandler(
         id: string;
         option: string;
         param_code: string;
-      }[],
+      }[]
     );
 
     // Safely retrieve the updated settings
@@ -88,10 +88,10 @@ export const updateUserAssignmentFilters = asyncHandler(
     res.json(
       createSuccessResponse(
         updatedSettings,
-        "Assignment filters updated successfully",
-      ),
+        "Assignment filters updated successfully"
+      )
     );
-  },
+  }
 );
 
 export const updateUserAssignmentFilterPresets = asyncHandler(
@@ -101,7 +101,7 @@ export const updateUserAssignmentFilterPresets = asyncHandler(
         id: string;
         name: string;
         filters: { option: string; param_code: string }[];
-      }[],
+      }[]
     );
 
     // Safely retrieve the updated settings
@@ -110,8 +110,8 @@ export const updateUserAssignmentFilterPresets = asyncHandler(
     res.json(
       createSuccessResponse(
         updatedSettings,
-        "Assignment filter presets updated successfully",
-      ),
+        "Assignment filter presets updated successfully"
+      )
     );
-  },
+  }
 );

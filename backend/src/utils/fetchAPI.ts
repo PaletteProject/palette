@@ -18,6 +18,7 @@ const CanvasAPIConfig = {
  * Helper function to refresh the API config and ensure it's using the latest token.
  */
 const refreshToken = () => {
+  console.log("REFRESHING TOKEN");
   CanvasAPIConfig.headers.Authorization = `Bearer ${SettingsAPI.getUserSettings(true).token}`;
 };
 
@@ -30,7 +31,7 @@ const refreshToken = () => {
  */
 export async function fetchAPI<T>(
   endpoint: string,
-  options: RequestInit = {}, // default options (none)
+  options: RequestInit = {} // default options (none)
 ): Promise<T> {
   refreshToken();
   try {
@@ -66,7 +67,7 @@ export async function fetchAPI<T>(
       } else {
         throw new CanvasAPIUnexpectedError(
           "Canvas API returned an unexpected error response",
-          json,
+          json
         );
       }
     }
@@ -91,13 +92,13 @@ export async function fetchAPI<T>(
 function logCanvasAPIRequest(
   request: Request,
   options: RequestInit,
-  verbose: boolean = false,
+  verbose: boolean = false
 ) {
   if (verbose) {
     // log the entire request (up to 50 levels deep) for debugging
     console.log(
       "\nCanvas API Request:\n",
-      util.inspect(request, { depth: 50, colors: true }),
+      util.inspect(request, { depth: 50, colors: true })
     );
   } else {
     // log just the method and URL for debugging
@@ -111,7 +112,7 @@ function logCanvasAPIRequest(
     ${util.inspect(JSON.parse(options.body as string), {
       depth: 50,
       colors: true,
-    })}`,
+    })}`
     );
   }
 }
@@ -125,13 +126,13 @@ function logCanvasAPIRequest(
 function logCanvasAPIResponse<T>(
   response: Response,
   body: T,
-  verbose: boolean = false,
+  verbose: boolean = false
 ) {
   if (verbose) {
     // log the whole response (up to 50 levels deep) for debugging
     console.log(
       "\nCanvas API Response:\n",
-      util.inspect(response, { depth: 50, colors: true }),
+      util.inspect(response, { depth: 50, colors: true })
     );
   } else {
     // log just the status code for debugging
@@ -143,7 +144,7 @@ function logCanvasAPIResponse<T>(
   if (body) {
     console.log(
       `Canvas API Response Body (parsed JSON):\n
-    ${util.inspect(body, { depth: 50, colors: true })}`,
+    ${util.inspect(body, { depth: 50, colors: true })}`
     );
   }
 }
