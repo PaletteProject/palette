@@ -17,7 +17,7 @@ import tagRouter from "./routes/tagRouter.js";
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
-const app = express();
+export const app = express();
 const PORT = process.env.SERVER_PORT || 3000;
 
 // CORS config
@@ -60,9 +60,9 @@ app.use(fallbackErrorHandler);
 // Start the server and listen on port defined in .env file
 app.listen(PORT, () => {
   console.log(
-    "\nPalette started!\n\nAccess the application at http://localhost:5173",
+    "\nPalette started!\n\nAccess the application at http://localhost:5173"
   );
   console.log(
-    `Swagger API documentation available at http://localhost:${PORT}/api-docs`,
+    `Swagger API documentation available at http://localhost:${PORT}/api-docs`
   );
 });
