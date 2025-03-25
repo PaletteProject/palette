@@ -18,13 +18,12 @@ import {
   PaletteEye,
 } from "@components";
 import { useChoiceDialog } from "../../../context/DialogContext.tsx";
-import { calculateSubmissionTotal } from "../../../utils/SubmissionUtils.ts";
 import { GroupFeedback } from "./GroupFeedback.tsx";
 import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
-import { IndividualFeedbackTextArea } from "./IndividualFeedbackTextArea.tsx";
-import { ExistingIndividualFeedback } from "./ExistingIndividualFeedback.tsx";
 import { CriteriaCommentTextArea } from "./CriteriaCommentTextArea.tsx";
 import { ExistingCriteriaComments } from "./ExistingCriteriaComments.tsx";
+import { StudentHeaderControls } from "./StudentHeaderControls.tsx";
+import { CriterionHeaderControls } from "./CriterionHeaderControls.tsx";
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -54,6 +53,7 @@ export function ProjectGradingView({
   const [criterionComments, setCriterionComments] = useState<
     Record<string, string>
   >({});
+
   const [feedback, setFeedback] = useState<Record<number, string>>({});
 
   // Existing feedback states
@@ -65,9 +65,6 @@ export function ProjectGradingView({
   const [showExistingGroupFeedback, setShowExistingGroupFeedback] =
     useState<boolean>(false);
 
-  const [showExistingIndividualFeedback, setShowExistingIndividualFeedback] =
-    useState<boolean>(false);
-
   const [showExistingCriterionComment, setShowExistingCriterionComment] =
     useState<boolean>(false);
 
@@ -76,8 +73,7 @@ export function ProjectGradingView({
   const [activeCriterion, setActiveCriterion] = useState<string | null>(null);
 
   // Text area states
-  const [showIndividualFeedbackTextArea, setShowIndividualFeedbackTextArea] =
-    useState<boolean>(false);
+
   const [showGroupFeedbackTextArea, setShowGroupFeedbackTextArea] =
     useState<boolean>(false);
   const [showCriterionCommentTextArea, setShowCriterionCommentTextArea] =
@@ -402,95 +398,6 @@ export function ProjectGradingView({
     );
   };
 
-  const renderStudentHeaderControls = (submission: Submission) => {
-    return (
-      <div className="flex flex-col w-full items-center gap-2">
-        <div className="flex items-center justify-center gap-4 text-center">
-          <div className={"flex justify-between"}>
-            <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
-            <p>{`Canvas Score ${calculateSubmissionTotal(submission)}`}</p>
-          </div>
-          <PaletteBrush
-            onClick={() => {
-              setActiveStudentId(
-                activeStudentId === submission.id ? null : submission.id,
-              );
-              setShowIndividualFeedbackTextArea(true);
-              setShowExistingIndividualFeedback(false);
-            }}
-            title="Add Feedback"
-            focused={
-              showIndividualFeedbackTextArea &&
-              activeStudentId === submission.id
-            }
-          />
-          <PaletteEye
-            onClick={() => {
-              setActiveStudentId((prev) =>
-                prev === submission.id ? null : submission.id,
-              );
-              setShowExistingIndividualFeedback(true);
-              setShowIndividualFeedbackTextArea(false);
-            }}
-            focused={
-              showExistingIndividualFeedback &&
-              activeStudentId === submission.id
-            }
-          />
-        </div>
-        {showExistingIndividualFeedback && (
-          <ExistingIndividualFeedback
-            activeStudentId={activeStudentId}
-            submissionId={submission.id}
-            existingFeedback={existingIndividualFeedback}
-          />
-        )}
-        {activeStudentId === submission.id &&
-          showIndividualFeedbackTextArea && (
-            <IndividualFeedbackTextArea
-              submissionId={submission.id}
-              feedback={feedback}
-              setFeedback={setFeedback}
-            />
-          )}
-      </div>
-    );
-  };
-
-  const renderCriterionHeaderControls = (criterion: Criteria) => {
-    return (
-      <div>
-        <div className="flex items-center gap-4 pr-4">
-          <PaletteBrush
-            onClick={() => {
-              setActiveCriterion(
-                activeCriterion === criterion.id ? null : criterion.id,
-              );
-              setShowCriterionCommentTextArea(true);
-              setShowExistingCriterionComment(false);
-            }}
-            title="Add Criterion Comment"
-            focused={
-              showCriterionCommentTextArea && activeCriterion === criterion.id
-            }
-          />
-          <PaletteEye
-            onClick={() => {
-              setActiveCriterion(
-                activeCriterion === criterion.id ? null : criterion.id,
-              );
-              setShowExistingCriterionComment(true);
-              setShowCriterionCommentTextArea(false);
-            }}
-            focused={
-              showExistingCriterionComment && activeCriterion === criterion.id
-            }
-          />
-        </div>
-      </div>
-    );
-  };
-
   const renderGradingTable = () => {
     return (
       <div
@@ -509,7 +416,14 @@ export function ProjectGradingView({
                   key={submission.id}
                   className="border border-gray-500 px-4 py-2"
                 >
-                  {renderStudentHeaderControls(submission)}
+                  <StudentHeaderControls
+                    submission={submission}
+                    activeStudentId={activeStudentId}
+                    setActiveStudentId={setActiveStudentId}
+                    existingIndividualFeedback={existingIndividualFeedback}
+                    feedback={feedback}
+                    setFeedback={setFeedback}
+                  />
                 </th>
               ))}
             </tr>
@@ -549,7 +463,23 @@ export function ProjectGradingView({
                         onChange={() => handleCheckBoxChange(criterion.id)}
                       />
                     </label>
-                    {renderCriterionHeaderControls(criterion)}
+                    <CriterionHeaderControls
+                      activeCriterion={activeCriterion}
+                      setActiveCriterion={setActiveCriterion}
+                      criterion={criterion}
+                      setShowCriterionCommentTextArea={
+                        setShowCriterionCommentTextArea
+                      }
+                      setShowExistingCriterionComment={
+                        setShowExistingCriterionComment
+                      }
+                      showExistingCriterionComment={
+                        showExistingCriterionComment
+                      }
+                      showCriterionCommentTextArea={
+                        showCriterionCommentTextArea
+                      }
+                    />
                   </div>
                 </td>
                 {/* For each criterion row, create a cell for each submission */}
