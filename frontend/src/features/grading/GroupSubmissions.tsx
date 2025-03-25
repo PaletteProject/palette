@@ -1,10 +1,10 @@
 import { PaletteGradedSubmission, Rubric, Submission } from "palette-types";
 import { ProgressBar } from "@features";
-import { ProjectGradingView } from "./projectGradingView/ProjectGradingView.tsx";
 import { Dispatch, SetStateAction, useState } from "react";
 import { PaletteActionButton } from "@components";
 import { useRubric } from "@context";
 import { calculateGroupAverage } from "../../utils/SubmissionUtils.ts";
+import { ProjectGradingView } from "./projectGradingComponents/ProjectGradingView.tsx";
 
 interface GroupSubmissionsProps {
   groupName: string;

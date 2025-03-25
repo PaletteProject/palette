@@ -7,6 +7,7 @@ import {
   PaletteGradedSubmission,
   Rubric,
   Submission,
+  SubmissionComment,
 } from "palette-types";
 import { createPortal } from "react-dom";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -20,6 +21,8 @@ import { useChoiceDialog } from "../../../context/DialogContext.tsx";
 import { calculateSubmissionTotal } from "../../../utils/SubmissionUtils.ts";
 import { GroupFeedback } from "./GroupFeedback.tsx";
 import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
+import { IndividualFeedbackTextArea } from "./IndividualFeedbackTextArea.tsx";
+import { ExistingIndividualFeedback } from "./ExistingIndividualFeedback.tsx";
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -49,13 +52,11 @@ export function ProjectGradingView({
   const [criterionComments, setCriterionComments] = useState<
     Record<string, string>
   >({});
-  const [individualFeedbacks, setIndividualFeedbacks] = useState<
-    Record<number, string>
-  >({});
+  const [feedback, setFeedback] = useState<Record<number, string>>({});
 
   // Existing feedback states
   const [existingIndividualFeedback, setExistingIndividualFeedback] = useState<
-    { id: number; authorName: string; comment: string }[] | null
+    SubmissionComment[] | null
   >(null);
 
   // UI state
@@ -228,9 +229,9 @@ export function ProjectGradingView({
         });
 
         let individualComment = undefined;
-        if (individualFeedbacks[submission.id]) {
+        if (feedback[submission.id]) {
           individualComment = {
-            text_comment: individualFeedbacks[submission.id],
+            text_comment: feedback[submission.id],
             group_comment: false as const,
           };
         }
@@ -319,13 +320,12 @@ export function ProjectGradingView({
       (submission) => submission.id === submissionId,
     )?.comments;
 
-    const existingIndividualComments = studentsComments?.filter(
+    return studentsComments?.filter(
       (comment) =>
         !existingGroupFeedback.some(
           (existingComment) => existingComment.comment === comment.comment,
         ),
     );
-    return existingIndividualComments;
   };
 
   const handleClickCloseButton = () => {
@@ -417,52 +417,6 @@ export function ProjectGradingView({
     );
   };
 
-  const renderIndividualFeedbackTextArea = (submissionId: number) => {
-    return (
-      <div className="w-full">
-        <textarea
-          className="w-full min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto
-          scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
-          onChange={(e) => {
-            setIndividualFeedbacks((prev) => ({
-              ...prev,
-              [submissionId]: e.target.value,
-            }));
-          }}
-          value={individualFeedbacks[submissionId]}
-          placeholder={"Enter feedback for the individual..."}
-        />
-      </div>
-    );
-  };
-
-  const renderExistingIndividualFeedback = (submissionId: number) => {
-    if (activeStudentId !== submissionId) return null; // Only render if the student is active
-
-    return (
-      <div className="w-full">
-        {existingIndividualFeedback ? (
-          <>
-            {existingIndividualFeedback.length > 0 ? (
-              <>
-                <h2 className="text-lg font-bold">Existing Comments</h2>
-                <ul className="list-disc list-inside">
-                  {existingIndividualFeedback.map((comment) => (
-                    <li>{comment.comment}</li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p>No existing comments for this student</p>
-            )}
-          </>
-        ) : (
-          <p>No existing comments for this student</p> // TODO: figure out how to remove this. Need this because existingComments might be undefined
-        )}
-      </div>
-    );
-  };
-
   const renderCriterionCommentTextArea = (criterionId: string) => {
     return (
       <div className="flex flex-col w-full gap-2 ">
@@ -539,11 +493,21 @@ export function ProjectGradingView({
             }
           />
         </div>
-        {showExistingIndividualFeedback &&
-          renderExistingIndividualFeedback(submission.id)}
+        {showExistingIndividualFeedback && (
+          <ExistingIndividualFeedback
+            activeStudentId={activeStudentId}
+            submissionId={submission.id}
+            existingFeedback={existingIndividualFeedback}
+          />
+        )}
         {activeStudentId === submission.id &&
-          showIndividualFeedbackTextArea &&
-          renderIndividualFeedbackTextArea(submission.id)}
+          showIndividualFeedbackTextArea && (
+            <IndividualFeedbackTextArea
+              submissionId={submission.id}
+              feedback={feedback}
+              setFeedback={setFeedback}
+            />
+          )}
       </div>
     );
   };
@@ -601,7 +565,6 @@ export function ProjectGradingView({
                   className="border border-gray-500 px-4 py-2"
                 >
                   {renderStudentHeaderControls(submission)}
-                  {/*  todo add back the submission total*/}
                 </th>
               ))}
             </tr>
