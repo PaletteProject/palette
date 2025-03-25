@@ -16,8 +16,10 @@ import {
   PaletteBrush,
   PaletteEye,
 } from "@components";
-import { useChoiceDialog } from "../../context/DialogContext.tsx";
-import { calculateSubmissionTotal } from "../../utils/SubmissionUtils.ts";
+import { useChoiceDialog } from "../../../context/DialogContext.tsx";
+import { calculateSubmissionTotal } from "../../../utils/SubmissionUtils.ts";
+import { GroupFeedback } from "./GroupFeedback.tsx";
+import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -383,8 +385,18 @@ export function ProjectGradingView({
               />
             </div>
           </div>
-          {showExistingGroupFeedback && renderExistingGroupFeedback()}
-          {showGroupFeedbackTextArea && renderGroupFeedbackTextArea()}
+          {showExistingGroupFeedback && (
+            <ExistingGroupFeedback
+              submissions={submissions}
+              getExistingGroupFeedback={getExistingGroupFeedback}
+            />
+          )}
+          {showGroupFeedbackTextArea && (
+            <GroupFeedback
+              groupFeedback={groupFeedback}
+              setGroupFeedback={setGroupFeedback}
+            />
+          )}
           {renderGradingTable()}
 
           <div className={"flex gap-4 justify-end"}>
@@ -402,39 +414,6 @@ export function ProjectGradingView({
         </div>
       </div>,
       document.getElementById("portal-root") as HTMLElement,
-    );
-  };
-
-  const renderGroupFeedbackTextArea = () => {
-    return (
-      <div className="flex flex-col gap-2">
-        <textarea
-          className="w-1/3 min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto
-          scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
-          onChange={(e) => setGroupFeedback(e.target.value)}
-          value={groupFeedback}
-          placeholder="Enter feedback for the group..."
-        />
-      </div>
-    );
-  };
-
-  const renderExistingGroupFeedback = () => {
-    return (
-      <div className="flex flex-col gap-2">
-        {getExistingGroupFeedback(submissions).length > 0 ? (
-          <>
-            <h2 className="text-lg font-bold">Existing Group Comments</h2>
-            <ul className="list-disc list-inside">
-              {getExistingGroupFeedback(submissions).map((comment) => (
-                <li key={comment.id}>{comment.comment}</li>
-              ))}
-            </ul>
-          </>
-        ) : (
-          <p>No existing group comments</p>
-        )}
-      </div>
     );
   };
 
