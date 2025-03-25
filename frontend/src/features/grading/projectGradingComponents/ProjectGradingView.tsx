@@ -23,6 +23,8 @@ import { GroupFeedback } from "./GroupFeedback.tsx";
 import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
 import { IndividualFeedbackTextArea } from "./IndividualFeedbackTextArea.tsx";
 import { ExistingIndividualFeedback } from "./ExistingIndividualFeedback.tsx";
+import { CriteriaCommentTextArea } from "./CriteriaCommentTextArea.tsx";
+import { ExistingCriteriaComments } from "./ExistingCriteriaComments.tsx";
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -86,16 +88,6 @@ export function ProjectGradingView({
   }>({});
 
   const { openDialog, closeDialog } = useChoiceDialog();
-
-  const existingCriterionComments = submissions[0].rubricAssessment
-    ? Object.entries(submissions[0].rubricAssessment).reduce(
-        (acc, [criterionId, criterion]) => {
-          acc[criterionId] = criterion.comments;
-          return acc;
-        },
-        {} as Record<string, string>,
-      )
-    : {};
 
   const setInitialGroupFlags = () => {
     const newFlags = rubric.criteria.reduce(
@@ -246,8 +238,6 @@ export function ProjectGradingView({
       },
     );
 
-    console.log("gradedSubmissions before concat", gradedSubmissions);
-
     // Add a group comment to the first submission if it exists
     // This should affect all submissions on canvas side.
     // No need to add it to all submissions.
@@ -259,13 +249,10 @@ export function ProjectGradingView({
       };
     }
 
-    console.log("gradedSubmissions after concat", gradedSubmissions);
-
     /**
      * Store graded submissions in cache
      */
     setGradedSubmissionCache((prev) => {
-      console.log("prev", prev);
       return prev.concat(gradedSubmissions);
     });
 
@@ -306,8 +293,6 @@ export function ProjectGradingView({
       allSubmissionComments.push(...submissionComments);
     }
 
-    // setGroupFeedback(allSubmissionComments.join("\n"));
-    // console.log("Existing group comments:", existingGroupComments);
     return existingGroupComments;
   };
 
@@ -414,46 +399,6 @@ export function ProjectGradingView({
         </div>
       </div>,
       document.getElementById("portal-root") as HTMLElement,
-    );
-  };
-
-  const renderCriterionCommentTextArea = (criterionId: string) => {
-    return (
-      <div className="flex flex-col w-full gap-2 ">
-        <textarea
-          className="w-full min-h-12 max-h-32 text-black font-bold rounded px-2 py-1 bg-gray-300 overflow-auto
-          scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
-          onChange={(e) =>
-            setCriterionComments((prev) => ({
-              ...prev,
-              [criterionId]: e.target.value,
-            }))
-          }
-          value={criterionComments[criterionId] || ""}
-          placeholder="Enter comment for the criterion..."
-        />
-      </div>
-    );
-  };
-
-  const renderExistingCriterionComment = (criterionId: string) => {
-    if (!showExistingCriterionComment) return null; // Only render if the section is active
-
-    return (
-      <div className="flex flex-col w-full gap-2">
-        {existingCriterionComments[criterionId] ? (
-          <>
-            <h2 className="text-lg font-bold">Existing Criterion Comments</h2>
-            <ul className="list-disc list-inside">
-              <li key={criterionId}>
-                {existingCriterionComments[criterionId]}
-              </li>
-            </ul>
-          </>
-        ) : (
-          <p>No existing comments for this criterion</p>
-        )}
-      </div>
     );
   };
 
@@ -577,11 +522,23 @@ export function ProjectGradingView({
                   <div className="flex justify-between items-center gap-6">
                     <p className="flex-1">{criterion.description}</p>
                     {showExistingCriterionComment &&
-                      activeCriterion === criterion.id &&
-                      renderExistingCriterionComment(criterion.id)}
+                      activeCriterion === criterion.id && (
+                        <ExistingCriteriaComments
+                          criterionId={criterion.id}
+                          submissions={submissions}
+                          showExistingCriterionComment={
+                            showExistingCriterionComment
+                          }
+                        />
+                      )}
                     {showCriterionCommentTextArea &&
-                      activeCriterion === criterion.id &&
-                      renderCriterionCommentTextArea(criterion.id)}
+                      activeCriterion === criterion.id && (
+                        <CriteriaCommentTextArea
+                          criterionId={criterion.id}
+                          criterionComments={criterionComments}
+                          setCriterionComments={setCriterionComments}
+                        />
+                      )}
                     <label className="flex gap-2 text-sm font-medium whitespace-nowrap items-center">
                       <p>Apply Ratings to Group</p>
                       <input
