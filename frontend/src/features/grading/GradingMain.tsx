@@ -105,10 +105,10 @@ export function GradingMain(): ReactElement {
                   if (!transferring) {
                     setTransferring(true);
                     transferToOfflineGrading(
-                      String(activeCourse?.id || ""),
-                      String(activeAssignment?.id || ""),
-                      String(activeRubric?.id || ""),
-                    );
+                      activeCourse,
+                      activeAssignment,
+                      activeRubric
+                    );                    
                     setTimeout(() => setTransferring(false), 2000); // Reset after transfer
                   }
                 }}

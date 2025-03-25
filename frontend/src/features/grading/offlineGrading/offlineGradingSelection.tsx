@@ -12,23 +12,38 @@ export function OfflineGradingSelection({
   const [selectedCourse, setSelectedCourse] = useState<string>("");
   const [selectedAssignment, setSelectedAssignment] = useState<string>("");
 
+  const [courseNameMap, setCourseNameMap] = useState<Record<string, string>>({});
+  const [assignmentNameMap, setAssignmentNameMap] = useState<Record<string, string>>({});
+
+  // Load course list and name map
   useEffect(() => {
     const storedCoursesRaw = localStorage.getItem("offlineCourses");
     const storedCourses: string[] = storedCoursesRaw
-      ? (JSON.parse(storedCoursesRaw) as string[])
+      ? JSON.parse(storedCoursesRaw)
       : [];
     setAvailableCourses(storedCourses);
+
+    const storedCourseNames = localStorage.getItem("courseNameMap");
+    setCourseNameMap(storedCourseNames ? JSON.parse(storedCourseNames) : {});
   }, []);
 
+  // Load assignments and assignment name map when course changes
   useEffect(() => {
     if (selectedCourse) {
       const storedAssignmentsRaw = localStorage.getItem(
         `offlineAssignments_${selectedCourse}`,
       );
       const storedAssignments: string[] = storedAssignmentsRaw
-        ? (JSON.parse(storedAssignmentsRaw) as string[])
+        ? JSON.parse(storedAssignmentsRaw)
         : [];
       setAvailableAssignments(storedAssignments);
+
+      const storedAssignmentNames = localStorage.getItem(
+        `assignmentNameMap_${selectedCourse}`,
+      );
+      setAssignmentNameMap(
+        storedAssignmentNames ? JSON.parse(storedAssignmentNames) : {},
+      );
     }
   }, [selectedCourse]);
 
@@ -52,7 +67,7 @@ export function OfflineGradingSelection({
         </option>
         {availableCourses.map((courseId) => (
           <option key={courseId} value={courseId}>
-            Course {courseId}
+            {courseNameMap[courseId] || `Course ${courseId}`}
           </option>
         ))}
       </select>
@@ -72,7 +87,7 @@ export function OfflineGradingSelection({
           </option>
           {availableAssignments.map((assignmentId) => (
             <option key={assignmentId} value={assignmentId}>
-              Assignment {assignmentId}
+              {assignmentNameMap[assignmentId] || `Assignment ${assignmentId}`}
             </option>
           ))}
         </select>
