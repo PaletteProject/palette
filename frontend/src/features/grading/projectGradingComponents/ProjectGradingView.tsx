@@ -27,8 +27,10 @@ type ProjectGradingViewProps = {
   rubric: Rubric;
   isOpen: boolean;
   onClose: () => void; // event handler defined in GroupSubmissions.tsx
-  setGradedSubmissionCache: Dispatch<SetStateAction<PaletteGradedSubmission[]>>;
-  gradedSubmissionCache: PaletteGradedSubmission[];
+  setGradedSubmissionCache: Dispatch<
+    SetStateAction<Record<number, PaletteGradedSubmission>>
+  >;
+  gradedSubmissionCache: Record<number, PaletteGradedSubmission>;
 };
 
 export function ProjectGradingView({
@@ -329,6 +331,7 @@ export function ProjectGradingView({
             existingIndividualFeedback={existingIndividualFeedback}
             criterionComments={criterionComments}
             setCriterionComments={setCriterionComments}
+            gradedSubmissionCache={gradedSubmissionCache}
           />
 
           <div className={"flex gap-4 justify-end"}>

@@ -12,8 +12,10 @@ interface GroupSubmissionsProps {
   submissions: Submission[];
   rubric: Rubric;
   fetchSubmissions: () => Promise<void>;
-  setGradedSubmissionCache: Dispatch<SetStateAction<PaletteGradedSubmission[]>>;
-  gradedSubmissionCache: PaletteGradedSubmission[];
+  setGradedSubmissionCache: Dispatch<
+    SetStateAction<Record<number, PaletteGradedSubmission>>
+  >;
+  gradedSubmissionCache: Record<number, PaletteGradedSubmission>;
 }
 
 export function GroupSubmissions({

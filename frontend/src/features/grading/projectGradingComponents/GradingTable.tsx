@@ -1,4 +1,10 @@
-import { Criteria, Rubric, Submission, SubmissionComment } from "palette-types";
+import {
+  Criteria,
+  PaletteGradedSubmission,
+  Rubric,
+  Submission,
+  SubmissionComment,
+} from "palette-types";
 import { StudentHeaderControls } from "./StudentHeaderControls.tsx";
 import { ExistingCriteriaComments } from "./ExistingCriteriaComments.tsx";
 import { CriteriaCommentTextArea } from "./CriteriaCommentTextArea.tsx";
@@ -19,6 +25,7 @@ interface GradingTableProps {
   existingIndividualFeedback: SubmissionComment[] | null;
   criterionComments: Record<string, string>;
   setCriterionComments: Dispatch<SetStateAction<Record<string, string>>>;
+  gradedSubmissionCache: Record<number, PaletteGradedSubmission>;
 }
 
 export function GradingTable({
@@ -35,6 +42,7 @@ export function GradingTable({
   existingIndividualFeedback,
   criterionComments,
   setCriterionComments,
+  gradedSubmissionCache,
 }: GradingTableProps) {
   const [activeCriterion, setActiveCriterion] = useState<string | null>(null);
   const [showExistingCriterionComment, setShowExistingCriterionComment] =
@@ -120,6 +128,7 @@ export function GradingTable({
                   existingIndividualFeedback={existingIndividualFeedback}
                   feedback={feedback}
                   setFeedback={setFeedback}
+                  gradedSubmissionCache={gradedSubmissionCache}
                 />
               </th>
             ))}
