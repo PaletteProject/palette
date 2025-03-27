@@ -149,13 +149,16 @@ export function ProjectGradingView({
       if (savedOfflineGrades) {
         const parsedGrades = JSON.parse(savedOfflineGrades);
         parsedGrades.forEach((gradedSubmission: CanvasGradedSubmission) => {
-          for (const [criterionId, assessment] of Object.entries(gradedSubmission.rubric_assessment)) {
-            initialRatings[`${criterionId}-${gradedSubmission.submission_id}`] = assessment.points ?? "";
+          for (const [criterionId, assessment] of Object.entries(
+            gradedSubmission.rubric_assessment,
+          )) {
+            initialRatings[`${criterionId}-${gradedSubmission.submission_id}`] =
+              assessment.points ?? "";
           }
         });
       }
 
-    setRatings(initialRatings);
+      setRatings(initialRatings);
 
       console.log(initialRatings);
     }
@@ -275,23 +278,25 @@ export function ProjectGradingView({
 
     setGradedSubmissionCache((prev) => {
       const updatedCache = [...prev];
-    
+
       gradedSubmissions.forEach((gradedSubmission) => {
-        const index = updatedCache.findIndex((s) => s.submission_id === gradedSubmission.submission_id);
-        
+        const index = updatedCache.findIndex(
+          (s) => s.submission_id === gradedSubmission.submission_id,
+        );
+
         if (index > -1) {
           updatedCache[index] = gradedSubmission; // Update existing entry
         } else {
           updatedCache.push(gradedSubmission); // Add new entry
         }
       });
-    
+
       // ✅ Save to localStorage for Offline Grading
       localStorage.setItem("offlineGradingCache", JSON.stringify(updatedCache));
-    
+
       return updatedCache;
     });
-    
+
     onClose();
   };
 

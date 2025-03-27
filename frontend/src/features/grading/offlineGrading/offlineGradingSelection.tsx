@@ -12,8 +12,12 @@ export function OfflineGradingSelection({
   const [selectedCourse, setSelectedCourse] = useState<string>("");
   const [selectedAssignment, setSelectedAssignment] = useState<string>("");
 
-  const [courseNameMap, setCourseNameMap] = useState<Record<string, string>>({});
-  const [assignmentNameMap, setAssignmentNameMap] = useState<Record<string, string>>({});
+  const [courseNameMap, setCourseNameMap] = useState<Record<string, string>>(
+    {},
+  );
+  const [assignmentNameMap, setAssignmentNameMap] = useState<
+    Record<string, string>
+  >({});
 
   // Load course list and name map
   useEffect(() => {

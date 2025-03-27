@@ -107,8 +107,8 @@ export function GradingMain(): ReactElement {
                     transferToOfflineGrading(
                       activeCourse,
                       activeAssignment,
-                      activeRubric
-                    );                    
+                      activeRubric,
+                    );
                     setTimeout(() => setTransferring(false), 2000); // Reset after transfer
                   }
                 }}
