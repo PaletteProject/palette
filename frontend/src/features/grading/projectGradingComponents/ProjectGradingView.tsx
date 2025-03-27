@@ -100,7 +100,8 @@ export function ProjectGradingView({
       const initialRatings: Record<string, number | string> = {};
 
       // process the cached submissions, prioritizing the latest in progress grades over what Canvas current has saved.
-      gradedSubmissionCache.forEach((gradedSubmission) => {
+
+      Object.values(gradedSubmissionCache).forEach((gradedSubmission) => {
         const { submission_id, rubric_assessment } = gradedSubmission;
 
         if (rubric_assessment) {
@@ -130,7 +131,6 @@ export function ProjectGradingView({
       });
 
       setRatings(initialRatings);
-      console.log(initialRatings);
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
@@ -201,12 +201,14 @@ export function ProjectGradingView({
       };
     }
 
-    /**
-     * Store graded submissions in cache
-     */
-    setGradedSubmissionCache((prev) => {
-      return prev.concat(gradedSubmissions);
+    // convert to record object
+    const gradedSubmissionsRecord: Record<number, PaletteGradedSubmission> = {};
+    gradedSubmissions.forEach((submission) => {
+      gradedSubmissionsRecord[submission.submission_id] = submission;
     });
+
+    // update grading cache
+    setGradedSubmissionCache(gradedSubmissionsRecord);
 
     onClose();
   };

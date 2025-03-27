@@ -18,10 +18,9 @@ export function SubmissionsDashboard({
 }: SubmissionDashboardProps) {
   // graded submissions to be sent to Canvas
 
-  //todo: update this to be a record so we can look up and modify cached graded submissions by submission id
   const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
     Record<number, PaletteGradedSubmission>
-  >([]);
+  >({});
 
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
@@ -38,16 +37,15 @@ export function SubmissionsDashboard({
   const submitGrades = async (
     gradedSubmissions: Record<number, PaletteGradedSubmission>,
   ) => {
-    if (gradedSubmissions[0].group_comment) {
-      await fetch(
-        `${BASE_URL}${GRADING_ENDPOINT}${gradedSubmissions[0].user.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(gradedSubmissions[0]),
-        },
-      );
-      gradedSubmissions[0].group_comment.sent = true; // set it to sent so that it doesn't get sent again
+    const firstSubmission = Object.values(gradedSubmissions)[0];
+
+    if (firstSubmission?.group_comment) {
+      await fetch(`${BASE_URL}${GRADING_ENDPOINT}${firstSubmission.user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(gradedSubmissions[0]),
+      });
+      firstSubmission.group_comment.sent = true; // set it to sent so that it doesn't get sent again
     }
 
     // submit all submissions (group comments are already sent) only individual comments get sent here
@@ -62,7 +60,7 @@ export function SubmissionsDashboard({
     setLoading(true);
     await fetchSubmissions(); // refresh submissions
     setLoading(false);
-    setGradedSubmissionCache([]); // clear submission cache
+    setGradedSubmissionCache({}); // clear submission cache
   };
 
   const handleClickSubmitGrades = () => {

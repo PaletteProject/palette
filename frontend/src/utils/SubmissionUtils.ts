@@ -31,6 +31,5 @@ export const calculateGroupAverage = (submissions: Submission[]): string => {
 
   const average =
     validSubmissionCount > 0 ? totalPoints / validSubmissionCount : 0;
-  console.log("sup", average);
   return average.toFixed(2);
 };
