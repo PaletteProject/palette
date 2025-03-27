@@ -33,7 +33,7 @@ export function StudentHeaderControls({
       <div className="flex items-center justify-center gap-4 text-center">
         <div className={"flex justify-between"}>
           <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
-          <p>{`Canvas Score ${calculateSubmissionTotal(submission)}`}</p>
+          <p>{`Average Score ${calculateSubmissionTotal(submission).toFixed(2)}`}</p>
         </div>
         <PaletteBrush
           onClick={() => {

@@ -3,14 +3,15 @@ import { Submission } from "palette-types";
 export const calculateSubmissionTotal = (submission: Submission) => {
   if (!submission || !submission.rubricAssessment) return 0;
   // determine total score for the submission
-  const { total } = Object.values(submission.rubricAssessment).reduce(
+  const { sum, count } = Object.values(submission.rubricAssessment).reduce(
     (accumulator, assessment) => ({
-      total: accumulator.total + assessment.points,
+      sum: accumulator.sum + assessment.points,
+      count: accumulator.count + 1,
     }),
-    { total: 0 },
+    { sum: 0, count: 0 },
   );
 
-  return total;
+  return sum / count;
 };
 
 export const calculateGroupAverage = (submissions: Submission[]): string => {
