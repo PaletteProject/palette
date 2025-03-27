@@ -30,6 +30,7 @@ export * from "./types/Course";
 export * from "./types/Template";
 export * from "./types/Assignment";
 export * from "./types/Submission";
+export * from "./types/SubmissionComment";
 export * from "./types/Settings";
 export * from "./types/GroupedSubmissions";
 export * from "./types/PaletteGradedSubmission";
