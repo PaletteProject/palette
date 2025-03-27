@@ -101,36 +101,34 @@ export function ProjectGradingView({
 
       // process the cached submissions, prioritizing the latest in progress grades over what Canvas current has saved.
 
-      Object.values(gradedSubmissionCache).forEach((gradedSubmission) => {
-        const { submission_id, rubric_assessment } = gradedSubmission;
-
-        if (rubric_assessment) {
-          for (const [criterionId, assessment] of Object.entries(
-            rubric_assessment,
-          )) {
-            initialRatings[`${criterionId}-${submission_id}`] =
-              assessment.points ?? "";
-          }
-        }
-      });
-
-      // Process the submissions from canvas and merge with cached submissions to fill in missing data
       submissions.forEach((submission) => {
-        if (submission.rubricAssessment) {
-          for (const [criterionId, assessment] of Object.entries(
-            submission.rubricAssessment,
-          )) {
-            // avoid overwriting data from cache
-            const key = `${criterionId}-${submission.id}`;
-            if (!(key in initialRatings)) {
-              initialRatings[`${criterionId}-${submission.id}`] =
-                assessment.points ?? "";
-            }
+        rubric.criteria.forEach((criterion) => {
+          const key = `${criterion.id}-${submission.id}`;
+
+          // If this rating exists in cached graded submissions, use that
+          const cached =
+            gradedSubmissionCache[submission.id]?.rubric_assessment?.[
+              criterion.id
+            ];
+          if (cached) {
+            initialRatings[key] = cached.points ?? "";
+            return;
           }
-        }
+
+          // Otherwise, check Canvas rubricAssessment
+          const canvasAssessment = submission.rubricAssessment?.[criterion.id];
+          if (canvasAssessment) {
+            initialRatings[key] = canvasAssessment.points ?? "";
+            return;
+          }
+
+          // If not present in either, default to empty string
+          initialRatings[key] = "";
+        });
       });
 
       setRatings(initialRatings);
+      console.log("iknitial ratings", initialRatings);
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
@@ -208,7 +206,12 @@ export function ProjectGradingView({
     });
 
     // update grading cache
-    setGradedSubmissionCache(gradedSubmissionsRecord);
+    setGradedSubmissionCache((prev) => {
+      return {
+        ...prev,
+        ...gradedSubmissionsRecord,
+      };
+    });
 
     onClose();
   };

@@ -42,7 +42,6 @@ export function GradingTable({
   existingIndividualFeedback,
   criterionComments,
   setCriterionComments,
-  gradedSubmissionCache,
 }: GradingTableProps) {
   const [activeCriterion, setActiveCriterion] = useState<string | null>(null);
   const [showExistingCriterionComment, setShowExistingCriterionComment] =
@@ -128,7 +127,7 @@ export function GradingTable({
                   existingIndividualFeedback={existingIndividualFeedback}
                   feedback={feedback}
                   setFeedback={setFeedback}
-                  gradedSubmissionCache={gradedSubmissionCache}
+                  ratings={ratings}
                 />
               </th>
             ))}

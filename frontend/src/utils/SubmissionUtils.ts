@@ -1,9 +1,22 @@
-import { Submission } from "palette-types";
+import { PaletteGradedSubmission, Submission } from "palette-types";
 
-export const calculateSubmissionTotal = (submission: Submission) => {
-  if (!submission || !submission.rubricAssessment) return 0;
+export const calculateSubmissionTotal = (
+  submission: PaletteGradedSubmission | Submission,
+) => {
+  if (!submission) return 0;
+
+  // narrow to the provided type
+  const assessment =
+    "rubric_assessment" in submission
+      ? submission.rubric_assessment
+      : "rubricAssessment" in submission
+        ? submission.rubricAssessment
+        : null;
+
+  if (!assessment) return 0;
+
   // determine total score for the submission
-  const { sum, count } = Object.values(submission.rubricAssessment).reduce(
+  const { sum, count } = Object.values(assessment).reduce(
     (accumulator, assessment) => ({
       sum: accumulator.sum + assessment.points,
       count: accumulator.count + 1,
@@ -14,16 +27,23 @@ export const calculateSubmissionTotal = (submission: Submission) => {
   return sum / count;
 };
 
-export const calculateGroupAverage = (submissions: Submission[]): string => {
+//todo: update to properly display current group avg score
+
+// grading cache is all scores for one group (unique to each project grading view instance)
+export const calculateGroupAverage = (
+  submissions: Record<number, PaletteGradedSubmission>,
+): string => {
   if (!submissions) return String(0); // guard for empty submission collection
+
+  console.log("sadie", submissions);
 
   let totalPoints = 0;
   let validSubmissionCount = 0;
 
-  submissions.forEach((submission) => {
+  Object.values(submissions).forEach((submission) => {
     if (!submission) return;
 
-    if (submission.rubricAssessment) {
+    if (submission.rubric_assessment) {
       totalPoints += calculateSubmissionTotal(submission);
       validSubmissionCount++;
     }

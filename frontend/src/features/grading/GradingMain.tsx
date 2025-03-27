@@ -3,8 +3,7 @@ import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@hooks";
 import { useAssignment, useCourse, useRubric } from "@context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
-import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts"; // Import the export function
-
+import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts";
 import {
   LoadingDots,
   MainPageTemplate,

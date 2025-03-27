@@ -30,11 +30,11 @@ export function GroupSubmissions({
 
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
   const [averageScore, setAverageScore] = useState(
-    calculateGroupAverage(submissions),
+    calculateGroupAverage(gradedSubmissionCache),
   );
 
   const handleGradingViewClose = () => {
-    setAverageScore(calculateGroupAverage(submissions));
+    setAverageScore(calculateGroupAverage(gradedSubmissionCache));
     setGradingViewOpen(false);
   };
 
