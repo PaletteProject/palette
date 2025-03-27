@@ -159,8 +159,6 @@ export function ProjectGradingView({
       }
 
       setRatings(initialRatings);
-
-      console.log(initialRatings);
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
@@ -257,8 +255,6 @@ export function ProjectGradingView({
       },
     );
 
-    console.log("gradedSubmissions before concat", gradedSubmissions);
-
     // Add a group comment to the first submission if it exists
     // This should affect all submissions on canvas side.
     // No need to add it to all submissions.
@@ -269,8 +265,6 @@ export function ProjectGradingView({
         sent: false,
       };
     }
-
-    console.log("gradedSubmissions after concat", gradedSubmissions);
 
     /**
      * Store graded submissions in cache

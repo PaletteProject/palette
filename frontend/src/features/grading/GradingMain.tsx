@@ -39,7 +39,6 @@ export function GradingMain(): ReactElement {
    */
   useEffect(() => {
     if (activeCourse && activeAssignment) {
-      console.log("📝 Checking if submissions exist before transfer...");
 
       void fetchSubmissions();
 
@@ -67,7 +66,6 @@ export function GradingMain(): ReactElement {
         (await getSubmissions()) as PaletteAPIResponse<GroupedSubmissions>;
 
       if (response.success && response.data) {
-        console.log("📂 Submissions (before setting state):", response.data);
         setSubmissions(response.data);
 
         //Store in localStorage

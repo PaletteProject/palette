@@ -1,18 +1,26 @@
 import { Dispatch, SetStateAction } from "react";
-import { PaletteGradedSubmission } from "palette-types"; // Ensure this exists in your types
+import { PaletteGradedSubmission } from "palette-types";
 
 export function transferOfflineToTokenGrading(
   setGradedSubmissionCache: Dispatch<SetStateAction<PaletteGradedSubmission[]>>,
   selectedCourse: string,
   selectedAssignment: string,
 ) {
-  if (!selectedCourse || !selectedAssignment) {
+  if (!selectedCourse?.trim() || !selectedAssignment?.trim()) {
     alert("Please select a course and assignment before transferring.");
     return;
   }
 
-  const offlineCacheKey = `offlineGradingCache_${selectedCourse}_${selectedAssignment}`;
-  const savedOfflineGrades = localStorage.getItem(offlineCacheKey);
+ 
+  const scopedKey = `offlineGradingCache_${selectedCourse}_${selectedAssignment}`;
+  const fallbackKey = "offlineGradingCache";
+
+  let savedOfflineGrades = localStorage.getItem(scopedKey);
+
+ 
+  if (!savedOfflineGrades) {
+    savedOfflineGrades = localStorage.getItem(fallbackKey);
+  }
 
   if (!savedOfflineGrades) {
     alert("No offline grades found for this course and assignment.");
