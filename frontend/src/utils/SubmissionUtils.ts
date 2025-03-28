@@ -28,14 +28,13 @@ export const calculateSubmissionTotal = (
 };
 
 //todo: update to properly display current group avg score
+// potentially just go back to canvas scores for this one?
 
 // grading cache is all scores for one group (unique to each project grading view instance)
 export const calculateGroupAverage = (
   submissions: Record<number, PaletteGradedSubmission>,
 ): string => {
   if (!submissions) return String(0); // guard for empty submission collection
-
-  console.log("sadie", submissions);
 
   let totalPoints = 0;
   let validSubmissionCount = 0;
