@@ -1,6 +1,6 @@
 import { GroupedSubmissions, PaletteGradedSubmission } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useAssignment, useCourse, useRubric } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
@@ -16,12 +16,6 @@ export function SubmissionsDashboard({
   fetchSubmissions,
   setLoading,
 }: SubmissionDashboardProps) {
-  // graded submissions to be sent to Canvas
-
-  const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
-    Record<number, PaletteGradedSubmission>
-  >({});
-
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
   const { activeRubric } = useRubric();
@@ -30,6 +24,14 @@ export function SubmissionsDashboard({
 
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
+
+  const [savedGrades, setSavedGrades] = useState<
+    Record<number, PaletteGradedSubmission>
+  >({});
+
+  useEffect(() => {
+    console.log("saved grades updated:", savedGrades);
+  }, [savedGrades]);
 
   /**
    * Submit all graded submissions in the cache
@@ -60,7 +62,7 @@ export function SubmissionsDashboard({
     setLoading(true);
     await fetchSubmissions(); // refresh submissions
     setLoading(false);
-    setGradedSubmissionCache({}); // clear submission cache
+    setSavedGrades({}); // clear submission cache
   };
 
   const handleClickSubmitGrades = () => {
@@ -72,7 +74,7 @@ export function SubmissionsDashboard({
         {
           label: "Send them!",
           action: () => {
-            void submitGrades(gradedSubmissionCache);
+            void submitGrades(savedGrades);
             closeDialog();
           },
           autoFocus: true,
@@ -130,8 +132,8 @@ export function SubmissionsDashboard({
               submissions={groupSubmissions}
               rubric={activeRubric}
               fetchSubmissions={fetchSubmissions}
-              setGradedSubmissionCache={setGradedSubmissionCache}
-              gradedSubmissionCache={gradedSubmissionCache}
+              setSavedGrades={setSavedGrades}
+              savedGrades={savedGrades}
             />
           );
         })}

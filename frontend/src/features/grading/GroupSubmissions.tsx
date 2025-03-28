@@ -3,7 +3,6 @@ import { ProgressBar } from "@features";
 import { Dispatch, SetStateAction, useState } from "react";
 import { PaletteActionButton } from "@components";
 import { useRubric } from "@context";
-import { calculateGroupAverage } from "../../utils/SubmissionUtils.ts";
 import { ProjectGradingView } from "./projectGradingComponents/ProjectGradingView.tsx";
 import { GradingProvider } from "../../context/GradingContext.tsx";
 
@@ -13,10 +12,10 @@ interface GroupSubmissionsProps {
   submissions: Submission[];
   rubric: Rubric;
   fetchSubmissions: () => Promise<void>;
-  setGradedSubmissionCache: Dispatch<
+  setSavedGrades: Dispatch<
     SetStateAction<Record<number, PaletteGradedSubmission>>
   >;
-  gradedSubmissionCache: Record<number, PaletteGradedSubmission>;
+  savedGrades: Record<number, PaletteGradedSubmission>;
 }
 
 export function GroupSubmissions({
@@ -24,18 +23,23 @@ export function GroupSubmissions({
   progress,
   submissions,
   rubric,
-  setGradedSubmissionCache,
-  gradedSubmissionCache,
+  setSavedGrades,
+  savedGrades,
 }: GroupSubmissionsProps) {
   const { activeRubric } = useRubric();
-
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
-  const [averageScore, setAverageScore] = useState(
-    calculateGroupAverage(gradedSubmissionCache),
-  );
 
-  const handleGradingViewClose = () => {
-    setAverageScore(calculateGroupAverage(gradedSubmissionCache));
+  const handleGradingViewClose = (
+    cache: Record<number, PaletteGradedSubmission>,
+  ) => {
+    // add current in progress grades to main grading cache to be sent to canvas
+    setSavedGrades((prevGrades) => {
+      return {
+        ...prevGrades,
+        ...cache,
+      };
+    });
+
     setGradingViewOpen(false);
   };
 
@@ -67,9 +71,7 @@ export function GroupSubmissions({
         <div className="w-full mt-1">
           <ProgressBar progress={progress} />
         </div>
-        <div className={"text-center"}>
-          Canvas Avg: {`${averageScore} Points`}
-        </div>
+        <div className={"text-center"}>Canvas Avg: {`TBD Points`}</div>
       </div>
 
       <GradingProvider>
@@ -79,8 +81,7 @@ export function GroupSubmissions({
           submissions={submissions}
           rubric={rubric}
           onClose={handleGradingViewClose}
-          setGradedSubmissionCache={setGradedSubmissionCache}
-          gradedSubmissionCache={gradedSubmissionCache}
+          savedGrades={savedGrades}
         />
       </GradingProvider>
     </div>

@@ -9,7 +9,7 @@ import {
   SubmissionComment,
 } from "palette-types";
 import { createPortal } from "react-dom";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ChoiceDialog,
   PaletteActionButton,
@@ -20,17 +20,15 @@ import { useChoiceDialog } from "../../../context/DialogContext.tsx";
 import { GroupFeedback } from "./GroupFeedback.tsx";
 import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
 import { GradingTable } from "./GradingTable.tsx";
+import { useGradingContext } from "../../../context/GradingContext.tsx";
 
 type ProjectGradingViewProps = {
   groupName: string;
   submissions: Submission[];
+  savedGrades: Record<number, PaletteGradedSubmission>;
   rubric: Rubric;
   isOpen: boolean;
-  onClose: () => void; // event handler defined in GroupSubmissions.tsx
-  setGradedSubmissionCache: Dispatch<
-    SetStateAction<Record<number, PaletteGradedSubmission>>
-  >;
-  gradedSubmissionCache: Record<number, PaletteGradedSubmission>;
+  onClose: (cache: Record<number, PaletteGradedSubmission>) => void; // event handler defined in GroupSubmissions.tsx
 };
 
 export function ProjectGradingView({
@@ -39,8 +37,7 @@ export function ProjectGradingView({
   rubric,
   isOpen,
   onClose,
-  setGradedSubmissionCache,
-  gradedSubmissionCache,
+  savedGrades,
 }: ProjectGradingViewProps) {
   if (!isOpen) {
     return null;
@@ -70,53 +67,46 @@ export function ProjectGradingView({
 
   const { openDialog, closeDialog } = useChoiceDialog();
 
-  const setInitialGroupFlags = () => {
-    const newFlags = rubric.criteria.reduce(
-      (acc, criterion) => {
-        acc[criterion.id] = criterion.isGroupCriterion;
-        return acc;
-      },
-      {} as Record<string, boolean>,
-    );
-
-    setCheckedCriteria(newFlags);
-  };
+  const { setGradedSubmissionCache, gradedSubmissionCache } =
+    useGradingContext();
 
   /**
    * Initialize project grading view.
    */
   useEffect(() => {
     if (isOpen) {
-      setInitialGroupFlags();
-
       const initialCache: Record<number, PaletteGradedSubmission> = {};
 
       submissions.forEach((submission) => {
+        const saved = savedGrades[submission.id];
         const rubric_assessment: PaletteGradedSubmission["rubric_assessment"] =
           {};
 
         rubric.criteria.forEach((criterion) => {
+          const savedCriterion = saved?.rubric_assessment?.[criterion.id];
           const canvasData = submission.rubricAssessment?.[criterion.id];
 
           rubric_assessment[criterion.id] = {
-            points: canvasData?.points ?? "",
-            rating_id: canvasData?.rating_id ?? "",
-            comments: "", // or canvasData?.comments if available
+            points: savedCriterion?.points ?? canvasData?.points ?? "",
+
+            rating_id: savedCriterion?.rating_id ?? canvasData?.rating_id ?? "",
+
+            comments: savedCriterion?.comments ?? "", // You could pull from Canvas too if needed
           };
         });
 
         initialCache[submission.id] = {
           submission_id: submission.id,
           user: submission.user,
-          individual_comment: undefined,
-          group_comment: undefined,
+          individual_comment: saved?.individual_comment ?? undefined,
+          group_comment: saved?.group_comment ?? undefined,
           rubric_assessment,
         };
       });
 
       setGradedSubmissionCache(initialCache);
     }
-  }, [isOpen, submissions, rubric, gradedSubmissionCache]);
+  }, [isOpen, submissions, rubric]);
 
   useEffect(() => {
     if (activeStudentId !== null) {
@@ -127,92 +117,6 @@ export function ProjectGradingView({
       setExistingIndividualFeedback(existingFeedback || null);
     }
   }, [submissions, activeStudentId]);
-
-  const handleSaveGrades = () => {
-    const gradedSubmissions: PaletteGradedSubmission[] = submissions.map(
-      (submission) => {
-        // build rubric assessment object in Canvas format directly (reduces transformations needed later)
-        const rubricAssessment: {
-          [criterionId: string]: {
-            points: number;
-            rating_id: string;
-            comments: string;
-          };
-        } = {};
-
-        rubric.criteria.forEach((criterion) => {
-          const selectedPoints =
-            gradedSubmissionCache[submission.id].rubric_assessment[criterion.id]
-              .points;
-          const selectedRating = criterion.ratings.find(
-            (rating) => rating.points === selectedPoints,
-          );
-
-          if (selectedRating) {
-            rubricAssessment[criterion.id] = {
-              // criterion from canvas API will always have an ID
-              points: selectedRating.points,
-              rating_id: selectedRating.id, // rating ID from Canvas API
-              comments:
-                gradedSubmissionCache[submission.id].rubric_assessment[
-                  criterion.id
-                ].comments || "",
-            };
-          }
-        });
-
-        let individualComment = undefined;
-        if (
-          gradedSubmissionCache[submission.id].individual_comment?.text_comment
-        ) {
-          individualComment = {
-            text_comment:
-              gradedSubmissionCache[submission.id].individual_comment
-                ?.text_comment,
-            group_comment: false as const,
-          };
-        }
-
-        return {
-          submission_id: submission.id,
-          user: submission.user,
-          individual_comment: individualComment,
-          group_comment: undefined, // Assume there are no group comments. Check for it and add it to the first submission outside of map below.
-          rubric_assessment: rubricAssessment,
-        };
-      },
-    );
-
-    // Add a group comment to the first submission if it exists
-    // This should affect all submissions on canvas side.
-    // No need to add it to all submissions.
-    if (
-      gradedSubmissionCache[0].group_comment?.text_comment &&
-      gradedSubmissionCache[0].group_comment?.text_comment !== ""
-    ) {
-      gradedSubmissions[0].group_comment = {
-        text_comment: gradedSubmissionCache[0].group_comment.text_comment,
-        group_comment: true as const,
-        sent: false,
-      };
-    }
-
-    // convert to record object
-    const gradedSubmissionsRecord: Record<number, PaletteGradedSubmission> = {};
-    gradedSubmissions.forEach((submission) => {
-      gradedSubmissionsRecord[submission.submission_id] = submission;
-    });
-
-    // update grading cache
-    setGradedSubmissionCache((prev) => {
-      return {
-        ...prev,
-        ...gradedSubmissionsRecord,
-      };
-    });
-
-    onClose();
-  };
 
   const getExistingGroupFeedback = (submissions: Submission[]) => {
     const allSubmissionComments = [];
@@ -253,27 +157,18 @@ export function ProjectGradingView({
 
   const handleClickCloseButton = () => {
     openDialog({
-      title: "Lose Grading Progress?",
+      title: "Grading Progress Saved",
       message:
-        "Closing the grading view before saving will discard any changes made since the last save or" +
-        " submission.",
+        'Current changes are saved in local memory. Click "Submit Grades to Canvas" when ready to push grades.',
       buttons: [
         {
-          label: "Lose it all!",
+          label: "Sweet!",
           action: () => {
-            onClose();
+            onClose(gradedSubmissionCache);
+            console.log(gradedSubmissionCache);
             closeDialog();
           },
           autoFocus: true,
-          color: "RED",
-        },
-        {
-          label: "Save Progress",
-          action: () => {
-            handleSaveGrades();
-            closeDialog();
-          },
-          autoFocus: false,
           color: "BLUE",
         },
       ],
@@ -314,12 +209,7 @@ export function ProjectGradingView({
               getExistingGroupFeedback={getExistingGroupFeedback}
             />
           )}
-          {showGroupFeedbackTextArea && (
-            <GroupFeedback
-              groupFeedback={groupFeedback}
-              setGroupFeedback={setGroupFeedback}
-            />
-          )}
+          {showGroupFeedbackTextArea && <GroupFeedback />}
           <GradingTable
             submissions={submissions}
             rubric={rubric}
@@ -334,11 +224,6 @@ export function ProjectGradingView({
             <PaletteActionButton
               title={"Close"}
               onClick={() => handleClickCloseButton()}
-              color={"RED"}
-            />
-            <PaletteActionButton
-              title={"Save Grades"}
-              onClick={() => void handleSaveGrades()}
               color={"GREEN"}
             />
           </div>

@@ -13,6 +13,13 @@ type GradingContextType = {
   setGradedSubmissionCache: Dispatch<
     SetStateAction<Record<number, PaletteGradedSubmission>>
   >;
+  updateScore: (
+    submissionId: number,
+    criterionId: string,
+    points: number,
+  ) => void;
+  updateComment: (submissionId: number, text: string) => void;
+  updateGroupComment: (text: string) => void;
 };
 
 const GradingContext = createContext<GradingContextType | undefined>(undefined);
@@ -30,11 +37,86 @@ export const GradingProvider = ({ children }: { children: ReactNode }) => {
     Record<number, PaletteGradedSubmission>
   >({});
 
+  // update a criterion rating for a target submission
+  const updateScore = (
+    submissionId: number,
+    criterionId: string,
+    points: number,
+  ) => {
+    setGradedSubmissionCache((prevCache) => {
+      const prevSubmission = prevCache[submissionId];
+      if (!prevSubmission) return prevCache; // nothing to update
+
+      return {
+        ...prevCache,
+        [submissionId]: {
+          ...prevSubmission,
+          rubric_assessment: {
+            ...prevSubmission.rubric_assessment,
+            [criterionId]: {
+              ...prevSubmission.rubric_assessment[criterionId],
+              points,
+            },
+          },
+        },
+      };
+    });
+  };
+
+  // update an individual submission comment
+  const updateComment = (submissionId: number, text: string) => {
+    setGradedSubmissionCache((prevCache) => {
+      const prevSubmission = prevCache[submissionId];
+      if (!prevSubmission) return prevCache; // nothing to change
+
+      return {
+        ...prevCache,
+        [submissionId]: {
+          ...prevSubmission,
+          individual_comment: text
+            ? {
+                text_comment: text,
+                group_comment: false,
+              }
+            : undefined,
+        },
+      };
+    });
+  };
+
+  // Sets the group comment field of the first element in the grading cache. Canvas will automatically apply it to
+  // all other group members.
+
+  //todo: verify backend transformation is handling the grading cache properly for these
+  const updateGroupComment = (text: string) => {
+    setGradedSubmissionCache((prev) => {
+      const firstKey = Object.keys(prev)[0];
+      if (!firstKey) return prev;
+
+      const submission = prev[Number(firstKey)];
+
+      return {
+        ...prev,
+        [firstKey]: {
+          ...submission,
+          group_comment: {
+            text_comment: text,
+            group_comment: true,
+            sent: false, // Optional: reset `sent` flag when editing
+          },
+        },
+      };
+    });
+  };
+
   return (
     <GradingContext.Provider
       value={{
         gradedSubmissionCache,
         setGradedSubmissionCache,
+        updateScore,
+        updateComment,
+        updateGroupComment,
       }}
     >
       {children}

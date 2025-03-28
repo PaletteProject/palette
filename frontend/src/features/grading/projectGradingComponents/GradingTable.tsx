@@ -1,15 +1,9 @@
-import {
-  Criteria,
-  PaletteGradedSubmission,
-  Rubric,
-  Submission,
-  SubmissionComment,
-} from "palette-types";
+import { Criteria, Rubric, Submission, SubmissionComment } from "palette-types";
 import { StudentHeaderControls } from "./StudentHeaderControls.tsx";
 import { ExistingCriteriaComments } from "./ExistingCriteriaComments.tsx";
-import { CriteriaCommentTextArea } from "./CriteriaCommentTextArea.tsx";
 import { CriterionHeaderControls } from "./CriterionHeaderControls.tsx";
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
+import { useGradingContext } from "../../../context/GradingContext.tsx";
 
 interface GradingTableProps {
   submissions: Submission[];
@@ -19,28 +13,22 @@ interface GradingTableProps {
   activeStudentId: number | null;
   setActiveStudentId: Dispatch<SetStateAction<number | null>>;
   existingIndividualFeedback: SubmissionComment[] | null;
-  gradedSubmissionCache: Record<number, PaletteGradedSubmission>;
-  setGradedSubmissionCache: Dispatch<
-    SetStateAction<Record<number, PaletteGradedSubmission>>
-  >;
 }
 
 export function GradingTable({
   submissions,
   rubric,
-  checkedCriteria,
-  setCheckedCriteria,
   activeStudentId,
   setActiveStudentId,
   existingIndividualFeedback,
-  gradedSubmissionCache,
-  setGradedSubmissionCache,
 }: GradingTableProps) {
   const [activeCriterion, setActiveCriterion] = useState<string | null>(null);
   const [showExistingCriterionComment, setShowExistingCriterionComment] =
     useState<boolean>(false);
   const [showCriterionCommentTextArea, setShowCriterionCommentTextArea] =
     useState<boolean>(false);
+
+  const { gradedSubmissionCache, updateScore } = useGradingContext();
 
   const getBackgroundColor = (
     value: number | string,
@@ -53,13 +41,6 @@ export function GradingTable({
     if (value === highest) return "bg-green-500";
     if (value === lowest) return "bg-red-500";
     return "bg-yellow-500";
-  };
-
-  const handleCheckBoxChange = (criterionId: string) => {
-    setCheckedCriteria((prev) => ({
-      ...prev,
-      [criterionId]: !prev[criterionId],
-    }));
   };
 
   return (
@@ -78,8 +59,6 @@ export function GradingTable({
                   activeStudentId={activeStudentId}
                   setActiveStudentId={setActiveStudentId}
                   existingIndividualFeedback={existingIndividualFeedback}
-                  gradedSubmissionCache={gradedSubmissionCache}
-                  setGradedSubmissionCache={setGradedSubmissionCache}
                 />
               </th>
             ))}
@@ -101,18 +80,15 @@ export function GradingTable({
                         }
                       />
                     )}
-                  {showCriterionCommentTextArea &&
-                    activeCriterion === criterion.id && (
-                      <CriteriaCommentTextArea criterionId={criterion.id} />
-                    )}
+
                   <label className="flex gap-2 text-sm font-medium whitespace-nowrap items-center">
                     <p>Apply Ratings to Group</p>
                     <input
                       type="checkbox"
                       name={`${criterion.id}-checkbox`}
                       id={`${criterion.id}-checkbox`}
-                      checked={checkedCriteria[criterion.id] || false}
-                      onChange={() => handleCheckBoxChange(criterion.id)}
+                      checked={false}
+                      onChange={() => console.log("tbd")} //todo
                     />
                   </label>
                   <CriterionHeaderControls
@@ -141,33 +117,13 @@ export function GradingTable({
                 const handleRatingChange = (
                   e: ChangeEvent<HTMLSelectElement>,
                 ) => {
-                  const newPoints =
-                    e.target.value === "" ? "" : Number(e.target.value);
-                  const applyToGroup = checkedCriteria[criterion.id];
+                  const ratingStringValue = e.target.value;
+                  console.log("rating change: score", ratingStringValue);
+                  if (ratingStringValue === "") return; // skip updates if nothing selected
 
-                  setGradedSubmissionCache((prev) => {
-                    const updated = { ...prev };
+                  const newPoints = Number(ratingStringValue);
 
-                    (applyToGroup ? submissions : [submission]).forEach(
-                      (sub) => {
-                        const prevSubmission = prev[sub.id];
-                        if (!prevSubmission) return;
-
-                        updated[sub.id] = {
-                          ...prevSubmission,
-                          rubric_assessment: {
-                            ...prevSubmission.rubric_assessment,
-                            [criterion.id]: {
-                              ...prevSubmission.rubric_assessment[criterion.id],
-                              points: newPoints,
-                            },
-                          },
-                        };
-                      },
-                    );
-
-                    return updated;
-                  });
+                  updateScore(submissionId, criterion.id, newPoints);
                 };
 
                 return (
