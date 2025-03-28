@@ -165,7 +165,6 @@ export function ProjectGradingView({
           label: "Sweet!",
           action: () => {
             onClose(gradedSubmissionCache);
-            console.log(gradedSubmissionCache);
             closeDialog();
           },
           autoFocus: true,

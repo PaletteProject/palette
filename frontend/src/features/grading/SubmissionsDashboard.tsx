@@ -1,6 +1,6 @@
 import { GroupedSubmissions, PaletteGradedSubmission } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useAssignment, useCourse, useRubric } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
@@ -28,10 +28,6 @@ export function SubmissionsDashboard({
   const [savedGrades, setSavedGrades] = useState<
     Record<number, PaletteGradedSubmission>
   >({});
-
-  useEffect(() => {
-    console.log("saved grades updated:", savedGrades);
-  }, [savedGrades]);
 
   /**
    * Submit all graded submissions in the cache

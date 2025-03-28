@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from "react";
+import { ChangeEvent, ReactElement, useEffect, useState } from "react";
 import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@hooks";
 import { useAssignment, useCourse, useRubric } from "@context";
@@ -62,7 +62,7 @@ export function GradingMain(): ReactElement {
   /**
    * Handle CSV Upload for group data
    */
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
     if (file && activeCourse && activeAssignment) {
