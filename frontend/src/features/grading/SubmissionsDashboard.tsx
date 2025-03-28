@@ -1,6 +1,6 @@
 import { GroupedSubmissions, PaletteGradedSubmission } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState, useEffect } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useAssignment, useCourse, useRubric } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
@@ -29,6 +29,17 @@ export function SubmissionsDashboard({
 
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
+
+  // Load from offlineGrading if exists
+  useEffect(() => {
+    const key = "offlineGradingCache";
+    const offlineData = localStorage.getItem(key);
+
+    if (offlineData && offlineData.length > 0) {
+      const parsed = JSON.parse(offlineData) as PaletteGradedSubmission[];
+      setGradedSubmissionCache(parsed);
+    }
+  }, []);
 
   /**
    * Submit all graded submissions in the cache
@@ -62,8 +73,7 @@ export function SubmissionsDashboard({
 
     setLoading(true);
     await fetchSubmissions(); // refresh submissions
-    setLoading(false);
-    setGradedSubmissionCache([]); // clear submission cache
+    localStorage.removeItem("offlineGradingCache");
   };
 
   const handleClickSubmitGrades = () => {

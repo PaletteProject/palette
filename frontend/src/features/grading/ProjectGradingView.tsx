@@ -7,8 +7,10 @@ import {
   PaletteGradedSubmission,
   Rubric,
   Submission,
+  CanvasGradedSubmission,
 } from "palette-types";
 import { createPortal } from "react-dom";
+
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   ChoiceDialog,
@@ -28,6 +30,15 @@ type ProjectGradingViewProps = {
   setGradedSubmissionCache: Dispatch<SetStateAction<PaletteGradedSubmission[]>>;
   gradedSubmissionCache: PaletteGradedSubmission[];
 };
+
+function safeParse<T>(data: string | null, fallback: T): T {
+  try {
+    return data ? (JSON.parse(data) as T) : fallback;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    return fallback;
+  }
+}
 
 export function ProjectGradingView({
   groupName,
@@ -145,8 +156,22 @@ export function ProjectGradingView({
         }
       });
 
+      const savedOfflineGrades = localStorage.getItem("offlineGradingCache");
+      const parsedGrades = safeParse<CanvasGradedSubmission[]>(
+        savedOfflineGrades,
+        [],
+      );
+
+      parsedGrades.forEach((gradedSubmission) => {
+        for (const [criterionId, assessment] of Object.entries(
+          gradedSubmission.rubric_assessment || {},
+        )) {
+          initialRatings[`${criterionId}-${gradedSubmission.submission_id}`] =
+            assessment.points ?? "";
+        }
+      });
+
       setRatings(initialRatings);
-      console.log(initialRatings);
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
@@ -243,8 +268,6 @@ export function ProjectGradingView({
       },
     );
 
-    console.log("gradedSubmissions before concat", gradedSubmissions);
-
     // Add a group comment to the first submission if it exists
     // This should affect all submissions on canvas side.
     // No need to add it to all submissions.
@@ -256,14 +279,33 @@ export function ProjectGradingView({
       };
     }
 
-    console.log("gradedSubmissions after concat", gradedSubmissions);
-
     /**
      * Store graded submissions in cache
      */
+
     setGradedSubmissionCache((prev) => {
-      console.log("prev", prev);
-      return prev.concat(gradedSubmissions);
+      const updatedCache = [...prev];
+
+      gradedSubmissions.forEach((gradedSubmission) => {
+        const index = updatedCache.findIndex(
+          (s) => s.submission_id === gradedSubmission.submission_id,
+        );
+
+        if (index > -1) {
+          updatedCache[index] = gradedSubmission; // Update existing entry
+        } else {
+          updatedCache.push(gradedSubmission); // Add new entry
+        }
+      });
+
+      if (!localStorage.getItem("disableAutoSave")) {
+        localStorage.setItem(
+          "offlineGradingCache",
+          JSON.stringify(updatedCache),
+        );
+      }
+
+      return updatedCache;
     });
 
     onClose();
