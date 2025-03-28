@@ -46,14 +46,6 @@ export function ProjectGradingView({
     return null;
   }
 
-  const [ratings, setRatings] = useState<Record<string, number | string>>({});
-  const [groupFeedback, setGroupFeedback] = useState<string>("");
-  const [criterionComments, setCriterionComments] = useState<
-    Record<string, string>
-  >({});
-
-  const [feedback, setFeedback] = useState<Record<number, string>>({});
-
   // Existing feedback states
   const [existingIndividualFeedback, setExistingIndividualFeedback] = useState<
     SubmissionComment[] | null
@@ -97,38 +89,32 @@ export function ProjectGradingView({
     if (isOpen) {
       setInitialGroupFlags();
 
-      const initialRatings: Record<string, number | string> = {};
-
-      // process the cached submissions, prioritizing the latest in progress grades over what Canvas current has saved.
+      const initialCache: Record<number, PaletteGradedSubmission> = {};
 
       submissions.forEach((submission) => {
+        const rubric_assessment: PaletteGradedSubmission["rubric_assessment"] =
+          {};
+
         rubric.criteria.forEach((criterion) => {
-          const key = `${criterion.id}-${submission.id}`;
+          const canvasData = submission.rubricAssessment?.[criterion.id];
 
-          // If this rating exists in cached graded submissions, use that
-          const cached =
-            gradedSubmissionCache[submission.id]?.rubric_assessment?.[
-              criterion.id
-            ];
-          if (cached) {
-            initialRatings[key] = cached.points ?? "";
-            return;
-          }
-
-          // Otherwise, check Canvas rubricAssessment
-          const canvasAssessment = submission.rubricAssessment?.[criterion.id];
-          if (canvasAssessment) {
-            initialRatings[key] = canvasAssessment.points ?? "";
-            return;
-          }
-
-          // If not present in either, default to empty string
-          initialRatings[key] = "";
+          rubric_assessment[criterion.id] = {
+            points: canvasData?.points ?? "",
+            rating_id: canvasData?.rating_id ?? "",
+            comments: "", // or canvasData?.comments if available
+          };
         });
+
+        initialCache[submission.id] = {
+          submission_id: submission.id,
+          user: submission.user,
+          individual_comment: undefined,
+          group_comment: undefined,
+          rubric_assessment,
+        };
       });
 
-      setRatings(initialRatings);
-      console.log("iknitial ratings", initialRatings);
+      setGradedSubmissionCache(initialCache);
     }
   }, [isOpen, submissions, rubric, gradedSubmissionCache]);
 
@@ -155,7 +141,9 @@ export function ProjectGradingView({
         } = {};
 
         rubric.criteria.forEach((criterion) => {
-          const selectedPoints = ratings[`${criterion.id}-${submission.id}`];
+          const selectedPoints =
+            gradedSubmissionCache[submission.id].rubric_assessment[criterion.id]
+              .points;
           const selectedRating = criterion.ratings.find(
             (rating) => rating.points === selectedPoints,
           );
@@ -165,15 +153,22 @@ export function ProjectGradingView({
               // criterion from canvas API will always have an ID
               points: selectedRating.points,
               rating_id: selectedRating.id, // rating ID from Canvas API
-              comments: criterionComments[criterion.id] || "", // placeholder for comments
+              comments:
+                gradedSubmissionCache[submission.id].rubric_assessment[
+                  criterion.id
+                ].comments || "",
             };
           }
         });
 
         let individualComment = undefined;
-        if (feedback[submission.id]) {
+        if (
+          gradedSubmissionCache[submission.id].individual_comment?.text_comment
+        ) {
           individualComment = {
-            text_comment: feedback[submission.id],
+            text_comment:
+              gradedSubmissionCache[submission.id].individual_comment
+                ?.text_comment,
             group_comment: false as const,
           };
         }
@@ -191,9 +186,12 @@ export function ProjectGradingView({
     // Add a group comment to the first submission if it exists
     // This should affect all submissions on canvas side.
     // No need to add it to all submissions.
-    if (groupFeedback !== "") {
+    if (
+      gradedSubmissionCache[0].group_comment?.text_comment &&
+      gradedSubmissionCache[0].group_comment?.text_comment !== ""
+    ) {
       gradedSubmissions[0].group_comment = {
-        text_comment: groupFeedback,
+        text_comment: gradedSubmissionCache[0].group_comment.text_comment,
         group_comment: true as const,
         sent: false,
       };
@@ -325,18 +323,11 @@ export function ProjectGradingView({
           <GradingTable
             submissions={submissions}
             rubric={rubric}
-            ratings={ratings}
-            setRatings={setRatings}
             checkedCriteria={checkedCriteria}
             setCheckedCriteria={setCheckedCriteria}
             activeStudentId={activeStudentId}
             setActiveStudentId={setActiveStudentId}
-            feedback={feedback}
-            setFeedback={setFeedback}
             existingIndividualFeedback={existingIndividualFeedback}
-            criterionComments={criterionComments}
-            setCriterionComments={setCriterionComments}
-            gradedSubmissionCache={gradedSubmissionCache}
           />
 
           <div className={"flex gap-4 justify-end"}>

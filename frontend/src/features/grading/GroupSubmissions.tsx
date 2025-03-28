@@ -5,6 +5,7 @@ import { PaletteActionButton } from "@components";
 import { useRubric } from "@context";
 import { calculateGroupAverage } from "../../utils/SubmissionUtils.ts";
 import { ProjectGradingView } from "./projectGradingComponents/ProjectGradingView.tsx";
+import { GradingProvider } from "../../context/GradingContext.tsx";
 
 interface GroupSubmissionsProps {
   groupName: string;
@@ -71,15 +72,17 @@ export function GroupSubmissions({
         </div>
       </div>
 
-      <ProjectGradingView
-        isOpen={isGradingViewOpen}
-        groupName={groupName}
-        submissions={submissions}
-        rubric={rubric}
-        onClose={handleGradingViewClose}
-        setGradedSubmissionCache={setGradedSubmissionCache}
-        gradedSubmissionCache={gradedSubmissionCache}
-      />
+      <GradingProvider>
+        <ProjectGradingView
+          isOpen={isGradingViewOpen}
+          groupName={groupName}
+          submissions={submissions}
+          rubric={rubric}
+          onClose={handleGradingViewClose}
+          setGradedSubmissionCache={setGradedSubmissionCache}
+          gradedSubmissionCache={gradedSubmissionCache}
+        />
+      </GradingProvider>
     </div>
   );
 }

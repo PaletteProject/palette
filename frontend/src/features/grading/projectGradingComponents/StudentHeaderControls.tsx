@@ -1,18 +1,22 @@
 import { PaletteBrush, PaletteEye } from "@components";
 import { ExistingIndividualFeedback } from "./ExistingIndividualFeedback.tsx";
 import { IndividualFeedbackTextArea } from "./IndividualFeedbackTextArea.tsx";
-import { Submission, SubmissionComment } from "palette-types";
+import {
+  PaletteGradedSubmission,
+  Submission,
+  SubmissionComment,
+} from "palette-types";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { useRubric } from "@context";
 
 interface StudentHeaderControlsProps {
   submission: Submission;
   activeStudentId: number | null;
   setActiveStudentId: Dispatch<SetStateAction<number | null>>;
   existingIndividualFeedback: SubmissionComment[] | null;
-  feedback: Record<number, string>;
-  setFeedback: Dispatch<SetStateAction<Record<number, string>>>;
-  ratings: Record<string, number | string>;
+  gradedSubmissionCache: Record<number, PaletteGradedSubmission>;
+  setGradedSubmissionCache: Dispatch<
+    SetStateAction<Record<number, PaletteGradedSubmission>>
+  >;
 }
 
 export function StudentHeaderControls({
@@ -20,9 +24,8 @@ export function StudentHeaderControls({
   activeStudentId,
   setActiveStudentId,
   existingIndividualFeedback,
-  feedback,
-  setFeedback,
-  ratings,
+  gradedSubmissionCache,
+  setGradedSubmissionCache,
 }: StudentHeaderControlsProps) {
   const [showExistingIndividualFeedback, setShowExistingIndividualFeedback] =
     useState<boolean>(false);
@@ -31,32 +34,40 @@ export function StudentHeaderControls({
     useState<boolean>(false);
 
   const [score, setScore] = useState<number>(0);
-  const { activeRubric } = useRubric();
-
-  const calculateCurrentAverage = () => {
-    let totalScore = 0;
-    let count = 0;
-
-    activeRubric.criteria.forEach((criterion) => {
-      const rating = ratings[`${criterion.id}-${submission.id}`];
-      if (rating !== undefined && rating !== "") {
-        totalScore += Number(rating);
-        count += 1;
-      } else if (rating === "") {
-        // rating has been initialized but not yet selected — count it
-        count += 1;
-      }
-    });
-    return count === 0 ? 0 : totalScore;
-  };
 
   useEffect(() => {
-    if (!ratings) {
-      return;
-    }
+    const graded = gradedSubmissionCache[submission.id];
+    if (!graded || !graded.rubric_assessment) return;
 
-    setScore(calculateCurrentAverage());
-  }, [ratings, submission]);
+    let total = 0;
+
+    Object.values(graded.rubric_assessment).forEach((assessment) => {
+      if (assessment.points) {
+        total += assessment.points;
+      }
+    });
+
+    setScore(total);
+  }, [gradedSubmissionCache, submission.id]);
+
+  const handleFeedbackChange = (text: string) => {
+    setGradedSubmissionCache((prev) => ({
+      ...prev,
+      [submission.id]: {
+        ...prev[submission.id],
+        individual_comment: text
+          ? {
+              text_comment: text,
+              group_comment: false,
+            }
+          : undefined,
+      },
+    }));
+  };
+
+  const currentFeedback =
+    gradedSubmissionCache[submission.id]?.individual_comment?.text_comment ??
+    "";
 
   return (
     <div className="flex flex-col w-full items-center gap-2">
@@ -101,8 +112,8 @@ export function StudentHeaderControls({
       {activeStudentId === submission.id && showIndividualFeedbackTextArea && (
         <IndividualFeedbackTextArea
           submissionId={submission.id}
-          individualFeedback={feedback}
-          setIndividualFeedback={setFeedback}
+          individualFeedback={currentFeedback}
+          setIndividualFeedback={handleFeedbackChange}
         />
       )}
     </div>
