@@ -1,5 +1,4 @@
 import { ReactElement, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   GroupedSubmissions,
   Rubric,
@@ -10,7 +9,6 @@ import { OfflineGradingSelection } from "./offlineGradingSelection";
 import { transferOfflineToTokenGrading } from "./transferOfflineToTokenGrading";
 
 export function OfflineGradingView(): ReactElement {
-  const navigate = useNavigate();
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [selectedAssignment, setSelectedAssignment] = useState<string | null>(
     null,

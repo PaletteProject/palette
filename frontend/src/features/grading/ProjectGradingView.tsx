@@ -285,8 +285,9 @@ export function ProjectGradingView({
         }
       });
 
-      // ✅ Save to localStorage for Offline Grading
-      localStorage.setItem("offlineGradingCache", JSON.stringify(updatedCache));
+      if (!localStorage.getItem("disableAutoSave")) {
+        localStorage.setItem("offlineGradingCache", JSON.stringify(updatedCache));
+      }
 
       return updatedCache;
     });

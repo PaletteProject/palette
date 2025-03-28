@@ -1,5 +1,14 @@
 import { GroupedSubmissions, Rubric, Course, Assignment } from "palette-types";
 
+function safeParse<T>(data: string | null, fallback: T): T {
+  try {
+    return data ? (JSON.parse(data) as T) : fallback;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    return fallback;
+  }
+}
+
 export function transferToOfflineGrading(
   activeCourse: Course,
   activeAssignment: Assignment,
@@ -23,14 +32,16 @@ export function transferToOfflineGrading(
   const courseNameMapKey = "courseNameMap";
   const assignmentNameMapKey = `assignmentNameMap_${activeCourseId}`;
 
-  const courseNameMap = JSON.parse(
-    localStorage.getItem(courseNameMapKey) || "{}",
+  const courseNameMap: Record<string, string> = safeParse(
+    localStorage.getItem(courseNameMapKey),
+    {},
   );
   courseNameMap[activeCourseId] = activeCourse.name;
   localStorage.setItem(courseNameMapKey, JSON.stringify(courseNameMap));
 
-  const assignmentNameMap = JSON.parse(
-    localStorage.getItem(assignmentNameMapKey) || "{}",
+  const assignmentNameMap: Record<string, string> = safeParse(
+    localStorage.getItem(assignmentNameMapKey),
+    {},
   );
   assignmentNameMap[activeAssignmentId] = activeAssignment.name;
   localStorage.setItem(assignmentNameMapKey, JSON.stringify(assignmentNameMap));
@@ -38,8 +49,9 @@ export function transferToOfflineGrading(
   const storedCoursesKey = "offlineCourses";
   const storedAssignmentsKey = `offlineAssignments_${activeCourseId}`;
 
-  const storedCourses: string[] = JSON.parse(
-    localStorage.getItem(storedCoursesKey) || "[]",
+  const storedCourses: string[] = safeParse(
+    localStorage.getItem("offlineCourses"),
+    [],
   );
 
   if (!storedCourses.includes(activeCourseId)) {
@@ -47,8 +59,9 @@ export function transferToOfflineGrading(
     localStorage.setItem(storedCoursesKey, JSON.stringify(storedCourses));
   }
 
-  const storedAssignments: string[] = JSON.parse(
-    localStorage.getItem(storedAssignmentsKey) || "[]",
+  const storedAssignments: string[] = safeParse(
+    localStorage.getItem(`offlineAssignments_${activeCourseId}`),
+    [],
   );
 
   if (!storedAssignments.includes(activeAssignmentId)) {

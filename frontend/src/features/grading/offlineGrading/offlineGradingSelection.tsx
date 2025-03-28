@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
 
+function safeParse<T>(data: string | null, fallback: T): T {
+  try {
+    return data ? (JSON.parse(data) as T) : fallback;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    return fallback;
+  }
+}
+
 export function OfflineGradingSelection({
   onSelect,
 }: {
@@ -22,32 +31,33 @@ export function OfflineGradingSelection({
   // Load course list and name map
   useEffect(() => {
     const storedCoursesRaw = localStorage.getItem("offlineCourses");
-    const storedCourses: string[] = storedCoursesRaw
-      ? JSON.parse(storedCoursesRaw)
-      : [];
+    const storedCourses = safeParse<string[]>(storedCoursesRaw, []);
     setAvailableCourses(storedCourses);
 
     const storedCourseNames = localStorage.getItem("courseNameMap");
-    setCourseNameMap(storedCourseNames ? JSON.parse(storedCourseNames) : {});
+    const parsedCourseNames = safeParse<Record<string, string>>(
+      storedCourseNames,
+      {},
+    );
+    setCourseNameMap(parsedCourseNames);
   }, []);
-
   // Load assignments and assignment name map when course changes
   useEffect(() => {
     if (selectedCourse) {
       const storedAssignmentsRaw = localStorage.getItem(
         `offlineAssignments_${selectedCourse}`,
       );
-      const storedAssignments: string[] = storedAssignmentsRaw
-        ? JSON.parse(storedAssignmentsRaw)
-        : [];
+      const storedAssignments = safeParse<string[]>(storedAssignmentsRaw, []);
       setAvailableAssignments(storedAssignments);
 
       const storedAssignmentNames = localStorage.getItem(
         `assignmentNameMap_${selectedCourse}`,
       );
-      setAssignmentNameMap(
-        storedAssignmentNames ? JSON.parse(storedAssignmentNames) : {},
+      const parsedAssignmentNames = safeParse<Record<string, string>>(
+        storedAssignmentNames,
+        {},
       );
+      setAssignmentNameMap(parsedAssignmentNames);
     }
   }, [selectedCourse]);
 

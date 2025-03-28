@@ -1,6 +1,15 @@
 import { Dispatch, SetStateAction } from "react";
 import { PaletteGradedSubmission } from "palette-types";
 
+function safeParse<T>(data: string | null, fallback: T): T {
+  try {
+    return data ? (JSON.parse(data) as T) : fallback;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    return fallback;
+  }
+}
+
 export function transferOfflineToTokenGrading(
   setGradedSubmissionCache: Dispatch<SetStateAction<PaletteGradedSubmission[]>>,
   selectedCourse: string,
@@ -27,9 +36,10 @@ export function transferOfflineToTokenGrading(
     return;
   }
 
-  const parsedOfflineGrades: PaletteGradedSubmission[] =
-    JSON.parse(savedOfflineGrades);
-
+  const parsedOfflineGrades: PaletteGradedSubmission[] = safeParse(
+    savedOfflineGrades,
+    [],
+  );
   setGradedSubmissionCache((prev) => {
     const updatedCache = [...prev];
 
