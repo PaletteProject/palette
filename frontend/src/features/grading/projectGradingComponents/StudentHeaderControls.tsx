@@ -3,6 +3,8 @@ import { ExistingIndividualFeedback } from "./ExistingIndividualFeedback.tsx";
 import { IndividualFeedbackTextArea } from "./IndividualFeedbackTextArea.tsx";
 import { Submission, SubmissionComment } from "palette-types";
 import { Dispatch, SetStateAction, useState } from "react";
+import { useGradingContext } from "../../../context/GradingContext.tsx";
+import { calculateSubmissionTotal } from "../../../utils/SubmissionUtils.ts";
 
 interface StudentHeaderControlsProps {
   submission: Submission;
@@ -23,12 +25,14 @@ export function StudentHeaderControls({
   const [showIndividualFeedbackTextArea, setShowIndividualFeedbackTextArea] =
     useState<boolean>(false);
 
+  const { gradedSubmissionCache } = useGradingContext();
+
   return (
     <div className="flex flex-col w-full items-center gap-2">
       <div className="flex items-center justify-center gap-4 text-center">
         <div className={"flex justify-between"}>
           <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
-          <p>{`Score 17`}</p>
+          <p>{`Score ${calculateSubmissionTotal(gradedSubmissionCache[submission.id])}`}</p>
         </div>
         <PaletteBrush
           onClick={() => {

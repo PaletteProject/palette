@@ -4,7 +4,8 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { PaletteActionButton } from "@components";
 import { useRubric } from "@context";
 import { ProjectGradingView } from "./projectGradingComponents/ProjectGradingView.tsx";
-import { GradingProvider } from "../../context/GradingContext.tsx";
+import { useGradingContext } from "../../context/GradingContext.tsx";
+import { calculateGroupAverage } from "../../utils/SubmissionUtils.ts";
 
 interface GroupSubmissionsProps {
   groupName: string;
@@ -27,6 +28,7 @@ export function GroupSubmissions({
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
 
   const { activeRubric } = useRubric();
+  const { gradedSubmissionCache } = useGradingContext();
 
   const handleGradingViewClose = (
     cache: Record<number, PaletteGradedSubmission>,
@@ -70,19 +72,19 @@ export function GroupSubmissions({
         <div className="w-full mt-1">
           <ProgressBar progress={progress} />
         </div>
-        <div className={"text-center"}>Canvas Avg: {`TBD Points`}</div>
+        <div className={"text-center"}>
+          Average Score: {`${calculateGroupAverage(gradedSubmissionCache)}`}
+        </div>
       </div>
 
-      <GradingProvider>
-        <ProjectGradingView
-          isOpen={isGradingViewOpen}
-          groupName={groupName}
-          submissions={submissions}
-          onClose={handleGradingViewClose}
-          savedGrades={savedGrades}
-          setSavedGrades={setSavedGrades}
-        />
-      </GradingProvider>
+      <ProjectGradingView
+        isOpen={isGradingViewOpen}
+        groupName={groupName}
+        submissions={submissions}
+        onClose={handleGradingViewClose}
+        savedGrades={savedGrades}
+        setSavedGrades={setSavedGrades}
+      />
     </div>
   );
 }
