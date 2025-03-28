@@ -1,6 +1,8 @@
 import {
   createContext,
+  Dispatch,
   ReactNode,
+  SetStateAction,
   useContext,
   useEffect,
   useState,
@@ -14,7 +16,7 @@ import { createRubric } from "@utils";
 
 type RubricProviderProps = {
   activeRubric: Rubric;
-  setActiveRubric: (activeRubric: Rubric) => void;
+  setActiveRubric: Dispatch<SetStateAction<Rubric>>;
   getRubric: () => Promise<PaletteAPIResponse<Rubric>>;
 };
 

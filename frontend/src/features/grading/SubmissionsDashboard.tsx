@@ -2,7 +2,7 @@ import { GroupedSubmissions, PaletteGradedSubmission } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
 import { Dispatch, SetStateAction, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
-import { useAssignment, useCourse, useRubric } from "@context";
+import { useAssignment, useCourse } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
 
 type SubmissionDashboardProps = {
@@ -18,7 +18,6 @@ export function SubmissionsDashboard({
 }: SubmissionDashboardProps) {
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
-  const { activeRubric } = useRubric();
 
   const { openDialog, closeDialog } = useChoiceDialog();
 
@@ -139,7 +138,6 @@ export function SubmissionsDashboard({
               groupName={groupName}
               progress={calculateGradingProgress()}
               submissions={groupSubmissions}
-              rubric={activeRubric}
               fetchSubmissions={fetchSubmissions}
               setSavedGrades={setSavedGrades}
               savedGrades={savedGrades}

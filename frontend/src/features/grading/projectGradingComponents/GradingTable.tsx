@@ -1,26 +1,39 @@
-import { Criteria, Rubric, Submission, SubmissionComment } from "palette-types";
+import {
+  Criteria,
+  PaletteGradedSubmission,
+  Submission,
+  SubmissionComment,
+} from "palette-types";
 import { StudentHeaderControls } from "./StudentHeaderControls.tsx";
 import { ExistingCriteriaComments } from "./ExistingCriteriaComments.tsx";
 import { CriterionHeaderControls } from "./CriterionHeaderControls.tsx";
-import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
+import {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import { useGradingContext } from "../../../context/GradingContext.tsx";
+import { TableRatingOptions } from "./TableRatingOptions.tsx";
+import { useRubric } from "@context";
 
 interface GradingTableProps {
   submissions: Submission[];
-  rubric: Rubric;
-  checkedCriteria: Record<string, boolean>;
-  setCheckedCriteria: Dispatch<SetStateAction<Record<string, boolean>>>;
   activeStudentId: number | null;
   setActiveStudentId: Dispatch<SetStateAction<number | null>>;
   existingIndividualFeedback: SubmissionComment[] | null;
+  setSavedGrades: Dispatch<
+    SetStateAction<Record<number, PaletteGradedSubmission>>
+  >;
 }
 
 export function GradingTable({
   submissions,
-  rubric,
   activeStudentId,
   setActiveStudentId,
   existingIndividualFeedback,
+  setSavedGrades,
 }: GradingTableProps) {
   const [activeCriterion, setActiveCriterion] = useState<string | null>(null);
   const [showExistingCriterionComment, setShowExistingCriterionComment] =
@@ -29,6 +42,7 @@ export function GradingTable({
     useState<boolean>(false);
 
   const { gradedSubmissionCache, updateScore } = useGradingContext();
+  const { activeRubric } = useRubric();
 
   const getBackgroundColor = (
     value: number | string,
@@ -65,7 +79,7 @@ export function GradingTable({
           </tr>
         </thead>
         <tbody>
-          {rubric.criteria.map((criterion: Criteria) => (
+          {activeRubric.criteria.map((criterion: Criteria) => (
             <tr key={criterion.id}>
               <td className="border border-gray-500 px-4 py-2">
                 <div className="flex justify-between items-center gap-6">
@@ -81,16 +95,7 @@ export function GradingTable({
                       />
                     )}
 
-                  <label className="flex gap-2 text-sm font-medium whitespace-nowrap items-center">
-                    <p>Apply Ratings to Group</p>
-                    <input
-                      type="checkbox"
-                      name={`${criterion.id}-checkbox`}
-                      id={`${criterion.id}-checkbox`}
-                      checked={false}
-                      onChange={() => console.log("tbd")} //todo
-                    />
-                  </label>
+                  <TableRatingOptions criterion={criterion} />
                   <CriterionHeaderControls
                     activeCriterion={activeCriterion}
                     setActiveCriterion={setActiveCriterion}
@@ -123,8 +128,19 @@ export function GradingTable({
 
                   const newPoints = Number(ratingStringValue);
 
-                  updateScore(submissionId, criterion.id, newPoints);
+                  if (!criterion.isGroupCriterion) {
+                    updateScore(submissionId, criterion.id, newPoints);
+                  } else {
+                    submissions.forEach((sub) => {
+                      updateScore(sub.id, criterion.id, newPoints);
+                    });
+                  }
                 };
+
+                // save grades anytime the graded submission cache updates (rating changes)
+                useEffect(() => {
+                  setSavedGrades(gradedSubmissionCache);
+                }, [gradedSubmissionCache]);
 
                 return (
                   <td

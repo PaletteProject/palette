@@ -4,12 +4,11 @@
 
 import {
   PaletteGradedSubmission,
-  Rubric,
   Submission,
   SubmissionComment,
 } from "palette-types";
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   ChoiceDialog,
   PaletteActionButton,
@@ -21,12 +20,15 @@ import { GroupFeedback } from "./GroupFeedback.tsx";
 import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
 import { GradingTable } from "./GradingTable.tsx";
 import { useGradingContext } from "../../../context/GradingContext.tsx";
+import { useRubric } from "@context";
 
 type ProjectGradingViewProps = {
   groupName: string;
   submissions: Submission[];
   savedGrades: Record<number, PaletteGradedSubmission>;
-  rubric: Rubric;
+  setSavedGrades: Dispatch<
+    SetStateAction<Record<number, PaletteGradedSubmission>>
+  >;
   isOpen: boolean;
   onClose: (cache: Record<number, PaletteGradedSubmission>) => void; // event handler defined in GroupSubmissions.tsx
 };
@@ -34,10 +36,10 @@ type ProjectGradingViewProps = {
 export function ProjectGradingView({
   groupName,
   submissions,
-  rubric,
   isOpen,
   onClose,
   savedGrades,
+  setSavedGrades,
 }: ProjectGradingViewProps) {
   if (!isOpen) {
     return null;
@@ -60,12 +62,8 @@ export function ProjectGradingView({
   const [showGroupFeedbackTextArea, setShowGroupFeedbackTextArea] =
     useState<boolean>(false);
 
-  // group grading checkbox state
-  const [checkedCriteria, setCheckedCriteria] = useState<{
-    [key: string]: boolean;
-  }>({});
-
-  const { openDialog, closeDialog } = useChoiceDialog();
+  const { closeDialog } = useChoiceDialog();
+  const { activeRubric } = useRubric();
 
   const { setGradedSubmissionCache, gradedSubmissionCache } =
     useGradingContext();
@@ -82,7 +80,7 @@ export function ProjectGradingView({
         const rubric_assessment: PaletteGradedSubmission["rubric_assessment"] =
           {};
 
-        rubric.criteria.forEach((criterion) => {
+        activeRubric.criteria.forEach((criterion) => {
           const savedCriterion = saved?.rubric_assessment?.[criterion.id];
           const canvasData = submission.rubricAssessment?.[criterion.id];
 
@@ -106,7 +104,7 @@ export function ProjectGradingView({
 
       setGradedSubmissionCache(initialCache);
     }
-  }, [isOpen, submissions, rubric]);
+  }, [isOpen, submissions, activeRubric]);
 
   useEffect(() => {
     if (activeStudentId !== null) {
@@ -156,22 +154,8 @@ export function ProjectGradingView({
   };
 
   const handleClickCloseButton = () => {
-    openDialog({
-      title: "Grading Progress Saved",
-      message:
-        'Current changes are saved in local memory. Click "Submit Grades to Canvas" when ready to push grades.',
-      buttons: [
-        {
-          label: "Sweet!",
-          action: () => {
-            onClose(gradedSubmissionCache);
-            closeDialog();
-          },
-          autoFocus: true,
-          color: "BLUE",
-        },
-      ],
-    });
+    onClose(gradedSubmissionCache);
+    closeDialog();
   };
 
   const renderGradingPopup = () => {
@@ -211,12 +195,10 @@ export function ProjectGradingView({
           {showGroupFeedbackTextArea && <GroupFeedback />}
           <GradingTable
             submissions={submissions}
-            rubric={rubric}
-            checkedCriteria={checkedCriteria}
-            setCheckedCriteria={setCheckedCriteria}
             activeStudentId={activeStudentId}
             setActiveStudentId={setActiveStudentId}
             existingIndividualFeedback={existingIndividualFeedback}
+            setSavedGrades={setSavedGrades}
           />
 
           <div className={"flex gap-4 justify-end"}>

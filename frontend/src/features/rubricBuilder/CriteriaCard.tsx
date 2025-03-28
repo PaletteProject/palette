@@ -211,7 +211,11 @@ export default function CriteriaCard({
   ) => {
     event.preventDefault();
     setGroupCriteria((prevState) => !prevState);
-    handleCriteriaUpdate(index, criterion);
+    const newCriterion = {
+      ...criterion,
+      isGroupCriterion: !criterion.isGroupCriterion,
+    };
+    handleCriteriaUpdate(index, newCriterion);
   };
 
   const renderDetailedView = () => {

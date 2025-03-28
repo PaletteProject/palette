@@ -1,4 +1,4 @@
-import { PaletteGradedSubmission, Rubric, Submission } from "palette-types";
+import { PaletteGradedSubmission, Submission } from "palette-types";
 import { ProgressBar } from "@features";
 import { Dispatch, SetStateAction, useState } from "react";
 import { PaletteActionButton } from "@components";
@@ -10,7 +10,6 @@ interface GroupSubmissionsProps {
   groupName: string;
   progress: number;
   submissions: Submission[];
-  rubric: Rubric;
   fetchSubmissions: () => Promise<void>;
   setSavedGrades: Dispatch<
     SetStateAction<Record<number, PaletteGradedSubmission>>
@@ -22,12 +21,12 @@ export function GroupSubmissions({
   groupName,
   progress,
   submissions,
-  rubric,
   setSavedGrades,
   savedGrades,
 }: GroupSubmissionsProps) {
-  const { activeRubric } = useRubric();
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
+
+  const { activeRubric } = useRubric();
 
   const handleGradingViewClose = (
     cache: Record<number, PaletteGradedSubmission>,
@@ -44,7 +43,7 @@ export function GroupSubmissions({
   };
 
   const toggleGradingView = () => {
-    if (!rubric) {
+    if (!activeRubric) {
       alert(
         "Assignment does not have a rubric for grading. Create a rubric and try again!",
       );
@@ -79,9 +78,9 @@ export function GroupSubmissions({
           isOpen={isGradingViewOpen}
           groupName={groupName}
           submissions={submissions}
-          rubric={rubric}
           onClose={handleGradingViewClose}
           savedGrades={savedGrades}
+          setSavedGrades={setSavedGrades}
         />
       </GradingProvider>
     </div>
