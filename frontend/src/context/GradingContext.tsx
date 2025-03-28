@@ -86,8 +86,6 @@ export const GradingProvider = ({ children }: { children: ReactNode }) => {
 
   // Sets the group comment field of the first element in the grading cache. Canvas will automatically apply it to
   // all other group members.
-
-  //todo: verify backend transformation is handling the grading cache properly for these
   const updateGroupComment = (text: string) => {
     setGradedSubmissionCache((prev) => {
       const firstKey = Object.keys(prev)[0];
@@ -102,7 +100,7 @@ export const GradingProvider = ({ children }: { children: ReactNode }) => {
           group_comment: {
             text_comment: text,
             group_comment: true,
-            sent: false, // Optional: reset `sent` flag when editing
+            sent: false, // reset `sent` flag when editing
           },
         },
       };

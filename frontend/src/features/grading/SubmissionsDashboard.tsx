@@ -36,22 +36,35 @@ export function SubmissionsDashboard({
   /**
    * Submit all graded submissions in the cache
    */
-  const submitGrades = async (
-    gradedSubmissions: Record<number, PaletteGradedSubmission>,
-  ) => {
-    const firstSubmission = Object.values(gradedSubmissions)[0];
+  const submitGrades = async () => {
+    const firstSubmission = Object.values(savedGrades)[0];
 
-    if (firstSubmission?.group_comment) {
+    // Send group comment if it hasn't been sent yet
+    if (
+      firstSubmission.group_comment &&
+      !firstSubmission.group_comment.sent &&
+      firstSubmission.group_comment.text_comment !== ""
+    ) {
       await fetch(`${BASE_URL}${GRADING_ENDPOINT}${firstSubmission.user.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(gradedSubmissions[0]),
+        body: JSON.stringify({ group_comment: firstSubmission.group_comment }),
       });
-      firstSubmission.group_comment.sent = true; // set it to sent so that it doesn't get sent again
     }
 
+    // update sent field to ensure we don't double send the group comment
+    setSavedGrades((prev) => ({
+      ...prev,
+      ...prev[firstSubmission.submission_id],
+      group_comment: {
+        ...prev[firstSubmission.submission_id].group_comment!,
+        sent: true,
+      },
+    }));
+
     // submit all submissions (group comments are already sent) only individual comments get sent here
-    for (const gradedSubmission of Object.values(gradedSubmissions)) {
+    for (const gradedSubmission of Object.values(savedGrades)) {
+      console.log("test graded sub", gradedSubmission);
       await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -74,7 +87,7 @@ export function SubmissionsDashboard({
         {
           label: "Send them!",
           action: () => {
-            void submitGrades(savedGrades);
+            void submitGrades();
             closeDialog();
           },
           autoFocus: true,
