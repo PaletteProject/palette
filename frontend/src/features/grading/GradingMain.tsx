@@ -39,7 +39,6 @@ export function GradingMain(): ReactElement {
    */
   useEffect(() => {
     if (activeCourse && activeAssignment) {
-
       void fetchSubmissions();
 
       if (activeRubric) {

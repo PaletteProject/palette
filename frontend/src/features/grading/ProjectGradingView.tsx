@@ -7,8 +7,10 @@ import {
   PaletteGradedSubmission,
   Rubric,
   Submission,
+  CanvasGradedSubmission,
 } from "palette-types";
 import { createPortal } from "react-dom";
+
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   ChoiceDialog,
@@ -28,6 +30,15 @@ type ProjectGradingViewProps = {
   setGradedSubmissionCache: Dispatch<SetStateAction<PaletteGradedSubmission[]>>;
   gradedSubmissionCache: PaletteGradedSubmission[];
 };
+
+function safeParse<T>(data: string | null, fallback: T): T {
+  try {
+    return data ? (JSON.parse(data) as T) : fallback;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    return fallback;
+  }
+}
 
 export function ProjectGradingView({
   groupName,
@@ -146,17 +157,19 @@ export function ProjectGradingView({
       });
 
       const savedOfflineGrades = localStorage.getItem("offlineGradingCache");
-      if (savedOfflineGrades) {
-        const parsedGrades = JSON.parse(savedOfflineGrades);
-        parsedGrades.forEach((gradedSubmission: CanvasGradedSubmission) => {
-          for (const [criterionId, assessment] of Object.entries(
-            gradedSubmission.rubric_assessment,
-          )) {
-            initialRatings[`${criterionId}-${gradedSubmission.submission_id}`] =
-              assessment.points ?? "";
-          }
-        });
-      }
+      const parsedGrades = safeParse<CanvasGradedSubmission[]>(
+        savedOfflineGrades,
+        [],
+      );
+
+      parsedGrades.forEach((gradedSubmission) => {
+        for (const [criterionId, assessment] of Object.entries(
+          gradedSubmission.rubric_assessment || {},
+        )) {
+          initialRatings[`${criterionId}-${gradedSubmission.submission_id}`] =
+            assessment.points ?? "";
+        }
+      });
 
       setRatings(initialRatings);
     }
@@ -286,7 +299,10 @@ export function ProjectGradingView({
       });
 
       if (!localStorage.getItem("disableAutoSave")) {
-        localStorage.setItem("offlineGradingCache", JSON.stringify(updatedCache));
+        localStorage.setItem(
+          "offlineGradingCache",
+          JSON.stringify(updatedCache),
+        );
       }
 
       return updatedCache;

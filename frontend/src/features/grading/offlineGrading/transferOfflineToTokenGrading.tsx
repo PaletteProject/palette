@@ -20,13 +20,11 @@ export function transferOfflineToTokenGrading(
     return;
   }
 
- 
   const scopedKey = `offlineGradingCache_${selectedCourse}_${selectedAssignment}`;
   const fallbackKey = "offlineGradingCache";
 
   let savedOfflineGrades = localStorage.getItem(scopedKey);
 
- 
   if (!savedOfflineGrades) {
     savedOfflineGrades = localStorage.getItem(fallbackKey);
   }

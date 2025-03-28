@@ -21,7 +21,6 @@ export function SubmissionsDashboard({
     PaletteGradedSubmission[]
   >([]);
 
-  const [loadedFromOffline, setLoadedFromOffline] = useState<boolean>(false);
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
   const { activeRubric } = useRubric();
@@ -31,20 +30,17 @@ export function SubmissionsDashboard({
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
 
+  // Load from offlineGrading if exists
+  useEffect(() => {
+    const key = "offlineGradingCache";
+    const offlineData = localStorage.getItem(key);
 
-    // Load from offlineGrading if exists
-    useEffect(() => {
-      const key = "offlineGradingCache";
-      const offlineData = localStorage.getItem(key);
-  
-      if (offlineData && offlineData.length > 0) {
-        const parsed = JSON.parse(offlineData) as PaletteGradedSubmission[];
-        setGradedSubmissionCache(parsed);
-        setLoadedFromOffline(true);
-      }
-    }, []);
-  
-  
+    if (offlineData && offlineData.length > 0) {
+      const parsed = JSON.parse(offlineData) as PaletteGradedSubmission[];
+      setGradedSubmissionCache(parsed);
+    }
+  }, []);
+
   /**
    * Submit all graded submissions in the cache
    */
@@ -71,14 +67,13 @@ export function SubmissionsDashboard({
       await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(gradedSubmission),    
+        body: JSON.stringify(gradedSubmission),
       });
     }
 
     setLoading(true);
     await fetchSubmissions(); // refresh submissions
-    setLoadedFromOffline(false);
-    localStorage.removeItem("offlineGradingCache"); 
+    localStorage.removeItem("offlineGradingCache");
   };
 
   const handleClickSubmitGrades = () => {

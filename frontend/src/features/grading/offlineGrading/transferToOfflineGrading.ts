@@ -95,6 +95,6 @@ export function transferToOfflineGrading(
   localStorage.setItem("offlineTransferPushRequired", "true");
   localStorage.setItem(
     "tokenGradedSubmissionCache",
-    localStorage.getItem("offlineGradingCache") || "[]"
+    localStorage.getItem("offlineGradingCache") || "[]",
   );
 }
