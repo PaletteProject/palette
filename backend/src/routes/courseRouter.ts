@@ -26,7 +26,7 @@ import {
   submitGrades,
 } from "../controllers/submissionController.js";
 
-const courseRouter = express.Router();
+export const courseRouter = express.Router();
 
 /**
  * @swagger
@@ -65,15 +65,66 @@ courseRouter.get(
   courseParamValidator,
   assignmentParamValidator,
   validationErrorHandler,
-  getSubmissions,
+  getSubmissions
 );
+
+/**
+ * @swagger
+ * /courses/{course_id}/assignments/{assignment_id}/submissions/{student_id}:
+ *   put:
+ *     summary: Submit grades for a specific assignment and student
+ *     description: Submit grades for a specific assignment and student
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *       - in: path
+ *         name: assignment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the assignment.
+ *       - in: path
+ *         name: student_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the student.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Example Rubric
+ *               criteria:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     title:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *     responses:
+ *       200:
+ *         description: Grades submitted successfully.
+ *       400:
+ *         description: Validation error.
+ */
 
 courseRouter.put(
   "/:course_id/assignments/:assignment_id/submissions/:student_id",
   courseParamValidator,
   assignmentParamValidator,
   // todo: student id validator
-  submitGrades,
+  submitGrades
 );
 
 /**
@@ -128,7 +179,7 @@ courseRouter.post(
   assignmentParamValidator,
   rubricValidator,
   validationErrorHandler,
-  createRubric,
+  createRubric
 );
 
 /**
@@ -175,7 +226,7 @@ courseRouter.get(
   "/:course_id/rubrics/:rubric_id",
   idAndCourseParamValidator,
   validationErrorHandler,
-  getRubric,
+  getRubric
 );
 
 /**
@@ -208,7 +259,7 @@ courseRouter.get(
   "/:course_id/rubrics",
   courseParamValidator,
   validationErrorHandler,
-  getAllRubrics,
+  getAllRubrics
 );
 
 /**
@@ -298,7 +349,7 @@ courseRouter.put(
   assignmentParamValidator,
   rubricValidator,
   validationErrorHandler,
-  updateRubric,
+  updateRubric
 );
 
 /**
@@ -332,7 +383,7 @@ courseRouter.delete(
   "/:course_id/rubrics/:rubric_id",
   idAndCourseParamValidator,
   validationErrorHandler,
-  handleDeleteRubric,
+  handleDeleteRubric
 );
 
 /**
