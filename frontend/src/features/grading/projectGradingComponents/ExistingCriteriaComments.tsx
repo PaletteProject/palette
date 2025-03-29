@@ -22,7 +22,7 @@ export function ExistingCriteriaComments({
         {} as Record<string, string>,
       )
     : {};
-  
+
   return (
     <div className="flex flex-col w-full gap-2">
       {existingCriterionComments[criterionId] ? (
