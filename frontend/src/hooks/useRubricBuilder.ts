@@ -15,7 +15,7 @@ export const useRubricBuilder = () => {
   const [activeCriterionIndex, setActiveCriterionIndex] = useState(-1);
 
   // flag if the API is bypassed and should load the rubric builder in offline mode
-  const [isCanvasBypassed, setIsCanvasBypassed] = useState(false);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
 
   // result of hook checking if active assignment has an existing rubric
   const [hasExistingRubric, setHasExistingRubric] = useState(false);
@@ -52,8 +52,8 @@ export const useRubricBuilder = () => {
     putRubric,
     activeCriterionIndex,
     setActiveCriterionIndex,
-    isCanvasBypassed,
-    setIsCanvasBypassed,
+    isOfflineMode,
+    setIsOfflineMode,
     hasExistingRubric,
     setHasExistingRubric,
     loading,
