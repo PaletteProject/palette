@@ -1,3 +1,5 @@
+import { SubmissionComment } from "./SubmissionComment";
+
 /**
  * Defines the Submission type for use within the Palette application.
  *
@@ -13,11 +15,7 @@ export interface Submission {
     id: number;
     name: string;
   };
-  comments: {
-    id: number;
-    authorName: string;
-    comment: string;
-  }[];
+  comments: SubmissionComment[];
   rubricAssessment: {
     [criterion_id: string]: {
       rating_id: string;
