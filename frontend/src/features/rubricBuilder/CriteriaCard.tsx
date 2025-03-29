@@ -37,9 +37,6 @@ export default function CriteriaCard({
   const [criteriaDescription, setCriteriaDescription] = useState(
     criterion.description || "",
   );
-  const [groupCriteria, setGroupCriteria] = useState<boolean>(
-    criterion.isGroupCriterion,
-  );
 
   const [templateTitle, setTemplateTitle] = useState(criterion.template || "");
 
@@ -210,8 +207,12 @@ export default function CriteriaCard({
     event: ReactMouseEvent<HTMLButtonElement>,
   ) => {
     event.preventDefault();
-    setGroupCriteria((prevState) => !prevState);
-    handleCriteriaUpdate(index, criterion);
+
+    const newCriterion = {
+      ...criterion,
+      isGroupCriterion: !criterion.isGroupCriterion,
+    };
+    handleCriteriaUpdate(index, newCriterion);
   };
 
   const renderDetailedView = () => {
@@ -294,8 +295,12 @@ export default function CriteriaCard({
           </p>
 
           <PaletteActionButton
-            color={groupCriteria ? "BLUE" : "GRAY"}
-            title={groupCriteria ? "Group Criteria" : "Individual Criteria"}
+            color={criterion.isGroupCriterion ? "BLUE" : "GRAY"}
+            title={
+              criterion.isGroupCriterion
+                ? "Group Criteria"
+                : "Individual Criteria"
+            }
             onClick={(event: ReactMouseEvent<HTMLButtonElement>) =>
               toggleGroupCriteriaFlag(event)
             }
