@@ -2,8 +2,9 @@ import { GroupedSubmissions, PaletteGradedSubmission } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@features";
 import { Dispatch, SetStateAction, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@components";
-import { useAssignment, useCourse, useRubric } from "@context";
+import { useAssignment, useCourse } from "@context";
 import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { GradingProvider } from "../../context/GradingContext.tsx";
 
 type SubmissionDashboardProps = {
   submissions: GroupedSubmissions;
@@ -16,43 +17,25 @@ export function SubmissionsDashboard({
   fetchSubmissions,
   setLoading,
 }: SubmissionDashboardProps) {
-  // graded submissions to be sent to Canvas
-  const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
-    PaletteGradedSubmission[]
-  >([]);
-
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
-  const { activeRubric } = useRubric();
 
   const { openDialog, closeDialog } = useChoiceDialog();
 
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
 
+  const [savedGrades, setSavedGrades] = useState<
+    Record<number, PaletteGradedSubmission>
+  >({});
+
   /**
    * Submit all graded submissions in the cache
    */
-  const submitGrades = async (gradedSubmissions: PaletteGradedSubmission[]) => {
-    // if the first submission has a group comment, update the group comment for all submissions
-    // ATTENTION: This code ofcourse assumes that the groupFeedback will always be added to the first graded submission.
-    // Not a bad assumption, but if it were to change, this code would break.
-    // This is being set in ProjectGradingView.tsx in handleSaveGrades()
-
-    if (gradedSubmissions[0].group_comment) {
-      await fetch(
-        `${BASE_URL}${GRADING_ENDPOINT}${gradedSubmissions[0].user.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(gradedSubmissions[0]),
-        },
-      );
-      gradedSubmissions[0].group_comment.sent = true; // set it to sent so that it doesn't get sent again
-    }
-
+  const submitGrades = async () => {
     // submit all submissions (group comments are already sent) only individual comments get sent here
-    for (const gradedSubmission of gradedSubmissions) {
+    for (const gradedSubmission of Object.values(savedGrades)) {
+      console.log("test graded sub", gradedSubmission);
       await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -63,7 +46,7 @@ export function SubmissionsDashboard({
     setLoading(true);
     await fetchSubmissions(); // refresh submissions
     setLoading(false);
-    setGradedSubmissionCache([]); // clear submission cache
+    setSavedGrades({}); // clear submission cache
   };
 
   const handleClickSubmitGrades = () => {
@@ -75,7 +58,7 @@ export function SubmissionsDashboard({
         {
           label: "Send them!",
           action: () => {
-            void submitGrades(gradedSubmissionCache);
+            void submitGrades();
             closeDialog();
           },
           autoFocus: true,
@@ -126,16 +109,17 @@ export function SubmissionsDashboard({
             );
           };
           return (
-            <GroupSubmissions
-              key={`${groupName}}`}
-              groupName={groupName}
-              progress={calculateGradingProgress()}
-              submissions={groupSubmissions}
-              rubric={activeRubric}
-              fetchSubmissions={fetchSubmissions}
-              setGradedSubmissionCache={setGradedSubmissionCache}
-              gradedSubmissionCache={gradedSubmissionCache}
-            />
+            <GradingProvider>
+              <GroupSubmissions
+                key={`${groupName}}`}
+                groupName={groupName}
+                progress={calculateGradingProgress()}
+                submissions={groupSubmissions}
+                fetchSubmissions={fetchSubmissions}
+                setSavedGrades={setSavedGrades}
+                savedGrades={savedGrades}
+              />
+            </GradingProvider>
           );
         })}
       </div>

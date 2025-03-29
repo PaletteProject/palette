@@ -1,43 +1,51 @@
-import { PaletteGradedSubmission, Rubric, Submission } from "palette-types";
+import { PaletteGradedSubmission, Submission } from "palette-types";
 import { ProgressBar } from "@features";
-import { ProjectGradingView } from "./ProjectGradingView.tsx";
 import { Dispatch, SetStateAction, useState } from "react";
 import { PaletteActionButton } from "@components";
 import { useRubric } from "@context";
+import { ProjectGradingView } from "./projectGradingComponents/ProjectGradingView.tsx";
+import { useGradingContext } from "../../context/GradingContext.tsx";
 import { calculateGroupAverage } from "../../utils/SubmissionUtils.ts";
 
 interface GroupSubmissionsProps {
   groupName: string;
   progress: number;
   submissions: Submission[];
-  rubric: Rubric;
   fetchSubmissions: () => Promise<void>;
-  setGradedSubmissionCache: Dispatch<SetStateAction<PaletteGradedSubmission[]>>;
-  gradedSubmissionCache: PaletteGradedSubmission[];
+  setSavedGrades: Dispatch<
+    SetStateAction<Record<number, PaletteGradedSubmission>>
+  >;
+  savedGrades: Record<number, PaletteGradedSubmission>;
 }
 
 export function GroupSubmissions({
   groupName,
   progress,
   submissions,
-  rubric,
-  setGradedSubmissionCache,
-  gradedSubmissionCache,
+  setSavedGrades,
+  savedGrades,
 }: GroupSubmissionsProps) {
-  const { activeRubric } = useRubric();
-
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
-  const [averageScore, setAverageScore] = useState(
-    calculateGroupAverage(submissions),
-  );
 
-  const handleGradingViewClose = () => {
-    setAverageScore(calculateGroupAverage(submissions));
+  const { activeRubric } = useRubric();
+  const { gradedSubmissionCache } = useGradingContext();
+
+  const handleGradingViewClose = (
+    cache: Record<number, PaletteGradedSubmission>,
+  ) => {
+    // add current in progress grades to main grading cache to be sent to canvas
+    setSavedGrades((prevGrades) => {
+      return {
+        ...prevGrades,
+        ...cache,
+      };
+    });
+
     setGradingViewOpen(false);
   };
 
   const toggleGradingView = () => {
-    if (!rubric) {
+    if (!activeRubric) {
       alert(
         "Assignment does not have a rubric for grading. Create a rubric and try again!",
       );
@@ -65,7 +73,7 @@ export function GroupSubmissions({
           <ProgressBar progress={progress} />
         </div>
         <div className={"text-center"}>
-          Canvas Avg: {`${averageScore} Points`}
+          Average Score: {`${calculateGroupAverage(gradedSubmissionCache)}`}
         </div>
       </div>
 
@@ -73,10 +81,9 @@ export function GroupSubmissions({
         isOpen={isGradingViewOpen}
         groupName={groupName}
         submissions={submissions}
-        rubric={rubric}
         onClose={handleGradingViewClose}
-        setGradedSubmissionCache={setGradedSubmissionCache}
-        gradedSubmissionCache={gradedSubmissionCache}
+        savedGrades={savedGrades}
+        setSavedGrades={setSavedGrades}
       />
     </div>
   );
