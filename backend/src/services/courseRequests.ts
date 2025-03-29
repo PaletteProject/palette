@@ -38,7 +38,6 @@ async function getAllCourses() {
   let canvasCourses: CanvasCourse[] = [];
   let page = 1;
   let fetchedCourses: CanvasCourse[];
-
   const userSettings = SettingsAPI.getUserSettings();
   const courseFilters = userSettings.course_filters;
 
@@ -49,11 +48,11 @@ async function getAllCourses() {
 
       if (!isNaN(parseInt(filter.option))) {
         yearThreshold = year;
-        console.log("year");
-        console.log(year);
-        console.log(filter.option);
-        console.log("yearThreshold");
-        console.log(yearThreshold);
+        // console.log("year");
+        // console.log(year);
+        // console.log(filter.option);
+        // console.log("yearThreshold");
+        // console.log(yearThreshold);
       } else if (courseCodes.includes(filter.option)) {
         courseCode = filter.option;
       } else if (filter.param_code === "course_format") {
@@ -83,7 +82,7 @@ async function getAllAssignments(courseId: string) {
   let canvasAssignments: CanvasAssignment[] = [];
   let page = 1;
   let fetchedAssignments: CanvasAssignment[];
-
+  console.log("GETTING ALL ASSIGNMENTS");
   const userSettings = SettingsAPI.getUserSettings();
   const assignmentFilters = userSettings.assignment_filters;
 
@@ -157,8 +156,8 @@ async function getAllSubmissions(courseId: string, assignmentId: string) {
     );
     canvasSubmissions = canvasSubmissions.concat(fetchedSubmissions);
     page++;
-    console.log("HEY");
-    console.log(fetchedSubmissions);
+    // console.log("fetchedSubmissions");
+    // console.log(fetchedSubmissions);
   } while (fetchedSubmissions.length === RESULTS_PER_PAGE);
 
   return canvasSubmissions;
@@ -174,7 +173,7 @@ function filterCourses(
 ): CanvasCourse[] {
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-  console.log(oneYearAgo);
+  // console.log(oneYearAgo);
 
   console.log("courseFilters");
   console.log(courseFilters);
@@ -199,10 +198,10 @@ function filterCourses(
     filteredCourses = filteredCourses.filter((course) => {
       const startDate =
         course.start_at === null ? new Date() : new Date(course.start_at);
-      console.log("startDate");
-      console.log(startDate);
-      console.log("yearThreshold");
-      console.log(yearThreshold);
+      // console.log("startDate");
+      // console.log(startDate);
+      // console.log("yearThreshold");
+      // console.log(yearThreshold);
       return startDate ? startDate >= yearThreshold : false;
     });
   }

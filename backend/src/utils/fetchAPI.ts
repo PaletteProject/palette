@@ -18,6 +18,7 @@ const CanvasAPIConfig = {
  * Helper function to refresh the API config and ensure it's using the latest token.
  */
 const refreshToken = () => {
+  console.log("REFRESHING TOKEN");
   CanvasAPIConfig.headers.Authorization = `Bearer ${SettingsAPI.getUserSettings(true).token}`;
 };
 
