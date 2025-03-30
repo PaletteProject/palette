@@ -36,7 +36,6 @@ export function SubmissionsDashboard({
    * Submit all graded submissions in the cache
    */
   const submitGrades = async () => {
-    // submit all submissions (group comments are already sent) only individual comments get sent here
     for (const gradedSubmission of Object.values(savedGrades)) {
       console.log("test graded sub", gradedSubmission);
       await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
@@ -46,7 +45,6 @@ export function SubmissionsDashboard({
       });
     }
 
-    setLoading(true);
     await fetchSubmissions(); // refresh submissions
     setLoading(false);
     setSavedGrades({}); // clear submission cache
@@ -76,12 +74,20 @@ export function SubmissionsDashboard({
     });
   };
 
+  // todo: keep working the progress bug - need to look at the data structures more closely.
   const isGraded = (submission: Submission) => {
+    if (!submission) return false;
+
     const local = savedGrades[submission.user.id];
     const rubric = local?.rubric_assessment || submission.rubricAssessment;
 
+    if (!rubric) return false;
+
     return Object.values(rubric).every(
-      (entry) => entry.points && !Number.isNaN(entry.points),
+      (entry) =>
+        entry &&
+        typeof entry.points === "number" &&
+        !Number.isNaN(entry.points),
     );
   };
 
