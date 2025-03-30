@@ -36,14 +36,18 @@ export function SubmissionsDashboard({
    * Submit all graded submissions in the cache
    */
   const submitGrades = async () => {
+    setLoading(true);
     for (const gradedSubmission of Object.values(savedGrades)) {
-      console.log("test graded sub", gradedSubmission);
-      await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(gradedSubmission),
-      });
+      await fetch(
+        `${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user?.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(gradedSubmission),
+        },
+      );
     }
+    setLoading(false);
 
     await fetchSubmissions(); // refresh submissions
     setLoading(false);
