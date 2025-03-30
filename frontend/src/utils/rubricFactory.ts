@@ -76,7 +76,7 @@ interface CriterionOptions {
 export function createCriterion(
   settings: Settings,
   {
-    description = "",
+    description = "Your first criterion",
     longDescription = "",
     ratings = populateDefaultRatings(settings),
     points = ratings.reduce((sum, rating) => sum + rating.points, 0),
@@ -101,7 +101,7 @@ export function createCriterion(
     },
     scores,
     isGroupCriterion,
-  };
+  } as Criteria;
 }
 
 /**
@@ -119,5 +119,5 @@ export function createRating(
     longDescription,
     id,
     key: uuid(),
-  };
+  } as Rating;
 }

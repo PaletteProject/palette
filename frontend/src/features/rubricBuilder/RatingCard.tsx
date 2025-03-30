@@ -187,14 +187,14 @@ export function RatingCard({
           <img
             src={"paint-palette.png"}
             alt={"Edit Rating"}
-            className={"w-6 h-6"}
+            className={"w-6 h-6 cursor-pointer"}
           />
         </button>
         <button
           onClick={handleRemoveRatingPress}
           className={
             "rounded-full h-8 w-8 text-xl font-light relative" +
-            " -right-2 -bottom-2 hover:text-red-500"
+            " -right-2 -bottom-2 hover:text-red-500 cursor-pointer"
           }
           tabIndex={-1} //ensure the remove buttons aren't tabbable
           type={"button"}
