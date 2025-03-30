@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useAssignment, useCourse } from "@context";
+import { useEffect, useState } from "react";
+import { useAssignment, useCourse } from "@/context";
 import { parseCSV, ParsedStudent } from "../csv/gradingCSV.ts";
 
 export default function GradingUI() {
