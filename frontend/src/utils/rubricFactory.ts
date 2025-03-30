@@ -76,7 +76,7 @@ interface CriterionOptions {
 export function createCriterion(
   settings: Settings,
   {
-    description = "Your first criterion",
+    description = "Your new criterion",
     longDescription = "",
     ratings = populateDefaultRatings(settings),
     points = ratings.reduce((sum, rating) => sum + rating.points, 0),

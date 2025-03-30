@@ -110,7 +110,7 @@ export function GradingMain(): ReactElement {
     }
     setLoading(true);
     void fetchSubmissions();
-  }, [activeCourse, activeAssignment]);
+  }, [activeCourse, activeAssignment, activeRubric]);
 
   const fetchSubmissions = async () => {
     setLoading(true);
@@ -120,6 +120,7 @@ export function GradingMain(): ReactElement {
 
       if (response.success && response.data) {
         setSubmissions(response.data);
+        console.log("subs from canvas", response.data);
       }
     } catch (error) {
       console.error("An error occurred while getting submissions: ", error);

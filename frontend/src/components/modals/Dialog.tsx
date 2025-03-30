@@ -21,7 +21,7 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
         <h2 className="text-2xl text-white font-semibold">{title}</h2>
         <div className={"text-gray-100"}>{children}</div>
         <button
-          className="absolute top-2 right-2 text-2xl text-black font-bold hover:text-red-600 hover:scale-110 transition-colors ease-in-out duration-300"
+          className="absolute top-2 right-2 text-2xl cursor-pointer text-black font-bold hover:text-red-600 hover:scale-110 transition-colors ease-in-out duration-300"
           onClick={onClose}
         >
           ✕

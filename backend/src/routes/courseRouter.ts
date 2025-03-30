@@ -72,7 +72,7 @@ courseRouter.put(
   "/:course_id/assignments/:assignment_id/submissions/:student_id",
   courseParamValidator,
   assignmentParamValidator,
-  // todo: student id validator
+  // todo: validate the payload submission
   submitGrades,
 );
 

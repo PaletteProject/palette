@@ -141,7 +141,7 @@ export function GradingTable({
                   setSavedGrades((existingGrades) => {
                     return {
                       ...existingGrades,
-                      gradedSubmissionCache,
+                      ...gradedSubmissionCache,
                     };
                   });
                 }, [gradedSubmissionCache]);

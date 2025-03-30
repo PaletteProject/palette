@@ -1,7 +1,7 @@
 import React, { ChangeEvent, ReactElement, useEffect, useState } from "react";
 import { Rating } from "palette-types";
 import { motion } from "framer-motion";
-import { Dialog } from "@/components";
+import { Dialog, PaletteActionButton } from "@/components";
 
 export function RatingCard({
   ratingIndex,
@@ -125,12 +125,12 @@ export function RatingCard({
           />
         </div>
         <div className={"flex gap-2 justify-self-end"}>
-          <button type={"button"} onClick={handleMenuClose}>
-            Cancel
-          </button>
-          <button type={"button"} onClick={handleSaveRating}>
-            Save
-          </button>
+          <PaletteActionButton
+            title={"Cancel"}
+            color={"GRAY"}
+            onClick={handleMenuClose}
+          />
+          <PaletteActionButton title={"Save"} onClick={handleSaveRating} />
         </div>
       </div>
     );
