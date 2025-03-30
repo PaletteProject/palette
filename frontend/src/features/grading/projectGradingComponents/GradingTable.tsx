@@ -138,7 +138,12 @@ export function GradingTable({
 
                 // save grades anytime the graded submission cache updates (rating changes)
                 useEffect(() => {
-                  setSavedGrades(gradedSubmissionCache);
+                  setSavedGrades((existingGrades) => {
+                    return {
+                      ...existingGrades,
+                      gradedSubmissionCache,
+                    };
+                  });
                 }, [gradedSubmissionCache]);
 
                 return (

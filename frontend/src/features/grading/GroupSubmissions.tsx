@@ -1,7 +1,7 @@
 import { PaletteGradedSubmission, Submission } from "palette-types";
-import { ProgressBar } from "@/features";
+
 import { Dispatch, SetStateAction, useState } from "react";
-import { PaletteActionButton } from "@/components";
+import { PaletteActionButton, ProgressBar } from "@/components";
 import { useRubric } from "@/context";
 import { ProjectGradingView } from "./projectGradingComponents/ProjectGradingView.tsx";
 import { useGradingContext } from "@/context/GradingContext.tsx";
@@ -26,7 +26,6 @@ export function GroupSubmissions({
   savedGrades,
 }: GroupSubmissionsProps) {
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
-
   const { activeRubric } = useRubric();
   const { gradedSubmissionCache } = useGradingContext();
 
@@ -67,10 +66,8 @@ export function GroupSubmissions({
             disabled={activeRubric.id === ""}
           />
         </div>
-
-        {/* Progress Bar Section */}
-        <div className="w-full mt-1">
-          <ProgressBar progress={progress} />
+        <div>
+          <ProgressBar value={progress} />
         </div>
         <div className={"text-center"}>
           Average Score: {`${calculateGroupAverage(gradedSubmissionCache)}`}
