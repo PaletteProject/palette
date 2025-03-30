@@ -1,4 +1,4 @@
-import { PaletteGradedSubmission } from "palette-types";
+import { PaletteGradedSubmission, Submission } from "palette-types";
 
 // calculate the total score of a target submission
 export const calculateSubmissionTotal = (
@@ -29,8 +29,8 @@ export const calculateSubmissionTotal = (
 // grading cache is all scores for one group (unique to each project grading view instance)
 export const calculateGroupAverage = (
   submissions: Record<number, PaletteGradedSubmission>,
-): string => {
-  if (!submissions) return String(0); // guard for empty submission collection
+): number => {
+  if (!submissions) return 0; // guard for empty submission collection
 
   let totalPoints = 0;
   let validSubmissionCount = 0;
@@ -44,7 +44,40 @@ export const calculateGroupAverage = (
     }
   });
 
-  const average =
-    validSubmissionCount > 0 ? totalPoints / validSubmissionCount : 0;
-  return average.toFixed(2);
+  return validSubmissionCount > 0 ? totalPoints / validSubmissionCount : 0;
+};
+
+export const calculateCanvasGroupAverage = (
+  submissions: Submission[],
+): number => {
+  if (!submissions || submissions.length === 0) return 0;
+
+  let totalPoints = 0;
+  let totalCount = 0;
+
+  console.log("submissions", submissions);
+
+  submissions.forEach((submission) => {
+    if (submission.rubricAssessment) {
+      const { sum } = Object.values(submission.rubricAssessment).reduce(
+        (acc, rating) => {
+          const points = Number(rating.points);
+          if (!isNaN(points)) {
+            return {
+              sum: acc.sum + points,
+            };
+          }
+          return acc;
+        },
+        { sum: 0 },
+      );
+
+      totalPoints += sum;
+      totalCount += 1;
+    }
+  });
+
+  if (totalCount === 0) return 0;
+
+  return parseFloat((totalPoints / totalCount).toFixed(2)); // Rounded to 2 decimal places
 };

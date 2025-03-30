@@ -1,11 +1,11 @@
 import { PaletteGradedSubmission, Submission } from "palette-types";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { PaletteActionButton, ProgressBar } from "@/components";
 import { useRubric } from "@/context";
 import { ProjectGradingView } from "./projectGradingComponents/ProjectGradingView.tsx";
 import { useGradingContext } from "@/context/GradingContext.tsx";
-import { calculateGroupAverage } from "@/utils";
+import { calculateCanvasGroupAverage, calculateGroupAverage } from "@/utils";
 
 interface GroupSubmissionsProps {
   groupName: string;
@@ -26,6 +26,8 @@ export function GroupSubmissions({
   savedGrades,
 }: GroupSubmissionsProps) {
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
+  const [groupAverageScore, setGroupAverageScore] = useState(0);
+
   const { activeRubric } = useRubric();
   const { gradedSubmissionCache } = useGradingContext();
 
@@ -53,6 +55,17 @@ export function GroupSubmissions({
     setGradingViewOpen(true);
   };
 
+  useEffect(() => {
+    // update group avg score whenever cache changes
+    console.log("current cache", gradedSubmissionCache);
+    if (Object.values(gradedSubmissionCache).length !== 0) {
+      setGroupAverageScore(calculateGroupAverage(gradedSubmissionCache));
+    } else {
+      // use average score from Canvas submissions
+      setGroupAverageScore(calculateCanvasGroupAverage(submissions));
+    }
+  }, [gradedSubmissionCache]);
+
   return (
     <div className="w-full">
       <div className="flex flex-col gap-2 p-4 border-2 rounded-2xl border-gray-500 shadow-xl bg-gray-900 border-opacity-35">
@@ -63,14 +76,14 @@ export function GroupSubmissions({
             color="BLUE"
             title="Grade"
             onClick={toggleGradingView}
-            disabled={activeRubric.id === ""}
+            disabled={!activeRubric?.id}
           />
         </div>
         <div>
           <ProgressBar value={progress} />
         </div>
         <div className={"text-center"}>
-          Average Score: {`${calculateGroupAverage(gradedSubmissionCache)}`}
+          Average Score: {`${groupAverageScore}`}
         </div>
       </div>
 
