@@ -11,15 +11,14 @@ import {
   LoadingDots,
   NoAssignmentSelected,
   NoCourseSelected,
-} from "@components";
+} from "@/components";
 
 import { Rubric } from "palette-types";
 
-import { useChoiceDialog } from "../../context/DialogContext.tsx";
-import { useSettings } from "../../context/SettingsContext.tsx";
-import { createRubric } from "@utils";
-import { useRubricBuilder } from "../../hooks/useRubricBuilder.ts";
-import { useTemplate } from "../../hooks/useTemplate.ts";
+import { useChoiceDialog, useSettings } from "@/context";
+import { createRubric } from "@/utils";
+import { useRubricBuilder, useTemplate } from "@/hooks";
+
 import { RubricForm } from "./RubricForm.tsx";
 
 export function RubricBuilderMain(): ReactElement {

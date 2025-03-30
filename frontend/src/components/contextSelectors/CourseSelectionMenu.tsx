@@ -5,9 +5,9 @@
  * they are authorized to grade.
  */
 import { MouseEvent, ReactElement, useEffect, useState } from "react";
-import { useFetch } from "@hooks";
+import { useFetch } from "@/hooks";
 import { Course, PaletteAPIResponse, Settings } from "palette-types";
-import { useCourse } from "../../context/CourseProvider.tsx";
+import { useCourse } from "@/context/CourseProvider.tsx";
 import { PaletteActionButton } from "../buttons/PaletteActionButton.tsx";
 import { PaletteTrash } from "../buttons/PaletteTrash.tsx";
 import { LoadingDots } from "../LoadingDots.tsx";
@@ -17,10 +17,11 @@ import {
   faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useChoiceDialog } from "@context";
+import { useChoiceDialog } from "@/context";
 import { PaletteTable } from "../buttons/PaletteTable.tsx";
 import { v4 as uuidv4 } from "uuid";
 import { ChoiceDialog } from "../modals/ChoiceDialog.tsx";
+
 export function CourseSelectionMenu({
   onSelect,
 }: {

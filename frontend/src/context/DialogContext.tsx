@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useState } from "react";
-import { ButtonColorOptions } from "@components";
+import { ButtonColorOptions } from "@/components";
 
 type DialogButton = {
   label: string; // text to display on the button

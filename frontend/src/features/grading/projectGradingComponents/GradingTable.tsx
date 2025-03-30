@@ -14,9 +14,8 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useGradingContext } from "../../../context/GradingContext.tsx";
+import { useGradingContext, useRubric } from "@/context";
 import { TableRatingOptions } from "./TableRatingOptions.tsx";
-import { useRubric } from "@context";
 
 interface GradingTableProps {
   submissions: Submission[];

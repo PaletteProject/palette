@@ -1,4 +1,4 @@
-import { useGradingContext } from "../../../context/GradingContext.tsx";
+import { useGradingContext } from "@/context";
 
 interface IndividualFeedbackTextAreaProps {
   submissionId: number;

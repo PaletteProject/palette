@@ -1,9 +1,8 @@
 import { useAssignment } from "../../context/AssignmentProvider.tsx";
 import { useNavigate } from "react-router-dom";
 import { MouseEvent, useEffect, useState } from "react";
-import { ChoiceDialog, PaletteActionButton } from "@components";
-import { useChoiceDialog } from "../../context/DialogContext.tsx";
-import { useRubric } from "@context";
+import { ChoiceDialog, PaletteActionButton } from "@/components";
+import { useChoiceDialog, useRubric } from "@/context";
 
 export function AssignmentData() {
   const { activeAssignment } = useAssignment();

@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
-import { Footer, Header } from "@components";
+import { Footer, Header } from "@/components";
 import Paint from "./Paint";
 
 function hexToTailwindColor(hex: string): string {

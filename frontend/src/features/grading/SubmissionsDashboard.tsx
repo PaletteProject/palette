@@ -1,10 +1,9 @@
 import { GroupedSubmissions, PaletteGradedSubmission } from "palette-types";
-import { AssignmentData, GroupSubmissions } from "@features";
+import { AssignmentData, GroupSubmissions } from "@/features";
 import { Dispatch, SetStateAction, useState } from "react";
-import { ChoiceDialog, PaletteActionButton } from "@components";
-import { useAssignment, useCourse } from "@context";
-import { useChoiceDialog } from "../../context/DialogContext.tsx";
-import { GradingProvider } from "../../context/GradingContext.tsx";
+import { ChoiceDialog, PaletteActionButton } from "@/components";
+import { useAssignment, useChoiceDialog, useCourse } from "@/context";
+import { GradingProvider } from "@/context/GradingContext.tsx";
 
 type SubmissionDashboardProps = {
   submissions: GroupedSubmissions;

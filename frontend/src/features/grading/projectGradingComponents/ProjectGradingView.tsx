@@ -14,13 +14,11 @@ import {
   PaletteActionButton,
   PaletteBrush,
   PaletteEye,
-} from "@components";
-import { useChoiceDialog } from "../../../context/DialogContext.tsx";
+} from "@/components";
+import { useChoiceDialog, useGradingContext, useRubric } from "@/context";
 import { GroupFeedback } from "./GroupFeedback.tsx";
 import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
 import { GradingTable } from "./GradingTable.tsx";
-import { useGradingContext } from "../../../context/GradingContext.tsx";
-import { useRubric } from "@context";
 
 type ProjectGradingViewProps = {
   groupName: string;

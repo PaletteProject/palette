@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 import { Settings } from "palette-types";
-import { useFetch } from "@hooks";
+import { useFetch } from "@/hooks";
 
 const DEFAULT_SETTINGS: Settings = {
   userName: "admin",

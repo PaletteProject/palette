@@ -1,10 +1,10 @@
-import { PaletteBrush, PaletteEye } from "@components";
+import { PaletteBrush, PaletteEye } from "@/components";
 import { ExistingIndividualFeedback } from "./ExistingIndividualFeedback.tsx";
 import { IndividualFeedbackTextArea } from "./IndividualFeedbackTextArea.tsx";
 import { Submission, SubmissionComment } from "palette-types";
 import { Dispatch, SetStateAction, useState } from "react";
-import { useGradingContext } from "../../../context/GradingContext.tsx";
-import { calculateSubmissionTotal } from "../../../utils/SubmissionUtils.ts";
+import { useGradingContext } from "@/context";
+import { calculateSubmissionTotal } from "@/utils";
 
 interface StudentHeaderControlsProps {
   submission: Submission;

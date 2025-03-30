@@ -1,7 +1,7 @@
 import { ChangeEvent, ReactElement, useEffect, useState } from "react";
 import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
-import { useFetch } from "@hooks";
-import { useAssignment, useCourse, useRubric } from "@context";
+import { useFetch } from "@/hooks";
+import { useAssignment, useCourse, useRubric } from "@/context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
 import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts";
 import {
@@ -9,9 +9,9 @@ import {
   MainPageTemplate,
   NoAssignmentSelected,
   NoCourseSelected,
-} from "@components";
+} from "@/components";
 
-import { SubmissionsDashboard } from "@features";
+import { SubmissionsDashboard } from "@/features";
 
 export function GradingMain(): ReactElement {
   // state

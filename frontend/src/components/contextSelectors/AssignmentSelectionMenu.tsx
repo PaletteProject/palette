@@ -1,8 +1,7 @@
 import { MouseEvent, ReactElement, useEffect, useState } from "react";
 import { Assignment, PaletteAPIResponse, Settings } from "palette-types";
-import { useFetch } from "@hooks";
-import { useChoiceDialog, useCourse } from "@context";
-import { useAssignment } from "../../context/AssignmentProvider.tsx";
+import { useFetch } from "@/hooks";
+import { useAssignment, useChoiceDialog, useCourse } from "@/context";
 import { ChoiceDialog } from "../modals/ChoiceDialog.tsx";
 
 import {
@@ -10,15 +9,15 @@ import {
   PaletteActionButton,
   PaletteTable,
   PaletteTrash,
-} from "@components";
+} from "@/components";
 import { v4 as uuidv4 } from "uuid";
 import {
-  faCog,
   faChevronDown,
   faChevronUp,
+  faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getMonthName } from "../../utils/time";
+import { getMonthName } from "@/utils/time";
 
 export function AssignmentSelectionMenu({
   onSelect,

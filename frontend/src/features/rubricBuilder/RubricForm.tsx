@@ -1,5 +1,5 @@
-import { CSVExport, CSVImport } from "@features";
-import { PaletteActionButton } from "@components";
+import { CSVExport, CSVImport } from "@/features";
+import { PaletteActionButton } from "@/components";
 import CriteriaList from "./CriteriaList.tsx";
 import { Criteria, PaletteAPIResponse, Template } from "palette-types";
 import {
@@ -10,12 +10,9 @@ import {
   useEffect,
   useMemo,
 } from "react";
-import { useChoiceDialog } from "@context";
-import { createCriterion } from "@utils";
-import { useSettings } from "../../context/SettingsContext.tsx";
-import { useRubricBuilder } from "../../hooks/useRubricBuilder.ts";
-import { createTemplate } from "../../utils/templateFactory.ts";
-import { useTemplate } from "../../hooks/useTemplate.ts";
+import { useChoiceDialog, useSettings } from "@/context";
+import { createCriterion, createTemplate } from "@/utils";
+import { useRubricBuilder, useTemplate } from "@/hooks";
 
 // useTemplate() returns different instances of state >:( so we have to pass it here from rubric main
 interface RubricFormProps {
