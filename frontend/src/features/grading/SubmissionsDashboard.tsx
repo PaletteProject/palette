@@ -1,6 +1,10 @@
-import { GroupedSubmissions, PaletteGradedSubmission } from "palette-types";
+import {
+  GroupedSubmissions,
+  PaletteGradedSubmission,
+  Submission,
+} from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@/features";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@/components";
 import { useAssignment, useChoiceDialog, useCourse } from "@/context";
 import { GradingProvider } from "@/context/GradingContext.tsx";
@@ -72,6 +76,15 @@ export function SubmissionsDashboard({
     });
   };
 
+  const isGraded = (submission: Submission) => {
+    const local = savedGrades[submission.user.id];
+    const rubric = local?.rubric_assessment || submission.rubricAssessment;
+
+    return Object.values(rubric).every(
+      (entry) => entry.points && !Number.isNaN(entry.points),
+    );
+  };
+
   return (
     <div className={"grid justify-start"}>
       <div className={"grid gap-2 mb-4 p-4"}>
@@ -93,26 +106,16 @@ export function SubmissionsDashboard({
         }
       >
         {Object.entries(submissions).map(([groupName, groupSubmissions]) => {
-          const calculateGradingProgress = () => {
-            if (groupSubmissions.length === 0) return 0; // no submissions to grade
-
-            const gradedSubmissionCount = groupSubmissions.reduce(
-              (count, submission) => {
-                return submission.graded ? count + 1 : count;
-              },
-              0, // initial value for counter
-            );
-
-            return Math.floor(
-              (gradedSubmissionCount / groupSubmissions.length) * 100,
-            );
-          };
+          const progress = useMemo(() => {
+            if (!groupSubmissions || groupSubmissions.length === 0) return 0;
+            const gradedCount = groupSubmissions.filter(isGraded).length;
+            return Math.floor((gradedCount / groupSubmissions.length) * 100);
+          }, [groupSubmissions, savedGrades]);
           return (
-            <GradingProvider>
+            <GradingProvider key={`${groupName}}`}>
               <GroupSubmissions
-                key={`${groupName}}`}
                 groupName={groupName}
-                progress={calculateGradingProgress()}
+                progress={progress}
                 submissions={groupSubmissions}
                 fetchSubmissions={fetchSubmissions}
                 setSavedGrades={setSavedGrades}
