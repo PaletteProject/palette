@@ -13,30 +13,13 @@
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "allowImportingTsExtensions": true,
-    "lib": [
-      "dom",
-      "ESNext"
-    ],
-    "types": [
-      "node",
-      "react",
-      "vite/client",
-      "vitest"
-    ],
+    "lib": ["dom", "ESNext"],
+    "types": ["node", "react", "vite/client", "vitest"],
     "resolveJsonModule": true,
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "src",
-    "vite.config.ts",
-    "**/*.test.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src", "vite.config.ts", "**/*.test.ts"],
+  "exclude": ["node_modules", "dist"]
 }
