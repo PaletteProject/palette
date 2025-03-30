@@ -27,27 +27,6 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "@utils": [
-        "src/utils"
-      ],
-      "@components": [
-        "src/components"
-      ],
-      "@features": [
-        "src/features"
-      ],
-      "@context": [
-        "src/context"
-      ],
-      "@hooks": [
-        "src/hooks"
-      ],
-      "@resources": [
-        "src/resources"
-      ],
-      "@local_types": [
-        "src/types"
       ]
     }
   },
