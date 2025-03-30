@@ -5,7 +5,7 @@
 import { Criteria } from "./Criteria";
 
 export interface Rubric {
-  id: string;
+  id: number;
   title: string;
   pointsPossible: number;
   key: string; // unique id for react

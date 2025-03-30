@@ -78,20 +78,17 @@ export function SubmissionsDashboard({
     });
   };
 
-  // todo: keep working the progress bug - need to look at the data structures more closely.
   const isGraded = (submission: Submission) => {
-    if (!submission) return false;
+    if (!submission) return false; // skip empty entries
 
-    const local = savedGrades[submission.user.id];
-    const rubric = local?.rubric_assessment || submission.rubricAssessment;
+    console.log(`submission to eval : ${submission.user.name}`, submission);
+
+    const rubric = submission.rubricAssessment; // fallback to canvas data
 
     if (!rubric) return false;
 
     return Object.values(rubric).every(
-      (entry) =>
-        entry &&
-        typeof entry.points === "number" &&
-        !Number.isNaN(entry.points),
+      (entry) => entry && entry.points >= 0 && !Number.isNaN(entry.points),
     );
   };
 

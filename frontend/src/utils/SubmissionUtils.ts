@@ -47,6 +47,7 @@ export const calculateGroupAverage = (
   return validSubmissionCount > 0 ? totalPoints / validSubmissionCount : 0;
 };
 
+// helper function for calculating the initial group avg based on canvas data
 export const calculateCanvasGroupAverage = (
   submissions: Submission[],
 ): number => {
@@ -54,8 +55,6 @@ export const calculateCanvasGroupAverage = (
 
   let totalPoints = 0;
   let totalCount = 0;
-
-  console.log("submissions", submissions);
 
   submissions.forEach((submission) => {
     if (submission.rubricAssessment) {

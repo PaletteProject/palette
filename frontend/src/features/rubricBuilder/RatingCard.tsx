@@ -109,7 +109,7 @@ export function RatingCard({
             placeholder={"Enter a title..."}
             value={tempTitle}
             type="text"
-            className={"p-2 text-black"}
+            className={"p-2 text-black bg-gray-300"}
             onChange={handleTitleChange}
           />
         </div>
@@ -119,7 +119,7 @@ export function RatingCard({
             value={tempDescription}
             placeholder={"Enter a description..."}
             onChange={handleDescriptionChange}
-            className={"text-black p-2 resize-none"}
+            className={"text-black p-2 resize-none bg-gray-300"}
             cols={60}
             rows={4}
           />
@@ -153,7 +153,7 @@ export function RatingCard({
       <div className={"flex gap-2 relative items-center"}>
         <input
           type={"number"}
-          className={"px-3 w-16 rounded-full text-black"}
+          className={"px-3 w-16 rounded-full text-black  bg-gray-300"}
           value={points}
           onChange={handlePointChange}
           min={0}

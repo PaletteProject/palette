@@ -283,7 +283,7 @@ export function RubricForm({
 
       <textarea
         placeholder="Rubric title"
-        className="rounded p-3 mb-4 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-xl"
+        className="bg-gray-300 rounded p-3 mb-4 hover:bg-gray-200 focus:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800 w-full max-w-full text-xl"
         name="rubricTitle"
         id="rubricTitle"
         value={activeRubric.title}

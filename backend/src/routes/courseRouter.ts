@@ -6,7 +6,7 @@ import rubricValidator from "../validators/rubricValidator.js";
 import {
   assignmentParamValidator,
   courseParamValidator,
-  idAndCourseParamValidator,
+  rubricIdParamValidator,
 } from "../validators/paramValidators.js";
 
 import {
@@ -173,7 +173,8 @@ courseRouter.post(
  */
 courseRouter.get(
   "/:course_id/rubrics/:rubric_id",
-  idAndCourseParamValidator,
+  courseParamValidator,
+  rubricIdParamValidator,
   validationErrorHandler,
   getRubric,
 );
@@ -294,7 +295,7 @@ courseRouter.get("/", getAllCourses);
  */
 courseRouter.put(
   "/:course_id/rubrics/:rubric_id/:assignment_id",
-  idAndCourseParamValidator,
+  courseParamValidator,
   assignmentParamValidator,
   rubricValidator,
   validationErrorHandler,
@@ -330,7 +331,7 @@ courseRouter.put(
  */
 courseRouter.delete(
   "/:course_id/rubrics/:rubric_id",
-  idAndCourseParamValidator,
+  rubricIdParamValidator,
   validationErrorHandler,
   handleDeleteRubric,
 );
