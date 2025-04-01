@@ -133,7 +133,7 @@ export function GradingMain(): ReactElement {
     if (!loading && activeCourse && activeAssignment) {
       return (
         <>
-          <div className="flex gap-4 items-center my-4 p-2">
+          <div className="flex gap-4 items-center mt-2 p-2">
             <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg cursor-pointer">
               Upload Grades CSV
               {/*todo: use a callback hook here instead w/ palette action button */}

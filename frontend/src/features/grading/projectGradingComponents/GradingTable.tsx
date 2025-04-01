@@ -5,15 +5,7 @@ import {
   SubmissionComment,
 } from "palette-types";
 import { StudentHeaderControls } from "./StudentHeaderControls.tsx";
-import { ExistingCriteriaComments } from "./ExistingCriteriaComments.tsx";
-import { CriterionHeaderControls } from "./CriterionHeaderControls.tsx";
-import {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useState,
-} from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useEffect } from "react";
 import { useGradingContext, useRubric } from "@/context";
 import { TableRatingOptions } from "./TableRatingOptions.tsx";
 
@@ -34,12 +26,6 @@ export function GradingTable({
   existingIndividualFeedback,
   setSavedGrades,
 }: GradingTableProps) {
-  const [activeCriterion, setActiveCriterion] = useState<string | null>(null);
-  const [showExistingCriterionComment, setShowExistingCriterionComment] =
-    useState<boolean>(false);
-  const [showCriterionCommentTextArea, setShowCriterionCommentTextArea] =
-    useState<boolean>(false);
-
   const { gradedSubmissionCache, updateScore } = useGradingContext();
   const { activeRubric } = useRubric();
 
@@ -82,32 +68,9 @@ export function GradingTable({
             <tr key={criterion.id}>
               <td className="border border-gray-500 px-4 py-2">
                 <div className="flex justify-between items-center gap-6">
-                  <p className="flex-1">{criterion.description}</p>
-                  {showExistingCriterionComment &&
-                    activeCriterion === criterion.id && (
-                      <ExistingCriteriaComments
-                        criterionId={criterion.id}
-                        submissions={submissions}
-                        showExistingCriterionComment={
-                          showExistingCriterionComment
-                        }
-                      />
-                    )}
+                  <p className="flex-1 truncate">{criterion.description}</p>
 
                   <TableRatingOptions criterion={criterion} />
-                  <CriterionHeaderControls
-                    activeCriterion={activeCriterion}
-                    setActiveCriterion={setActiveCriterion}
-                    criterion={criterion}
-                    setShowCriterionCommentTextArea={
-                      setShowCriterionCommentTextArea
-                    }
-                    setShowExistingCriterionComment={
-                      setShowExistingCriterionComment
-                    }
-                    showExistingCriterionComment={showExistingCriterionComment}
-                    showCriterionCommentTextArea={showCriterionCommentTextArea}
-                  />
                 </div>
               </td>
               {submissions.map((submission: Submission) => {

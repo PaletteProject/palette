@@ -8,6 +8,7 @@ import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@/components";
 import { useAssignment, useChoiceDialog, useCourse } from "@/context";
 import { GradingProvider } from "@/context/GradingContext.tsx";
+import { cn } from "@/lib/utils.ts";
 
 type SubmissionDashboardProps = {
   submissions: GroupedSubmissions;
@@ -108,10 +109,10 @@ export function SubmissionsDashboard({
       </div>
 
       <div
-        className={
-          "grid gap-4 px-8 max-w-screen-lg " +
-          "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-        }
+        className={cn(
+          "grid gap-4 px-8 max-w-screen-lg",
+          "grid-cols-1 sm:grid-cols-2 md:grid-cols-3",
+        )}
       >
         {Object.entries(submissions).map(([groupName, groupSubmissions]) => {
           const progress = useMemo(() => {

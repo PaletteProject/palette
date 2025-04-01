@@ -6,6 +6,7 @@ import { useRubric } from "@/context";
 import { ProjectGradingView } from "./projectGradingComponents/ProjectGradingView.tsx";
 import { useGradingContext } from "@/context/GradingContext.tsx";
 import { calculateCanvasGroupAverage, calculateGroupAverage } from "@/utils";
+import { cn } from "@/lib/utils.ts";
 
 interface GroupSubmissionsProps {
   groupName: string;
@@ -67,7 +68,13 @@ export function GroupSubmissions({
 
   return (
     <div className="w-full">
-      <div className="flex flex-col gap-2 p-4 border-2 rounded-2xl border-gray-500 shadow-xl bg-gray-900 border-opacity-35">
+      <div
+        className={cn(
+          "flex flex-col gap-2 p-4 border-2 rounded-2xl",
+          "border - gray - 500 shadow-xl bg-gray-900",
+          "border-opacity-35",
+        )}
+      >
         {/* Group Header */}
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-lg font-bold">{groupName}</h1>
