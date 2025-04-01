@@ -109,7 +109,7 @@ export function SubmissionsDashboard({
 
       <div
         className={
-          "grid gap-4 px-8 m-auto max-w-screen-lg " +
+          "grid gap-4 px-8 max-w-screen-lg " +
           "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
         }
       >
