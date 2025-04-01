@@ -9,6 +9,7 @@ import {
   MainPageTemplate,
   NoAssignmentSelected,
   NoCourseSelected,
+  PaletteActionButton,
 } from "@/components";
 
 import { SubmissionsDashboard } from "@/features";
@@ -133,9 +134,10 @@ export function GradingMain(): ReactElement {
     if (!loading && activeCourse && activeAssignment) {
       return (
         <>
-          <div className="flex gap-4 items-center mb-4">
-            <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded cursor-pointer">
+          <div className="flex gap-4 items-center my-4 p-2">
+            <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg cursor-pointer">
               Upload Grades CSV
+              {/*todo: use a callback hook here instead w/ palette action button */}
               <input
                 type="file"
                 accept=".csv"
@@ -144,12 +146,11 @@ export function GradingMain(): ReactElement {
               />
             </label>
 
-            <button
-              className="bg-green-500 text-white font-bold py-2 px-4 rounded"
+            <PaletteActionButton
+              color={"GREEN"}
               onClick={handleExportAllGroups}
-            >
-              Export All Groups to CSV
-            </button>
+              title={"Export Groups to CSV"}
+            />
           </div>
           <SubmissionsDashboard
             submissions={submissions}
