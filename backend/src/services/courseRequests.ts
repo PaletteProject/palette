@@ -38,7 +38,6 @@ async function getAllCourses() {
   let canvasCourses: CanvasCourse[] = [];
   let page = 1;
   let fetchedCourses: CanvasCourse[];
-
   const userSettings = SettingsAPI.getUserSettings();
   const courseFilters = userSettings.course_filters;
 
@@ -49,11 +48,11 @@ async function getAllCourses() {
 
       if (!isNaN(parseInt(filter.option))) {
         yearThreshold = year;
-        console.log("year");
-        console.log(year);
-        console.log(filter.option);
-        console.log("yearThreshold");
-        console.log(yearThreshold);
+        // console.log("year");
+        // console.log(year);
+        // console.log(filter.option);
+        // console.log("yearThreshold");
+        // console.log(yearThreshold);
       } else if (courseCodes.includes(filter.option)) {
         courseCode = filter.option;
       } else if (filter.param_code === "course_format") {
@@ -83,16 +82,19 @@ async function getAllAssignments(courseId: string) {
   let canvasAssignments: CanvasAssignment[] = [];
   let page = 1;
   let fetchedAssignments: CanvasAssignment[];
+  console.log("GETTING ALL ASSIGNMENTS");
+  const userSettings = SettingsAPI.getUserSettings();
+  const assignmentFilters = userSettings.assignment_filters;
 
   do {
     fetchedAssignments = await fetchAPI<CanvasAssignment[]>(
-      `/courses/${courseId}/assignments?per_page=${RESULTS_PER_PAGE}&page=${page}`,
+      `/courses/${courseId}/assignments?per_page=${RESULTS_PER_PAGE}&page=${page}&include[]=all_dates&include[]=assignment_visibility&include[]=`,
     );
     canvasAssignments = canvasAssignments.concat(fetchedAssignments);
     page++;
   } while (fetchedAssignments.length === RESULTS_PER_PAGE);
 
-  return canvasAssignments;
+  return { canvasAssignments, assignmentFilters };
 }
 
 /**
@@ -154,8 +156,8 @@ async function getAllSubmissions(courseId: string, assignmentId: string) {
     );
     canvasSubmissions = canvasSubmissions.concat(fetchedSubmissions);
     page++;
-    console.log("HEY");
-    console.log(fetchedSubmissions);
+    // console.log("fetchedSubmissions");
+    // console.log(fetchedSubmissions);
   } while (fetchedSubmissions.length === RESULTS_PER_PAGE);
 
   return canvasSubmissions;
@@ -171,7 +173,7 @@ function filterCourses(
 ): CanvasCourse[] {
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-  console.log(oneYearAgo);
+  // console.log(oneYearAgo);
 
   console.log("courseFilters");
   console.log(courseFilters);
@@ -196,10 +198,10 @@ function filterCourses(
     filteredCourses = filteredCourses.filter((course) => {
       const startDate =
         course.start_at === null ? new Date() : new Date(course.start_at);
-      console.log("startDate");
-      console.log(startDate);
-      console.log("yearThreshold");
-      console.log(yearThreshold);
+      // console.log("startDate");
+      // console.log(startDate);
+      // console.log("yearThreshold");
+      // console.log(yearThreshold);
       return startDate ? startDate >= yearThreshold : false;
     });
   }
@@ -252,6 +254,70 @@ function filterCourses(
 }
 
 /**
+ * Helper to filter assignments by enrollment type and start date (for now).
+ * @param canvasAssignments
+ * @param assignmentFilters
+ * @returns filtered assignments
+ */
+function filterAssignments(
+  canvasAssignments: CanvasAssignment[],
+  assignmentFilters: { id: string; option: string; param_code: string }[],
+): CanvasAssignment[] {
+  console.log("assignmentFilters");
+  console.log(assignmentFilters);
+
+  // Step 1: Filter by name
+  const searchQuery = assignmentFilters.find(
+    (filter) => filter.param_code === "name",
+  )?.option;
+
+  // By default, give the user the published assignments
+  let filteredAssignments = canvasAssignments.filter((assignment) => {
+    return assignment.published === true;
+  });
+
+  // Filter by name
+  if (searchQuery && searchQuery !== "") {
+    filteredAssignments = canvasAssignments.filter((assignment) => {
+      return assignment.name.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+    return filteredAssignments; // leave the function early
+  }
+
+  // console.log("Step 1: Filter by name");
+  // console.log(filteredAssignments);
+
+  // Filter by due date
+
+  const monthFilter = assignmentFilters.find(
+    (filter) => filter.param_code === "due_at",
+  );
+
+  if (monthFilter) {
+    filteredAssignments = filteredAssignments.filter((assignment) => {
+      const dueDate = assignment.due_at ? new Date(assignment.due_at) : null;
+      const monthWindow = new Date(monthFilter.option);
+      console.log("dueAt:        ", dueDate);
+      console.log("userMonth:    ", monthWindow);
+
+      console.log("--------------------------------");
+      return (
+        dueDate !== null &&
+        dueDate.getMonth() === monthWindow.getMonth() &&
+        dueDate.getFullYear() === monthWindow.getFullYear()
+      );
+    });
+  }
+
+  // console.log("Step 2: Filter by created at");
+  // console.log(filteredAssignments);
+
+  return filteredAssignments;
+}
+
+/**
+ * Helper for handling assignment pagination from the Canvas API.
+/**
  * Defines CRUD operations for courses from the Canvas API.
  */
 export const CoursesAPI = {
@@ -272,8 +338,14 @@ export const CoursesAPI = {
     if (!courseId) {
       throw new Error("Course ID is undefined");
     }
-    const canvasAssignments = await getAllAssignments(courseId);
-    return canvasAssignments.map(mapToPaletteAssignment);
+    const { canvasAssignments, assignmentFilters } =
+      await getAllAssignments(courseId);
+
+    const filteredAssignments = filterAssignments(
+      canvasAssignments,
+      assignmentFilters ?? [],
+    );
+    return filteredAssignments.map(mapToPaletteAssignment);
   },
 
   async getAssignment(

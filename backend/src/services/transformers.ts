@@ -61,6 +61,7 @@ export function mapToPaletteAssignment(
       canvasAssignment.rubric && canvasAssignment.rubric_settings
         ? canvasAssignment.rubric_settings.id
         : undefined,
+    createdAt: canvasAssignment.created_at || "",
   };
 }
 

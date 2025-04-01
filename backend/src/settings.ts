@@ -20,6 +20,9 @@ export const defaultSettings: Settings = {
     defaultScale: 1,
   },
   course_filters: [],
+  course_filter_presets: [],
+  assignment_filters: [],
+  assignment_filter_presets: [],
 } as const;
 
 // the settings object
@@ -52,9 +55,6 @@ export const SettingsAPI = {
         token: settings!.token,
       } as Settings;
     }
-
-    console.log("SETTINGS");
-    console.log(settings);
 
     return settings as Settings;
   },
@@ -114,6 +114,40 @@ export const SettingsAPI = {
     // Write the updated settings object to the settings file
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
   },
+
+  updateUserAssignmentFilters(
+    assignmentFilters: { id: string; option: string; param_code: string }[],
+  ): void {
+    if (settings === null) {
+      initializeSettings();
+    }
+
+    // Update the assignment filters in the settings object
+    settings!.assignment_filters = assignmentFilters;
+
+    // Write the updated settings object to the settings file
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+  },
+
+  updateUserAssignmentFilterPresets(
+    presets: {
+      name: string;
+      id: string;
+      filters: { option: string; param_code: string }[];
+    }[],
+  ): void {
+    if (settings === null) {
+      initializeSettings();
+    }
+
+    // Update the assignment filter presets in the settings object
+    settings!.assignment_filter_presets = presets.map((preset) => ({
+      ...preset,
+    }));
+
+    // Write the updated settings object to the settings file
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+  },
 };
 
 /**
@@ -163,6 +197,13 @@ function mergeSettings(target: Partial<Settings>): Settings {
         defaultSettings.preferences.defaultScale,
     },
     course_filters: target.course_filters ?? defaultSettings.course_filters,
+    course_filter_presets:
+      target.course_filter_presets ?? defaultSettings.course_filter_presets,
+    assignment_filters:
+      target.assignment_filters ?? defaultSettings.assignment_filters,
+    assignment_filter_presets:
+      target.assignment_filter_presets ??
+      defaultSettings.assignment_filter_presets,
   };
 }
 

@@ -11,10 +11,14 @@ import { useCourse } from "../../context/CourseProvider.tsx";
 import { PaletteActionButton } from "../buttons/PaletteActionButton.tsx";
 import { PaletteTrash } from "../buttons/PaletteTrash.tsx";
 import { LoadingDots } from "../LoadingDots.tsx";
-import { faCog } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronDown,
+  faChevronUp,
+  faCog,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useChoiceDialog } from "@context";
-
+import { PaletteTable } from "../buttons/PaletteTable.tsx";
 import { v4 as uuidv4 } from "uuid";
 import { ChoiceDialog } from "../modals/ChoiceDialog.tsx";
 export function CourseSelectionMenu({
@@ -35,6 +39,7 @@ export function CourseSelectionMenu({
   const [presetName, setPresetName] = useState<string>("");
   const { setActiveCourse } = useCourse();
   const { openDialog, closeDialog } = useChoiceDialog();
+  const [isPresetsExpanded, setIsPresetsExpanded] = useState<boolean>(false);
   const [selectedFilters, setSelectedFilters] = useState<
     { option: string; param_code: string }[]
   >([]);
@@ -129,8 +134,6 @@ export function CourseSelectionMenu({
   }, [selectedFilters]);
 
   useEffect(() => {
-    console.log("courseFilterPresets:", courseFilterPresets);
-    console.log("deletedPreset:", deletedPreset);
     if (courseFilterPresets.length > 0 || deletedPreset) {
       void updateUserCourseFilterPresets();
     }
@@ -173,14 +176,12 @@ export function CourseSelectionMenu({
   const renderCourses = () => {
     return (
       <div>
-        <div className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row gap-2">
           <h2 className="text-gray-400 mb-2">Courses</h2>
           {!showFilterTable && (
-            <FontAwesomeIcon
-              icon={faCog}
-              className="cursor-pointer text-gray-400 text-md"
+            <PaletteTable
               onClick={() => setShowFilterTable(!showFilterTable)}
-              title="Create Custom Filter"
+              focused={showFilterTable}
             />
           )}
         </div>
@@ -253,82 +254,101 @@ export function CourseSelectionMenu({
     setStagedFilters(newStagedFilters);
   };
 
-  const renderPresetFilters = () => {
+  const renderPresetSection = () => {
     return (
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-row gap-2 items-center">
-          <h2 className="text-gray-400 text-md">Saved Presets</h2>
-          {courseFilterPresets.length > 0 && (
-            <FontAwesomeIcon
-              icon={faCog}
-              className="cursor-pointer text-gray-400 text-md"
-              onClick={() => {
-                setShowPresetDeleteButtons(!showPresetDeleteButtons);
-              }}
-            />
-          )}
-        </div>
-        <hr className="w-full border-gray-500" />
-        <div className="flex flex-col gap-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
-          {courseFilterPresets.length === 0 && (
-            <div className="text-gray-300 font-normal">
-              No saved presets available
+      <>
+        <hr className="w-full border-gray-500 mt-2 mb-2 border-2" />
+        <div className="flex flex-col gap-2 bg-gray-800 rounded-lg">
+          <div
+            onClick={() => setIsPresetsExpanded(!isPresetsExpanded)}
+            className="flex justify-between items-center px-3 mt-2 mb-2 rounded-lg"
+          >
+            <div className="flex flex-row gap-2 items-center hover:bg-gray-700 cursor-pointer rounded-lg px-2">
+              <span className="font-bold">
+                Saved Presets ({courseFilterPresets.length})
+              </span>
+              <FontAwesomeIcon
+                icon={isPresetsExpanded ? faChevronUp : faChevronDown}
+                className="text-gray-400"
+              />
+              {courseFilterPresets.length > 0 && isPresetsExpanded && (
+                <FontAwesomeIcon
+                  icon={faCog}
+                  className="cursor-pointer text-gray-400 text-md ml-2"
+                  onClick={(e: MouseEvent) => {
+                    e.stopPropagation();
+                    setShowPresetDeleteButtons(!showPresetDeleteButtons);
+                  }}
+                />
+              )}
             </div>
-          )}
-          {courseFilterPresets.map((preset) => (
-            <div
-              key={preset.name || "preset-" + Math.random()}
-              className="flex flex-col items-center justify-between w-full"
-            >
-              <button
-                onClick={() => {
-                  setSelectedFilters(preset.filters);
-                }}
-                title={preset.name || "Untitled"}
-                className="bg-gray-600 w-full hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full font-bold text-lg relative"
-              >
-                <div className="flex flex-row items-center w-full">
-                  {showPresetDeleteButtons && (
-                    <div className="ml-4 mt-1">
-                      <PaletteTrash
-                        title={"Delete Preset"}
-                        onClick={() => {
-                          setCourseFilterPresets(
-                            courseFilterPresets.filter(
-                              (p) => p.id !== preset.id,
-                            ),
-                          );
-                          setDeletedPreset(true);
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-4 flex-1 mt-1">
-                    {preDefinedFilters.map((preDefinedFilter) => {
-                      const matchingFilter = preset.filters.find(
-                        (f) => f.param_code === preDefinedFilter.param_code,
-                      );
-                      return (
-                        <p
-                          key={preDefinedFilter.value}
-                          className={`text-center ${
-                            matchingFilter?.option
-                              ? "text-white"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          {matchingFilter?.option ?? "N/A"}
-                        </p>
-                      );
-                    })}
+          </div>
+          {isPresetsExpanded && (
+            <div className="ml-2 mr-2 mt-2 mb-2">
+              <div className="flex flex-col gap-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800">
+                {courseFilterPresets.length === 0 && (
+                  <div className="text-gray-300 font-normal">
+                    No saved presets available
                   </div>
-                </div>
-              </button>
+                )}
+                {courseFilterPresets.map((preset) => (
+                  <div
+                    key={preset.name || "preset-" + Math.random()}
+                    className="flex flex-col items-center justify-between w-full"
+                  >
+                    <button
+                      onClick={() => {
+                        setSelectedFilters(preset.filters);
+                      }}
+                      title={preset.name || "Untitled"}
+                      className="bg-gray-600 w-full hover:bg-gray-500 px-3 py-1 cursor-pointer rounded-full font-bold text-lg relative"
+                    >
+                      <div className="flex flex-row items-center w-full">
+                        {showPresetDeleteButtons && (
+                          <div className="ml-4 mt-1">
+                            <PaletteTrash
+                              title={"Delete Preset"}
+                              onClick={() => {
+                                setCourseFilterPresets(
+                                  courseFilterPresets.filter(
+                                    (p) => p.id !== preset.id,
+                                  ),
+                                );
+                                setDeletedPreset(true);
+                              }}
+                            />
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-4 flex-1 mt-1">
+                          {preDefinedFilters.map((preDefinedFilter) => {
+                            const matchingFilter = preset.filters.find(
+                              (f) =>
+                                f.param_code === preDefinedFilter.param_code,
+                            );
+                            return (
+                              <p
+                                key={preDefinedFilter.value}
+                                className={`text-center flex items-center justify-center h-full ${
+                                  matchingFilter?.option
+                                    ? "text-white"
+                                    : "text-gray-500"
+                                }`}
+                              >
+                                {matchingFilter?.option ?? "N/A"}
+                              </p>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
+          )}
         </div>
-      </div>
+      </>
     );
   };
 
@@ -412,7 +432,7 @@ export function CourseSelectionMenu({
             settingsFetched &&
             renderCourses()}
         </div>
-        {renderPresetFilters()}
+        {renderPresetSection()}
       </div>
     );
   };
@@ -461,7 +481,6 @@ export function CourseSelectionMenu({
       setCourseFilterPresets([...courseFilterPresets, preset]);
       setStagedFilters([]);
       setPresetName("");
-      void updateUserCourseFilterPresets();
     } else {
       openDialog({
         title: "Duplicate Preset",
