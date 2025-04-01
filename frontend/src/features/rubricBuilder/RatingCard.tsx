@@ -1,7 +1,7 @@
 import React, { ChangeEvent, ReactElement, useEffect, useState } from "react";
 import { Rating } from "palette-types";
 import { motion } from "framer-motion";
-import { Dialog } from "@components";
+import { Dialog, PaletteActionButton } from "@/components";
 
 export function RatingCard({
   ratingIndex,
@@ -109,7 +109,7 @@ export function RatingCard({
             placeholder={"Enter a title..."}
             value={tempTitle}
             type="text"
-            className={"p-2 text-black"}
+            className={"p-2 text-black bg-gray-300"}
             onChange={handleTitleChange}
           />
         </div>
@@ -119,18 +119,18 @@ export function RatingCard({
             value={tempDescription}
             placeholder={"Enter a description..."}
             onChange={handleDescriptionChange}
-            className={"text-black p-2 resize-none"}
+            className={"text-black p-2 resize-none bg-gray-300"}
             cols={60}
             rows={4}
           />
         </div>
         <div className={"flex gap-2 justify-self-end"}>
-          <button type={"button"} onClick={handleMenuClose}>
-            Cancel
-          </button>
-          <button type={"button"} onClick={handleSaveRating}>
-            Save
-          </button>
+          <PaletteActionButton
+            title={"Cancel"}
+            color={"GRAY"}
+            onClick={handleMenuClose}
+          />
+          <PaletteActionButton title={"Save"} onClick={handleSaveRating} />
         </div>
       </div>
     );
@@ -153,7 +153,7 @@ export function RatingCard({
       <div className={"flex gap-2 relative items-center"}>
         <input
           type={"number"}
-          className={"px-3 w-16 rounded-full text-black"}
+          className={"px-3 w-16 rounded-full text-black  bg-gray-300"}
           value={points}
           onChange={handlePointChange}
           min={0}
@@ -187,14 +187,14 @@ export function RatingCard({
           <img
             src={"paint-palette.png"}
             alt={"Edit Rating"}
-            className={"w-6 h-6"}
+            className={"w-6 h-6 cursor-pointer"}
           />
         </button>
         <button
           onClick={handleRemoveRatingPress}
           className={
             "rounded-full h-8 w-8 text-xl font-light relative" +
-            " -right-2 -bottom-2 hover:text-red-500"
+            " -right-2 -bottom-2 hover:text-red-500 cursor-pointer"
           }
           tabIndex={-1} //ensure the remove buttons aren't tabbable
           type={"button"}

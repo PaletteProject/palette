@@ -7,11 +7,12 @@ import React, {
   useState,
 } from "react";
 import { Tag, Template } from "palette-types";
-import { useFetch } from "src/hooks/useFetch";
-import { createTemplate } from "src/utils/templateFactory.ts";
-import { quickStartTemplates } from "./QuickStartTemplates";
-import { useChoiceDialog } from "src/context/DialogContext";
-import { useLocalStorage } from "src/hooks/useLocalStorage";
+import { useFetch } from "@/hooks/useFetch";
+import { createTemplate } from "@/utils/templateFactory.ts";
+
+import { useChoiceDialog } from "@/context/DialogContext";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+
 interface TemplateContextType {
   addingTagFromBuilder: boolean;
   setAddingTagFromBuilder: (addingTagFromBuilder: boolean) => void;
@@ -67,7 +68,6 @@ interface TemplateContextType {
   closeModal: () => void;
   handleRemoveTemplate: (key: string) => void;
   handleUpdateTemplate: (index: number, template: Template) => void;
-  handleQuickStart: () => Promise<void>;
   isNewTemplate: boolean;
   setIsNewTemplate: (isNewTemplate: boolean) => void;
   index: number;
@@ -85,7 +85,6 @@ interface TemplateContextType {
   setAvailableTags: (tags: Tag[]) => void;
   tagModalOpen: boolean;
   setTagModalOpen: (tagModalOpen: boolean) => void;
-  handleBulkCreateTemplates: () => void;
   handleBulkDeleteTemplates: (deletingTemplates: Template[]) => void;
   hasUnsavedChanges: boolean;
   setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
@@ -108,7 +107,6 @@ const TemplatesContext = createContext<TemplateContextType>({
   handleSubmitEditedTemplate: () => {},
   focusedTemplateKey: null,
   setFocusedTemplateKey: () => {},
-  handleQuickStart: () => Promise.resolve(),
   handleDuplicateTemplate: () => {},
   selectedTemplates: [],
   setSelectedTemplates: () => {},
@@ -157,7 +155,6 @@ const TemplatesContext = createContext<TemplateContextType>({
   viewingTemplate: null,
   setViewingTemplate: () => {},
   tagModalOpen: false,
-  handleBulkCreateTemplates: () => {},
   handleBulkDeleteTemplates: () => {},
   hasUnsavedChanges: false,
   setHasUnsavedChanges: () => {},
@@ -231,11 +228,6 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
   const { fetchData: deleteTemplate } = useFetch("/templates", {
     method: "DELETE",
     body: JSON.stringify(deletingTemplate),
-  });
-
-  const { fetchData: addTemplates } = useFetch("/templates/bulk", {
-    method: "POST",
-    body: JSON.stringify(quickStartTemplates),
   });
 
   const closeModal = useCallback(
@@ -327,7 +319,7 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     if (localStorageTemplate !== null) {
       console.log("localTemplate", localTemplate);
       const savedTemplate = JSON.parse(localStorageTemplate) as Template;
-      if (savedTemplate.saved === false) {
+      if (!savedTemplate.saved) {
         openDialog({
           title: "Restore lost template?",
           message:
@@ -389,15 +381,6 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const handleBulkCreateTemplates = async () => {
-    const response = await addTemplates();
-    if (response.success) {
-      setTemplates(response.data as Template[]);
-    } else {
-      console.error("Failed to add templates:", response);
-    }
-  };
-
   const handleBulkDeleteTemplates = async (templatesToDelete: Template[]) => {
     setDeletingTemplates(templatesToDelete);
 
@@ -443,22 +426,6 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
     setTemplates([...templates, copiedTemplate]);
     setIndex(templates.length);
     setIsNewTemplate(true);
-  };
-
-  const handleQuickStart = async () => {
-    setTemplates(quickStartTemplates);
-    const response = await addTemplates();
-    if (response.success) {
-      // Fetch all templates after adding quick start templates
-      const allTemplatesResponse = await getAllTemplates();
-      if (allTemplatesResponse.success) {
-        setTemplates(allTemplatesResponse.data as Template[]);
-      } else {
-        console.error("Failed to fetch templates:", allTemplatesResponse);
-      }
-    } else {
-      console.error("Failed to post templates:", response);
-    }
   };
 
   const handleUpdateTemplate = (index: number, template: Template) => {
@@ -564,7 +531,6 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         closeModal,
         handleRemoveTemplate,
         handleUpdateTemplate,
-        handleQuickStart,
         isNewTemplate,
         setIsNewTemplate,
         index,
@@ -583,7 +549,6 @@ export function TemplateProvider({ children }: { children: ReactNode }) {
         setTagModalOpen,
         addingTagFromBuilder,
         setAddingTagFromBuilder,
-        handleBulkCreateTemplates: () => void handleBulkCreateTemplates(),
         handleBulkDeleteTemplates: (deletingTemplates: Template[]) =>
           void handleBulkDeleteTemplates(deletingTemplates),
         hasUnsavedChanges,

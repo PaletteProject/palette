@@ -5,10 +5,9 @@ import {
   Header,
   LoadingDots,
   PaletteActionButton,
-} from "@components";
-import { useFetch } from "@hooks";
-import { useChoiceDialog } from "../../context/DialogContext.tsx";
-import { useSettings } from "../../context/SettingsContext.tsx";
+} from "@/components";
+import { useFetch } from "@/hooks";
+import { useChoiceDialog, useSettings } from "@/context";
 
 export function SettingsMain(): ReactElement {
   const { settings, setSettings, error } = useSettings();

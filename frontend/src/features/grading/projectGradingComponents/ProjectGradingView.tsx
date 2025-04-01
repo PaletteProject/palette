@@ -14,13 +14,11 @@ import {
   PaletteActionButton,
   PaletteBrush,
   PaletteEye,
-} from "@components";
-import { useChoiceDialog } from "../../../context/DialogContext.tsx";
+} from "@/components";
+import { useChoiceDialog, useGradingContext, useRubric } from "@/context";
 import { GroupFeedback } from "./GroupFeedback.tsx";
 import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
 import { GradingTable } from "./GradingTable.tsx";
-import { useGradingContext } from "../../../context/GradingContext.tsx";
-import { useRubric } from "@context";
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -41,6 +39,12 @@ export function ProjectGradingView({
   savedGrades,
   setSavedGrades,
 }: ProjectGradingViewProps) {
+  const { closeDialog } = useChoiceDialog();
+  const { activeRubric } = useRubric();
+
+  const { setGradedSubmissionCache, gradedSubmissionCache } =
+    useGradingContext();
+
   if (!isOpen) {
     return null;
   }
@@ -61,12 +65,6 @@ export function ProjectGradingView({
 
   const [showGroupFeedbackTextArea, setShowGroupFeedbackTextArea] =
     useState<boolean>(false);
-
-  const { closeDialog } = useChoiceDialog();
-  const { activeRubric } = useRubric();
-
-  const { setGradedSubmissionCache, gradedSubmissionCache } =
-    useGradingContext();
 
   /**
    * Initialize project grading view.
@@ -89,7 +87,7 @@ export function ProjectGradingView({
 
             rating_id: savedCriterion?.rating_id ?? canvasData?.rating_id ?? "",
 
-            comments: savedCriterion?.comments ?? "", // You could pull from Canvas too if needed
+            comments: savedCriterion?.comments ?? "",
           };
         });
 
@@ -99,7 +97,7 @@ export function ProjectGradingView({
           individual_comment: saved?.individual_comment ?? undefined,
           group_comment: saved?.group_comment ?? undefined,
           rubric_assessment,
-        };
+        } as PaletteGradedSubmission;
       });
 
       setGradedSubmissionCache(initialCache);
@@ -159,6 +157,9 @@ export function ProjectGradingView({
   };
 
   const renderGradingPopup = () => {
+    const portalRoot = document.getElementById("portal-root");
+    if (!portalRoot) return null;
+
     return createPortal(
       <div
         className={
@@ -210,7 +211,7 @@ export function ProjectGradingView({
           </div>
         </div>
       </div>,
-      document.getElementById("portal-root") as HTMLElement,
+      portalRoot,
     );
   };
 

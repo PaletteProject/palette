@@ -1,4 +1,5 @@
 import { SubmissionComment } from "./SubmissionComment";
+import { RubricAssessment } from "./RubricAssessment";
 
 /**
  * Defines the Submission type for use within the Palette application.
@@ -16,13 +17,7 @@ export interface Submission {
     name: string;
   };
   comments: SubmissionComment[];
-  rubricAssessment: {
-    [criterion_id: string]: {
-      rating_id: string;
-      comments: string;
-      points: number;
-    };
-  };
+  rubricAssessment: RubricAssessment;
   graded: boolean;
   gradedBy: number; // grader ID
   workflowState: "submitted" | "unsubmitted" | "graded" | "pending_review"; // submission status provided by Canvas

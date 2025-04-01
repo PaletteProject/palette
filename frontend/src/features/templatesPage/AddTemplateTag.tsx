@@ -1,13 +1,13 @@
-import { useFetch } from "@hooks";
+import { useFetch } from "@/hooks";
 import { useTemplatesContext } from "./TemplateContext";
-import TemplateTagCreator from "src/features/templatesPage/TemplateTagCreator";
+import TemplateTagCreator from "@/features/templatesPage/TemplateTagCreator";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { Tag } from "palette-types";
-import { Dialog } from "../../components/modals/Dialog.tsx";
+import { Dialog } from "@/components/modals/Dialog.tsx";
 import AllTags from "./AllTags";
-import { createTemplate } from "../../utils/templateFactory.ts";
+import { createTemplate } from "@/utils/templateFactory.ts";
 
 const AddTemplateTag = () => {
   const {

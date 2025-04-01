@@ -5,8 +5,6 @@ import {
   SubmissionComment,
 } from "palette-types";
 import { StudentHeaderControls } from "./StudentHeaderControls.tsx";
-import { ExistingCriteriaComments } from "./ExistingCriteriaComments.tsx";
-import { CriterionHeaderControls } from "./CriterionHeaderControls.tsx";
 import {
   ChangeEvent,
   Dispatch,
@@ -14,9 +12,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useGradingContext } from "../../../context/GradingContext.tsx";
-import { TableRatingOptions } from "./TableRatingOptions.tsx";
-import { useRubric } from "@context";
+import { useGradingContext, useRubric } from "@/context";
 
 interface GradingTableProps {
   submissions: Submission[];
@@ -35,14 +31,27 @@ export function GradingTable({
   existingIndividualFeedback,
   setSavedGrades,
 }: GradingTableProps) {
-  const [activeCriterion, setActiveCriterion] = useState<string | null>(null);
-  const [showExistingCriterionComment, setShowExistingCriterionComment] =
-    useState<boolean>(false);
-  const [showCriterionCommentTextArea, setShowCriterionCommentTextArea] =
-    useState<boolean>(false);
-
   const { gradedSubmissionCache, updateScore } = useGradingContext();
   const { activeRubric } = useRubric();
+
+  // locally track which criteria are group criterion
+  const [groupCriteriaMap, setGroupCriteriaMap] = useState<
+    Map<string, boolean>
+  >(() => {
+    const initial = new Map<string, boolean>();
+    activeRubric.criteria.forEach((criterion) =>
+      initial.set(criterion.id, criterion.isGroupCriterion),
+    );
+    return initial;
+  });
+
+  const toggleGroupCriterion = (id: string) => {
+    setGroupCriteriaMap((prev) => {
+      const newMap = new Map(prev); // copy existing map to ensure we update state
+      newMap.set(id, !prev.get(id)); // update target entry with flipped value
+      return newMap;
+    });
+  };
 
   const getBackgroundColor = (
     value: number | string,
@@ -59,14 +68,16 @@ export function GradingTable({
 
   return (
     <div className="overflow-auto max-h-[70vh] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 relative">
-      <table className="w-full table-auto border-collapse border border-gray-500 text-left">
+      <table className="w-full table-fixed border-collapse border border-gray-500 text-left">
         <thead>
           <tr className="sticky top-0 bg-gray-500">
-            <th className="border border-gray-500 px-4 py-2">Criteria</th>
+            <th className="w-auto border border-gray-500 px-4 py-2 truncate">
+              Criteria
+            </th>
             {submissions.map((submission: Submission) => (
               <th
                 key={submission.id}
-                className="border border-gray-500 px-4 py-2"
+                className="border border-gray-500 px-4 py-2 w-auto"
               >
                 <StudentHeaderControls
                   submission={submission}
@@ -81,35 +92,21 @@ export function GradingTable({
         <tbody>
           {activeRubric.criteria.map((criterion: Criteria) => (
             <tr key={criterion.id}>
-              <td className="border border-gray-500 px-4 py-2">
-                <div className="flex justify-between items-center gap-6">
-                  <p className="flex-1">{criterion.description}</p>
-                  {showExistingCriterionComment &&
-                    activeCriterion === criterion.id && (
-                      <ExistingCriteriaComments
-                        criterionId={criterion.id}
-                        submissions={submissions}
-                        showExistingCriterionComment={
-                          showExistingCriterionComment
-                        }
-                      />
-                    )}
+              <td className=" border border-gray-500 px-4 py-2 w-full">
+                <p className="truncate overflow-hidden">
+                  {criterion.description}
+                </p>
 
-                  <TableRatingOptions criterion={criterion} />
-                  <CriterionHeaderControls
-                    activeCriterion={activeCriterion}
-                    setActiveCriterion={setActiveCriterion}
-                    criterion={criterion}
-                    setShowCriterionCommentTextArea={
-                      setShowCriterionCommentTextArea
-                    }
-                    setShowExistingCriterionComment={
-                      setShowExistingCriterionComment
-                    }
-                    showExistingCriterionComment={showExistingCriterionComment}
-                    showCriterionCommentTextArea={showCriterionCommentTextArea}
+                <label className="flex gap-2 text-sm font-medium whitespace-nowrap items-center mt-1">
+                  <p>Apply to Group</p>
+                  <input
+                    type="checkbox"
+                    name={`${criterion.id}-checkbox`}
+                    id={`${criterion.id}-checkbox`}
+                    checked={groupCriteriaMap.get(criterion.id) ?? false}
+                    onChange={() => toggleGroupCriterion(criterion.id)}
                   />
-                </div>
+                </label>
               </td>
               {submissions.map((submission: Submission) => {
                 const submissionId = submission.id;
@@ -128,7 +125,7 @@ export function GradingTable({
 
                   const newPoints = Number(ratingStringValue);
 
-                  if (!criterion.isGroupCriterion) {
+                  if (!groupCriteriaMap.get(criterion.id)) {
                     updateScore(submissionId, criterion.id, newPoints);
                   } else {
                     submissions.forEach((sub) => {
@@ -142,7 +139,7 @@ export function GradingTable({
                   setSavedGrades((existingGrades) => {
                     return {
                       ...existingGrades,
-                      gradedSubmissionCache,
+                      ...gradedSubmissionCache,
                     };
                   });
                 }, [gradedSubmissionCache]);

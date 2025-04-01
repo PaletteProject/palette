@@ -8,12 +8,12 @@ import {
 import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Tag, Template } from "palette-types";
-import { ChoiceDialog, Dialog } from "@components";
-import TemplateTagCreator from "src/features/templatesPage/TemplateTagCreator.tsx";
+import { ChoiceDialog, Dialog } from "@/components";
+import TemplateTagCreator from "@/features/templatesPage/TemplateTagCreator.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 import { PieChart } from "@mui/x-charts/PieChart";
-import { TemplateBuilder } from "src/features/templatesPage/TemplateBuilder.tsx";
-import { useChoiceDialog } from "../../context/DialogContext.tsx";
+import { TemplateBuilder } from "@/features/templatesPage/TemplateBuilder.tsx";
+import { useChoiceDialog } from "@/context/DialogContext.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 

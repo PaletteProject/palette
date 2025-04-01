@@ -1,8 +1,7 @@
 import { MouseEvent, ReactElement, useEffect, useState } from "react";
 import { Assignment, PaletteAPIResponse, Settings } from "palette-types";
-import { useFetch } from "@hooks";
-import { useChoiceDialog, useCourse } from "@context";
-import { useAssignment } from "../../context/AssignmentProvider.tsx";
+import { useFetch } from "@/hooks";
+import { useAssignment, useChoiceDialog, useCourse } from "@/context";
 import { ChoiceDialog } from "../modals/ChoiceDialog.tsx";
 
 import {
@@ -10,15 +9,15 @@ import {
   PaletteActionButton,
   PaletteTable,
   PaletteTrash,
-} from "@components";
+} from "@/components";
 import { v4 as uuidv4 } from "uuid";
 import {
-  faCog,
   faChevronDown,
   faChevronUp,
+  faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getMonthName } from "../../utils/time";
+import { getMonthName } from "@/utils/time";
 
 export function AssignmentSelectionMenu({
   onSelect,
@@ -109,7 +108,6 @@ export function AssignmentSelectionMenu({
 
   useEffect(() => {
     if (selectedFilters.length > 0) {
-      console.log("selectedFilters:", selectedFilters);
       void updateUserAssignmentFilters();
       void fetchAssignments();
       setShowAssignments(true);
@@ -149,9 +147,6 @@ export function AssignmentSelectionMenu({
         param_code: filter.param_code ?? "",
       })),
     };
-
-    // console.log("preset");
-    // console.log(preset);
 
     // Check if an identical preset already exists
     const isDuplicate = assignmentFilterPresets.some((existingPreset) =>
@@ -233,8 +228,6 @@ export function AssignmentSelectionMenu({
       (stagedFilter) => stagedFilter.value === filter.value,
     );
     const stagedFilter = stagedFilters[filterIndex];
-    console.log("filter:", filter);
-    console.log("option:", option);
     // Create a new staged filter object to avoid mutation
     const updatedStagedFilter = {
       label: filter.label,
@@ -244,13 +237,18 @@ export function AssignmentSelectionMenu({
       param_code: filter.param_code,
     };
 
-    let newStagedFilters = [...stagedFilters];
+    let newStagedFilters: {
+      label: string;
+      value: string;
+      options?: string[];
+      selected_option?: string;
+      param_code?: string;
+    }[];
 
     // Return a new array with the updated staged filter
     if (filterIndex === -1) {
       // If the filter is not in the array, add it
       newStagedFilters = [...stagedFilters, updatedStagedFilter];
-      console.log("newStagedFilters:", newStagedFilters);
       setStagedFilters(newStagedFilters);
     } else {
       if (stagedFilter.selected_option === option) {

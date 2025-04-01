@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useTemplatesContext } from "./TemplateContext";
 import { Tag, Template } from "palette-types";
-import { useFetch } from "../../hooks/useFetch";
-import { ChoiceDialog } from "@components";
+import { useFetch } from "@/hooks";
+import { ChoiceDialog } from "@/components";
 import TemplateTagCreator from "./TemplateTagCreator";
-import { useChoiceDialog } from "src/context/DialogContext";
+import { useChoiceDialog } from "@/context";
 
 const AllTags = ({ onSave }: { onSave: () => void }) => {
   const {
@@ -42,6 +42,7 @@ const AllTags = ({ onSave }: { onSave: () => void }) => {
         setTemplates(response.data as Template[]);
       }
     }
+
     updateTemplates()
       .then(() => {
         fetchTemplates()

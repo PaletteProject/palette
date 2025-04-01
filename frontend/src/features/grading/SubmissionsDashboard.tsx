@@ -1,10 +1,14 @@
-import { GroupedSubmissions, PaletteGradedSubmission } from "palette-types";
-import { AssignmentData, GroupSubmissions } from "@features";
-import { Dispatch, SetStateAction, useState } from "react";
-import { ChoiceDialog, PaletteActionButton } from "@components";
-import { useAssignment, useCourse } from "@context";
-import { useChoiceDialog } from "../../context/DialogContext.tsx";
-import { GradingProvider } from "../../context/GradingContext.tsx";
+import {
+  GroupedSubmissions,
+  PaletteGradedSubmission,
+  Submission,
+} from "palette-types";
+import { AssignmentData, GroupSubmissions } from "@/features";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
+import { ChoiceDialog, PaletteActionButton } from "@/components";
+import { useAssignment, useChoiceDialog, useCourse } from "@/context";
+import { GradingProvider } from "@/context/GradingContext.tsx";
+import { cn } from "@/lib/utils.ts";
 
 type SubmissionDashboardProps = {
   submissions: GroupedSubmissions;
@@ -33,17 +37,22 @@ export function SubmissionsDashboard({
    * Submit all graded submissions in the cache
    */
   const submitGrades = async () => {
-    // submit all submissions (group comments are already sent) only individual comments get sent here
-    for (const gradedSubmission of Object.values(savedGrades)) {
-      console.log("test graded sub", gradedSubmission);
-      await fetch(`${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(gradedSubmission),
-      });
-    }
-
     setLoading(true);
+
+    for (const gradedSubmission of Object.values(savedGrades)) {
+      if (gradedSubmission.user?.id) {
+        await fetch(
+          `${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(gradedSubmission),
+          },
+        );
+      }
+    }
+    setLoading(false);
+
     await fetchSubmissions(); // refresh submissions
     setLoading(false);
     setSavedGrades({}); // clear submission cache
@@ -73,6 +82,18 @@ export function SubmissionsDashboard({
     });
   };
 
+  const isGraded = (submission: Submission) => {
+    if (!submission) return false; // skip empty entries
+
+    const rubric = submission.rubricAssessment; // fallback to canvas data
+
+    if (!rubric) return false;
+
+    return Object.values(rubric).every(
+      (entry) => entry && entry.points >= 0 && !Number.isNaN(entry.points),
+    );
+  };
+
   return (
     <div className={"grid justify-start"}>
       <div className={"grid gap-2 mb-4 p-4"}>
@@ -88,32 +109,22 @@ export function SubmissionsDashboard({
       </div>
 
       <div
-        className={
-          "grid gap-4 px-8 m-auto max-w-screen-lg " +
-          "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-        }
+        className={cn(
+          "grid gap-4 px-8 max-w-screen-lg",
+          "grid-cols-1 sm:grid-cols-2 md:grid-cols-3",
+        )}
       >
         {Object.entries(submissions).map(([groupName, groupSubmissions]) => {
-          const calculateGradingProgress = () => {
-            if (groupSubmissions.length === 0) return 0; // no submissions to grade
-
-            const gradedSubmissionCount = groupSubmissions.reduce(
-              (count, submission) => {
-                return submission.graded ? count + 1 : count;
-              },
-              0, // initial value for counter
-            );
-
-            return Math.floor(
-              (gradedSubmissionCount / groupSubmissions.length) * 100,
-            );
-          };
+          const progress = useMemo(() => {
+            if (!groupSubmissions || groupSubmissions.length === 0) return 0;
+            const gradedCount = groupSubmissions.filter(isGraded).length;
+            return Math.floor((gradedCount / groupSubmissions.length) * 100);
+          }, [groupSubmissions, savedGrades]);
           return (
-            <GradingProvider>
+            <GradingProvider key={`${groupName}}`}>
               <GroupSubmissions
-                key={`${groupName}}`}
                 groupName={groupName}
-                progress={calculateGradingProgress()}
+                progress={progress}
                 submissions={groupSubmissions}
                 fetchSubmissions={fetchSubmissions}
                 setSavedGrades={setSavedGrades}

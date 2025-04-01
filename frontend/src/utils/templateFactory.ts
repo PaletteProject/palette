@@ -1,4 +1,4 @@
-import { Template, Criteria, Tag } from "palette-types";
+import { Criteria, Tag, Template } from "palette-types";
 import { v4 as uuid } from "uuid";
 
 export function createTemplate(
@@ -29,5 +29,5 @@ export function createTemplate(
     points,
     quickStart,
     saved: false,
-  };
+  } as Template;
 }

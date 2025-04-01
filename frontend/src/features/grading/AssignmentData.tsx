@@ -1,9 +1,8 @@
 import { useAssignment } from "../../context/AssignmentProvider.tsx";
 import { useNavigate } from "react-router-dom";
 import { MouseEvent, useEffect, useState } from "react";
-import { ChoiceDialog, PaletteActionButton } from "@components";
-import { useChoiceDialog } from "../../context/DialogContext.tsx";
-import { useRubric } from "@context";
+import { ChoiceDialog, PaletteActionButton } from "@/components";
+import { useChoiceDialog, useRubric } from "@/context";
 
 export function AssignmentData() {
   const { activeAssignment } = useAssignment();
@@ -23,7 +22,7 @@ export function AssignmentData() {
 
   useEffect(() => {
     // default rubric in palette will use empty string for id indicating Canvas does not have an active rubric
-    if (activeRubric && activeRubric.id !== "") {
+    if (activeRubric && activeRubric.id) {
       setRubricMessage(messageOptions.present);
     } else {
       setRubricMessage(messageOptions.missing);

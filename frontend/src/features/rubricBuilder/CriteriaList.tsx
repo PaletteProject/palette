@@ -9,7 +9,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import { useRubric } from "@context";
+import { useRubric } from "@/context";
 
 type CriteriaListPropsType = {
   criteria: Criteria[];

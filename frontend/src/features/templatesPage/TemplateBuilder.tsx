@@ -1,21 +1,22 @@
 import { Criteria, Rubric, Template } from "palette-types";
-import { useTemplatesContext } from "src/features/templatesPage/TemplateContext";
+import { useTemplatesContext } from "@/features/templatesPage/TemplateContext";
 import React, {
   MouseEvent as ReactMouseEvent,
-  useState,
   useEffect,
+  useState,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import CriteriaCard from "src/features/rubricBuilder/CriteriaCard";
-import { createCriterion } from "@utils";
-import { ChoiceDialog, Dialog } from "@components";
-import AllTags from "src/features/templatesPage/AllTags";
-import { useChoiceDialog } from "../../context/DialogContext.tsx";
-import { useLocalStorage } from "@hooks";
+import CriteriaCard from "@/features/rubricBuilder/CriteriaCard";
+import { createCriterion } from "@/utils";
+import { ChoiceDialog, Dialog } from "@/components";
+import AllTags from "@/features/templatesPage/AllTags";
+import { useChoiceDialog } from "@/context/DialogContext.tsx";
+import { useLocalStorage } from "@/hooks";
+import { useSettings } from "@/context";
 
 interface TemplateBuilderProps {
   document: Template | Rubric;
@@ -161,10 +162,12 @@ export const TemplateBuilder = ({
     );
   };
 
+  const { settings } = useSettings();
+
   const handleAddCriteria = (event: ReactMouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!document) return;
-    const newCriterion = createCriterion();
+    const newCriterion = createCriterion(settings);
     newCriterion.template = document.key;
     const newCriteria = [...document.criteria, newCriterion];
 

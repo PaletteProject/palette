@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
-import { Footer, Header } from "@components";
+import { Footer, Header } from "@/components";
 import Paint from "./Paint";
 
 function hexToTailwindColor(hex: string): string {
@@ -90,13 +90,13 @@ export function Home(): ReactElement {
         {/* Action Buttons */}
         <div className="flex gap-4">
           <button
-            className={`${hexToTailwindColor(cursorColor)} text-white rounded-lg px-8 py-3 font-semibold hover:opacity-80 transition duration-300 transform hover:scale-105`}
+            className={`${hexToTailwindColor(cursorColor)} text-white cursor-pointer rounded-lg px-8 py-3 font-semibold hover:opacity-80 transition duration-300 transform hover:scale-105`}
             onClick={handleLogin}
           >
             Log In
           </button>
           <button
-            className="bg-gray-600 text-white rounded-lg px-8 py-3 font-semibold hover:bg-gray-500 transition duration-300 transform hover:scale-105"
+            className="bg-gray-600 cursor-pointer text-white rounded-lg px-8 py-3 font-semibold hover:bg-gray-500 transition duration-300 transform hover:scale-105"
             onClick={handleSignUp}
           >
             Sign Up

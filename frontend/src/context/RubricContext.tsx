@@ -8,11 +8,11 @@ import {
   useState,
 } from "react";
 import { PaletteAPIResponse, Rubric } from "palette-types";
-import { useFetch } from "@hooks";
+import { useFetch } from "@/hooks";
 import { useCourse } from "./CourseProvider.tsx";
 import { useAssignment } from "./AssignmentProvider.tsx";
 import { useSettings } from "./SettingsContext.tsx";
-import { createRubric } from "@utils";
+import { createRubric } from "@/utils";
 
 type RubricProviderProps = {
   activeRubric: Rubric;

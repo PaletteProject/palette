@@ -1,4 +1,4 @@
-import { Rating } from "../../../palette-types/src";
+import { Rating } from "palette-types";
 
 /**
  * Helper function to calculate a criterion's max point value when it's pulled in from the backend.

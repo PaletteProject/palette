@@ -1,7 +1,7 @@
 import { ChangeEvent, ReactElement, useEffect, useState } from "react";
 import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
-import { useFetch } from "@hooks";
-import { useAssignment, useCourse, useRubric } from "@context";
+import { useFetch } from "@/hooks";
+import { useAssignment, useCourse, useRubric } from "@/context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
 import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts";
 import {
@@ -9,9 +9,10 @@ import {
   MainPageTemplate,
   NoAssignmentSelected,
   NoCourseSelected,
-} from "@components";
+  PaletteActionButton,
+} from "@/components";
 
-import { SubmissionsDashboard } from "@features";
+import { SubmissionsDashboard } from "@/features";
 
 export function GradingMain(): ReactElement {
   // state
@@ -110,7 +111,7 @@ export function GradingMain(): ReactElement {
     }
     setLoading(true);
     void fetchSubmissions();
-  }, [activeCourse, activeAssignment]);
+  }, [activeCourse, activeAssignment, activeRubric]);
 
   const fetchSubmissions = async () => {
     setLoading(true);
@@ -132,9 +133,10 @@ export function GradingMain(): ReactElement {
     if (!loading && activeCourse && activeAssignment) {
       return (
         <>
-          <div className="flex gap-4 items-center mb-4">
-            <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded cursor-pointer">
+          <div className="flex gap-4 items-center mt-2 p-2">
+            <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg cursor-pointer">
               Upload Grades CSV
+              {/*todo: use a callback hook here instead w/ palette action button */}
               <input
                 type="file"
                 accept=".csv"
@@ -143,12 +145,11 @@ export function GradingMain(): ReactElement {
               />
             </label>
 
-            <button
-              className="bg-green-500 text-white font-bold py-2 px-4 rounded"
+            <PaletteActionButton
+              color={"GREEN"}
               onClick={handleExportAllGroups}
-            >
-              Export All Groups to CSV
-            </button>
+              title={"Export Groups to CSV"}
+            />
           </div>
           <SubmissionsDashboard
             submissions={submissions}

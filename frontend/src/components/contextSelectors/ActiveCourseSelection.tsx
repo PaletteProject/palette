@@ -1,6 +1,6 @@
-import { useCourse } from "@context";
+import { useCourse } from "@/context";
 import { ReactElement } from "react";
-import { ActiveSelectionButton } from "@components";
+import { ActiveSelectionButton } from "@/components";
 
 export function ActiveCourseSelection({
   setDialogOpen,
