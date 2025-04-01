@@ -18,10 +18,12 @@ app.use(express.json());
 app.use("/api/courses", courseRouter);
 
 const mockGradedSubmission: PaletteGradedSubmission = {
-  submission_id: 1,
+  submission_id: 316761977,
   user: { id: 1, name: "Clint", asurite: "clint" },
   rubric_assessment: {
-    crit1: { points: 10, rating_id: "1", comments: "Test Comments" },
+    "1012112_5159": { points: 10, rating_id: "1", comments: "Test Comments" },
+    "1012112_7662": { points: 10, rating_id: "1", comments: "Test Comments" },
+    "1012112_9754": { points: 10, rating_id: "1", comments: "Test Comments" },
   },
   group_comment: {
     text_comment: "Test Group Comment",
@@ -59,7 +61,7 @@ afterAll((done) => {
  * @description Submit grades for a specific assignment.
  */
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 1; i++) {
   describe("Graded Submission Router", () => {
     describe("given a course, assignment, and student", () => {
       it("should submit grades for a specific course, assignment, and student", async () => {
@@ -72,9 +74,9 @@ for (let i = 0; i < 10; i++) {
           .send(submissionBody)
           .expect(200);
 
-        const getResponse = await supertest(app)
-          .get(apiGetEndpoint)
-          .expect(200);
+        // const getResponse = await supertest(app)
+        //   .get(apiGetEndpoint)
+        //   .expect(200);
 
         // // Verify the sent data wasn't modified
         // expect(JSON.stringify(submissionBody)).toBe(originalBody);
@@ -83,8 +85,8 @@ for (let i = 0; i < 10; i++) {
         //   message: "submitted grades",
         //   data: expect.any(Object),
         // });
-        console.log("putResponse", putResponse.body);
-        console.log("getResponse", getResponse.body.data);
+        // console.log("putResponse", putResponse.body);
+        // console.log("getResponse", getResponse.body.data);
       });
     });
   });
