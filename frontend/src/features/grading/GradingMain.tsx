@@ -1,5 +1,9 @@
 import { ChangeEvent, ReactElement, useEffect, useState } from "react";
-import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
+import {
+  GroupedSubmissions,
+  PaletteAPIResponse,
+  PaletteGradedSubmission,
+} from "palette-types";
 import { useFetch } from "@/hooks";
 import { useAssignment, useCourse, useRubric } from "@/context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
@@ -21,6 +25,10 @@ export function GradingMain(): ReactElement {
   });
 
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [savedGrades, setSavedGrades] = useState<
+    Record<number, PaletteGradedSubmission>
+  >({});
 
   // context providers
   const { activeCourse } = useCourse();
@@ -155,6 +163,8 @@ export function GradingMain(): ReactElement {
             submissions={submissions}
             fetchSubmissions={fetchSubmissions}
             setLoading={setLoading}
+            savedGrades={savedGrades}
+            setSavedGrades={setSavedGrades}
           />
         </>
       );

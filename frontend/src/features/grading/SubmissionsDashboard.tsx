@@ -4,7 +4,7 @@ import {
   Submission,
 } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@/features";
-import { Dispatch, SetStateAction, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useMemo } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@/components";
 import { useAssignment, useChoiceDialog, useCourse } from "@/context";
 import { GradingProvider } from "@/context/GradingContext.tsx";
@@ -14,12 +14,18 @@ type SubmissionDashboardProps = {
   submissions: GroupedSubmissions;
   fetchSubmissions: () => Promise<void>;
   setLoading: Dispatch<SetStateAction<boolean>>;
+  savedGrades: Record<number, PaletteGradedSubmission>;
+  setSavedGrades: Dispatch<
+    SetStateAction<Record<number, PaletteGradedSubmission>>
+  >;
 };
 
 export function SubmissionsDashboard({
   submissions,
   fetchSubmissions,
   setLoading,
+  savedGrades,
+  setSavedGrades,
 }: SubmissionDashboardProps) {
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
@@ -28,10 +34,6 @@ export function SubmissionsDashboard({
 
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
-
-  const [savedGrades, setSavedGrades] = useState<
-    Record<number, PaletteGradedSubmission>
-  >({});
 
   /**
    * Submit all graded submissions in the cache
