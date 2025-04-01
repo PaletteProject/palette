@@ -38,9 +38,7 @@ export function SubmissionsDashboard({
   const submitGrades = async () => {
     setLoading(true);
 
-    console.log("all saved grades", savedGrades);
     for (const gradedSubmission of Object.values(savedGrades)) {
-      console.log("sub to grade", gradedSubmission);
       if (gradedSubmission.user?.id) {
         await fetch(
           `${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`,
@@ -85,8 +83,6 @@ export function SubmissionsDashboard({
 
   const isGraded = (submission: Submission) => {
     if (!submission) return false; // skip empty entries
-
-    console.log(`submission to eval : ${submission.user.name}`, submission);
 
     const rubric = submission.rubricAssessment; // fallback to canvas data
 

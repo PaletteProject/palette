@@ -149,7 +149,6 @@ export function CourseSelectionMenu({
       const response = (await getCourses()) as PaletteAPIResponse<Course[]>; // Trigger the GET request
 
       if (response.success) {
-        console.log("response.data:", response.data);
         setCourses(response.data!);
       } else {
         setErrorMessage(response.error || "Failed to get courses");
@@ -230,7 +229,13 @@ export function CourseSelectionMenu({
       param_code: filter.param_code,
     };
 
-    let newStagedFilters = [...stagedFilters];
+    let newStagedFilters: {
+      label: string;
+      value: string;
+      options?: string[];
+      selected_option?: string;
+      param_code?: string;
+    }[];
 
     // Return a new array with the updated staged filter
     if (filterIndex === -1) {

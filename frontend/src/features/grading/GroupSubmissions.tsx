@@ -57,7 +57,6 @@ export function GroupSubmissions({
 
   useEffect(() => {
     // update group avg score whenever cache changes
-    console.log("current cache", gradedSubmissionCache);
     if (Object.values(gradedSubmissionCache).length !== 0) {
       setGroupAverageScore(calculateGroupAverage(gradedSubmissionCache));
     } else {

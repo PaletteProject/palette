@@ -121,7 +121,6 @@ export function GradingMain(): ReactElement {
 
       if (response.success && response.data) {
         setSubmissions(response.data);
-        console.log("subs from canvas", response.data);
       }
     } catch (error) {
       console.error("An error occurred while getting submissions: ", error);
