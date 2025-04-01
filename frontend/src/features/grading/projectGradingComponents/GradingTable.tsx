@@ -5,9 +5,14 @@ import {
   SubmissionComment,
 } from "palette-types";
 import { StudentHeaderControls } from "./StudentHeaderControls.tsx";
-import { ChangeEvent, Dispatch, SetStateAction, useEffect } from "react";
+import {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import { useGradingContext, useRubric } from "@/context";
-import { TableRatingOptions } from "./TableRatingOptions.tsx";
 
 interface GradingTableProps {
   submissions: Submission[];
@@ -28,6 +33,24 @@ export function GradingTable({
 }: GradingTableProps) {
   const { gradedSubmissionCache, updateScore } = useGradingContext();
   const { activeRubric } = useRubric();
+
+  const [groupCriteriaMap, setGroupCriteriaMap] = useState<
+    Map<string, boolean>
+  >(() => {
+    const initial = new Map<string, boolean>();
+    activeRubric.criteria.forEach((criterion) =>
+      initial.set(criterion.id, criterion.isGroupCriterion),
+    );
+    return initial;
+  });
+
+  const toggleGroupCriterion = (id: string) => {
+    setGroupCriteriaMap((prev) => {
+      const newMap = new Map(prev); // copy existing map to ensure we update state
+      newMap.set(id, !prev.get(id)); // update target entry with flipped value
+      return newMap;
+    });
+  };
 
   const getBackgroundColor = (
     value: number | string,
@@ -70,7 +93,16 @@ export function GradingTable({
                 <div className="flex justify-between items-center gap-6">
                   <p className="flex-1 truncate">{criterion.description}</p>
 
-                  <TableRatingOptions criterion={criterion} />
+                  <label className="flex gap-2 text-sm font-medium whitespace-nowrap items-center">
+                    <p>Apply Ratings to Group</p>
+                    <input
+                      type="checkbox"
+                      name={`${criterion.id}-checkbox`}
+                      id={`${criterion.id}-checkbox`}
+                      checked={groupCriteriaMap.get(criterion.id) ?? false}
+                      onChange={() => toggleGroupCriterion(criterion.id)}
+                    />
+                  </label>
                 </div>
               </td>
               {submissions.map((submission: Submission) => {
@@ -90,7 +122,7 @@ export function GradingTable({
 
                   const newPoints = Number(ratingStringValue);
 
-                  if (!criterion.isGroupCriterion) {
+                  if (!groupCriteriaMap.get(criterion.id)) {
                     updateScore(submissionId, criterion.id, newPoints);
                   } else {
                     submissions.forEach((sub) => {
