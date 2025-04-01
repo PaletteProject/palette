@@ -89,7 +89,7 @@ export function GroupSubmissions({
           <ProgressBar value={progress} />
         </div>
         <div className={"text-center"}>
-          Average Score: {`${groupAverageScore}`}
+          Average Score: {`${groupAverageScore.toFixed(2)}`}
         </div>
       </div>
 
