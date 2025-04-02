@@ -11,6 +11,7 @@ import {
   useAssignment,
   useChoiceDialog,
   useCourse,
+  useGradingContext,
   useRubric,
 } from "@/context";
 import { GradingProvider } from "@/context/GradingContext.tsx";
@@ -39,9 +40,7 @@ export function SubmissionsDashboard({
   const { openDialog, closeDialog } = useChoiceDialog();
   const { putRubric } = useRubricBuilder();
 
-  const [savedGrades, setSavedGrades] = useState<
-    Record<number, PaletteGradedSubmission>
-  >({});
+  const { savedGrades, setSavedGrades } = useGradingContext();
 
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
@@ -50,7 +49,6 @@ export function SubmissionsDashboard({
     Record<number, PaletteGradedSubmission>
   >({});
   const [oldRubric, setOldRubric] = useState<Rubric>(activeRubric);
-  const [gradeVersion, setGradeVersion] = useState(0);
 
   // opens the rubric builder in hot swap mode
   const modifyRubric = () => {
@@ -112,7 +110,6 @@ export function SubmissionsDashboard({
 
     console.log("updated submissions for new rubric", updatedGrades);
     setSavedGrades(updatedGrades);
-    setGradeVersion((v) => v + 1);
   };
 
   /**
@@ -204,7 +201,8 @@ export function SubmissionsDashboard({
             return Math.floor((gradedCount / groupSubmissions.length) * 100);
           }, [groupSubmissions, savedGrades]);
           return (
-            <GradingProvider key={`${groupName}-${gradeVersion}`}>
+            <GradingProvider key={`${groupName}`}>
+              {/*todo: refactor cache to just be saved grades tracked across all submissions in one place*/}
               <GroupSubmissions
                 groupName={groupName}
                 progress={progress}

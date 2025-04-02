@@ -8,6 +8,8 @@ import {
 } from "react";
 import type { PaletteGradedSubmission } from "palette-types";
 
+type SavedGrades = Record<number, PaletteGradedSubmission>;
+
 type GradingContextType = {
   gradedSubmissionCache: Record<number, PaletteGradedSubmission>;
   setGradedSubmissionCache: Dispatch<
@@ -20,6 +22,8 @@ type GradingContextType = {
   ) => void;
   updateComment: (submissionId: number, text: string) => void;
   updateGroupComment: (text: string) => void;
+  savedGrades: SavedGrades;
+  setSavedGrades: Dispatch<SetStateAction<SavedGrades>>;
 };
 
 const GradingContext = createContext<GradingContextType | undefined>(undefined);
@@ -36,6 +40,8 @@ export const GradingProvider = ({ children }: { children: ReactNode }) => {
   const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
     Record<number, PaletteGradedSubmission>
   >({});
+
+  const [savedGrades, setSavedGrades] = useState<SavedGrades>({});
 
   // update a criterion rating for a target submission
   const updateScore = (
@@ -115,6 +121,8 @@ export const GradingProvider = ({ children }: { children: ReactNode }) => {
         updateScore,
         updateComment,
         updateGroupComment,
+        savedGrades,
+        setSavedGrades,
       }}
     >
       {children}
