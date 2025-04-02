@@ -1,15 +1,22 @@
 import {
   GroupedSubmissions,
   PaletteGradedSubmission,
+  Rubric,
   Submission,
 } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@/features";
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { Dialog, PaletteActionButton } from "@/components";
-import { useAssignment, useChoiceDialog, useCourse } from "@/context";
+import {
+  useAssignment,
+  useChoiceDialog,
+  useCourse,
+  useRubric,
+} from "@/context";
 import { GradingProvider } from "@/context/GradingContext.tsx";
 import { cn } from "@/lib/utils.ts";
 import { RubricForm } from "@/features/rubricBuilder/RubricForm.tsx";
+import { useRubricBuilder } from "@/hooks";
 
 type SubmissionDashboardProps = {
   submissions: GroupedSubmissions;
@@ -28,7 +35,9 @@ export function SubmissionsDashboard({
 }: SubmissionDashboardProps) {
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
+  const { activeRubric } = useRubric();
   const { openDialog, closeDialog } = useChoiceDialog();
+  const { putRubric } = useRubricBuilder();
 
   const [savedGrades, setSavedGrades] = useState<
     Record<number, PaletteGradedSubmission>
@@ -37,8 +46,71 @@ export function SubmissionsDashboard({
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
 
+  const [tempGrades, setTempGrades] = useState<
+    Record<number, PaletteGradedSubmission>
+  >({});
+  const [oldRubric, setOldRubric] = useState<Rubric>(activeRubric);
+
+  // opens the rubric builder in hot swap mode
   const modifyRubric = () => {
+    console.log("Grades when we open builder:", savedGrades);
+    setTempGrades(savedGrades); // store the current grades
+    setOldRubric(activeRubric); // store prev rubric
+    console.log("Set old rubric", activeRubric);
     setBuilderOpen(true);
+  };
+
+  // gets called from the modal rubric builder in hot swap mode
+  const getUpdatedRubric = async () => {
+    try {
+      const response = await putRubric();
+      if (response.success) {
+        mapExistingGrades(response.data as Rubric);
+        setBuilderOpen(false);
+      }
+    } catch (error) {
+      console.error("Error updating the rubric", error);
+    }
+  };
+
+  const mapExistingGrades = (newRubric: Rubric) => {
+    if (!oldRubric) return;
+
+    console.log("got new rubric", newRubric);
+    const updatedGrades: Record<number, PaletteGradedSubmission> = {};
+
+    Object.entries(tempGrades).forEach(([id, submission]) => {
+      const oldAssessment = submission.rubric_assessment || {};
+      const newAssessment: PaletteGradedSubmission["rubric_assessment"] = {};
+
+      activeRubric.criteria.forEach((newCriterion) => {
+        // match by description
+        const matchingOldCriterion = oldRubric.criteria.find(
+          (old) => old.description === newCriterion.description,
+        );
+
+        if (matchingOldCriterion) {
+          const oldCriterionId = matchingOldCriterion.id;
+          const oldGrade = oldAssessment[oldCriterionId];
+
+          if (oldGrade) {
+            newAssessment[newCriterion.id] = {
+              points: oldGrade.points,
+              rating_id: oldGrade.rating_id,
+              comments: oldGrade.comments,
+            };
+          }
+        }
+      });
+
+      updatedGrades[Number(id)] = {
+        ...submission,
+        rubric_assessment: newAssessment,
+      };
+    });
+
+    console.log("updated submissions for new rubric", updatedGrades);
+    setSavedGrades(updatedGrades);
   };
 
   /**
@@ -106,7 +178,7 @@ export function SubmissionsDashboard({
     <div className={"grid justify-start"}>
       <div className={"grid gap-2 mb-4 p-4"}>
         <h1 className={"text-5xl font-bold"}>Submission Dashboard</h1>
-        <AssignmentData modifyRubric={modifyRubric} />
+        <AssignmentData modifyRubric={() => void modifyRubric()} />
         <div className={"flex"}>
           <PaletteActionButton
             color={"GREEN"}
@@ -149,7 +221,10 @@ export function SubmissionsDashboard({
         title={"Hot Swap Criteria"}
       >
         <div className={"container relative"}>
-          <RubricForm hotSwapActive={true} />
+          <RubricForm
+            hotSwapActive={true}
+            getUpdatedRubric={getUpdatedRubric}
+          />
         </div>
       </Dialog>
     </div>

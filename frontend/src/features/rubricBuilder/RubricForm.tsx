@@ -19,12 +19,14 @@ interface RubricFormProps {
   templateInputActive?: boolean;
   setTemplateInputActive?: Dispatch<SetStateAction<boolean>>;
   hotSwapActive?: boolean;
+  getUpdatedRubric?: () => Promise<void>;
 }
 
 export function RubricForm({
   templateInputActive = false,
   setTemplateInputActive,
   hotSwapActive = false,
+  getUpdatedRubric,
 }: RubricFormProps) {
   const { settings } = useSettings();
   const { openDialog, closeDialog } = useChoiceDialog();
@@ -101,6 +103,11 @@ export function RubricForm({
 
   const handleSubmitRubric = async (event: MouseEvent): Promise<void> => {
     event.preventDefault();
+
+    if (hotSwapActive && getUpdatedRubric) {
+      await getUpdatedRubric();
+    }
+
     console.log("submitting rubric");
     console.log(activeRubric);
     if (!activeRubric || !activeCourse || !activeAssignment) return;
@@ -184,9 +191,7 @@ export function RubricForm({
         body: JSON.stringify(template),
       });
 
-      if (response.ok) {
-        console.log("template updated successfully", template);
-      } else {
+      if (!response.ok) {
         console.error("error updating template", response.json());
         console.error(template);
       }
