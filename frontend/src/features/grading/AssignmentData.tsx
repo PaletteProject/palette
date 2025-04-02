@@ -4,7 +4,11 @@ import { MouseEvent, useEffect, useState } from "react";
 import { ChoiceDialog, PaletteActionButton } from "@/components";
 import { useRubric } from "@/context";
 
-export function AssignmentData() {
+interface AssignmentDataProps {
+  modifyRubric: () => void;
+}
+
+export function AssignmentData({ modifyRubric }: AssignmentDataProps) {
   const { activeAssignment } = useAssignment();
   const { activeRubric } = useRubric();
   const navigate = useNavigate();
@@ -29,6 +33,7 @@ export function AssignmentData() {
 
   function handleEditRubricSelection(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
+    modifyRubric();
   }
 
   return (

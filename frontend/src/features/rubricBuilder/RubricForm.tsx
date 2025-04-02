@@ -1,5 +1,5 @@
 import { CSVExport, CSVImport } from "@/features";
-import { PaletteActionButton } from "@/components";
+import { LoadingDots, PaletteActionButton } from "@/components";
 import CriteriaList from "./CriteriaList.tsx";
 import { Criteria, PaletteAPIResponse, Template } from "palette-types";
 import {
@@ -16,13 +16,15 @@ import { useRubricBuilder, useTemplate } from "@/hooks";
 
 // useTemplate() returns different instances of state >:( so we have to pass it here from rubric main
 interface RubricFormProps {
-  templateInputActive: boolean;
-  setTemplateInputActive: Dispatch<SetStateAction<boolean>>;
+  templateInputActive?: boolean;
+  setTemplateInputActive?: Dispatch<SetStateAction<boolean>>;
+  hotSwapActive?: boolean;
 }
 
 export function RubricForm({
-  templateInputActive,
+  templateInputActive = false,
   setTemplateInputActive,
+  hotSwapActive = false,
 }: RubricFormProps) {
   const { settings } = useSettings();
   const { openDialog, closeDialog } = useChoiceDialog();
@@ -36,17 +38,14 @@ export function RubricForm({
     activeCriterionIndex,
     setActiveCriterionIndex,
     setLoading,
+    loading,
     isNewRubric,
   } = useRubricBuilder();
 
-  const {
-    updatingTemplate,
-    setUpdatingTemplate,
-    putTemplate,
-    importingTemplate,
-  } = useTemplate();
+  const { putTemplate, importingTemplate } = useTemplate();
 
   useEffect(() => {
+    if (hotSwapActive) return;
     const updateTemplate = async () => {
       if (!importingTemplate) return;
 
@@ -169,21 +168,27 @@ export function RubricForm({
       );
       if (exitingTemplateIndex === -1) {
         const template = createTemplate();
-        template.key = criterion.template!;
-        template.title = criterion.templateTitle!;
+        template.key = criterion.template ?? "Unknown";
+        template.title = criterion.templateTitle ?? "Unknown";
         template.criteria.push(criterion);
         existingTemplates.push(template);
       }
     }
 
     for (const template of existingTemplates) {
-      setUpdatingTemplate(template);
-      const response = await putTemplate();
+      const response = await fetch("http://localhost:3000/api/templates", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(template),
+      });
 
-      if (response.success) {
-        console.log("template updated successfully", updatingTemplate);
+      if (response.ok) {
+        console.log("template updated successfully", template);
       } else {
-        console.error("error updating template", response.error);
+        console.error("error updating template", response.json());
+        console.error(template);
       }
     }
   };
@@ -251,6 +256,7 @@ export function RubricForm({
 
   const handleOpenTemplateImport = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    if (!setTemplateInputActive) return;
     console.log("active template: ", templateInputActive);
     if (!templateInputActive) {
       setTemplateInputActive(true);
@@ -259,12 +265,18 @@ export function RubricForm({
 
   return (
     <form
-      className=" w-full self-center grid p-10 my-6 gap-4 bg-gray-800 shadow-lg rounded-lg"
+      className=" w-full self-center grid p-10 my-6 gap-4 bg-gray-800 shadow-lg rounded-lg relative"
       onSubmit={(event) => event.preventDefault()}
     >
+      {loading && (
+        <div className="absolute inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center rounded-xl">
+          <LoadingDots />
+        </div>
+      )}
       <h1 className="font-extrabold text-5xl mb-2 text-center">
         Canvas Rubric Builder
       </h1>
+
       <div className="flex justify-between items-center">
         {/* Import/Export CSV */}
         <div className={"flex gap-2 items-center"}>

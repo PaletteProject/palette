@@ -16,7 +16,7 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
   }
 
   return createPortal(
-    <div className="scroll-auto fixed z-80 inset-0 bg-black bg-opacity-75 flex justify-center items-center">
+    <div className="scroll-auto fixed z-40 inset-0 bg-black bg-opacity-75 flex justify-center items-center">
       <div className="bg-gray-700 p-6 rounded shadow-lg relative md:w-3/5">
         <h2 className="text-2xl text-white font-semibold">{title}</h2>
         <div className={"text-gray-100"}>{children}</div>

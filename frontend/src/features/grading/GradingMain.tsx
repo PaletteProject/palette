@@ -1,9 +1,11 @@
-import { ChangeEvent, ReactElement, useEffect, useState } from "react";
 import {
-  GroupedSubmissions,
-  PaletteAPIResponse,
-  PaletteGradedSubmission,
-} from "palette-types";
+  ChangeEvent,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@/hooks";
 import { useAssignment, useCourse, useRubric } from "@/context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
@@ -26,10 +28,6 @@ export function GradingMain(): ReactElement {
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [savedGrades, setSavedGrades] = useState<
-    Record<number, PaletteGradedSubmission>
-  >({});
-
   // context providers
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
@@ -39,6 +37,8 @@ export function GradingMain(): ReactElement {
   const fetchSubmissionsURL = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions`;
 
   const { fetchData: getSubmissions } = useFetch(fetchSubmissionsURL);
+
+  const [builderOpen, setBuilderOpen] = useState<boolean>(false);
 
   /**
    * Load students from local storage on component mount
@@ -52,7 +52,7 @@ export function GradingMain(): ReactElement {
         try {
           const storedStudentsRaw = localStorage.getItem(storageKey);
           const storedStudents: ParsedStudent[] = storedStudentsRaw
-            ? (JSON.parse(storedStudentsRaw) as ParsedStudent[]) // ✅ Type assertion
+            ? (JSON.parse(storedStudentsRaw) as ParsedStudent[])
             : [];
           console.log(
             `Retrieved students for ${activeAssignment.id}:`,
@@ -117,11 +117,10 @@ export function GradingMain(): ReactElement {
       // prevent effect if either course or assignment is not selected
       return;
     }
-    setLoading(true);
     void fetchSubmissions();
-  }, [activeCourse, activeAssignment, activeRubric]);
+  }, [activeCourse, activeAssignment]);
 
-  const fetchSubmissions = async () => {
+  const fetchSubmissions = useCallback(async () => {
     setLoading(true);
     try {
       const response =
@@ -135,7 +134,7 @@ export function GradingMain(): ReactElement {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getSubmissions]);
 
   const renderContent = () => {
     if (!loading && activeCourse && activeAssignment) {
@@ -163,8 +162,8 @@ export function GradingMain(): ReactElement {
             submissions={submissions}
             fetchSubmissions={fetchSubmissions}
             setLoading={setLoading}
-            savedGrades={savedGrades}
-            setSavedGrades={setSavedGrades}
+            builderOpen={builderOpen}
+            setBuilderOpen={setBuilderOpen}
           />
         </>
       );

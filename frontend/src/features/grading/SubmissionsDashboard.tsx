@@ -4,36 +4,42 @@ import {
   Submission,
 } from "palette-types";
 import { AssignmentData, GroupSubmissions } from "@/features";
-import { Dispatch, SetStateAction, useMemo } from "react";
-import { ChoiceDialog, PaletteActionButton } from "@/components";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
+import { Dialog, PaletteActionButton } from "@/components";
 import { useAssignment, useChoiceDialog, useCourse } from "@/context";
 import { GradingProvider } from "@/context/GradingContext.tsx";
 import { cn } from "@/lib/utils.ts";
+import { RubricForm } from "@/features/rubricBuilder/RubricForm.tsx";
 
 type SubmissionDashboardProps = {
   submissions: GroupedSubmissions;
   fetchSubmissions: () => Promise<void>;
   setLoading: Dispatch<SetStateAction<boolean>>;
-  savedGrades: Record<number, PaletteGradedSubmission>;
-  setSavedGrades: Dispatch<
-    SetStateAction<Record<number, PaletteGradedSubmission>>
-  >;
+  builderOpen: boolean;
+  setBuilderOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export function SubmissionsDashboard({
   submissions,
   fetchSubmissions,
   setLoading,
-  savedGrades,
-  setSavedGrades,
+  builderOpen,
+  setBuilderOpen,
 }: SubmissionDashboardProps) {
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
-
   const { openDialog, closeDialog } = useChoiceDialog();
+
+  const [savedGrades, setSavedGrades] = useState<
+    Record<number, PaletteGradedSubmission>
+  >({});
 
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
+
+  const modifyRubric = () => {
+    setBuilderOpen(true);
+  };
 
   /**
    * Submit all graded submissions in the cache
@@ -100,7 +106,7 @@ export function SubmissionsDashboard({
     <div className={"grid justify-start"}>
       <div className={"grid gap-2 mb-4 p-4"}>
         <h1 className={"text-5xl font-bold"}>Submission Dashboard</h1>
-        <AssignmentData />
+        <AssignmentData modifyRubric={modifyRubric} />
         <div className={"flex"}>
           <PaletteActionButton
             color={"GREEN"}
@@ -136,7 +142,16 @@ export function SubmissionsDashboard({
           );
         })}
       </div>
-      <ChoiceDialog />
+
+      <Dialog
+        isOpen={builderOpen}
+        onClose={() => setBuilderOpen(false)}
+        title={"Hot Swap Criteria"}
+      >
+        <div className={"container relative"}>
+          <RubricForm hotSwapActive={true} />
+        </div>
+      </Dialog>
     </div>
   );
 }
