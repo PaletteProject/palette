@@ -50,6 +50,7 @@ export function SubmissionsDashboard({
     Record<number, PaletteGradedSubmission>
   >({});
   const [oldRubric, setOldRubric] = useState<Rubric>(activeRubric);
+  const [gradeVersion, setGradeVersion] = useState(0);
 
   // opens the rubric builder in hot swap mode
   const modifyRubric = () => {
@@ -83,7 +84,7 @@ export function SubmissionsDashboard({
       const oldAssessment = submission.rubric_assessment || {};
       const newAssessment: PaletteGradedSubmission["rubric_assessment"] = {};
 
-      activeRubric.criteria.forEach((newCriterion) => {
+      newRubric.criteria.forEach((newCriterion) => {
         // match by description
         const matchingOldCriterion = oldRubric.criteria.find(
           (old) => old.description === newCriterion.description,
@@ -111,6 +112,7 @@ export function SubmissionsDashboard({
 
     console.log("updated submissions for new rubric", updatedGrades);
     setSavedGrades(updatedGrades);
+    setGradeVersion((v) => v + 1);
   };
 
   /**
@@ -120,6 +122,7 @@ export function SubmissionsDashboard({
     setLoading(true);
 
     for (const gradedSubmission of Object.values(savedGrades)) {
+      console.log("test submission bug", gradedSubmission);
       if (gradedSubmission.user?.id) {
         await fetch(
           `${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`,
@@ -201,7 +204,7 @@ export function SubmissionsDashboard({
             return Math.floor((gradedCount / groupSubmissions.length) * 100);
           }, [groupSubmissions, savedGrades]);
           return (
-            <GradingProvider key={`${groupName}}`}>
+            <GradingProvider key={`${groupName}-${gradeVersion}`}>
               <GroupSubmissions
                 groupName={groupName}
                 progress={progress}
