@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils.ts";
 import { RubricForm } from "@/features/rubricBuilder/RubricForm.tsx";
 import { useRubricBuilder } from "@/hooks";
+import { calcMaxPoints } from "@/utils";
 
 type SubmissionDashboardProps = {
   submissions: GroupedSubmissions;
@@ -69,7 +70,13 @@ export function SubmissionsDashboard({
           ...newRubric,
           criteria: newRubric.criteria.map((c) => ({
             ...c,
+            pointsPossible: calcMaxPoints(c.ratings),
+            isGroupCriterion: c.isGroupCriterion ?? false,
             key: c.key || crypto.randomUUID(),
+            ratings: c.ratings.map((r) => ({
+              ...r,
+              key: r.key || crypto.randomUUID(),
+            })),
           })),
         };
 
