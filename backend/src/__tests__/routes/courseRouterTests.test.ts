@@ -1,7 +1,7 @@
 import express, { response } from "express";
 import supertest from "supertest";
 import courseRouter from "../../routes/courseRouter.js";
-import { CanvasGradedSubmission, PaletteGradedSubmission } from "palette-types";
+import { PaletteGradedSubmission, GroupedSubmissions } from "palette-types";
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.test" });
 
@@ -9,14 +9,25 @@ const COURSE_ROUTE = "/api/courses";
 const DEV_COURSE_ID = 15760;
 const TEST_ASSIGNMENT_ID = 6154972;
 const TEST_STUDENT_ID = 129878;
+const TEST_STUDENT_NAME = "Clint Mccandless";
+const TEST_STUDENT_ASURITE = "cmccand1";
 
 const app = express();
 app.use(express.json());
 app.use("/api/courses", courseRouter);
 
+const mockComment = {
+  text_comment: "Data Transfer Reliability Comment",
+  group_comment: false as const,
+};
+
 const mockGradedSubmission: PaletteGradedSubmission = {
-  submission_id: 316761977,
-  user: { id: 1, name: "Clint", asurite: "clint" },
+  submission_id: 323764505,
+  user: {
+    id: TEST_STUDENT_ID,
+    name: TEST_STUDENT_NAME,
+    asurite: TEST_STUDENT_ASURITE,
+  },
   rubric_assessment: {
     "1031535_2226": {
       rating_id: "",
@@ -44,15 +55,7 @@ const mockGradedSubmission: PaletteGradedSubmission = {
       points: 0,
     },
   },
-  group_comment: {
-    text_comment: "Test Group Comment",
-    group_comment: true,
-    sent: false,
-  },
-  individual_comment: {
-    text_comment: "Test Individual Comment",
-    group_comment: false,
-  },
+  individual_comment: mockComment,
 };
 
 let server: any;
@@ -89,8 +92,39 @@ for (let i = 0; i < 1; i++) {
           .get(apiGetEndpoint)
           .expect(200);
 
-        console.log("originalBody", originalBody);
-        console.log("getResponse", getResponse.body);
+        const submissions = getResponse.body.data as GroupedSubmissions;
+        const groupOneSubmissions = submissions["GROUP ONE"];
+        const testStudentSubmission = groupOneSubmissions[0];
+        console.log("mockGradedSubmission:", mockGradedSubmission);
+        console.log("submission:", testStudentSubmission);
+
+        expect(mockGradedSubmission.user.name).toBe(
+          testStudentSubmission.user.name
+        );
+        expect(mockGradedSubmission.user.asurite).toBe(
+          testStudentSubmission.user.asurite
+        );
+        // console.log(
+        //   "testStudentSubmission.rubricAssessment:",
+        //   testStudentSubmission.rubricAssessment
+        // );
+        // console.log(
+        //   "mockGradedSubmission.rubric_assessment:",
+        //   mockGradedSubmission.rubric_assessment
+        // );
+
+        // console.log(
+        //   "testStudentSubmission.comments:",
+        //   testStudentSubmission.comments
+        // );
+        expect(mockGradedSubmission.rubric_assessment).toEqual(
+          testStudentSubmission.rubricAssessment
+        );
+
+        // Verify that all comments match the mockComment
+        testStudentSubmission.comments.forEach((comment) => {
+          expect(comment.comment).toEqual(mockComment.text_comment);
+        });
 
         // Verify the sent data wasn't modified
         // expect(JSON.stringify(mockGradedSubmission)).toBe(getResponse.body);
