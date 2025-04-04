@@ -8,10 +8,7 @@ dotenv.config({ path: ".env.test" });
 const COURSE_ROUTE = "/api/courses";
 const DEV_COURSE_ID = 15760;
 const TEST_ASSIGNMENT_ID = 6154972;
-const TEST_STUDENT_ID = 1278183;
-const CLINT_ID = 129878;
-const MATT_ID = 862878;
-const NODE_ENV = "test";
+const TEST_STUDENT_ID = 129878;
 
 const app = express();
 app.use(express.json());
@@ -21,9 +18,31 @@ const mockGradedSubmission: PaletteGradedSubmission = {
   submission_id: 316761977,
   user: { id: 1, name: "Clint", asurite: "clint" },
   rubric_assessment: {
-    "1012112_5159": { points: 10, rating_id: "1", comments: "Test Comments" },
-    "1012112_7662": { points: 10, rating_id: "1", comments: "Test Comments" },
-    "1012112_9754": { points: 10, rating_id: "1", comments: "Test Comments" },
+    "1031535_2226": {
+      rating_id: "",
+      comments: "",
+      points: 0,
+    },
+    "1031535_8154": {
+      rating_id: "",
+      comments: "",
+      points: 0,
+    },
+    "1031535_9264": {
+      rating_id: "",
+      comments: "",
+      points: 0,
+    },
+    "1031535_15": {
+      rating_id: "",
+      comments: "",
+      points: 0,
+    },
+    "1031535_7436": {
+      rating_id: "",
+      comments: "",
+      points: 0,
+    },
   },
   group_comment: {
     text_comment: "Test Group Comment",
@@ -35,16 +54,6 @@ const mockGradedSubmission: PaletteGradedSubmission = {
     group_comment: false,
   },
 };
-
-const submissionBody = {
-  submission_id: mockGradedSubmission.submission_id,
-  user: mockGradedSubmission.user,
-  rubric_assessment: mockGradedSubmission.rubric_assessment,
-  comment: {
-    text_comment: mockGradedSubmission.group_comment?.text_comment,
-    group_comment: mockGradedSubmission.group_comment?.group_comment,
-  },
-} as CanvasGradedSubmission;
 
 let server: any;
 
@@ -65,21 +74,26 @@ for (let i = 0; i < 1; i++) {
   describe("Graded Submission Router", () => {
     describe("given a course, assignment, and student", () => {
       it("should submit grades for a specific course, assignment, and student", async () => {
-        const apiPutEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/assignments/${TEST_ASSIGNMENT_ID}/submissions/${CLINT_ID}`;
+        const apiPutEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/assignments/${TEST_ASSIGNMENT_ID}/submissions/${TEST_STUDENT_ID}`;
         const apiGetEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/assignments/${TEST_ASSIGNMENT_ID}/submissions`;
-        const originalBody = JSON.stringify(submissionBody);
+        const originalBody = JSON.stringify(mockGradedSubmission);
 
         const putResponse = await supertest(app)
           .put(apiPutEndpoint)
-          .send(submissionBody)
+          .send(mockGradedSubmission)
           .expect(200);
 
-        // const getResponse = await supertest(app)
-        //   .get(apiGetEndpoint)
-        //   .expect(200);
+        // console.log("putResponse", putResponse.body);
 
-        // // Verify the sent data wasn't modified
-        // expect(JSON.stringify(submissionBody)).toBe(originalBody);
+        const getResponse = await supertest(app)
+          .get(apiGetEndpoint)
+          .expect(200);
+
+        console.log("originalBody", originalBody);
+        console.log("getResponse", getResponse.body);
+
+        // Verify the sent data wasn't modified
+        // expect(JSON.stringify(mockGradedSubmission)).toBe(getResponse.body);
         // expect(putResponse.body).toEqual({
         //   success: true,
         //   message: "submitted grades",
