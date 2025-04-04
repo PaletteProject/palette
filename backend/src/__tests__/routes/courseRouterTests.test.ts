@@ -59,12 +59,15 @@ const mockGradedSubmission: PaletteGradedSubmission = {
 };
 
 let server: any;
+let commentIds: number[] = [];
 
 beforeAll((done) => {
   server = app.listen(done);
 });
 
 afterAll((done) => {
+  console.log("commentIds", commentIds);
+
   server.close(done);
 });
 
@@ -73,30 +76,27 @@ afterAll((done) => {
  * @description Submit grades for a specific assignment.
  */
 
-for (let i = 0; i < 1; i++) {
-  describe("Graded Submission Router", () => {
-    describe("given a course, assignment, and student", () => {
+describe("Graded Submission Router", () => {
+  describe("given a course, assignment, and student", () => {
+    for (let i = 0; i < 1; i++) {
       it("should submit grades for a specific course, assignment, and student", async () => {
         const apiPutEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/assignments/${TEST_ASSIGNMENT_ID}/submissions/${TEST_STUDENT_ID}`;
         const apiGetEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/assignments/${TEST_ASSIGNMENT_ID}/submissions`;
-        const originalBody = JSON.stringify(mockGradedSubmission);
 
         const putResponse = await supertest(app)
           .put(apiPutEndpoint)
           .send(mockGradedSubmission)
           .expect(200);
 
-        // console.log("putResponse", putResponse.body);
-
         const getResponse = await supertest(app)
           .get(apiGetEndpoint)
           .expect(200);
 
+        console.log("putResponse", putResponse.body);
+
         const submissions = getResponse.body.data as GroupedSubmissions;
         const groupOneSubmissions = submissions["GROUP ONE"];
         const testStudentSubmission = groupOneSubmissions[0];
-        console.log("mockGradedSubmission:", mockGradedSubmission);
-        console.log("submission:", testStudentSubmission);
 
         expect(mockGradedSubmission.user.name).toBe(
           testStudentSubmission.user.name
@@ -104,19 +104,7 @@ for (let i = 0; i < 1; i++) {
         expect(mockGradedSubmission.user.asurite).toBe(
           testStudentSubmission.user.asurite
         );
-        // console.log(
-        //   "testStudentSubmission.rubricAssessment:",
-        //   testStudentSubmission.rubricAssessment
-        // );
-        // console.log(
-        //   "mockGradedSubmission.rubric_assessment:",
-        //   mockGradedSubmission.rubric_assessment
-        // );
 
-        // console.log(
-        //   "testStudentSubmission.comments:",
-        //   testStudentSubmission.comments
-        // );
         expect(mockGradedSubmission.rubric_assessment).toEqual(
           testStudentSubmission.rubricAssessment
         );
@@ -126,20 +114,30 @@ for (let i = 0; i < 1; i++) {
           expect(comment.comment).toEqual(mockComment.text_comment);
         });
 
-        // Verify the sent data wasn't modified
-        // expect(JSON.stringify(mockGradedSubmission)).toBe(getResponse.body);
-        // expect(putResponse.body).toEqual({
-        //   success: true,
-        //   message: "submitted grades",
-        //   data: expect.any(Object),
-        // });
-        // console.log("putResponse", putResponse.body);
-        // console.log("getResponse", getResponse.body.data);
+        // Add all comment IDs to the list if they're not already there so that they can be deleted after the test
+        testStudentSubmission.comments.forEach((comment) => {
+          if (!commentIds.includes(comment.id)) {
+            commentIds.push(comment.id);
+          }
+        });
       });
+    }
+
+    it("should clean up comments after the test", async () => {
+      console.log("commentIds", commentIds);
+      // This ensures that all comments are deleted after the test
+      await Promise.all(
+        commentIds.map(async (commentId) => {
+          const deleteEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/assignments/${TEST_ASSIGNMENT_ID}/submissions/${TEST_STUDENT_ID}/comments/${commentId}`;
+          const deleteResponse = await supertest(app)
+            .delete(deleteEndpoint)
+            .expect(200);
+          console.log(`Deleted comment ${commentId}:`, deleteResponse.body);
+        })
+      );
     });
   });
-  console.log(`Test ${i + 1} completed`);
-}
+});
 
 // /**
 //  * @route POST /courses/:courseID/rubrics

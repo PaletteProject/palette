@@ -24,6 +24,7 @@ import {
 import {
   getSubmissions,
   submitGrades,
+  deleteComment,
 } from "../controllers/submissionController.js";
 
 export const courseRouter = express.Router();
@@ -125,6 +126,52 @@ courseRouter.put(
   assignmentParamValidator,
   // todo: student id validator
   submitGrades
+);
+
+/**
+ * @swagger
+ * /courses/{course_id}/assignments/{assignment_id}/submissions/{student_id}/comments/{comment_id}:
+ *   delete:
+ *     summary: Delete a comment for a specific assignment and student
+ *     description: Delete a comment for a specific assignment and student
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *       - in: path
+ *         name: assignment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the assignment.
+ *       - in: path
+ *         name: student_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the student.
+ *       - in: path
+ *         name: comment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the comment.
+ *     responses:
+ *       200:
+ *         description: Comment deleted successfully.
+ *       404:
+ *         description: Comment not found.
+ */
+
+courseRouter.delete(
+  "/:course_id/assignments/:assignment_id/submissions/:student_id/comments/:comment_id",
+  courseParamValidator,
+  assignmentParamValidator,
+  // todo: student id validator
+  deleteComment
 );
 
 /**
