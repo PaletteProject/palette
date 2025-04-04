@@ -125,7 +125,7 @@ export default function CriteriaCard({
     return ratings.map((rating: Rating, ratingIndex: number) => {
       return (
         <RatingCard
-          key={rating.key}
+          key={rating.id}
           ratingIndex={ratingIndex}
           rating={rating}
           handleRatingChange={handleRatingChange}

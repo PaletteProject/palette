@@ -8,7 +8,7 @@ import {
   SubmissionComment,
 } from "palette-types";
 import { createPortal } from "react-dom";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ChoiceDialog,
   PaletteActionButton,
@@ -23,10 +23,6 @@ import { GradingTable } from "./GradingTable.tsx";
 type ProjectGradingViewProps = {
   groupName: string;
   submissions: Submission[];
-  savedGrades: Record<number, PaletteGradedSubmission>;
-  setSavedGrades: Dispatch<
-    SetStateAction<Record<number, PaletteGradedSubmission>>
-  >;
   isOpen: boolean;
   onClose: (cache: Record<number, PaletteGradedSubmission>) => void; // event handler defined in GroupSubmissions.tsx
 };
@@ -36,8 +32,6 @@ export function ProjectGradingView({
   submissions,
   isOpen,
   onClose,
-  savedGrades,
-  setSavedGrades,
 }: ProjectGradingViewProps) {
   const { closeDialog } = useChoiceDialog();
   const { activeRubric } = useRubric();
@@ -70,39 +64,44 @@ export function ProjectGradingView({
    * Initialize project grading view.
    */
   useEffect(() => {
-    if (isOpen) {
-      const initialCache: Record<number, PaletteGradedSubmission> = {};
+    if (!isOpen) return;
 
-      submissions.forEach((submission) => {
-        const saved = savedGrades[submission.id];
-        const rubric_assessment: PaletteGradedSubmission["rubric_assessment"] =
-          {};
+    const initialCache: Record<number, PaletteGradedSubmission> = {};
 
-        activeRubric.criteria.forEach((criterion) => {
-          const savedCriterion = saved?.rubric_assessment?.[criterion.id];
-          const canvasData = submission.rubricAssessment?.[criterion.id];
+    submissions.forEach((submission) => {
+      const saved = gradedSubmissionCache[submission.id];
+      const rubric_assessment: PaletteGradedSubmission["rubric_assessment"] =
+        {};
 
-          rubric_assessment[criterion.id] = {
-            points: savedCriterion?.points ?? canvasData?.points ?? "",
+      activeRubric.criteria.forEach((criterion) => {
+        const savedCriterion = saved?.rubric_assessment?.[criterion.id];
+        const canvasData = submission.rubricAssessment?.[criterion.id];
 
-            rating_id: savedCriterion?.rating_id ?? canvasData?.rating_id ?? "",
+        rubric_assessment[criterion.id] = {
+          points: savedCriterion?.points ?? canvasData?.points ?? "",
 
-            comments: savedCriterion?.comments ?? "",
-          };
-        });
+          rating_id: savedCriterion?.rating_id ?? canvasData?.rating_id ?? "",
 
-        initialCache[submission.id] = {
-          submission_id: submission.id,
-          user: submission.user,
-          individual_comment: saved?.individual_comment ?? undefined,
-          group_comment: saved?.group_comment ?? undefined,
-          rubric_assessment,
-        } as PaletteGradedSubmission;
+          comments: savedCriterion?.comments ?? "",
+        };
       });
 
-      setGradedSubmissionCache(initialCache);
-    }
-  }, [isOpen, submissions, activeRubric]);
+      initialCache[submission.id] = {
+        submission_id: submission.id,
+        user: submission.user,
+        individual_comment: saved?.individual_comment ?? undefined,
+        group_comment: saved?.group_comment ?? undefined,
+        rubric_assessment,
+      } as PaletteGradedSubmission;
+    });
+
+    setGradedSubmissionCache((prev) => {
+      return {
+        ...prev,
+        ...initialCache,
+      };
+    });
+  }, [isOpen, submissions, activeRubric.criteria]);
 
   useEffect(() => {
     if (activeStudentId !== null) {
@@ -199,7 +198,6 @@ export function ProjectGradingView({
             activeStudentId={activeStudentId}
             setActiveStudentId={setActiveStudentId}
             existingIndividualFeedback={existingIndividualFeedback}
-            setSavedGrades={setSavedGrades}
           />
 
           <div className={"flex gap-4 justify-end"}>

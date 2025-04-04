@@ -1,8 +1,8 @@
-import { PaletteGradedSubmission, Submission } from "palette-types";
+import { Submission } from "palette-types";
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { PaletteActionButton, ProgressBar } from "@/components";
-import { useRubric } from "@/context";
+import { SavedGrades, useRubric } from "@/context";
 import { ProjectGradingView } from "./projectGradingComponents/ProjectGradingView.tsx";
 import { useGradingContext } from "@/context/GradingContext.tsx";
 import { calculateCanvasGroupAverage, calculateGroupAverage } from "@/utils";
@@ -13,30 +13,34 @@ interface GroupSubmissionsProps {
   progress: number;
   submissions: Submission[];
   fetchSubmissions: () => Promise<void>;
-  setSavedGrades: Dispatch<
-    SetStateAction<Record<number, PaletteGradedSubmission>>
-  >;
-  savedGrades: Record<number, PaletteGradedSubmission>;
 }
 
 export function GroupSubmissions({
   groupName,
   progress,
   submissions,
-  setSavedGrades,
-  savedGrades,
 }: GroupSubmissionsProps) {
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
   const [groupAverageScore, setGroupAverageScore] = useState(0);
 
   const { activeRubric } = useRubric();
-  const { gradedSubmissionCache } = useGradingContext();
+  const { gradedSubmissionCache, setGradedSubmissionCache } =
+    useGradingContext();
 
-  const handleGradingViewClose = (
-    cache: Record<number, PaletteGradedSubmission>,
-  ) => {
+  const [submissionIds, setSubmissionIds] = useState<number[]>([]);
+
+  // track ids for easy grade lookups
+  useEffect(() => {
+    const ids: number[] = [];
+    submissions.forEach((submission) => {
+      ids.push(submission.id);
+    });
+    setSubmissionIds(ids);
+  }, [submissions]);
+
+  const handleGradingViewClose = (cache: SavedGrades) => {
     // add current in progress grades to main grading cache to be sent to canvas
-    setSavedGrades((prevGrades) => {
+    setGradedSubmissionCache((prevGrades) => {
       return {
         ...prevGrades,
         ...cache,
@@ -59,7 +63,9 @@ export function GroupSubmissions({
   useEffect(() => {
     // update group avg score whenever cache changes
     if (Object.values(gradedSubmissionCache).length !== 0) {
-      setGroupAverageScore(calculateGroupAverage(gradedSubmissionCache));
+      setGroupAverageScore(
+        calculateGroupAverage(gradedSubmissionCache, submissionIds),
+      );
     } else {
       // use average score from Canvas submissions
       setGroupAverageScore(calculateCanvasGroupAverage(submissions));
@@ -98,8 +104,6 @@ export function GroupSubmissions({
         groupName={groupName}
         submissions={submissions}
         onClose={handleGradingViewClose}
-        savedGrades={savedGrades}
-        setSavedGrades={setSavedGrades}
       />
     </div>
   );

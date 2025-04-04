@@ -104,8 +104,10 @@ export function RubricForm({
   const handleSubmitRubric = async (event: MouseEvent): Promise<void> => {
     event.preventDefault();
 
+    // delegate to the submission handler
     if (hotSwapActive && getUpdatedRubric) {
       await getUpdatedRubric();
+      return;
     }
 
     console.log("submitting rubric");

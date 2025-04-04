@@ -11,9 +11,9 @@ import {
   useAssignment,
   useChoiceDialog,
   useCourse,
+  useGradingContext,
   useRubric,
 } from "@/context";
-import { GradingProvider } from "@/context/GradingContext.tsx";
 import { cn } from "@/lib/utils.ts";
 import { RubricForm } from "@/features/rubricBuilder/RubricForm.tsx";
 import { useRubricBuilder } from "@/hooks";
@@ -35,13 +35,11 @@ export function SubmissionsDashboard({
 }: SubmissionDashboardProps) {
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
-  const { activeRubric } = useRubric();
+  const { activeRubric, setActiveRubric } = useRubric();
   const { openDialog, closeDialog } = useChoiceDialog();
   const { putRubric } = useRubricBuilder();
-
-  const [savedGrades, setSavedGrades] = useState<
-    Record<number, PaletteGradedSubmission>
-  >({});
+  const { gradedSubmissionCache, setGradedSubmissionCache } =
+    useGradingContext();
 
   const BASE_URL = "http://localhost:3000/api";
   const GRADING_ENDPOINT = `/courses/${activeCourse?.id}/assignments/${activeAssignment?.id}/submissions/`;
@@ -50,12 +48,11 @@ export function SubmissionsDashboard({
     Record<number, PaletteGradedSubmission>
   >({});
   const [oldRubric, setOldRubric] = useState<Rubric>(activeRubric);
-  const [gradeVersion, setGradeVersion] = useState(0);
 
   // opens the rubric builder in hot swap mode
   const modifyRubric = () => {
-    console.log("Grades when we open builder:", savedGrades);
-    setTempGrades(savedGrades); // store the current grades
+    console.log("Grades when we open builder:", gradedSubmissionCache);
+    setTempGrades(gradedSubmissionCache); // store the current grades
     setOldRubric(activeRubric); // store prev rubric
     console.log("Set old rubric", activeRubric);
     setBuilderOpen(true);
@@ -66,7 +63,18 @@ export function SubmissionsDashboard({
     try {
       const response = await putRubric();
       if (response.success) {
-        mapExistingGrades(response.data as Rubric);
+        const newRubric = response.data as Rubric;
+        // ensure new criteria have unique key for react
+        const updatedRubric = {
+          ...newRubric,
+          criteria: newRubric.criteria.map((c) => ({
+            ...c,
+            key: c.key || crypto.randomUUID(),
+          })),
+        };
+
+        setActiveRubric(updatedRubric);
+        mapExistingGrades(updatedRubric);
         setBuilderOpen(false);
       }
     } catch (error) {
@@ -94,6 +102,7 @@ export function SubmissionsDashboard({
           const oldCriterionId = matchingOldCriterion.id;
           const oldGrade = oldAssessment[oldCriterionId];
 
+          console.log("old rating:", oldGrade);
           if (oldGrade) {
             newAssessment[newCriterion.id] = {
               points: oldGrade.points,
@@ -111,8 +120,8 @@ export function SubmissionsDashboard({
     });
 
     console.log("updated submissions for new rubric", updatedGrades);
-    setSavedGrades(updatedGrades);
-    setGradeVersion((v) => v + 1);
+    console.log("latest rubric:", newRubric);
+    setGradedSubmissionCache(updatedGrades);
   };
 
   /**
@@ -121,7 +130,7 @@ export function SubmissionsDashboard({
   const submitGrades = async () => {
     setLoading(true);
 
-    for (const gradedSubmission of Object.values(savedGrades)) {
+    for (const gradedSubmission of Object.values(gradedSubmissionCache)) {
       console.log("test submission bug", gradedSubmission);
       if (gradedSubmission.user?.id) {
         await fetch(
@@ -138,7 +147,7 @@ export function SubmissionsDashboard({
 
     await fetchSubmissions(); // refresh submissions
     setLoading(false);
-    setSavedGrades({}); // clear submission cache
+    setGradedSubmissionCache({}); // clear submission cache
   };
 
   const handleClickSubmitGrades = () => {
@@ -202,18 +211,15 @@ export function SubmissionsDashboard({
             if (!groupSubmissions || groupSubmissions.length === 0) return 0;
             const gradedCount = groupSubmissions.filter(isGraded).length;
             return Math.floor((gradedCount / groupSubmissions.length) * 100);
-          }, [groupSubmissions, savedGrades]);
+          }, [groupSubmissions, gradedSubmissionCache]);
           return (
-            <GradingProvider key={`${groupName}-${gradeVersion}`}>
-              <GroupSubmissions
-                groupName={groupName}
-                progress={progress}
-                submissions={groupSubmissions}
-                fetchSubmissions={fetchSubmissions}
-                setSavedGrades={setSavedGrades}
-                savedGrades={savedGrades}
-              />
-            </GradingProvider>
+            <GroupSubmissions
+              key={groupName}
+              groupName={groupName}
+              progress={progress}
+              submissions={groupSubmissions}
+              fetchSubmissions={fetchSubmissions}
+            />
           );
         })}
       </div>

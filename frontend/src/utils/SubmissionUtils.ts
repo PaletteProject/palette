@@ -1,4 +1,5 @@
 import { PaletteGradedSubmission, Submission } from "palette-types";
+import { SavedGrades } from "@/context";
 
 // calculate the total score of a target submission
 export const calculateSubmissionTotal = (
@@ -28,7 +29,8 @@ export const calculateSubmissionTotal = (
 
 // grading cache is all scores for one group (unique to each project grading view instance)
 export const calculateGroupAverage = (
-  submissions: Record<number, PaletteGradedSubmission>,
+  submissions: SavedGrades,
+  groupSubmissionIds: number[],
 ): number => {
   if (!submissions) return 0; // guard for empty submission collection
 
@@ -37,6 +39,9 @@ export const calculateGroupAverage = (
 
   Object.values(submissions).forEach((submission) => {
     if (!submission) return;
+
+    if (!groupSubmissionIds.some((id) => submission.submission_id === id))
+      return; // skip if not in target group
 
     if (submission.rubric_assessment) {
       totalPoints += calculateSubmissionTotal(submission);

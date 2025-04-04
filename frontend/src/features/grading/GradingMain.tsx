@@ -7,7 +7,12 @@ import {
 } from "react";
 import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@/hooks";
-import { useAssignment, useCourse, useRubric } from "@/context";
+import {
+  GradingProvider,
+  useAssignment,
+  useCourse,
+  useRubric,
+} from "@/context";
 import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
 import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts";
 import {
@@ -158,13 +163,16 @@ export function GradingMain(): ReactElement {
               title={"Export Groups to CSV"}
             />
           </div>
-          <SubmissionsDashboard
-            submissions={submissions}
-            fetchSubmissions={fetchSubmissions}
-            setLoading={setLoading}
-            builderOpen={builderOpen}
-            setBuilderOpen={setBuilderOpen}
-          />
+
+          <GradingProvider>
+            <SubmissionsDashboard
+              submissions={submissions}
+              fetchSubmissions={fetchSubmissions}
+              setLoading={setLoading}
+              builderOpen={builderOpen}
+              setBuilderOpen={setBuilderOpen}
+            />
+          </GradingProvider>
         </>
       );
     }

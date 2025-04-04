@@ -1,17 +1,6 @@
-import {
-  Criteria,
-  PaletteGradedSubmission,
-  Submission,
-  SubmissionComment,
-} from "palette-types";
+import { Criteria, Submission, SubmissionComment } from "palette-types";
 import { StudentHeaderControls } from "./StudentHeaderControls.tsx";
-import {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useState,
-} from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 import { useGradingContext, useRubric } from "@/context";
 
 interface GradingTableProps {
@@ -19,9 +8,6 @@ interface GradingTableProps {
   activeStudentId: number | null;
   setActiveStudentId: Dispatch<SetStateAction<number | null>>;
   existingIndividualFeedback: SubmissionComment[] | null;
-  setSavedGrades: Dispatch<
-    SetStateAction<Record<number, PaletteGradedSubmission>>
-  >;
 }
 
 export function GradingTable({
@@ -29,7 +15,6 @@ export function GradingTable({
   activeStudentId,
   setActiveStudentId,
   existingIndividualFeedback,
-  setSavedGrades,
 }: GradingTableProps) {
   const { gradedSubmissionCache, updateScore } = useGradingContext();
   const { activeRubric } = useRubric();
@@ -133,16 +118,6 @@ export function GradingTable({
                     });
                   }
                 };
-
-                // save grades anytime the graded submission cache updates (rating changes)
-                useEffect(() => {
-                  setSavedGrades((existingGrades) => {
-                    return {
-                      ...existingGrades,
-                      ...gradedSubmissionCache,
-                    };
-                  });
-                }, [gradedSubmissionCache]);
 
                 return (
                   <td

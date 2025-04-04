@@ -48,6 +48,9 @@ export default function CriteriaList({
       setActiveRubric({ ...activeRubric, criteria: updatedCriteria });
     }
   };
+  criteria.forEach((criterion) => {
+    if (!criterion.key) throw new Error("Criterion missing key!");
+  });
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <SortableContext
