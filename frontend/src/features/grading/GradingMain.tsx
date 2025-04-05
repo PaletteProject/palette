@@ -2,8 +2,9 @@ import { ChangeEvent, ReactElement, useEffect, useState } from "react";
 import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@hooks";
 import { useAssignment, useCourse, useRubric } from "@context";
-import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
-import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts";
+import { OfflineGradingView } from "./offlineGrading/offlineGradingView";
+import { transferToOfflineGrading } from "./offlineGrading/transferToOfflineGrading.ts";
+
 import {
   LoadingDots,
   MainPageTemplate,
@@ -20,6 +21,8 @@ export function GradingMain(): ReactElement {
   });
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [isOfflineMode, setIsOfflineMode] = useState<boolean>(false);
+  const [transferring, setTransferring] = useState<boolean>(false);
 
   // context providers
   const { activeCourse } = useCourse();
@@ -36,72 +39,15 @@ export function GradingMain(): ReactElement {
    */
   useEffect(() => {
     if (activeCourse && activeAssignment) {
-      const storageKey = `parsedStudents_${activeCourse.id}_${activeAssignment.id}`;
-      const storedStudentsString = localStorage.getItem(storageKey);
+      void fetchSubmissions();
 
-      if (storedStudentsString) {
-        try {
-          const storedStudentsRaw = localStorage.getItem(storageKey);
-          const storedStudents: ParsedStudent[] = storedStudentsRaw
-            ? (JSON.parse(storedStudentsRaw) as ParsedStudent[]) // ✅ Type assertion
-            : [];
-          console.log(
-            `Retrieved students for ${activeAssignment.id}:`,
-            storedStudents,
-          );
-        } catch (error) {
-          console.error(
-            "Error parsing stored students from localStorage:",
-            error,
-          );
-        }
+      if (activeRubric) {
+        const rubricKey = `rubric_${activeRubric.id}`;
+        localStorage.setItem(rubricKey, JSON.stringify(activeRubric));
       }
     }
-  }, [activeCourse, activeAssignment]);
-
-  /**
-   * Handle CSV Upload for group data
-   */
-  const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-
-    if (file && activeCourse && activeAssignment) {
-      console.log("📂 Uploading file:", file.name);
-
-      parseCSV(file)
-        .then((parsedStudents) => {
-          console.log("Parsed Students:", parsedStudents);
-
-          if (parsedStudents.length > 0) {
-            const storageKey = `parsedStudents_${activeCourse.id}_${activeAssignment.id}`;
-            localStorage.setItem(storageKey, JSON.stringify(parsedStudents));
-
-            console.log(
-              "Saved parsedStudents to localStorage under key:",
-              storageKey,
-            );
-          } else {
-            console.warn("Parsed students list is empty, not saving.");
-          }
-        })
-        .catch((error) => {
-          console.error(" Error parsing CSV:", error);
-          alert("Failed to import CSV.");
-        });
-    }
-  };
-
-  /**
-   * Export all group submissions to a CSV
-   */
-  const handleExportAllGroups = () => {
-    if (activeRubric) {
-      exportAllGroupsCSV(submissions, activeRubric);
-    } else {
-      alert("Cannot export: Missing rubric.");
-    }
-  };
-
+  }, [activeCourse, activeAssignment, activeRubric]);
+  
   // fetch rubric and submissions when course or assignment change
   useEffect(() => {
     if (!activeCourse || !activeAssignment) {
@@ -128,44 +74,60 @@ export function GradingMain(): ReactElement {
     }
   };
 
-  const renderContent = () => {
-    if (!loading && activeCourse && activeAssignment) {
-      return (
-        <>
-          <div className="flex gap-4 items-center mb-4">
-            <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded cursor-pointer">
-              Upload Grades CSV
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-            </label>
+const renderContent = () => {
+    return (
+      <>
+        <div className="flex gap-4 items-center mb-4">
+          {/* 🔁 Toggle Button */}
+          <button
+            className={`py-2 px-4 rounded font-bold ${
+              isOfflineMode ? "bg-gray-500" : "bg-blue-500"
+            } text-white`}
+            onClick={() => setIsOfflineMode(!isOfflineMode)}
+          >
+            {isOfflineMode ? "Switch to Canvas Grading" : "Switch to Offline Grading"}
+          </button>
 
-            <button
-              className="bg-green-500 text-white font-bold py-2 px-4 rounded"
-              onClick={handleExportAllGroups}
-            >
-              Export All Groups to CSV
-            </button>
-          </div>
+          {/* 🔁 Transfer Button */}
+          {!isOfflineMode &&
+            activeAssignment &&
+            Object.keys(submissions).length > 0 && (
+              <button
+                className="bg-yellow-500 text-white font-bold py-2 px-4 rounded"
+                onClick={() => {
+                  if (!transferring) {
+                    setTransferring(true);
+                    transferToOfflineGrading(
+                      activeCourse,
+                      activeAssignment,
+                      activeRubric,
+                    );
+                    setTimeout(() => setTransferring(false), 2000);
+                  }
+                }}
+                disabled={transferring}
+              >
+                {transferring ? "Transferring..." : "Transfer to Offline Grading"}
+              </button>
+            )}
+        </div>
+
+        {/* 🧭 Conditional Rendering */}
+        {isOfflineMode ? (
+          <OfflineGradingView />
+        ) : activeCourse && activeAssignment ? (
           <SubmissionsDashboard
             submissions={submissions}
             fetchSubmissions={fetchSubmissions}
             setLoading={setLoading}
           />
-        </>
-      );
-    }
-
-    return (
-      <>
-        <div className={"grid h-full"}>
-          {loading && <LoadingDots />}
-          {!activeCourse && <NoCourseSelected />}
-          {activeCourse && !activeAssignment && <NoAssignmentSelected />}
-        </div>
+        ) : (
+          <div className="grid h-full">
+            {loading && <LoadingDots />}
+            {!activeCourse && <NoCourseSelected />}
+            {activeCourse && !activeAssignment && <NoAssignmentSelected />}
+          </div>
+        )}
       </>
     );
   };
