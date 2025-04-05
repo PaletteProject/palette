@@ -65,7 +65,7 @@ export function SubmissionsDashboard({
       const response = await putRubric();
       if (response.success) {
         const newRubric = response.data as Rubric;
-        // ensure new criteria have unique key for react
+        // ensure new criteria have unique key for react and all required fields
         const updatedRubric = {
           ...newRubric,
           criteria: newRubric.criteria.map((c) => ({
