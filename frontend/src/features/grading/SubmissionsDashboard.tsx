@@ -52,10 +52,8 @@ export function SubmissionsDashboard({
 
   // opens the rubric builder in hot swap mode
   const modifyRubric = () => {
-    console.log("Grades when we open builder:", gradedSubmissionCache);
     setTempGrades(gradedSubmissionCache); // store the current grades
     setOldRubric(activeRubric); // store prev rubric
-    console.log("Set old rubric", activeRubric);
     setBuilderOpen(true);
   };
 
@@ -126,8 +124,6 @@ export function SubmissionsDashboard({
       };
     });
 
-    console.log("updated submissions for new rubric", updatedGrades);
-    console.log("latest rubric:", newRubric);
     setGradedSubmissionCache(updatedGrades);
   };
 
@@ -138,7 +134,6 @@ export function SubmissionsDashboard({
     setLoading(true);
 
     for (const gradedSubmission of Object.values(gradedSubmissionCache)) {
-      console.log("test submission bug", gradedSubmission);
       if (gradedSubmission.user?.id) {
         await fetch(
           `${BASE_URL}${GRADING_ENDPOINT}${gradedSubmission.user.id}`,
