@@ -34,15 +34,10 @@ export const useGradingContext = () => {
 };
 
 export const GradingProvider = ({ children }: { children: ReactNode }) => {
-  // initialize the cache from local storage
-  const getInitialCache = (): SavedGrades => {
-    const storedGrades = localStorage.getItem("gradedSubmissionCache");
-    return storedGrades ? (JSON.parse(storedGrades) as SavedGrades) : {};
-  };
-
   // track all in progress grades
   const [gradedSubmissionCache, setGradedSubmissionCache] =
-    useState<SavedGrades>(getInitialCache);
+    useState<SavedGrades>({}); // initialized in project grading view component to lazy load as groups are actually
+  // opened/used
 
   // persist in-progress grades to local storage whenever they change
   useEffect(() => {

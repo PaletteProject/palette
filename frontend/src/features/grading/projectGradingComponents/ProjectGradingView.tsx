@@ -8,14 +8,19 @@ import {
   SubmissionComment,
 } from "palette-types";
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ChoiceDialog,
   PaletteActionButton,
   PaletteBrush,
   PaletteEye,
 } from "@/components";
-import { useChoiceDialog, useGradingContext, useRubric } from "@/context";
+import {
+  SavedGrades,
+  useChoiceDialog,
+  useGradingContext,
+  useRubric,
+} from "@/context";
 import { GroupFeedback } from "./GroupFeedback.tsx";
 import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
 import { GradingTable } from "./GradingTable.tsx";
@@ -33,7 +38,7 @@ export function ProjectGradingView({
   isOpen,
   onClose,
 }: ProjectGradingViewProps) {
-  const { closeDialog } = useChoiceDialog();
+  const { closeDialog, openDialog } = useChoiceDialog();
   const { activeRubric } = useRubric();
 
   const { setGradedSubmissionCache, gradedSubmissionCache } =
@@ -60,11 +65,61 @@ export function ProjectGradingView({
   const [showGroupFeedbackTextArea, setShowGroupFeedbackTextArea] =
     useState<boolean>(false);
 
+  const checkLocalCache = () => {
+    const stored = localStorage.getItem("gradedSubmissionCache");
+    const parsed = stored ? (JSON.parse(stored) as SavedGrades) : null;
+
+    if (parsed && Object.keys(parsed).length > 0) {
+      console.log("unsaved cache detected");
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  // track cache restoration to avoid double merge
+  const hasRestoredCache = useRef(false);
+
   /**
    * Initialize project grading view.
    */
   useEffect(() => {
     if (!isOpen) return;
+
+    if (checkLocalCache() && !hasRestoredCache.current) {
+      openDialog({
+        title: "Load Existing Ratings?",
+        message:
+          "Unsaved changes to grades were detected. Would you like to restore them or load in Canvas data?",
+        excludeCancel: true,
+        buttons: [
+          {
+            label: "Restore",
+            action: () => {
+              const stored = localStorage.getItem("gradedSubmissionCache");
+              if (stored) {
+                const restoredCache = JSON.parse(stored) as SavedGrades;
+                setGradedSubmissionCache(restoredCache);
+                hasRestoredCache.current = true;
+              }
+              closeDialog();
+            },
+            autoFocus: true,
+            color: "GREEN",
+          },
+          {
+            label: "Load Canvas Data",
+            action: () => {
+              console.log("loading canvas grades");
+              closeDialog();
+              hasRestoredCache.current = false;
+            },
+            autoFocus: false,
+            color: "YELLOW",
+          },
+        ],
+      });
+    }
 
     const initialCache: Record<number, PaletteGradedSubmission> = {};
 
@@ -95,12 +150,15 @@ export function ProjectGradingView({
       } as PaletteGradedSubmission;
     });
 
-    setGradedSubmissionCache((prev) => {
-      return {
-        ...prev,
-        ...initialCache,
-      };
-    });
+    // check that cache hasn't already been restored to avoid a double merge effort
+    if (!hasRestoredCache.current) {
+      setGradedSubmissionCache((prev) => {
+        return {
+          ...prev,
+          ...initialCache,
+        };
+      });
+    }
   }, [isOpen, submissions, activeRubric.criteria]);
 
   useEffect(() => {
