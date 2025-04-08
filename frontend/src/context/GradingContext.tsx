@@ -4,6 +4,7 @@ import {
   ReactNode,
   SetStateAction,
   useContext,
+  useEffect,
   useState,
 } from "react";
 import type { PaletteGradedSubmission } from "palette-types";
@@ -33,8 +34,23 @@ export const useGradingContext = () => {
 };
 
 export const GradingProvider = ({ children }: { children: ReactNode }) => {
+  // initialize the cache from local storage
+  const getInitialCache = (): SavedGrades => {
+    const storedGrades = localStorage.getItem("gradedSubmissionCache");
+    return storedGrades ? (JSON.parse(storedGrades) as SavedGrades) : {};
+  };
+
+  // track all in progress grades
   const [gradedSubmissionCache, setGradedSubmissionCache] =
-    useState<SavedGrades>({});
+    useState<SavedGrades>(getInitialCache);
+
+  // persist in-progress grades to local storage whenever they change
+  useEffect(() => {
+    localStorage.setItem(
+      "gradedSubmissionCache",
+      JSON.stringify(gradedSubmissionCache),
+    );
+  }, [gradedSubmissionCache]);
 
   // update a criterion rating for a target submission
   const updateScore = (

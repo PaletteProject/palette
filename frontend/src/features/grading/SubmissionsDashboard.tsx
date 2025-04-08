@@ -58,6 +58,8 @@ export function SubmissionsDashboard({
   };
 
   // gets called from the modal rubric builder in hot swap mode
+
+  // todo: write up technical challenge
   const getUpdatedRubric = async () => {
     try {
       const response = await putRubric();
