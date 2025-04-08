@@ -103,6 +103,19 @@ const mockGradedSubmission: PaletteGradedSubmission = {
   individual_comment: mockComment,
 };
 
+const mockRubricSubmission = {
+  rubric_request: {
+    rubric_id: TEST_RUBRIC_ID,
+    course_id: DEV_COURSE_ID,
+    data: {
+      rubric_association: {},
+      rubric: {
+        // RequestFormattedRubric;
+      },
+    },
+  },
+};
+
 let server: any;
 let commentIds: number[] = [];
 
