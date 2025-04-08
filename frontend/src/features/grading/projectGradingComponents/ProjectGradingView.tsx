@@ -29,7 +29,7 @@ type ProjectGradingViewProps = {
   groupName: string;
   submissions: Submission[];
   isOpen: boolean;
-  onClose: (cache: Record<number, PaletteGradedSubmission>) => void; // event handler defined in GroupSubmissions.tsx
+  onClose: () => void; // event handler defined in GroupSubmissions.tsx
 };
 
 export function ProjectGradingView({
@@ -80,6 +80,43 @@ export function ProjectGradingView({
   // track cache restoration to avoid double merge
   const hasRestoredCache = useRef(false);
 
+  //todo: split current effect into two useEffects: 1 to check cache and then 1 to intiialize the cache based on the
+  // outcome
+  const handleExistingCache = () => {
+    openDialog({
+      title: "Load Existing Ratings?",
+      message:
+        "Unsaved changes to grades were detected. Would you like to restore them or load in Canvas data?",
+      excludeCancel: true,
+      buttons: [
+        {
+          label: "Restore",
+          action: () => {
+            const stored = localStorage.getItem("gradedSubmissionCache");
+            if (stored) {
+              const restoredCache = JSON.parse(stored) as SavedGrades;
+              setGradedSubmissionCache(restoredCache);
+              hasRestoredCache.current = true;
+            }
+            closeDialog();
+          },
+          autoFocus: true,
+          color: "GREEN",
+        },
+        {
+          label: "Load Canvas Data",
+          action: () => {
+            console.log("loading canvas grades");
+            closeDialog();
+            hasRestoredCache.current = false;
+          },
+          autoFocus: false,
+          color: "YELLOW",
+        },
+      ],
+    });
+  };
+
   /**
    * Initialize project grading view.
    */
@@ -87,38 +124,7 @@ export function ProjectGradingView({
     if (!isOpen) return;
 
     if (checkLocalCache() && !hasRestoredCache.current) {
-      openDialog({
-        title: "Load Existing Ratings?",
-        message:
-          "Unsaved changes to grades were detected. Would you like to restore them or load in Canvas data?",
-        excludeCancel: true,
-        buttons: [
-          {
-            label: "Restore",
-            action: () => {
-              const stored = localStorage.getItem("gradedSubmissionCache");
-              if (stored) {
-                const restoredCache = JSON.parse(stored) as SavedGrades;
-                setGradedSubmissionCache(restoredCache);
-                hasRestoredCache.current = true;
-              }
-              closeDialog();
-            },
-            autoFocus: true,
-            color: "GREEN",
-          },
-          {
-            label: "Load Canvas Data",
-            action: () => {
-              console.log("loading canvas grades");
-              closeDialog();
-              hasRestoredCache.current = false;
-            },
-            autoFocus: false,
-            color: "YELLOW",
-          },
-        ],
-      });
+      handleExistingCache();
     }
 
     const initialCache: Record<number, PaletteGradedSubmission> = {};
@@ -209,7 +215,7 @@ export function ProjectGradingView({
   };
 
   const handleClickCloseButton = () => {
-    onClose(gradedSubmissionCache);
+    onClose();
     closeDialog();
   };
 

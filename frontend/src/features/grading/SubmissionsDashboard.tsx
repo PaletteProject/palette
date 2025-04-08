@@ -152,6 +152,7 @@ export function SubmissionsDashboard({
     await fetchSubmissions(); // refresh submissions
     setLoading(false);
     setGradedSubmissionCache({}); // clear submission cache
+    localStorage.removeItem("gradedSubmissionCache"); // clear local storage
   };
 
   const handleClickSubmitGrades = () => {

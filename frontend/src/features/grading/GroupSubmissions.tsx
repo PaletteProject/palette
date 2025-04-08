@@ -2,7 +2,7 @@ import { Submission } from "palette-types";
 
 import { useEffect, useState } from "react";
 import { PaletteActionButton, ProgressBar } from "@/components";
-import { SavedGrades, useRubric } from "@/context";
+import { useRubric } from "@/context";
 import { ProjectGradingView } from "./projectGradingComponents/ProjectGradingView.tsx";
 import { useGradingContext } from "@/context/GradingContext.tsx";
 import { calculateCanvasGroupAverage, calculateGroupAverage } from "@/utils";
@@ -24,8 +24,7 @@ export function GroupSubmissions({
   const [groupAverageScore, setGroupAverageScore] = useState(0);
 
   const { activeRubric } = useRubric();
-  const { gradedSubmissionCache, setGradedSubmissionCache } =
-    useGradingContext();
+  const { gradedSubmissionCache } = useGradingContext();
 
   const [submissionIds, setSubmissionIds] = useState<number[]>([]);
 
@@ -37,18 +36,6 @@ export function GroupSubmissions({
     });
     setSubmissionIds(ids);
   }, [submissions]);
-
-  const handleGradingViewClose = (cache: SavedGrades) => {
-    // add current in progress grades to main grading cache to be sent to canvas
-    setGradedSubmissionCache((prevGrades) => {
-      return {
-        ...prevGrades,
-        ...cache,
-      };
-    });
-
-    setGradingViewOpen(false);
-  };
 
   const toggleGradingView = () => {
     if (!activeRubric) {
@@ -103,7 +90,7 @@ export function GroupSubmissions({
         isOpen={isGradingViewOpen}
         groupName={groupName}
         submissions={submissions}
-        onClose={handleGradingViewClose}
+        onClose={() => setGradingViewOpen(false)}
       />
     </div>
   );
