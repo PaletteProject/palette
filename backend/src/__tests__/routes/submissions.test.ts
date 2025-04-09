@@ -47,14 +47,13 @@ const mockGradedSubmission: PaletteGradedSubmission = {
 };
 
 let server: Server | null = null;
-let commentIds: number[] = [];
+const commentIds: number[] = [];
 
 beforeAll(() => {
   server = app.listen();
 });
 
 afterAll((done) => {
-  console.log("commentIds", commentIds);
   console.log("rubricAssessmentID !", rubricAssessmentID);
   if (server) {
     server.close(done);
@@ -81,7 +80,7 @@ describe("Graded Submission Router", () => {
           .expect(200);
 
         const rubric = getRubricResponse.body.data as Rubric;
-        rubricAssessmentID = rubric.criteria[0].id;
+        rubricAssessmentID = rubric.criteria[0].id as string;
         console.log("rubric assessment id", rubricAssessmentID);
 
         const putResponse = await supertest(app)
@@ -93,21 +92,21 @@ describe("Graded Submission Router", () => {
           .get(apiGetEndpoint)
           .expect(200);
 
-        // console.log("putResponse", putResponse.body);
+        console.log("putResponse", putResponse.body);
 
         const submissions = getResponse.body.data as GroupedSubmissions;
         const groupOneSubmissions = submissions["GROUP ONE"];
         const testStudentSubmission = groupOneSubmissions[0];
 
         expect(mockGradedSubmission.user.name).toBe(
-          testStudentSubmission.user.name
+          testStudentSubmission.user.name,
         );
         expect(mockGradedSubmission.user.asurite).toBe(
-          testStudentSubmission.user.asurite
+          testStudentSubmission.user.asurite,
         );
 
         expect(mockGradedSubmission.rubric_assessment).toEqual(
-          testStudentSubmission.rubricAssessment
+          testStudentSubmission.rubricAssessment,
         );
 
         // Verify that all comments match the mockComment
@@ -132,7 +131,8 @@ describe("Graded Submission Router", () => {
           const deleteResponse = await supertest(app)
             .delete(deleteEndpoint)
             .expect(200);
-        })
+          console.log("deleteResponse", deleteResponse.body);
+        }),
       );
     });
   });

@@ -17,12 +17,12 @@ function populateDefaultRatings(settings: Settings): Rating[] {
     createRating(
       settings.preferences?.defaultRatings?.maxDefaultPoints ?? 5,
       settings.preferences?.defaultRatings?.maxDefaultDescription ??
-        "Update the max description"
+        "Update the max description",
     ),
     createRating(
       settings.preferences?.defaultRatings?.minDefaultPoints ?? 0,
       settings.preferences?.defaultRatings?.minDefaultDescription ??
-        "Update the min description"
+        "Update the min description",
     ),
   ];
 }
@@ -32,7 +32,7 @@ function populateDefaultRatings(settings: Settings): Rating[] {
  */
 function populateDefaultCriteria(settings: Settings): Criteria[] {
   return Array.from({ length: DEFAULT_CRITERIA_COUNT }, () =>
-    createCriterion(settings)
+    createCriterion(settings),
   );
 }
 
@@ -44,7 +44,7 @@ export function createRubric(
   title: string = "",
   criteria: Criteria[] = populateDefaultCriteria(settings),
   id: number = 0,
-  pointsPossible: number = 0
+  pointsPossible: number = 0,
 ): Rubric {
   return {
     title,
@@ -85,7 +85,7 @@ export function createCriterion(
     templateTitle = "",
     scores = [],
     isGroupCriterion = true,
-  }: CriterionOptions = {}
+  }: CriterionOptions = {},
 ): Criteria {
   return {
     id,
@@ -111,7 +111,7 @@ export function createRating(
   points: number = 0,
   description: string = "",
   longDescription: string = "",
-  id: string = ""
+  id: string = "",
 ): Rating {
   return {
     points,

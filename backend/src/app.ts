@@ -60,9 +60,9 @@ app.use(fallbackErrorHandler);
 // Start the server and listen on port defined in .env file
 app.listen(PORT, () => {
   console.log(
-    "\nPalette started!\n\nAccess the application at http://localhost:5173"
+    "\nPalette started!\n\nAccess the application at http://localhost:5173",
   );
   console.log(
-    `Swagger API documentation available at http://localhost:${PORT}/api-docs`
+    `Swagger API documentation available at http://localhost:${PORT}/api-docs`,
   );
 });

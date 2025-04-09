@@ -5,9 +5,6 @@ import { calcMaxPoints } from "../../../../frontend/src/utils/calculateMaxPoints
 
 const COURSE_ROUTE = "/api/courses";
 const DEV_COURSE_ID = 15760;
-const TEST_STUDENT_ID = 129878;
-const TEST_STUDENT_NAME = "Clint Mccandless";
-const TEST_STUDENT_ASURITE = "cmccand1";
 const RUBRIC_DATA_ASSIGNMENT_ID = 6171684;
 const TEST_RUBRIC_ID = 1034871;
 let rubricAssessmentID = "";

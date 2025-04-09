@@ -31,7 +31,7 @@ export function GroupSubmissions({
   const { gradedSubmissionCache } = useGradingContext();
 
   const handleGradingViewClose = (
-    cache: Record<number, PaletteGradedSubmission>
+    cache: Record<number, PaletteGradedSubmission>,
   ) => {
     // add current in progress grades to main grading cache to be sent to canvas
     setSavedGrades((prevGrades) => {
@@ -47,7 +47,7 @@ export function GroupSubmissions({
   const toggleGradingView = () => {
     if (!activeRubric) {
       alert(
-        "Assignment does not have a rubric for grading. Create a rubric and try again!"
+        "Assignment does not have a rubric for grading. Create a rubric and try again!",
       );
       return;
     }
