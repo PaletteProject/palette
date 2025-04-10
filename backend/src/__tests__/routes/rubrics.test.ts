@@ -5,10 +5,9 @@ import { calcMaxPoints } from "../../../../frontend/src/utils/calculateMaxPoints
 import courseRouter from "../../routes/courseRouter.js";
 
 const COURSE_ROUTE = "/api/courses";
-const DEV_COURSE_ID = 15760;
-const RUBRIC_DATA_ASSIGNMENT_ID = 6171684;
-const TEST_RUBRIC_ID = 1034872;
-let rubricAssessmentID = "";
+const COURSE_ID = 15760;
+const ASSIGNMENT_ID = 6171684;
+const RUBRIC_ID = 1034872;
 
 const app = express();
 app.use(express.json());
@@ -29,7 +28,7 @@ afterAll((done) => {
 });
 
 const mockRubricSubmission = {
-  id: TEST_RUBRIC_ID,
+  id: RUBRIC_ID,
   title: "Rubric Data Reliability Metric",
   pointsPossible: 10,
   key: "1a26e0ba-5fef-4959-8303-933196bc5795",
@@ -100,25 +99,22 @@ const mockRubricSubmission = {
 
 describe("Rubric Router", () => {
   describe("given a course and assignment", () => {
-    it("should create a new rubric", async () => {
-      const rubricGetEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/rubrics/${TEST_RUBRIC_ID}`;
-      const rubricUpdateEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/rubrics/${TEST_RUBRIC_ID}/${RUBRIC_DATA_ASSIGNMENT_ID}`;
-      const putResponse = await supertest(app)
-        .put(rubricUpdateEndpoint)
-        .send(mockRubricSubmission)
-        .expect(200);
+    for (let i = 0; i < 1; i++) {
+      it("should create a new rubric", async () => {
+        const rubricGetEndpoint = `${COURSE_ROUTE}/${COURSE_ID}/rubrics/${RUBRIC_ID}`;
+        const rubricUpdateEndpoint = `${COURSE_ROUTE}/${COURSE_ID}/rubrics/${RUBRIC_ID}/${ASSIGNMENT_ID}`;
+        const putResponse = await supertest(app)
+          .put(rubricUpdateEndpoint)
+          .send(mockRubricSubmission)
+          .expect(200);
 
-      const getResponse = await supertest(app)
-        .get(rubricGetEndpoint)
-        .expect(200);
+        const getResponse = await supertest(app)
+          .get(rubricGetEndpoint)
+          .expect(200);
 
-      console.log("putResponse: ", putResponse);
-      console.log("getResponse: ", getResponse);
-      // expect(response.status).toBe(200);
-      // expect(response.body).toEqual({
-      //   success: true,
-      //   message: "New rubric created successfully",
-      // });
-    });
+        console.log("putResponse: ", putResponse);
+        console.log("getResponse: ", getResponse);
+      });
+    }
   });
 });

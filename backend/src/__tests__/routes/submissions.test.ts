@@ -1,22 +1,18 @@
 import express from "express";
 import supertest from "supertest";
 import courseRouter from "../../routes/courseRouter.js";
-import {
-  PaletteGradedSubmission,
-  GroupedSubmissions,
-  Rubric,
-} from "palette-types";
+import { PaletteGradedSubmission, GroupedSubmissions } from "palette-types";
 import dotenv from "dotenv";
 import { Server } from "http";
 
 dotenv.config({ path: ".env.test" });
 
 const COURSE_ROUTE = "/api/courses";
-const DEV_COURSE_ID = 15760;
-const TEST_ASSIGNMENT_ID = 6154972;
-const TEST_STUDENT_ID = 129878;
-const TEST_STUDENT_NAME = "Clint Mccandless";
-const TEST_STUDENT_ASURITE = "cmccand1";
+const COURSE_ID = 15760;
+const ASSIGNMENT_ID = 6154972;
+const STUDENT_ID = 129878;
+const STUDENT_NAME = "Clint Mccandless";
+const STUDENT_ASURITE = "cmccand1";
 
 const app = express();
 app.use(express.json());
@@ -30,9 +26,9 @@ const mockComment = {
 const mockGradedSubmission: PaletteGradedSubmission = {
   submission_id: 323764505,
   user: {
-    id: TEST_STUDENT_ID,
-    name: TEST_STUDENT_NAME,
-    asurite: TEST_STUDENT_ASURITE,
+    id: STUDENT_ID,
+    name: STUDENT_NAME,
+    asurite: STUDENT_ASURITE,
   },
   rubric_assessment: {
     _6752: {
@@ -68,8 +64,8 @@ describe("Graded Submission Router", () => {
   describe("given a course, assignment, and student", () => {
     for (let i = 0; i < 1; i++) {
       it("should submit grades for a specific course, assignment, and student", async () => {
-        const apiPutEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/assignments/${TEST_ASSIGNMENT_ID}/submissions/${TEST_STUDENT_ID}`;
-        const apiGetEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/assignments/${TEST_ASSIGNMENT_ID}/submissions`;
+        const apiPutEndpoint = `${COURSE_ROUTE}/${COURSE_ID}/assignments/${ASSIGNMENT_ID}/submissions/${STUDENT_ID}`;
+        const apiGetEndpoint = `${COURSE_ROUTE}/${COURSE_ID}/assignments/${ASSIGNMENT_ID}/submissions`;
 
         const putResponse = await supertest(app)
           .put(apiPutEndpoint)
@@ -115,7 +111,7 @@ describe("Graded Submission Router", () => {
       // This ensures that all comments are deleted after the test
       await Promise.all(
         commentIds.map(async (commentId) => {
-          const deleteEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/assignments/${TEST_ASSIGNMENT_ID}/submissions/${TEST_STUDENT_ID}/comments/${commentId}`;
+          const deleteEndpoint = `${COURSE_ROUTE}/${COURSE_ID}/assignments/${ASSIGNMENT_ID}/submissions/${STUDENT_ID}/comments/${commentId}`;
           const deleteResponse = await supertest(app)
             .delete(deleteEndpoint)
             .expect(200);
