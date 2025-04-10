@@ -1,14 +1,19 @@
-import { app } from "src/app";
+import express from "express";
 import supertest from "supertest";
 import { Server } from "http";
 import { calcMaxPoints } from "../../../../frontend/src/utils/calculateMaxPoints";
+import courseRouter from "../../routes/courseRouter.js";
 
 const COURSE_ROUTE = "/api/courses";
 const DEV_COURSE_ID = 15760;
 const RUBRIC_DATA_ASSIGNMENT_ID = 6171684;
-const TEST_RUBRIC_ID = 1034871;
+const TEST_RUBRIC_ID = 1034872;
 let rubricAssessmentID = "";
-// ... existing code ...
+
+const app = express();
+app.use(express.json());
+app.use("/api/courses", courseRouter);
+
 let server: Server | null = null;
 
 beforeAll(() => {
@@ -16,7 +21,6 @@ beforeAll(() => {
 });
 
 afterAll((done) => {
-  console.log("rubricAssessmentID !", rubricAssessmentID);
   if (server) {
     server.close(done);
   } else {
@@ -25,22 +29,57 @@ afterAll((done) => {
 });
 
 const mockRubricSubmission = {
-  id: 1,
-  title: "'Data Transfer Reliability Metric Rubric",
+  id: TEST_RUBRIC_ID,
+  title: "Rubric Data Reliability Metric",
   pointsPossible: 10,
-  key: "13b72769-0e56-4f30-9bc0-8e39fc37db83",
+  key: "1a26e0ba-5fef-4959-8303-933196bc5795",
   criteria: [
     {
-      id: rubricAssessmentID,
-      description: "C1",
+      id: "_7158",
+      description: "Description of criterion",
       longDescription: "",
       ratings: [
         {
-          id: "1031535_1768",
-          description: "Well done!",
+          id: "blank",
+          description: "Full marks",
           longDescription: "",
-          points: 5,
-          key: "5ea17373-ed44-4245-95bc-b1a5d5b6fe42",
+          points: 15,
+          key: "a86e75cb-5532-4435-b40c-1647a1a338db",
+        },
+        {
+          id: "blank2",
+          description: "No marks",
+          longDescription: "",
+          points: 0,
+          key: "43cdfd36-248e-4515-9c6b-d92f5cea8f27",
+        },
+      ],
+      pointsPossible: 5,
+      template: "",
+      updatePoints() {
+        this.pointsPossible = Number(calcMaxPoints(this.ratings));
+      },
+      scores: [],
+      isGroupCriterion: true,
+    },
+    {
+      id: "_9287",
+      description: "Description of criterion 2",
+      longDescription: "",
+      ratings: [
+        {
+          id: "_791",
+          description: "Full marks",
+          longDescription: "",
+          points: 15,
+          key: "976aea74-241b-4428-9eff-d4f305948174",
+        },
+        {
+          id: "_8542",
+          description: "No marks",
+          longDescription: "",
+          points: 0,
+          key: "c29a2932-fbfc-48c3-93b9-720f97850046",
         },
       ],
       pointsPossible: 5,

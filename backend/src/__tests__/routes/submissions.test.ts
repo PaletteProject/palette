@@ -17,8 +17,6 @@ const TEST_ASSIGNMENT_ID = 6154972;
 const TEST_STUDENT_ID = 129878;
 const TEST_STUDENT_NAME = "Clint Mccandless";
 const TEST_STUDENT_ASURITE = "cmccand1";
-const TEST_RUBRIC_ID = 1034871;
-let rubricAssessmentID = "";
 
 const app = express();
 app.use(express.json());
@@ -37,7 +35,7 @@ const mockGradedSubmission: PaletteGradedSubmission = {
     asurite: TEST_STUDENT_ASURITE,
   },
   rubric_assessment: {
-    [rubricAssessmentID]: {
+    _6752: {
       rating_id: "1",
       comments: "",
       points: 5,
@@ -54,7 +52,6 @@ beforeAll(() => {
 });
 
 afterAll((done) => {
-  console.log("rubricAssessmentID !", rubricAssessmentID);
   if (server) {
     server.close(done);
   } else {
@@ -74,15 +71,6 @@ describe("Graded Submission Router", () => {
         const apiPutEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/assignments/${TEST_ASSIGNMENT_ID}/submissions/${TEST_STUDENT_ID}`;
         const apiGetEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/assignments/${TEST_ASSIGNMENT_ID}/submissions`;
 
-        const getRubricEndpoint = `${COURSE_ROUTE}/${DEV_COURSE_ID}/rubrics/${TEST_RUBRIC_ID}`;
-        const getRubricResponse = await supertest(app)
-          .get(getRubricEndpoint)
-          .expect(200);
-
-        const rubric = getRubricResponse.body.data as Rubric;
-        rubricAssessmentID = rubric.criteria[0].id as string;
-        console.log("rubric assessment id", rubricAssessmentID);
-
         const putResponse = await supertest(app)
           .put(apiPutEndpoint)
           .send(mockGradedSubmission)
@@ -99,14 +87,14 @@ describe("Graded Submission Router", () => {
         const testStudentSubmission = groupOneSubmissions[0];
 
         expect(mockGradedSubmission.user.name).toBe(
-          testStudentSubmission.user.name,
+          testStudentSubmission.user.name
         );
         expect(mockGradedSubmission.user.asurite).toBe(
-          testStudentSubmission.user.asurite,
+          testStudentSubmission.user.asurite
         );
 
         expect(mockGradedSubmission.rubric_assessment).toEqual(
-          testStudentSubmission.rubricAssessment,
+          testStudentSubmission.rubricAssessment
         );
 
         // Verify that all comments match the mockComment
@@ -132,7 +120,7 @@ describe("Graded Submission Router", () => {
             .delete(deleteEndpoint)
             .expect(200);
           console.log("deleteResponse", deleteResponse.body);
-        }),
+        })
       );
     });
   });
