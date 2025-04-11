@@ -1,4 +1,5 @@
-import { CanvasAssociation, CanvasRubric } from "src/index";
+import { CanvasAssociation } from "./CanvasAssociation";
+import { CanvasRubric } from "./CanvasRubric";
 
 /**
  * This type represents the return value of the Canvas API when creating, updating a rubric.
