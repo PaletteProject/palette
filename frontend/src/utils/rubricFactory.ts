@@ -43,7 +43,7 @@ export function createRubric(
   settings: Settings,
   title: string = "",
   criteria: Criteria[] = populateDefaultCriteria(settings),
-  id: string = "",
+  id: number = 0,
   pointsPossible: number = 0,
 ): Rubric {
   return {

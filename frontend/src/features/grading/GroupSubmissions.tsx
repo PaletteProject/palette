@@ -64,7 +64,7 @@ export function GroupSubmissions({
             color="BLUE"
             title="Grade"
             onClick={toggleGradingView}
-            disabled={activeRubric.id === ""}
+            disabled={!activeRubric?.id}
           />
         </div>
 
