@@ -13,7 +13,7 @@ const ASSIGNMENT_ID = 6154972;
 const STUDENT_ID = 129878;
 const STUDENT_NAME = "Clint Mccandless";
 const STUDENT_ASURITE = "cmccand1";
-const TEST_COUNT = 10;
+const TEST_COUNT = 10; // Change this to fully test the metric. Planning to config this number the be reduced when doing GitHub Actions CI.
 
 const app = express();
 app.use(express.json());
@@ -133,19 +133,22 @@ describe("Graded Submission Router", () => {
 
         console.log("putResponse", putResponse.body);
 
-        const submissions = getResponse.body.data as GroupedSubmissions;
+        const getResponseBody = getResponse.body as {
+          data: GroupedSubmissions;
+        };
+        const submissions = getResponseBody.data;
         const groupOneSubmissions = submissions["GROUP ONE"];
         const testStudentSubmission = groupOneSubmissions[0];
 
         expect(mockGradedSubmission.user.name).toBe(
-          testStudentSubmission.user.name
+          testStudentSubmission.user.name,
         );
         expect(mockGradedSubmission.user.asurite).toBe(
-          testStudentSubmission.user.asurite
+          testStudentSubmission.user.asurite,
         );
 
         expect(mockGradedSubmission.rubric_assessment).toEqual(
-          testStudentSubmission.rubricAssessment
+          testStudentSubmission.rubricAssessment,
         );
 
         // Verify that all comments match the mockComment
@@ -171,7 +174,7 @@ describe("Graded Submission Router", () => {
             .delete(deleteEndpoint)
             .expect(200);
           console.log("deleteResponse", deleteResponse.body);
-        })
+        }),
       );
     });
   });

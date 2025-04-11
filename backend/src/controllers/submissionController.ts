@@ -51,6 +51,8 @@ export const deleteComment = asyncHandler(async (req, res) => {
     req.params.comment_id,
   );
 
+  console.log("canvasResponse:", canvasResponse);
+
   const apiResponse: PaletteAPIResponse<null> = {
     success: true,
     message: "comment deleted",

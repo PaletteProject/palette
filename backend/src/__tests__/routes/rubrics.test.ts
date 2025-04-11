@@ -3,7 +3,12 @@ import supertest from "supertest";
 import { Server } from "http";
 import { calcMaxPoints } from "../../../../frontend/src/utils/calculateMaxPoints";
 import courseRouter from "../../routes/courseRouter.js";
-import { Criteria, Rating } from "../../../../palette-types";
+import {
+  CanvasRubric,
+  Rubric,
+  CanvasCriterion,
+  CanvasRating,
+} from "palette-types";
 const COURSE_ROUTE = "/api/courses";
 const COURSE_ID = 15760;
 const ASSIGNMENT_ID = 6171684;
@@ -220,8 +225,12 @@ describe("Rubric Router", () => {
           .get(rubricGetEndpoint)
           .expect(200);
 
-        const putRubric = putResponse.body.data;
-        const getRubric = getResponse.body.data;
+        // Add type assertions to fix unsafe member access errors
+        const putResponseBody = putResponse.body as { data: CanvasRubric };
+        const getResponseBody = getResponse.body as { data: Rubric };
+
+        const putRubric = putResponseBody.data;
+        const getRubric = getResponseBody.data;
 
         console.log("putRubric: ", putRubric);
         console.log("getRubric: ", getRubric);
@@ -233,34 +242,36 @@ describe("Rubric Router", () => {
         const getRubricCriteria = getRubric.criteria;
 
         // Compare all criteria
-        expect(putRubricCriteria.length).toEqual(getRubricCriteria.length);
+        expect(putRubricCriteria?.length).toEqual(getRubricCriteria.length);
 
-        putRubricCriteria.forEach((putCriterion: Criteria, index: number) => {
-          const getCriterion = getRubricCriteria[index];
+        putRubricCriteria?.forEach(
+          (putCriterion: CanvasCriterion, index: number) => {
+            const getCriterion = getRubricCriteria[index];
 
-          expect(getCriterion.id).toEqual(putCriterion.id);
-          expect(getCriterion.description).toEqual(putCriterion.description);
-          expect(getCriterion.long_description).toEqual(
-            putCriterion.longDescription
-          );
-          expect(getCriterion.points).toEqual(putCriterion.pointsPossible);
-
-          // Compare ratings if they exist
-          if (putCriterion.ratings && getCriterion.ratings) {
-            expect(putCriterion.ratings.length).toEqual(
-              getCriterion.ratings.length
+            expect(getCriterion.id).toEqual(putCriterion.id);
+            expect(getCriterion.description).toEqual(putCriterion.description);
+            expect(getCriterion.longDescription).toEqual(
+              putCriterion.long_description,
             );
+            expect(getCriterion.pointsPossible).toEqual(putCriterion.points);
 
-            putCriterion.ratings.forEach(
-              (putRating: Rating, ratingIndex: number) => {
-                const getRating = getCriterion.ratings[ratingIndex];
-                expect(putRating.id).toEqual(getRating.id);
-                expect(putRating.description).toEqual(getRating.description);
-                expect(putRating.points).toEqual(getRating.points);
-              }
-            );
-          }
-        });
+            // Compare ratings if they exist
+            if (putCriterion.ratings && getCriterion.ratings) {
+              expect(putCriterion.ratings.length).toEqual(
+                getCriterion.ratings.length,
+              );
+
+              putCriterion.ratings.forEach(
+                (putRating: CanvasRating, ratingIndex: number) => {
+                  const getRating = getCriterion.ratings[ratingIndex];
+                  expect(putRating.id).toEqual(getRating.id);
+                  expect(putRating.description).toEqual(getRating.description);
+                  expect(putRating.points).toEqual(getRating.points);
+                },
+              );
+            }
+          },
+        );
       });
     }
   });
