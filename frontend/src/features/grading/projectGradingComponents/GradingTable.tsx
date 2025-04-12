@@ -125,7 +125,7 @@ export function GradingTable({
                     className="w-1/6 border border-gray-500 px-4 py-2 text-center"
                   >
                     <select
-                      className={`w-full text-white text-center rounded px-2 py-1 ${getBackgroundColor(
+                      className={`w-full cursor-pointer text-white text-center rounded px-2 py-1 ${getBackgroundColor(
                         currentValue,
                         criterion,
                       )}`}

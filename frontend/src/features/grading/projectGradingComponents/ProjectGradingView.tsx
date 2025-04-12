@@ -15,12 +15,7 @@ import {
   PaletteBrush,
   PaletteEye,
 } from "@/components";
-import {
-  SavedGrades,
-  useChoiceDialog,
-  useGradingContext,
-  useRubric,
-} from "@/context";
+import { useChoiceDialog, useGradingContext, useRubric } from "@/context";
 import { GroupFeedback } from "./GroupFeedback.tsx";
 import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
 import { GradingTable } from "./GradingTable.tsx";
@@ -38,7 +33,7 @@ export function ProjectGradingView({
   isOpen,
   onClose,
 }: ProjectGradingViewProps) {
-  const { closeDialog, openDialog } = useChoiceDialog();
+  const { closeDialog } = useChoiceDialog();
   const { activeRubric } = useRubric();
 
   const { setGradedSubmissionCache, gradedSubmissionCache } =
@@ -64,87 +59,12 @@ export function ProjectGradingView({
   const [showGroupFeedbackTextArea, setShowGroupFeedbackTextArea] =
     useState<boolean>(false);
 
-  const checkLocalCache = () => {
-    const stored = localStorage.getItem("gradedSubmissionCache");
-    const parsed = stored ? (JSON.parse(stored) as SavedGrades) : null;
-
-    if (parsed && Object.keys(parsed).length > 0) {
-      console.log("unsaved cache detected");
-      return true;
-    } else {
-      return false;
-    }
-  };
-
-  // state to track whether there are in-progress grades to restore
-  const [initMode, setInitMode] = useState<"none" | "canvas" | "restore">(
-    "none",
-  );
-
-  //todo: split current effect into two useEffects: 1 to check cache and then 1 to initialize the cache based on the
-  // outcome
-  const handleExistingCache = () => {
-    openDialog({
-      title: "Load Existing Ratings?",
-      message:
-        "Unsaved changes to grades were detected. Would you like to restore them or load in Canvas data?",
-      excludeCancel: true,
-      buttons: [
-        {
-          label: "Restore",
-          action: () => {
-            setInitMode("restore");
-            closeDialog();
-          },
-          autoFocus: true,
-          color: "GREEN",
-        },
-        {
-          label: "Load Canvas Data",
-          action: () => {
-            console.log("loading canvas grades");
-            setInitMode("canvas");
-            closeDialog();
-          },
-          autoFocus: false,
-          color: "YELLOW",
-        },
-      ],
-    });
-  };
-
-  // determine if there's a local cache of in progress grades
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const localCacheExists = checkLocalCache();
-
-    // local cache detected but user hasn't selected what they want to do
-    if (localCacheExists && initMode === "none") {
-      handleExistingCache();
-    } else if (!localCacheExists && initMode === "none") {
-      // use canvas data if no local cache exists
-      setInitMode("canvas");
-    }
-  }, [isOpen, initMode]);
-
   // initialize project grading view based on cache state set above
   useEffect(() => {
-    if (!isOpen || initMode === "none") return;
-
-    const localCacheRaw = localStorage.getItem("gradedSubmissionCache");
-    const localCache = localCacheRaw
-      ? (JSON.parse(localCacheRaw) as SavedGrades)
-      : {};
-
     const initialCache: Record<number, PaletteGradedSubmission> = {};
 
     submissions.forEach((submission) => {
-      // use the cache in local storage if user selected restore otherwise use canvas data
-      const saved =
-        initMode === "restore"
-          ? localCache[submission.id]
-          : gradedSubmissionCache[submission.id];
+      const saved = gradedSubmissionCache[submission.id];
 
       const rubric_assessment: PaletteGradedSubmission["rubric_assessment"] =
         {};
@@ -171,15 +91,13 @@ export function ProjectGradingView({
       } as PaletteGradedSubmission;
     });
 
-    // check that cache hasn't already been restored to avoid a double merge effort
-
     setGradedSubmissionCache((prev) => {
       return {
         ...prev,
         ...initialCache,
       };
     });
-  }, [isOpen, initMode, submissions, activeRubric.criteria]);
+  }, [submissions, activeRubric.criteria]);
 
   useEffect(() => {
     if (activeStudentId !== null) {
@@ -240,7 +158,7 @@ export function ProjectGradingView({
     return createPortal(
       <div
         className={
-          "scroll-auto fixed z-80 inset-0 bg-black bg-opacity-85 flex justify-center items-center text-white"
+          "scroll-auto fixed z-10 inset-0 bg-black bg-opacity-85 flex justify-center items-center text-white"
         }
       >
         <div className="bg-gray-700 p-6 rounded-xl shadow-lg relative w-full grid gap-4 m-4">
