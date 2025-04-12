@@ -16,15 +16,15 @@ export const useAssignment = () => useContext(AssignmentContext);
 export const AssignmentProvider = ({ children }: { children: ReactNode }) => {
   const [activeAssignment, setActiveAssignmentState] =
     useState<Assignment | null>(() => {
-      const stored = localStorage.getItem("activeAssignment");
+      const stored = sessionStorage.getItem("activeAssignment");
       return stored ? (JSON.parse(stored) as Assignment) : null;
     });
 
   const setActiveAssignment = (assignment: Assignment | null) => {
     if (assignment) {
-      localStorage.setItem("activeAssignment", JSON.stringify(assignment));
+      sessionStorage.setItem("activeAssignment", JSON.stringify(assignment));
     } else {
-      localStorage.removeItem("activeAssignment");
+      sessionStorage.removeItem("activeAssignment");
     }
     setActiveAssignmentState(assignment);
   };

@@ -15,16 +15,16 @@ export const useCourse = () => useContext(CourseContext);
 
 export const CourseProvider = ({ children }: { children: ReactNode }) => {
   const [activeCourse, setActiveCourseState] = useState<Course | null>(() => {
-    const stored = localStorage.getItem("activeCourse");
+    const stored = sessionStorage.getItem("activeCourse");
     return stored ? (JSON.parse(stored) as Course) : null;
   });
 
   // wrapper for setter to persist active course in local storage
   const setActiveCourse = (course: Course | null) => {
     if (course) {
-      localStorage.setItem("activeCourse", JSON.stringify(course));
+      sessionStorage.setItem("activeCourse", JSON.stringify(course));
     } else {
-      localStorage.removeItem("activeCourse");
+      sessionStorage.removeItem("activeCourse");
     }
 
     setActiveCourseState(course);
