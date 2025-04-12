@@ -251,14 +251,14 @@ describe("Rubric Router", () => {
             expect(getCriterion.id).toEqual(putCriterion.id);
             expect(getCriterion.description).toEqual(putCriterion.description);
             expect(getCriterion.longDescription).toEqual(
-              putCriterion.long_description
+              putCriterion.long_description,
             );
             expect(getCriterion.pointsPossible).toEqual(putCriterion.points);
 
             // Compare ratings if they exist
             if (putCriterion.ratings && getCriterion.ratings) {
               expect(putCriterion.ratings.length).toEqual(
-                getCriterion.ratings.length
+                getCriterion.ratings.length,
               );
 
               putCriterion.ratings.forEach(
@@ -267,10 +267,10 @@ describe("Rubric Router", () => {
                   expect(putRating.id).toEqual(getRating.id);
                   expect(putRating.description).toEqual(getRating.description);
                   expect(putRating.points).toEqual(getRating.points);
-                }
+                },
               );
             }
-          }
+          },
         );
       });
     }
