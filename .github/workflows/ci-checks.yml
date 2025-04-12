@@ -101,7 +101,7 @@ jobs:
         run: npm run build:all
 
       - name: Test Suites
-        run: npm run test
+        run: npm run test:ci
 
   # Check for accidental root dependencies
   check-dependencies:

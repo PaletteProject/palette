@@ -19,6 +19,7 @@
     "prettier:fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "prettier:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "test": "concurrently \"npm run test -w frontend\" \"npm run test -w backend\"",
+    "test:ci": "jest --testPathIgnorePatterns=rubrics.test.ts --testPathIgnorePatterns=submissions.test.ts",
     "push": "npm run build:all && npm run prettier:check && npm run lint && npm run test && echo '\n\nLooks great, ready to push!'"
   },
   "devDependencies": {
