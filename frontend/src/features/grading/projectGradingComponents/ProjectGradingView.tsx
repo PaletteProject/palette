@@ -8,7 +8,7 @@ import {
   SubmissionComment,
 } from "palette-types";
 import { createPortal } from "react-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ChoiceDialog,
   PaletteActionButton,
@@ -61,7 +61,6 @@ export function ProjectGradingView({
   const [activeStudentId, setActiveStudentId] = useState<number | null>(null);
 
   // Text area states
-
   const [showGroupFeedbackTextArea, setShowGroupFeedbackTextArea] =
     useState<boolean>(false);
 
@@ -77,10 +76,12 @@ export function ProjectGradingView({
     }
   };
 
-  // track cache restoration to avoid double merge
-  const hasRestoredCache = useRef(false);
+  // state to track whether there are in-progress grades to restore
+  const [initMode, setInitMode] = useState<"none" | "canvas" | "restore">(
+    "none",
+  );
 
-  //todo: split current effect into two useEffects: 1 to check cache and then 1 to intiialize the cache based on the
+  //todo: split current effect into two useEffects: 1 to check cache and then 1 to initialize the cache based on the
   // outcome
   const handleExistingCache = () => {
     openDialog({
@@ -92,12 +93,7 @@ export function ProjectGradingView({
         {
           label: "Restore",
           action: () => {
-            const stored = localStorage.getItem("gradedSubmissionCache");
-            if (stored) {
-              const restoredCache = JSON.parse(stored) as SavedGrades;
-              setGradedSubmissionCache(restoredCache);
-              hasRestoredCache.current = true;
-            }
+            setInitMode("restore");
             closeDialog();
           },
           autoFocus: true,
@@ -107,8 +103,8 @@ export function ProjectGradingView({
           label: "Load Canvas Data",
           action: () => {
             console.log("loading canvas grades");
+            setInitMode("canvas");
             closeDialog();
-            hasRestoredCache.current = false;
           },
           autoFocus: false,
           color: "YELLOW",
@@ -117,20 +113,39 @@ export function ProjectGradingView({
     });
   };
 
-  /**
-   * Initialize project grading view.
-   */
+  // determine if there's a local cache of in progress grades
   useEffect(() => {
     if (!isOpen) return;
 
-    if (checkLocalCache() && !hasRestoredCache.current) {
+    const localCacheExists = checkLocalCache();
+
+    // local cache detected but user hasn't selected what they want to do
+    if (localCacheExists && initMode === "none") {
       handleExistingCache();
+    } else if (!localCacheExists && initMode === "none") {
+      // use canvas data if no local cache exists
+      setInitMode("canvas");
     }
+  }, [isOpen, initMode]);
+
+  // initialize project grading view based on cache state set above
+  useEffect(() => {
+    if (!isOpen || initMode === "none") return;
+
+    const localCacheRaw = localStorage.getItem("gradedSubmissionCache");
+    const localCache = localCacheRaw
+      ? (JSON.parse(localCacheRaw) as SavedGrades)
+      : {};
 
     const initialCache: Record<number, PaletteGradedSubmission> = {};
 
     submissions.forEach((submission) => {
-      const saved = gradedSubmissionCache[submission.id];
+      // use the cache in local storage if user selected restore otherwise use canvas data
+      const saved =
+        initMode === "restore"
+          ? localCache[submission.id]
+          : gradedSubmissionCache[submission.id];
+
       const rubric_assessment: PaletteGradedSubmission["rubric_assessment"] =
         {};
 
@@ -157,15 +172,14 @@ export function ProjectGradingView({
     });
 
     // check that cache hasn't already been restored to avoid a double merge effort
-    if (!hasRestoredCache.current) {
-      setGradedSubmissionCache((prev) => {
-        return {
-          ...prev,
-          ...initialCache,
-        };
-      });
-    }
-  }, [isOpen, submissions, activeRubric.criteria]);
+
+    setGradedSubmissionCache((prev) => {
+      return {
+        ...prev,
+        ...initialCache,
+      };
+    });
+  }, [isOpen, initMode, submissions, activeRubric.criteria]);
 
   useEffect(() => {
     if (activeStudentId !== null) {
