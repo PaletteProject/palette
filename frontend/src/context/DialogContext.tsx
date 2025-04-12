@@ -4,7 +4,7 @@ import { ButtonColorOptions } from "@/components";
 type DialogButton = {
   label: string; // text to display on the button
   action: () => void; // function to call when button is clicked
-  autoFocus: boolean; // whether the choice should be automatically focused on render
+  autoFocus?: boolean; // whether the choice should be automatically focused on render
   color?: ButtonColorOptions; // optional color override
 };
 

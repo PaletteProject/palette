@@ -83,5 +83,5 @@ export const calculateCanvasGroupAverage = (
 
   if (totalCount === 0) return 0;
 
-  return parseFloat((totalPoints / totalCount).toFixed(2)); // Rounded to 2 decimal places
+  return totalPoints / totalCount;
 };

@@ -18,6 +18,7 @@ import { GradingTable } from "./GradingTable.tsx";
 
 type ProjectGradingViewProps = {
   groupName: string;
+  initMode: "restore" | "canvas" | "none";
   submissions: Submission[];
   isOpen: boolean;
   onClose: () => void; // event handler defined in GroupSubmissions.tsx
@@ -28,6 +29,7 @@ export function ProjectGradingView({
   submissions,
   isOpen,
   onClose,
+  initMode,
 }: ProjectGradingViewProps) {
   const { closeDialog } = useChoiceDialog();
   const { activeRubric } = useRubric();
@@ -56,7 +58,9 @@ export function ProjectGradingView({
 
   // initialize project grading view based on cache state set above
   useEffect(() => {
-    initializeGradingCache(submissions, activeRubric, "restore");
+    if (initMode) {
+      initializeGradingCache(submissions, activeRubric, initMode);
+    }
   }, [submissions, activeRubric.criteria]);
 
   useEffect(() => {

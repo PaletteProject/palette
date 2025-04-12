@@ -1,8 +1,8 @@
 import { Submission } from "palette-types";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PaletteActionButton, ProgressBar } from "@/components";
-import { useRubric } from "@/context";
+import { SavedGrades, useChoiceDialog, useRubric } from "@/context";
 import { ProjectGradingView } from "./projectGradingComponents/ProjectGradingView.tsx";
 import { useGradingContext } from "@/context/GradingContext.tsx";
 import { calculateCanvasGroupAverage, calculateGroupAverage } from "@/utils";
@@ -21,21 +21,24 @@ export function GroupSubmissions({
   submissions,
 }: GroupSubmissionsProps) {
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
-  const [groupAverageScore, setGroupAverageScore] = useState(0);
+  const [groupAverageScore, setGroupAverageScore] = useState(() => {
+    if (submissions.length === 0) return 0;
+    return calculateCanvasGroupAverage(submissions);
+  });
 
   const { activeRubric } = useRubric();
   const { gradedSubmissionCache } = useGradingContext();
 
-  const [submissionIds, setSubmissionIds] = useState<number[]>([]);
+  // track submission IDs for easy lookups
+  const submissionIds = useMemo(
+    () => submissions.map((s) => s.id),
+    [submissions],
+  );
 
-  // track ids for easy grade lookups
-  useEffect(() => {
-    const ids: number[] = [];
-    submissions.forEach((submission) => {
-      ids.push(submission.id);
-    });
-    setSubmissionIds(ids);
-  }, [submissions]);
+  const [initMode, setInitMode] = useState<"none" | "canvas" | "restore">(
+    "none",
+  );
+  const { openDialog, closeDialog } = useChoiceDialog();
 
   const toggleGradingView = () => {
     if (!activeRubric) {
@@ -44,7 +47,47 @@ export function GroupSubmissions({
       );
       return;
     }
-    setGradingViewOpen(true);
+
+    const stored = localStorage.getItem("gradedSubmissionCache");
+    const parsedCache = stored ? (JSON.parse(stored) as SavedGrades) : {};
+    const hasUnsavedGrades = submissionIds.some(
+      (id) => parsedCache[id] !== undefined,
+    );
+
+    if (hasUnsavedGrades) {
+      openDialog({
+        title: "Unsaved Grades Detected",
+        message:
+          "You have unsaved grades. Do you want to restore them or start fresh from Canvas?",
+        excludeCancel: true,
+        buttons: [
+          {
+            label: "Restore",
+            color: "GREEN",
+            action: () => {
+              setInitMode("restore");
+              setGradingViewOpen(true);
+              closeDialog();
+            },
+            autoFocus: true,
+          },
+          {
+            label: "Load Canvas Data",
+            color: "YELLOW",
+            action: () => {
+              setInitMode("canvas");
+              localStorage.removeItem("gradedSubmissionCache");
+              setGradingViewOpen(true);
+              closeDialog();
+            },
+            autoFocus: false,
+          },
+        ],
+      });
+    } else {
+      setInitMode("canvas");
+      setGradingViewOpen(true);
+    }
   };
 
   useEffect(() => {
@@ -59,18 +102,27 @@ export function GroupSubmissions({
     }
   }, [gradedSubmissionCache]);
 
+  const hasDraftGrades = submissionIds.some(
+    (id) => gradedSubmissionCache[id] !== undefined,
+  );
+
   return (
     <div className="w-full">
       <div
         className={cn(
           "flex flex-col gap-2 p-4 border-2 rounded-2xl",
-          "border - gray - 500 shadow-xl bg-gray-900",
+          "border-gray-500 shadow-xl bg-gray-900",
           "border-opacity-35",
         )}
       >
         {/* Group Header */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 relative">
           <h1 className="text-lg font-bold">{groupName}</h1>
+          {hasDraftGrades && (
+            <span className="text-xs text-yellow-300 italic absolute -top-10 -left-1">
+              In Progress
+            </span>
+          )}
           <PaletteActionButton
             color="BLUE"
             title="Grade"
@@ -88,9 +140,13 @@ export function GroupSubmissions({
 
       <ProjectGradingView
         isOpen={isGradingViewOpen}
+        initMode={initMode}
         groupName={groupName}
         submissions={submissions}
-        onClose={() => setGradingViewOpen(false)}
+        onClose={() => {
+          setInitMode("none");
+          setGradingViewOpen(false);
+        }}
       />
     </div>
   );
