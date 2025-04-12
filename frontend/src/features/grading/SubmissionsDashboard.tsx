@@ -71,12 +71,14 @@ export function SubmissionsDashboard({
           criteria: newRubric.criteria.map((c) => ({
             ...c,
             pointsPossible: calcMaxPoints(c.ratings),
-            isGroupCriterion: c.isGroupCriterion ?? false,
+            isGroupCriterion: c.isGroupCriterion ?? true,
             key: c.key || crypto.randomUUID(),
-            ratings: c.ratings.map((r) => ({
-              ...r,
-              key: r.key || crypto.randomUUID(),
-            })),
+            ratings: c.ratings.map((r) => {
+              return {
+                ...r,
+                key: r.key || crypto.randomUUID(),
+              };
+            }),
           })),
         };
 
@@ -109,7 +111,7 @@ export function SubmissionsDashboard({
           const oldCriterionId = matchingOldCriterion.id;
           const oldGrade = oldAssessment[oldCriterionId];
 
-          console.log("old rating:", oldGrade);
+          console.log("old grade:", oldGrade);
           if (oldGrade) {
             newAssessment[newCriterion.id] = {
               points: oldGrade.points,

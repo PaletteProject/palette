@@ -1,7 +1,14 @@
 import { Criteria, Submission, SubmissionComment } from "palette-types";
 import { StudentHeaderControls } from "./StudentHeaderControls.tsx";
-import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
+import {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useMemo,
+  useState,
+} from "react";
 import { useGradingContext, useRubric } from "@/context";
+import { cn } from "@/lib/utils.ts";
 
 interface GradingTableProps {
   submissions: Submission[];
@@ -38,18 +45,29 @@ export function GradingTable({
     });
   };
 
-  const getBackgroundColor = (
-    value: number | string,
-    criterion: Criteria,
-  ): string => {
-    if (value === "") return "bg-gray-800";
-    const highest = Math.max(...criterion.ratings.map((r) => r.points));
-    const lowest = Math.min(...criterion.ratings.map((r) => r.points));
+  const colorMap = useMemo(() => {
+    const map = new Map<string, Record<number, string>>();
+    activeRubric.criteria.forEach((criterion) => {
+      const ratingPoints = criterion.ratings.map((r) => r.points);
+      const highest = Math.max(...ratingPoints);
+      const lowest = Math.min(...ratingPoints);
 
-    if (value === highest) return "bg-green-500";
-    if (value === lowest) return "bg-red-500";
-    return "bg-yellow-500";
-  };
+      const criterionColors: Record<number, string> = {};
+      ratingPoints.forEach((points) => {
+        if (points === highest) {
+          criterionColors[points] = "bg-green-500";
+        } else if (points === lowest) {
+          criterionColors[points] = "bg-red-500";
+        } else {
+          criterionColors[points] = "bg-yellow-500";
+        }
+      });
+
+      map.set(criterion.id, criterionColors);
+    });
+
+    return map;
+  }, [activeRubric]);
 
   return (
     <div className="overflow-auto max-h-[70vh] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 relative">
@@ -99,7 +117,7 @@ export function GradingTable({
                   gradedSubmissionCache[submissionId]?.rubric_assessment?.[
                     criterion.id
                   ];
-                const currentValue = assessment?.points ?? "";
+                const currentValue: number | "" = assessment?.points ?? "";
 
                 const handleRatingChange = (
                   e: ChangeEvent<HTMLSelectElement>,
@@ -119,16 +137,20 @@ export function GradingTable({
                   }
                 };
 
+                const points = Number(currentValue);
+                const bgColor =
+                  colorMap.get(criterion.id)?.[points] ?? "bg-gray-800";
+
                 return (
                   <td
                     key={`${criterion.id}-${submission.id}`}
                     className="w-1/6 border border-gray-500 px-4 py-2 text-center"
                   >
                     <select
-                      className={`w-full cursor-pointer text-white text-center rounded px-2 py-1 ${getBackgroundColor(
-                        currentValue,
-                        criterion,
-                      )}`}
+                      className={cn(
+                        `w-full cursor-pointer text-white text-center rounded px-2 py-1 transition-colors duration-200 `,
+                        `${bgColor}`,
+                      )}
                       value={currentValue}
                       onChange={handleRatingChange}
                     >
