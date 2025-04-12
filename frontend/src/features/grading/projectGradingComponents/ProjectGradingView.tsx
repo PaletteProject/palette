@@ -2,11 +2,7 @@
  * Primary project grading view. Opens as a modal over the grading dashboard.
  */
 
-import {
-  PaletteGradedSubmission,
-  Submission,
-  SubmissionComment,
-} from "palette-types";
+import { Submission, SubmissionComment } from "palette-types";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import {
@@ -36,8 +32,7 @@ export function ProjectGradingView({
   const { closeDialog } = useChoiceDialog();
   const { activeRubric } = useRubric();
 
-  const { setGradedSubmissionCache, gradedSubmissionCache } =
-    useGradingContext();
+  const { initializeGradingCache } = useGradingContext();
 
   if (!isOpen) {
     return null;
@@ -61,42 +56,7 @@ export function ProjectGradingView({
 
   // initialize project grading view based on cache state set above
   useEffect(() => {
-    const initialCache: Record<number, PaletteGradedSubmission> = {};
-
-    submissions.forEach((submission) => {
-      const saved = gradedSubmissionCache[submission.id];
-
-      const rubric_assessment: PaletteGradedSubmission["rubric_assessment"] =
-        {};
-
-      activeRubric.criteria.forEach((criterion) => {
-        const savedCriterion = saved?.rubric_assessment?.[criterion.id];
-        const canvasData = submission.rubricAssessment?.[criterion.id];
-
-        rubric_assessment[criterion.id] = {
-          points: savedCriterion?.points ?? canvasData?.points ?? "",
-
-          rating_id: savedCriterion?.rating_id ?? canvasData?.rating_id ?? "",
-
-          comments: savedCriterion?.comments ?? "",
-        };
-      });
-
-      initialCache[submission.id] = {
-        submission_id: submission.id,
-        user: submission.user,
-        individual_comment: saved?.individual_comment ?? undefined,
-        group_comment: saved?.group_comment ?? undefined,
-        rubric_assessment,
-      } as PaletteGradedSubmission;
-    });
-
-    setGradedSubmissionCache((prev) => {
-      return {
-        ...prev,
-        ...initialCache,
-      };
-    });
+    initializeGradingCache(submissions, activeRubric, "restore");
   }, [submissions, activeRubric.criteria]);
 
   useEffect(() => {
