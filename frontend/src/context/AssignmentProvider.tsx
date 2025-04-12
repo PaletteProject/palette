@@ -14,9 +14,20 @@ const AssignmentContext = createContext<AssignmentProviderProps>({
 export const useAssignment = () => useContext(AssignmentContext);
 
 export const AssignmentProvider = ({ children }: { children: ReactNode }) => {
-  const [activeAssignment, setActiveAssignment] = useState<Assignment | null>(
-    null,
-  );
+  const [activeAssignment, setActiveAssignmentState] =
+    useState<Assignment | null>(() => {
+      const stored = localStorage.getItem("activeAssignment");
+      return stored ? (JSON.parse(stored) as Assignment) : null;
+    });
+
+  const setActiveAssignment = (assignment: Assignment | null) => {
+    if (assignment) {
+      localStorage.setItem("activeAssignment", JSON.stringify(assignment));
+    } else {
+      localStorage.removeItem("activeAssignment");
+    }
+    setActiveAssignmentState(assignment);
+  };
 
   return (
     <AssignmentContext.Provider
