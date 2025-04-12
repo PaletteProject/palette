@@ -1,18 +1,14 @@
-/** @type {import('ts-jest').JestConfigWithTsJest} */
 export default {
   preset: "ts-jest",
   testEnvironment: "node",
-  extensionsToTreatAsEsm: [".ts"],
+  testPathIgnorePatterns: [
+    "/dist/",
+    "/node_modules/",
+    "rubrics.test.ts",
+    "submissions.test.ts",
+  ], // Don't run tests in these directories
+  // tell jest to interpret .js-ending files as .ts files during testing
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
-  transform: {
-    "^.+\\.tsx?$": [
-      "ts-jest",
-      {
-        useESM: true,
-      },
-    ],
-  },
-  testPathIgnorePatterns: ["rubrics.test.ts", "submissions.test.ts"],
 };
