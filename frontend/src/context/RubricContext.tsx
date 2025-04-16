@@ -42,9 +42,7 @@ export const RubricProvider = ({ children }: { children: ReactNode }) => {
     `/courses/${activeCourse?.id}/rubrics/${activeAssignment?.rubricId}`,
   );
 
-  const [activeRubric, setActiveRubric] = useState<Rubric>(() =>
-    createRubric(settings),
-  );
+  const [activeRubric, setActiveRubric] = useState<Rubric>(() => createRubric(settings));
 
   useEffect(() => {
     const fetchRubric = async () => {

@@ -19,32 +19,39 @@ export function OfflineGradingView(): ReactElement {
   const [offlineRubric, setOfflineRubric] = useState<Rubric | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
-    CanvasGradedSubmission[]
-  >([]);
+    Record<number, CanvasGradedSubmission>
+  >({});
 
+  // ✅ Load all offline data when course and assignment change
   useEffect(() => {
     if (selectedCourse && selectedAssignment) {
       const submissionsKey = `offlineSubmissions_${selectedCourse}_${selectedAssignment}`;
       const rubricKey = `offlineRubric_${selectedCourse}_${selectedAssignment}`;
+      const gradesKey = `offlineGradingCache_${selectedCourse}_${selectedAssignment}`;
 
       try {
         const submissionsRaw = localStorage.getItem(submissionsKey);
         const rubricRaw = localStorage.getItem(rubricKey);
+        const gradedRaw = localStorage.getItem(gradesKey);
 
-        const submissions: GroupedSubmissions = submissionsRaw
-          ? JSON.parse(submissionsRaw)
-          : {};
-        const rubric: Rubric | null = rubricRaw
-          ? JSON.parse(rubricRaw)
-          : null;
-
-        setOfflineSubmissions(submissions);
-        setOfflineRubric(rubric);
+        setOfflineSubmissions(
+          submissionsRaw ? JSON.parse(submissionsRaw) : {},
+        );
+        setOfflineRubric(rubricRaw ? JSON.parse(rubricRaw) : null);
+        setGradedSubmissionCache(gradedRaw ? JSON.parse(gradedRaw) : {});
       } catch (error) {
         console.error("Error loading offline grading data:", error);
       }
     }
   }, [selectedCourse, selectedAssignment]);
+
+  // ✅ Save cache to localStorage when it changes
+  useEffect(() => {
+    if (selectedCourse && selectedAssignment) {
+      const gradesKey = `offlineGradingCache_${selectedCourse}_${selectedAssignment}`;
+      localStorage.setItem(gradesKey, JSON.stringify(gradedSubmissionCache));
+    }
+  }, [gradedSubmissionCache, selectedCourse, selectedAssignment]);
 
   const safeOfflineRubric: Rubric = offlineRubric ?? {
     id: "default",
@@ -63,7 +70,9 @@ export function OfflineGradingView(): ReactElement {
 
     setOfflineSubmissions({});
     setOfflineRubric(null);
-    setGradedSubmissionCache([]);
+    setGradedSubmissionCache({});
+    setSelectedCourse(null);
+    setSelectedAssignment(null);
 
     alert("✅ Offline grading data has been cleared!");
   };
@@ -109,6 +118,7 @@ export function OfflineGradingView(): ReactElement {
             onClose={() => setSelectedGroup(null)}
             savedGrades={gradedSubmissionCache}
             setSavedGrades={setGradedSubmissionCache}
+            rubric={safeOfflineRubric}
           />
         </GradingProvider>
       )}
@@ -126,6 +136,7 @@ export function OfflineGradingView(): ReactElement {
       >
         Transfer to Token-Based Grading
       </button>
+
       <button
         className="bg-red-600 text-white py-2 px-4 mt-4 rounded"
         onClick={handleClearOfflineStorage}

@@ -3,10 +3,11 @@ import {
   PaletteGradedSubmission,
   Submission,
   SubmissionComment,
+  Rubric,
 } from "palette-types";
-import { StudentHeaderControls } from "./StudentHeaderControls.tsx";
-import { ExistingCriteriaComments } from "./ExistingCriteriaComments.tsx";
-import { CriterionHeaderControls } from "./CriterionHeaderControls.tsx";
+import { StudentHeaderControls } from "./StudentHeaderControls";
+import { ExistingCriteriaComments } from "./ExistingCriteriaComments";
+import { CriterionHeaderControls } from "./CriterionHeaderControls";
 import {
   ChangeEvent,
   Dispatch,
@@ -14,9 +15,8 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useGradingContext } from "../../../context/GradingContext.tsx";
-import { TableRatingOptions } from "./TableRatingOptions.tsx";
-import { useRubric } from "@context";
+import { TableRatingOptions } from "./TableRatingOptions";
+import { useGradingContext } from "../../../context/GradingContext";
 
 interface GradingTableProps {
   submissions: Submission[];
@@ -26,6 +26,7 @@ interface GradingTableProps {
   setSavedGrades: Dispatch<
     SetStateAction<Record<number, PaletteGradedSubmission>>
   >;
+  rubric: Rubric; // ✅ required to avoid context dependency
 }
 
 export function GradingTable({
@@ -34,6 +35,7 @@ export function GradingTable({
   setActiveStudentId,
   existingIndividualFeedback,
   setSavedGrades,
+  rubric,
 }: GradingTableProps) {
   const [activeCriterion, setActiveCriterion] = useState<string | null>(null);
   const [showExistingCriterionComment, setShowExistingCriterionComment] =
@@ -42,7 +44,6 @@ export function GradingTable({
     useState<boolean>(false);
 
   const { gradedSubmissionCache, updateScore } = useGradingContext();
-  const { activeRubric } = useRubric();
 
   const getBackgroundColor = (
     value: number | string,
@@ -56,6 +57,13 @@ export function GradingTable({
     if (value === lowest) return "bg-red-500";
     return "bg-yellow-500";
   };
+
+  useEffect(() => {
+    setSavedGrades((existingGrades) => ({
+      ...existingGrades,
+      ...gradedSubmissionCache,
+    }));
+  }, [gradedSubmissionCache]);
 
   return (
     <div className="overflow-auto max-h-[70vh] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 relative">
@@ -79,7 +87,7 @@ export function GradingTable({
           </tr>
         </thead>
         <tbody>
-          {activeRubric.criteria.map((criterion: Criteria) => (
+          {rubric.criteria.map((criterion: Criteria) => (
             <tr key={criterion.id}>
               <td className="border border-gray-500 px-4 py-2">
                 <div className="flex justify-between items-center gap-6">
@@ -94,7 +102,6 @@ export function GradingTable({
                         }
                       />
                     )}
-
                   <TableRatingOptions criterion={criterion} />
                   <CriterionHeaderControls
                     activeCriterion={activeCriterion}
@@ -122,12 +129,7 @@ export function GradingTable({
                 const handleRatingChange = (
                   e: ChangeEvent<HTMLSelectElement>,
                 ) => {
-                  const ratingStringValue = e.target.value;
-                  console.log("rating change: score", ratingStringValue);
-                  if (ratingStringValue === "") return; // skip updates if nothing selected
-
-                  const newPoints = Number(ratingStringValue);
-
+                  const newPoints = Number(e.target.value);
                   if (!criterion.isGroupCriterion) {
                     updateScore(submissionId, criterion.id, newPoints);
                   } else {
@@ -136,16 +138,6 @@ export function GradingTable({
                     });
                   }
                 };
-
-                // save grades anytime the graded submission cache updates (rating changes)
-                useEffect(() => {
-                  setSavedGrades((existingGrades) => {
-                    return {
-                      ...existingGrades,
-                      gradedSubmissionCache,
-                    };
-                  });
-                }, [gradedSubmissionCache]);
 
                 return (
                   <td

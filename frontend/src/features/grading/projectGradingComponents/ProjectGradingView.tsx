@@ -6,6 +6,7 @@ import {
   PaletteGradedSubmission,
   Submission,
   SubmissionComment,
+  Rubric,
 } from "palette-types";
 import { createPortal } from "react-dom";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -21,8 +22,6 @@ import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
 import { GradingTable } from "./GradingTable.tsx";
 import { useGradingContext } from "../../../context/GradingContext.tsx";
 import { useRubric } from "@context";
-import { CanvasGradedSubmission } from "palette-types";
-
 
 type ProjectGradingViewProps = {
   groupName: string;
@@ -33,10 +32,7 @@ type ProjectGradingViewProps = {
   >;
   isOpen: boolean;
   onClose: (cache: Record<number, PaletteGradedSubmission>) => void; // event handler defined in GroupSubmissions.tsx
-  gradedSubmissionCache: CanvasGradedSubmission[]; // ✅ Add this
-  setGradedSubmissionCache: React.Dispatch<
-    React.SetStateAction<CanvasGradedSubmission[]>
-  >;
+  rubric?: Rubric;
 };
 
 export function ProjectGradingView({
@@ -46,6 +42,7 @@ export function ProjectGradingView({
   onClose,
   savedGrades,
   setSavedGrades,
+  rubric,
 }: ProjectGradingViewProps) {
   if (!isOpen) {
     return null;
@@ -70,6 +67,7 @@ export function ProjectGradingView({
 
   const { closeDialog } = useChoiceDialog();
   const { activeRubric } = useRubric();
+  const effectiveRubric = rubric ?? activeRubric; 
 
   const { setGradedSubmissionCache, gradedSubmissionCache } =
     useGradingContext();
@@ -78,51 +76,38 @@ export function ProjectGradingView({
    * Initialize project grading view.
    */
   useEffect(() => {
-    if (!isOpen) return;
-  
-    const initialCache: Record<number, PaletteGradedSubmission> = {};
-  
-    const savedOfflineGrades = localStorage.getItem("offlineGradingCache");
-    let parsedOfflineGrades: PaletteGradedSubmission[] = [];
-  
-    try {
-      if (savedOfflineGrades) {
-        parsedOfflineGrades = JSON.parse(savedOfflineGrades);
-      }
-    } catch (err) {
-      console.error("Error parsing offline grading cache:", err);
-    }
-  
-    submissions.forEach((submission) => {
-      const saved = parsedOfflineGrades.find(
-        (entry) => entry.submission_id === submission.id,
-      );
-  
-      const rubric_assessment: PaletteGradedSubmission["rubric_assessment"] = {};
-  
-      activeRubric.criteria.forEach((criterion) => {
-        const cached = saved?.rubric_assessment?.[criterion.id];
-        const canvas = submission.rubricAssessment?.[criterion.id];
-  
-        rubric_assessment[criterion.id] = {
-          points: cached?.points ?? canvas?.points ?? "",
-          rating_id: cached?.rating_id ?? canvas?.rating_id ?? "",
-          comments: cached?.comments ?? canvas?.comments ?? "",
+    if (isOpen) {
+      const initialCache: Record<number, PaletteGradedSubmission> = {};
+      submissions.forEach((submission) => {
+        const saved = savedGrades[submission.id];
+        const rubric_assessment: PaletteGradedSubmission["rubric_assessment"] =
+          {};
+
+        effectiveRubric.criteria.forEach((criterion) => {
+          const savedCriterion = saved?.rubric_assessment?.[criterion.id];
+          const canvasData = submission.rubricAssessment?.[criterion.id];
+
+          rubric_assessment[criterion.id] = {
+            points: savedCriterion?.points ?? canvasData?.points ?? "",
+
+            rating_id: savedCriterion?.rating_id ?? canvasData?.rating_id ?? "",
+
+            comments: savedCriterion?.comments ?? "", // You could pull from Canvas too if needed
+          };
+        });
+
+        initialCache[submission.id] = {
+          submission_id: submission.id,
+          user: submission.user,
+          individual_comment: saved?.individual_comment ?? undefined,
+          group_comment: saved?.group_comment ?? undefined,
+          rubric_assessment,
         };
       });
-  
-      initialCache[submission.id] = {
-        submission_id: submission.id,
-        user: submission.user,
-        individual_comment: saved?.individual_comment ?? undefined,
-        group_comment: saved?.group_comment ?? undefined,
-        rubric_assessment,
-      };
-    });
-  
-    setGradedSubmissionCache(initialCache);
+
+      setGradedSubmissionCache(initialCache);
+    }
   }, [isOpen, submissions, activeRubric]);
-  
 
   useEffect(() => {
     if (activeStudentId !== null) {
@@ -217,6 +202,7 @@ export function ProjectGradingView({
             setActiveStudentId={setActiveStudentId}
             existingIndividualFeedback={existingIndividualFeedback}
             setSavedGrades={setSavedGrades}
+            rubric={effectiveRubric}
           />
 
           <div className={"flex gap-4 justify-end"}>
@@ -230,7 +216,7 @@ export function ProjectGradingView({
       </div>,
       document.getElementById("portal-root") as HTMLElement,
     );
-  };
+  }
 
   return (
     <div className={"max-h-48 overflow-y-auto"}>
