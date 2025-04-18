@@ -13,7 +13,7 @@ const COURSE_ROUTE = "/api/courses";
 const COURSE_ID = 15760;
 const ASSIGNMENT_ID = 6171684;
 const RUBRIC_ID = 1034872;
-const TEST_COUNT = 10; // Change this to fully test the metric. Planning to config this number the be reduced when doing GitHub Actions CI.
+const TEST_COUNT = 100; // Change this to fully test the metric. Planning to config this number the be reduced when doing GitHub Actions CI.
 
 const app = express();
 app.use(express.json());
@@ -251,14 +251,14 @@ describe("Rubric Router", () => {
             expect(getCriterion.id).toEqual(putCriterion.id);
             expect(getCriterion.description).toEqual(putCriterion.description);
             expect(getCriterion.longDescription).toEqual(
-              putCriterion.long_description,
+              putCriterion.long_description
             );
             expect(getCriterion.pointsPossible).toEqual(putCriterion.points);
 
             // Compare ratings if they exist
             if (putCriterion.ratings && getCriterion.ratings) {
               expect(putCriterion.ratings.length).toEqual(
-                getCriterion.ratings.length,
+                getCriterion.ratings.length
               );
 
               putCriterion.ratings.forEach(
@@ -267,10 +267,10 @@ describe("Rubric Router", () => {
                   expect(putRating.id).toEqual(getRating.id);
                   expect(putRating.description).toEqual(getRating.description);
                   expect(putRating.points).toEqual(getRating.points);
-                },
+                }
               );
             }
-          },
+          }
         );
       });
     }
