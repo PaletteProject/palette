@@ -1,11 +1,11 @@
 import { ChangeEvent, useEffect, useState } from "react";
 
 import { Template } from "palette-types/dist/types/Template.ts";
-import { createTemplate } from "../../utils/templateFactory.ts";
+import { createTemplate } from "@/utils/templateFactory.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { Criteria } from "palette-types";
-import { useFetch } from "@hooks";
+import { useFetch } from "@/hooks";
 
 interface TemplateSetterProps {
   closeTemplateCard: () => void; // callback to close the template setter card

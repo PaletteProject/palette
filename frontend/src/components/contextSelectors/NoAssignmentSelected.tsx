@@ -7,7 +7,7 @@ import {
   AssignmentSelectionMenu,
   Dialog,
   PaletteActionButton,
-} from "@components";
+} from "@/components";
 import { useState } from "react";
 
 export function NoAssignmentSelected() {

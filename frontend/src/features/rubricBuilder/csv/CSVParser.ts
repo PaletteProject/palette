@@ -1,6 +1,6 @@
 import Papa from "papaparse";
 import { Criteria, Settings } from "palette-types";
-import { createCriterion, createRating } from "@utils";
+import { createCriterion, createRating } from "@/utils";
 
 export const VERSION_ONE = 1;
 export const VERSION_TWO = 2;

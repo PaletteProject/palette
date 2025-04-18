@@ -9,7 +9,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import { useRubric } from "@context";
+import { useRubric } from "@/context";
 
 type CriteriaListPropsType = {
   criteria: Criteria[];
@@ -48,6 +48,9 @@ export default function CriteriaList({
       setActiveRubric({ ...activeRubric, criteria: updatedCriteria });
     }
   };
+  criteria.forEach((criterion) => {
+    if (!criterion.key) throw new Error("Criterion missing key!");
+  });
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <SortableContext

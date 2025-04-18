@@ -1,5 +1,5 @@
 import { Criteria } from "palette-types";
-import { useRubric } from "@context";
+import { useRubric } from "@/context";
 
 interface TableRatingOptionsProps {
   criterion: Criteria;
