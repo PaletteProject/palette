@@ -141,14 +141,14 @@ describe("Graded Submission Router", () => {
         const testStudentSubmission = groupOneSubmissions[0];
 
         expect(mockGradedSubmission.user.name).toBe(
-          testStudentSubmission.user.name
+          testStudentSubmission.user.name,
         );
         expect(mockGradedSubmission.user.asurite).toBe(
-          testStudentSubmission.user.asurite
+          testStudentSubmission.user.asurite,
         );
 
         expect(mockGradedSubmission.rubric_assessment).toEqual(
-          testStudentSubmission.rubricAssessment
+          testStudentSubmission.rubricAssessment,
         );
 
         // Verify that all comments match the mockComment
@@ -174,7 +174,7 @@ describe("Graded Submission Router", () => {
             .delete(deleteEndpoint)
             .expect(200);
           console.log("deleteResponse", deleteResponse.body);
-        })
+        }),
       );
     });
   });
