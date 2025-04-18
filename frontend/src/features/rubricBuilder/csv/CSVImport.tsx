@@ -1,9 +1,8 @@
 import React, { useRef, useState } from "react";
-import { importCsv } from "@utils";
-import { Dialog, PaletteActionButton } from "@components";
+import { importCsv } from "@/utils";
+import { Dialog, PaletteActionButton } from "@/components";
 import { Criteria, Rubric } from "palette-types";
-import { useRubric } from "@context";
-import { useSettings } from "../../../context/SettingsContext.tsx";
+import { useRubric, useSettings } from "@/context";
 
 export const CSVImport = () => {
   const { activeRubric, setActiveRubric } = useRubric();

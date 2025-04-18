@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
+    "target": "esnext",
+    "module": "esnext",
     "jsx": "react-jsx",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "rootDir": "../",
     "strict": true,
@@ -16,13 +17,7 @@
     "types": ["node", "react", "vite/client", "vitest"],
     "resolveJsonModule": true,
     "paths": {
-      "@utils": ["src/utils"],
-      "@components": ["src/components"],
-      "@features": ["src/features"],
-      "@context": ["src/context"],
-      "@hooks": ["src/hooks"],
-      "@resources": ["src/resources"],
-      "@local_types": ["src/types"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src", "vite.config.ts", "**/*.test.ts"],

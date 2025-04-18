@@ -1,7 +1,7 @@
 import Papa from "papaparse";
 import { Rating } from "palette-types";
-import { PaletteActionButton } from "@components";
-import { useRubric } from "@context";
+import { PaletteActionButton } from "@/components";
+import { useRubric } from "@/context";
 
 export const CSVExport = () => {
   const { activeRubric } = useRubric();
