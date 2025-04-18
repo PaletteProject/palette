@@ -29,6 +29,7 @@ export function transferToOfflineGrading(
   const offlineRubricKey = `offlineRubric_${activeCourseId}_${activeAssignmentId}`;
   const courseNameMapKey = "courseNameMap";
   const assignmentNameMapKey = `assignmentNameMap_${activeCourseId}`;
+  const transferVersionKey = `offlineTransferVersion_${activeCourseId}_${activeAssignmentId}`;
 
   const courseNameMap: Record<string, string> = safeParse(
     localStorage.getItem(courseNameMapKey),
@@ -82,6 +83,8 @@ export function transferToOfflineGrading(
   
   localStorage.setItem(offlineSubmissionsKey, JSON.stringify(submissionsData));
   localStorage.setItem(offlineRubricKey, JSON.stringify(rubricData));
+  
+  localStorage.setItem(transferVersionKey, Date.now().toString());
 
   localStorage.setItem("offlineTransferPushRequired", "true");
   localStorage.setItem(

@@ -21,29 +21,31 @@ export function OfflineGradingView(): ReactElement {
   const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
     Record<number, CanvasGradedSubmission>
   >({});
-
-  // ✅ Load all offline data when course and assignment change
+  const [lastTransferVersion, setLastTransferVersion] = useState<string | null>(null);
+  
   useEffect(() => {
     if (selectedCourse && selectedAssignment) {
       const submissionsKey = `offlineSubmissions_${selectedCourse}_${selectedAssignment}`;
       const rubricKey = `offlineRubric_${selectedCourse}_${selectedAssignment}`;
       const gradesKey = `offlineGradingCache_${selectedCourse}_${selectedAssignment}`;
-
+      const versionKey = `offlineTransferVersion_${selectedCourse}_${selectedAssignment}`;
+      const version = localStorage.getItem(versionKey);
+  
       try {
         const submissionsRaw = localStorage.getItem(submissionsKey);
         const rubricRaw = localStorage.getItem(rubricKey);
         const gradedRaw = localStorage.getItem(gradesKey);
-
-        setOfflineSubmissions(
-          submissionsRaw ? JSON.parse(submissionsRaw) : {},
-        );
+  
+        setOfflineSubmissions(submissionsRaw ? JSON.parse(submissionsRaw) : {});
         setOfflineRubric(rubricRaw ? JSON.parse(rubricRaw) : null);
         setGradedSubmissionCache(gradedRaw ? JSON.parse(gradedRaw) : {});
+        setLastTransferVersion(version ?? null);
       } catch (error) {
         console.error("Error loading offline grading data:", error);
       }
     }
-  }, [selectedCourse, selectedAssignment]);
+  }, [selectedCourse, selectedAssignment, lastTransferVersion]);
+  
 
   // ✅ Save cache to localStorage when it changes
   useEffect(() => {
