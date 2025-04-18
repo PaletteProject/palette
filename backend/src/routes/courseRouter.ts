@@ -24,9 +24,10 @@ import {
 import {
   getSubmissions,
   submitGrades,
+  deleteComment,
 } from "../controllers/submissionController.js";
 
-const courseRouter = express.Router();
+export const courseRouter = express.Router();
 
 /**
  * @swagger
@@ -68,12 +69,109 @@ courseRouter.get(
   getSubmissions,
 );
 
+/**
+ * @swagger
+ * /courses/{course_id}/assignments/{assignment_id}/submissions/{student_id}:
+ *   put:
+ *     summary: Submit grades for a specific assignment and student
+ *     description: Submit grades for a specific assignment and student
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *       - in: path
+ *         name: assignment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the assignment.
+ *       - in: path
+ *         name: student_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the student.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Example Rubric
+ *               criteria:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     title:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *     responses:
+ *       200:
+ *         description: Grades submitted successfully.
+ *       400:
+ *         description: Validation error.
+ */
+
 courseRouter.put(
   "/:course_id/assignments/:assignment_id/submissions/:student_id",
   courseParamValidator,
   assignmentParamValidator,
   // todo: validate the payload submission
   submitGrades,
+);
+
+/**
+ * @swagger
+ * /courses/{course_id}/assignments/{assignment_id}/submissions/{student_id}/comments/{comment_id}:
+ *   delete:
+ *     summary: Delete a comment for a specific assignment and student
+ *     description: Delete a comment for a specific assignment and student
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course.
+ *       - in: path
+ *         name: assignment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the assignment.
+ *       - in: path
+ *         name: student_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the student.
+ *       - in: path
+ *         name: comment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the comment.
+ *     responses:
+ *       200:
+ *         description: Comment deleted successfully.
+ *       404:
+ *         description: Comment not found.
+ */
+
+courseRouter.delete(
+  "/:course_id/assignments/:assignment_id/submissions/:student_id/comments/:comment_id",
+  courseParamValidator,
+  assignmentParamValidator,
+  // todo: student id validator
+  deleteComment,
 );
 
 /**
