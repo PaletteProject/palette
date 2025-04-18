@@ -51,7 +51,9 @@ export function StudentHeaderControls({
         </p>
         <p className="text-xs text-gray-400">
           Score:{" "}
-          {calculateSubmissionTotal(gradedSubmissionCache[submission.id])}
+          {calculateSubmissionTotal(
+            gradedSubmissionCache[submission.id],
+          ).toFixed(1)}
         </p>
       </div>
 
