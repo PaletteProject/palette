@@ -28,6 +28,7 @@ type GradingContextType = {
     rubric: Rubric,
     mode: "restore" | "canvas",
   ) => void;
+  calculateGradingProgress: (rubric: Rubric, submissionIds: number[]) => number;
 };
 
 export type SavedGrades = Record<number, PaletteGradedSubmission>;
@@ -128,6 +129,33 @@ export const GradingProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const calculateGradingProgress = (
+    rubric: Rubric,
+    submissionIds: number[],
+  ) => {
+    const filteredSubmissions = submissionIds
+      .map((id) => gradedSubmissionCache[id])
+      .filter((submission) => submission !== undefined);
+
+    const total = filteredSubmissions.length;
+    if (total === 0) return 0;
+
+    let gradedCount = 0;
+
+    filteredSubmissions.forEach((submission) => {
+      const isFullyGraded = rubric.criteria.every((criterion) => {
+        const entry = submission.rubric_assessment?.[criterion.id];
+        return entry && !Number.isNaN(entry.points);
+      });
+
+      if (isFullyGraded) {
+        gradedCount += 1;
+      }
+    });
+
+    return (gradedCount / total) * 100;
+  };
+
   const initializeGradingCache = (
     submissions: Submission[],
     rubric: Rubric,
@@ -182,6 +210,7 @@ export const GradingProvider = ({ children }: { children: ReactNode }) => {
         updateComment,
         updateGroupComment,
         initializeGradingCache,
+        calculateGradingProgress,
       }}
     >
       {children}

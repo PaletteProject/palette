@@ -10,14 +10,12 @@ import { cn } from "@/lib/utils.ts";
 
 interface GroupSubmissionsProps {
   groupName: string;
-  progress: number;
   submissions: Submission[];
   fetchSubmissions: () => Promise<void>;
 }
 
 export function GroupSubmissions({
   groupName,
-  progress,
   submissions,
 }: GroupSubmissionsProps) {
   const [isGradingViewOpen, setGradingViewOpen] = useState(false);
@@ -27,7 +25,21 @@ export function GroupSubmissions({
   });
 
   const { activeRubric } = useRubric();
-  const { gradedSubmissionCache } = useGradingContext();
+  const { gradedSubmissionCache, calculateGradingProgress } =
+    useGradingContext();
+
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const currentGradingProgress = calculateGradingProgress(
+      activeRubric,
+      submissionIds,
+    );
+
+    if (currentGradingProgress) {
+      setProgress(currentGradingProgress);
+    }
+  }, [gradedSubmissionCache]);
 
   // track submission IDs for easy lookups
   const submissionIds = useMemo(
