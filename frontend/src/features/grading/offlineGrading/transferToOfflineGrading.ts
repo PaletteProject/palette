@@ -16,7 +16,7 @@ export function transferToOfflineGrading(
 ) {
   const activeCourseId = String(activeCourse.id);
   const activeAssignmentId = String(activeAssignment.id);
-  const rubricId = String(rubric?.id); // defensive
+  const rubricId = String(rubric?.id);
 
   if (!activeCourseId || !activeAssignmentId || !rubric || !rubricId) {
     alert("Missing course, assignment, or rubric.");
@@ -29,8 +29,8 @@ export function transferToOfflineGrading(
   const offlineRubricKey = `offlineRubric_${activeCourseId}_${activeAssignmentId}`;
   const courseNameMapKey = "courseNameMap";
   const assignmentNameMapKey = `assignmentNameMap_${activeCourseId}`;
-  const transferVersionKey = `offlineTransferVersion_${activeCourseId}_${activeAssignmentId}`;
 
+  // 🧠 Save course name mapping
   const courseNameMap: Record<string, string> = safeParse(
     localStorage.getItem(courseNameMapKey),
     {},
@@ -38,6 +38,7 @@ export function transferToOfflineGrading(
   courseNameMap[activeCourseId] = activeCourse.name;
   localStorage.setItem(courseNameMapKey, JSON.stringify(courseNameMap));
 
+  // 🧠 Save assignment name mapping
   const assignmentNameMap: Record<string, string> = safeParse(
     localStorage.getItem(assignmentNameMapKey),
     {},
@@ -45,48 +46,58 @@ export function transferToOfflineGrading(
   assignmentNameMap[activeAssignmentId] = activeAssignment.name;
   localStorage.setItem(assignmentNameMapKey, JSON.stringify(assignmentNameMap));
 
-  const storedCoursesKey = "offlineCourses";
-  const storedAssignmentsKey = `offlineAssignments_${activeCourseId}`;
-
+  // 🧠 Add course & assignment to offline list
   const storedCourses: string[] = safeParse(
-    localStorage.getItem(storedCoursesKey),
+    localStorage.getItem("offlineCourses"),
     [],
   );
   if (!storedCourses.includes(activeCourseId)) {
     storedCourses.push(activeCourseId);
-    localStorage.setItem(storedCoursesKey, JSON.stringify(storedCourses));
+    localStorage.setItem("offlineCourses", JSON.stringify(storedCourses));
   }
 
   const storedAssignments: string[] = safeParse(
-    localStorage.getItem(storedAssignmentsKey),
+    localStorage.getItem(`offlineAssignments_${activeCourseId}`),
     [],
   );
   if (!storedAssignments.includes(activeAssignmentId)) {
     storedAssignments.push(activeAssignmentId);
-    localStorage.setItem(storedAssignmentsKey, JSON.stringify(storedAssignments));
+    localStorage.setItem(
+      `offlineAssignments_${activeCourseId}`,
+      JSON.stringify(storedAssignments),
+    );
   }
 
+  // 💾 Pull data
   const submissionsRaw = localStorage.getItem(submissionsKey);
   const rubricRaw = localStorage.getItem(rubricKey);
 
   const submissionsData: GroupedSubmissions = submissionsRaw
     ? safeParse(submissionsRaw, {})
     : {};
+
+  // 👇 Ensure `isGroupCriterion` flags are preserved
   const rubricData: Rubric = rubricRaw
     ? safeParse(rubricRaw, rubric)
-    : rubric;
+    : {
+        ...rubric,
+        criteria: rubric.criteria.map((c) => ({
+          ...c,
+          isGroupCriterion: c.isGroupCriterion ?? false,
+        })),
+      };
 
   if (Object.keys(submissionsData).length === 0 || !rubricData) {
     alert("No submissions or rubric found. Make sure grading data is available.");
     return;
   }
-  
+
+  // ✅ Save offline grading content
   localStorage.setItem(offlineSubmissionsKey, JSON.stringify(submissionsData));
   localStorage.setItem(offlineRubricKey, JSON.stringify(rubricData));
-  
-  localStorage.setItem(transferVersionKey, Date.now().toString());
-
   localStorage.setItem("offlineTransferPushRequired", "true");
+
+  // 🔄 Mirror to token cache in case of fallback
   localStorage.setItem(
     "tokenGradedSubmissionCache",
     localStorage.getItem("offlineGradingCache") || "[]",

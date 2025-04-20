@@ -17,6 +17,8 @@ import {
 } from "react";
 import { TableRatingOptions } from "./TableRatingOptions";
 import { useGradingContext } from "../../../context/GradingContext";
+import { useRubric } from "@context";
+
 
 interface GradingTableProps {
   submissions: Submission[];
@@ -26,7 +28,7 @@ interface GradingTableProps {
   setSavedGrades: Dispatch<
     SetStateAction<Record<number, PaletteGradedSubmission>>
   >;
-  rubric: Rubric; // ✅ required to avoid context dependency
+  rubric: Rubric; 
 }
 
 export function GradingTable({
@@ -44,6 +46,9 @@ export function GradingTable({
     useState<boolean>(false);
 
   const { gradedSubmissionCache, updateScore } = useGradingContext();
+  const { activeRubric } = useRubric();
+
+  const currentRubric = rubric ?? activeRubric;
 
   const getBackgroundColor = (
     value: number | string,
@@ -87,7 +92,7 @@ export function GradingTable({
           </tr>
         </thead>
         <tbody>
-          {rubric.criteria.map((criterion: Criteria) => (
+          {currentRubric.criteria.map((criterion: Criteria) => (
             <tr key={criterion.id}>
               <td className="border border-gray-500 px-4 py-2">
                 <div className="flex justify-between items-center gap-6">
@@ -126,11 +131,12 @@ export function GradingTable({
                   ];
                 const currentValue = assessment?.points ?? "";
 
-                const handleRatingChange = (
-                  e: ChangeEvent<HTMLSelectElement>,
-                ) => {
+                const handleRatingChange = (e: ChangeEvent<HTMLSelectElement>) => {
                   const newPoints = Number(e.target.value);
-                  if (!criterion.isGroupCriterion) {
+                  const storageKey = `criterion-${criterion.id}-isGroupCriterion`;
+                  const isGroupCriterion = JSON.parse(window.localStorage.getItem(storageKey) || 'false');
+                
+                  if (!isGroupCriterion) {
                     updateScore(submissionId, criterion.id, newPoints);
                   } else {
                     submissions.forEach((sub) => {
@@ -138,6 +144,7 @@ export function GradingTable({
                     });
                   }
                 };
+                
 
                 return (
                   <td
