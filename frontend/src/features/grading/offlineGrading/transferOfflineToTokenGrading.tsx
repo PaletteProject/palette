@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { PaletteGradedSubmission } from "palette-types";
+import { CanvasGradedSubmission } from "palette-types";
 
 function safeParse<T>(data: string | null, fallback: T): T {
   try {
@@ -11,9 +11,9 @@ function safeParse<T>(data: string | null, fallback: T): T {
 }
 
 export function transferOfflineToTokenGrading(
-  setGradedSubmissionCache: Dispatch<SetStateAction<PaletteGradedSubmission[]>>,
-  selectedCourse: string,
-  selectedAssignment: string,
+  setGradedSubmissionCache: Dispatch<SetStateAction<Record<number, CanvasGradedSubmission>>>,
+  selectedCourse: string | null,
+  selectedAssignment: string | null,
 ) {
   if (!selectedCourse?.trim() || !selectedAssignment?.trim()) {
     alert("Please select a course and assignment before transferring.");
@@ -21,42 +21,23 @@ export function transferOfflineToTokenGrading(
   }
 
   const scopedKey = `offlineGradingCache_${selectedCourse}_${selectedAssignment}`;
-  const fallbackKey = "offlineGradingCache";
+  const savedOfflineGrades = safeParse<Record<number, CanvasGradedSubmission>>(
+    localStorage.getItem(scopedKey),
+    {},
+  );
 
-  let savedOfflineGrades = localStorage.getItem(scopedKey);
-
-  if (!savedOfflineGrades) {
-    savedOfflineGrades = localStorage.getItem(fallbackKey);
-  }
-
-  if (!savedOfflineGrades) {
-    alert("No offline grades found for this course and assignment.");
+  if (!Object.keys(savedOfflineGrades).length) {
+    alert("No offline grades found to transfer.");
     return;
   }
 
-  const parsedOfflineGrades: PaletteGradedSubmission[] = safeParse(
-    savedOfflineGrades,
-    [],
+  localStorage.setItem(
+    "tokenGradedSubmissionCache",
+    JSON.stringify(savedOfflineGrades),
   );
-  setGradedSubmissionCache((prev) => {
-    const updatedCache = [...prev];
 
-    parsedOfflineGrades.forEach((offlineSubmission) => {
-      const index = updatedCache.findIndex(
-        (s) => s.submission_id === offlineSubmission.submission_id,
-      );
+  // Update the in-memory cache for token-based grading
+  setGradedSubmissionCache(savedOfflineGrades);
 
-      if (index > -1) {
-        updatedCache[index] = offlineSubmission;
-      } else {
-        updatedCache.push(offlineSubmission);
-      }
-    });
-
-    return updatedCache;
-  });
-
-  alert(
-    "Offline grades have been successfully transferred to Token-Based Grading!",
-  );
+  alert("Offline grades transferred to Token-Based Grading!");
 }
