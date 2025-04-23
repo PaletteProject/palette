@@ -10,13 +10,12 @@ function safeParse<T>(data: string | null, fallback: T): T {
   }
 }
 
-export function transferOfflineToTokenGrading(
+export function aggregateOfflineGrades(
   courseId: string,
   assignmentId: string
-): void {
+): Record<number, CanvasGradedSubmission> {
   const aggregatedGrades: Record<number, CanvasGradedSubmission> = {};
 
-  // Iterate through all keys in localStorage to find group-specific grades
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (
@@ -31,16 +30,5 @@ export function transferOfflineToTokenGrading(
     }
   }
 
-  if (Object.keys(aggregatedGrades).length === 0) {
-    alert('❌ No offline grades found to transfer.');
-    return;
-  }
-
-  // Save aggregated grades to tokenGradedSubmissionCache
-  localStorage.setItem(
-    'tokenGradedSubmissionCache',
-    JSON.stringify(aggregatedGrades)
-  );
-
-  alert('✅ All offline grades transferred to Token-Based Grading!');
+  return aggregatedGrades;
 }

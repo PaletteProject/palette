@@ -1,4 +1,4 @@
-import { GroupedSubmissions, Rubric, Course, Assignment } from "palette-types";
+import { GroupedSubmissions, Rubric, Course, Assignment, PaletteGradedSubmission } from "palette-types";
 
 function safeParse<T>(data: string | null, fallback: T): T {
   try {
@@ -27,10 +27,10 @@ export function transferToOfflineGrading(
   const rubricKey = `rubric_${rubricId}`;
   const offlineSubmissionsKey = `offlineSubmissions_${activeCourseId}_${activeAssignmentId}`;
   const offlineRubricKey = `offlineRubric_${activeCourseId}_${activeAssignmentId}`;
+  const offlineGradesKey = `offlineGradingCache_${activeCourseId}_${activeAssignmentId}`;
   const courseNameMapKey = "courseNameMap";
   const assignmentNameMapKey = `assignmentNameMap_${activeCourseId}`;
 
-  // 🧠 Save course name mapping
   const courseNameMap: Record<string, string> = safeParse(
     localStorage.getItem(courseNameMapKey),
     {},
@@ -38,7 +38,6 @@ export function transferToOfflineGrading(
   courseNameMap[activeCourseId] = activeCourse.name;
   localStorage.setItem(courseNameMapKey, JSON.stringify(courseNameMap));
 
-  // 🧠 Save assignment name mapping
   const assignmentNameMap: Record<string, string> = safeParse(
     localStorage.getItem(assignmentNameMapKey),
     {},
@@ -46,7 +45,6 @@ export function transferToOfflineGrading(
   assignmentNameMap[activeAssignmentId] = activeAssignment.name;
   localStorage.setItem(assignmentNameMapKey, JSON.stringify(assignmentNameMap));
 
-  // 🧠 Add course & assignment to offline list
   const storedCourses: string[] = safeParse(
     localStorage.getItem("offlineCourses"),
     [],
@@ -68,7 +66,6 @@ export function transferToOfflineGrading(
     );
   }
 
-  // 💾 Pull data
   const submissionsRaw = localStorage.getItem(submissionsKey);
   const rubricRaw = localStorage.getItem(rubricKey);
 
@@ -76,7 +73,6 @@ export function transferToOfflineGrading(
     ? safeParse(submissionsRaw, {})
     : {};
 
-  // 👇 Ensure `isGroupCriterion` flags are preserved
   const rubricData: Rubric = rubricRaw
     ? safeParse(rubricRaw, rubric)
     : {
@@ -92,16 +88,15 @@ export function transferToOfflineGrading(
     return;
   }
 
-  // ✅ Save offline grading content
+  // Include token-based graded submissions if available
+  const tokenGradedCache = localStorage.getItem("tokenGradedSubmissionCache");
+  if (tokenGradedCache) {
+    localStorage.setItem(offlineGradesKey, tokenGradedCache);
+  }
+
   localStorage.setItem(offlineSubmissionsKey, JSON.stringify(submissionsData));
   localStorage.setItem(offlineRubricKey, JSON.stringify(rubricData));
   localStorage.setItem("offlineTransferPushRequired", "true");
-
-  // 🔄 Mirror to token cache in case of fallback
-  localStorage.setItem(
-    "tokenGradedSubmissionCache",
-    localStorage.getItem("offlineGradingCache") || "[]",
-  );
 
   alert("✅ Transferred to Offline Grading.");
 }

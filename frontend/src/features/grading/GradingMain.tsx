@@ -4,6 +4,7 @@ import { useFetch } from "@hooks";
 import { useAssignment, useCourse, useRubric } from "@context";
 import { OfflineGradingView } from "./offlineGrading/offlineGradingView";
 import { transferToOfflineGrading } from "./offlineGrading/transferToOfflineGrading.ts";
+import { SubmitOfflineGradesButton } from "./offlineGrading/SubmitOfflineGradesButton";
 
 import {
   LoadingDots,
@@ -78,7 +79,7 @@ const renderContent = () => {
     return (
       <>
         <div className="flex gap-4 items-center mb-4">
-          {/* 🔁 Toggle Button */}
+          {/* Toggle Button */}
           <button
             className={`py-2 px-4 rounded font-bold ${
               isOfflineMode ? "bg-gray-500" : "bg-blue-500"
@@ -88,31 +89,42 @@ const renderContent = () => {
             {isOfflineMode ? "Switch to Canvas Grading" : "Switch to Offline Grading"}
           </button>
 
-          {/* 🔁 Transfer Button */}
-          {!isOfflineMode &&
-            activeAssignment &&
-            Object.keys(submissions).length > 0 && (
-              <button
-                className="bg-yellow-500 text-white font-bold py-2 px-4 rounded"
-                onClick={() => {
-                  if (!transferring) {
-                    setTransferring(true);
-                    transferToOfflineGrading(
-                      activeCourse,
-                      activeAssignment,
-                      activeRubric,
-                    );
-                    setTimeout(() => setTransferring(false), 2000);
-                  }
-                }}
-                disabled={transferring}
-              >
-                {transferring ? "Transferring..." : "Transfer to Offline Grading"}
-              </button>
-            )}
-        </div>
+              {/* Transfer + Submit Buttons */}
+              {!isOfflineMode &&
+              activeCourse &&
+              activeAssignment &&
+              Object.keys(submissions).length > 0 && (
+                <>
+                  <button
+                    className="bg-yellow-500 text-white font-bold py-2 px-4 rounded"
+                    onClick={() => {
+                      if (!transferring) {
+                        setTransferring(true);
+                        transferToOfflineGrading(
+                          activeCourse,
+                          activeAssignment,
+                          activeRubric,
+                        );
+                        setTimeout(() => setTransferring(false), 2000);
+                      }
+                    }}
+                    disabled={transferring}
+                  >
+                    {transferring ? "Transferring..." : "Transfer to Offline Grading"}
+                  </button>
 
-        {/* 🧭 Conditional Rendering */}
+                  {/* Submit Offline Grades Button */}
+                  <SubmitOfflineGradesButton
+                    courseId={activeCourse.id.toString()}
+                    assignmentId={activeAssignment.id.toString()}
+                    accessToken={localStorage.getItem("accessToken") || ""}
+                  />
+                </>
+              )}
+          </div>
+
+
+        {/* Conditional Rendering */}
         {isOfflineMode ? (
           <OfflineGradingView />
         ) : activeCourse && activeAssignment ? (
