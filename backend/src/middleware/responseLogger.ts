@@ -14,17 +14,55 @@ import util from "util";
 export const responseLogger = (
   _req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ): void => {
   // Store the original `send` method
   const originalSend = res.send.bind(res);
 
   // Override the `send` method
   res.send = function (body: unknown) {
-    console.log(`\nTo Palette --> Response Status: ${res.statusCode}`);
     console.log(
-      `To Palette --> Response Body: ${util.inspect(body, { depth: 10, colors: true })}`,
+      `\nTo Palette --> Response Status: ${res.statusCode} (responseLogger)`
     );
+
+    if (typeof body === "string") {
+      try {
+        const parsedBody = JSON.parse(body);
+        if (parsedBody.data?.token) {
+          // Create a copy of the body with obfuscated token
+          const obfuscatedBody = {
+            ...parsedBody,
+            data: {
+              ...parsedBody.data,
+              token: "*****OBFUSCATED*****",
+            },
+          };
+          console.log(
+            `To Palette --> Response Body: ${util.inspect(obfuscatedBody, {
+              depth: 10,
+              colors: true,
+            })} (responseLogger)`
+          );
+        } else {
+          console.log(
+            `To Palette --> Response Body: ${util.inspect(parsedBody, {
+              depth: 10,
+              colors: true,
+            })} (responseLogger)`
+          );
+        }
+      } catch (e) {
+        // If body is not JSON, log it as is
+        console.log(`To Palette --> Response Body: ${body} (responseLogger)`);
+      }
+    } else if (body) {
+      console.log(
+        `To Palette --> Response Body: ${util.inspect(body, {
+          depth: 10,
+          colors: true,
+        })} (responseLogger)`
+      );
+    }
 
     // Call the original `send` method with the body
     return originalSend(body);
