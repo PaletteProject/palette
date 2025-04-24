@@ -19,15 +19,15 @@ export const SubmitOfflineGradesButton: React.FC<SubmitOfflineGradesButtonProps>
       const grades = aggregateOfflineGrades(courseId, assignmentId);
 
       if (Object.keys(grades).length === 0) {
-        alert('❌ No offline grades found to submit.');
+        alert('No offline grades found to submit.');
         return;
       }
 
       await submitGradesToCanvas(courseId, assignmentId, grades, accessToken);
-      alert('✅ Offline grades successfully submitted to Canvas!');
+      alert('Offline grades successfully submitted to Canvas!');
     } catch (error) {
       console.error('Error submitting grades:', error);
-      alert('❌ An error occurred while submitting grades.');
+      alert('An error occurred while submitting grades.');
     }
   };
 
