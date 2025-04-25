@@ -1,4 +1,4 @@
-import { Criteria, Submission, SubmissionComment } from "palette-types";
+import { Criteria, Submission, SubmissionComment, Rubric } from "palette-types";
 import { StudentHeaderControls } from "./StudentHeaderControls.tsx";
 import {
   ChangeEvent,
@@ -15,6 +15,7 @@ interface GradingTableProps {
   activeStudentId: number | null;
   setActiveStudentId: Dispatch<SetStateAction<number | null>>;
   existingIndividualFeedback: SubmissionComment[] | null;
+  rubric: Rubric;
 }
 
 export function GradingTable({
@@ -22,6 +23,7 @@ export function GradingTable({
   activeStudentId,
   setActiveStudentId,
   existingIndividualFeedback,
+  rubric
 }: GradingTableProps) {
   const { gradedSubmissionCache, updateScore } = useGradingContext();
   const { activeRubric } = useRubric();
