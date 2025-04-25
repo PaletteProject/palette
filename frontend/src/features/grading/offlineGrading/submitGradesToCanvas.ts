@@ -1,6 +1,6 @@
-import { PaletteGradedSubmission } from "palette-types";
+import { PaletteGradedSubmission, CanvasGradedSubmission} from "palette-types";
 
-function calculateScore(submission: PaletteGradedSubmission): number {
+function calculateScore(submission: CanvasGradedSubmission): number {
   if (!submission.rubric_assessment) return 0;
 
   return Object.values(submission.rubric_assessment)

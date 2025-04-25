@@ -8,6 +8,7 @@ import { ProjectGradingView } from "../projectGradingComponents/ProjectGradingVi
 import { OfflineGradingSelection } from "./offlineGradingSelection";
 import { GradingProvider } from "../../../context/GradingContext.tsx";
 import { aggregateOfflineGrades } from "./aggregateOfflineGrades";
+import { useCourse, useAssignment } from "@/context";
 
 export function OfflineGradingView(): ReactElement {
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
@@ -19,32 +20,28 @@ export function OfflineGradingView(): ReactElement {
     Record<number, PaletteGradedSubmission>
   >({});
 
+  const { activeCourse } = useCourse();
+  const { activeAssignment } = useAssignment();
+
   useEffect(() => {
     if (selectedCourse && selectedAssignment) {
       const submissionsKey = `offlineSubmissions_${selectedCourse}_${selectedAssignment}`;
       const rubricKey = `offlineRubric_${selectedCourse}_${selectedAssignment}`;
       const gradesKey = `offlineGradingCache_${selectedCourse}_${selectedAssignment}`;
-  
+
       try {
         const submissionsRaw = localStorage.getItem(submissionsKey);
         const rubricRaw = localStorage.getItem(rubricKey);
         const gradedRaw = localStorage.getItem(gradesKey);
-  
-        setOfflineSubmissions(
-          submissionsRaw ? (JSON.parse(submissionsRaw) as GroupedSubmissions) : {}
-        );
-        setOfflineRubric(
-          rubricRaw ? (JSON.parse(rubricRaw) as Rubric) : null
-        );
-        setGradedSubmissionCache(
-          gradedRaw ? (JSON.parse(gradedRaw) as Record<number, PaletteGradedSubmission>) : {}
-        );
+
+        setOfflineSubmissions(submissionsRaw ? JSON.parse(submissionsRaw) : {});
+        setOfflineRubric(rubricRaw ? JSON.parse(rubricRaw) : null);
+        setGradedSubmissionCache(gradedRaw ? JSON.parse(gradedRaw) : {});
       } catch (error) {
         console.error("Error loading offline grading data:", error);
       }
     }
   }, [selectedCourse, selectedAssignment]);
-  
 
   useEffect(() => {
     if (selectedCourse && selectedAssignment) {
@@ -54,7 +51,7 @@ export function OfflineGradingView(): ReactElement {
   }, [gradedSubmissionCache, selectedCourse, selectedAssignment]);
 
   const safeOfflineRubric: Rubric = offlineRubric ?? {
-    id: "default",
+    id: -1, // changed from string to number to satisfy Rubric type
     title: "Default Rubric",
     pointsPossible: 100,
     key: "default-rubric-key",
@@ -78,20 +75,15 @@ export function OfflineGradingView(): ReactElement {
   };
 
   const handleSubmitGrades = async () => {
+    const token = localStorage.getItem("accessToken") || "";
     const BASE_URL = "http://localhost:3000/api";
 
     if (!selectedCourse || !selectedAssignment) {
-      alert("Missing course or assignment context.");
+      alert("Missing course, or assignment context.");
       return;
     }
 
     const grades = aggregateOfflineGrades(selectedCourse, selectedAssignment);
-
-    if (Object.keys(grades).length === 0) {
-      alert("No offline grades found to submit.");
-      return;
-    }
-
     try {
       for (const submission of Object.values(grades)) {
         await fetch(
@@ -100,6 +92,7 @@ export function OfflineGradingView(): ReactElement {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(submission),
           }
@@ -139,7 +132,7 @@ export function OfflineGradingView(): ReactElement {
       )}
 
       {selectedCourse && selectedAssignment && Object.keys(offlineSubmissions).length > 0 && (
-        <div className="mt-4  hover:bg-200">
+        <div className="mt-4">
           <h2 className="text-xl font-semibold text-white">Select a Group</h2>
           {Object.entries(offlineSubmissions).map(([groupName, submissions]) => (
             <button
@@ -151,22 +144,21 @@ export function OfflineGradingView(): ReactElement {
             </button>
           ))}
 
-        <button
-          className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
-          onClick={() => {
-            void handleSubmitGrades();
-          }}
-        >
-          Submit Offline Grades to Canvas
-        </button>
+          <div className="flex gap-4 mt-4">
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
+              onClick={() => void handleSubmitGrades()}
+            >
+              Submit Offline Grades to Canvas
+            </button>
 
-         <button
-        color="RED"
-        className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 mt-4 rounded"
-        onClick={handleClearOfflineStorage}
-      >
-        Clear Offline Storage
-      </button>
+            <button
+              className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"
+              onClick={handleClearOfflineStorage}
+            >
+              Clear Offline Storage
+            </button>
+          </div>
         </div>
       )}
     </div>

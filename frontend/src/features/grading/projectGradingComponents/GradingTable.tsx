@@ -1,4 +1,4 @@
-import { Criteria, Submission, SubmissionComment, Rubric } from "palette-types";
+import { Criteria, Submission, SubmissionComment } from "palette-types";
 import { StudentHeaderControls } from "./StudentHeaderControls.tsx";
 import {
   ChangeEvent,
@@ -15,7 +15,6 @@ interface GradingTableProps {
   activeStudentId: number | null;
   setActiveStudentId: Dispatch<SetStateAction<number | null>>;
   existingIndividualFeedback: SubmissionComment[] | null;
-  rubric: Rubric;
 }
 
 export function GradingTable({
@@ -23,12 +22,10 @@ export function GradingTable({
   activeStudentId,
   setActiveStudentId,
   existingIndividualFeedback,
-  rubric
 }: GradingTableProps) {
   const { gradedSubmissionCache, updateScore } = useGradingContext();
   const { activeRubric } = useRubric();
 
-  const currentRubric = rubric ?? activeRubric;
 
   // locally track which criteria are group criterion
   const [groupCriteriaMap, setGroupCriteriaMap] = useState<
@@ -97,7 +94,7 @@ export function GradingTable({
           </tr>
         </thead>
         <tbody>
-          {currentRubric.criteria.map((criterion: Criteria) => (
+          {activeRubric.criteria.map((criterion: Criteria) => (
             <tr key={criterion.id}>
               <td className=" border border-gray-500 px-4 py-2 w-full">
                 <p className="truncate overflow-hidden">

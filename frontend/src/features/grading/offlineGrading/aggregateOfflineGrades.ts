@@ -18,7 +18,6 @@ export function aggregateOfflineGrades(
   const scopedKey = `offlineGradingCache_${courseId}_${assignmentId}`;
   const fallbackKey = "offlineGradingCache";
 
-  // Try scoped cache first
   const scopedGrades = safeParse<Record<number, CanvasGradedSubmission>>(
     localStorage.getItem(scopedKey),
     {},
