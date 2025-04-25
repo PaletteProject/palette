@@ -84,6 +84,12 @@ export function OfflineGradingView(): ReactElement {
     }
 
     const grades = aggregateOfflineGrades(selectedCourse, selectedAssignment);
+    const confirmed = window.confirm(
+      "Are you sure you want to submit all offline grades to Canvas?"
+    );
+  
+    if (!confirmed) return;
+  
     try {
       for (const submission of Object.values(grades)) {
         await fetch(
@@ -117,11 +123,21 @@ export function OfflineGradingView(): ReactElement {
           const progress = Math.floor((gradedCount / groupSubmissions.length) * 100);
 
           const averageScore = (() => {
-            const scores = groupSubmissions.map((s) => s.score ?? 0);
+            const scores = groupSubmissions.map((s) => {
+              const cached = gradedSubmissionCache[s.id];
+              if (cached && cached.rubric_assessment) {
+                return Object.values(cached.rubric_assessment)
+                  .map(entry => Number(entry.points) || 0)
+                  .reduce((a, b) => a + b, 0);
+              }
+              return s.score ?? 0;
+            });
+          
             return scores.length > 0
               ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2)
               : "N/A";
           })();
+          
 
           return (
             <div key={groupName} className="rounded-xl border border-blue-400 p-4 w-full max-w-xs shadow-lg bg-gray-800 text-white relative">
