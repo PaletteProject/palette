@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Criteria } from "palette-types";
 import { useRubric } from "@/context";
 
@@ -7,21 +8,37 @@ interface TableRatingOptionsProps {
 
 export function TableRatingOptions({ criterion }: TableRatingOptionsProps) {
   const { activeRubric, setActiveRubric } = useRubric();
+  const storageKey = `criterion-${criterion.id}-isGroupCriterion`;
 
-  const isGroupSelected =
-    activeRubric.criteria.find((c) => c.id === criterion.id)
-      ?.isGroupCriterion ?? false;
+  const [isGroupSelected, setIsGroupSelected] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      return stored !== null
+        ? (JSON.parse(stored) as boolean)
+        : (criterion.isGroupCriterion ?? false);
+    } catch (error) {
+      console.error(`Error reading localStorage key "${storageKey}":`, error);
+      return criterion.isGroupCriterion ?? false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(isGroupSelected));
+    } catch (error) {
+      console.error(`Error setting localStorage key "${storageKey}":`, error);
+    }
+  }, [isGroupSelected, storageKey]);
 
   const handleToggle = () => {
     if (!activeRubric) return;
 
-    const index = activeRubric.criteria.indexOf(criterion);
-    const newCriteria = [...activeRubric.criteria];
-    newCriteria[index] = {
-      ...criterion,
-      isGroupCriterion: !criterion.isGroupCriterion,
-    };
-    setActiveRubric({ ...activeRubric, criteria: newCriteria });
+    const updatedCriteria = activeRubric.criteria.map((c) =>
+      c.id === criterion.id ? { ...c, isGroupCriterion: !isGroupSelected } : c,
+    );
+
+    setActiveRubric({ ...activeRubric, criteria: updatedCriteria });
+    setIsGroupSelected(!isGroupSelected);
   };
 
   return (

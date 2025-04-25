@@ -122,11 +122,7 @@ export function GradingTable({
                 const handleRatingChange = (
                   e: ChangeEvent<HTMLSelectElement>,
                 ) => {
-                  const ratingStringValue = e.target.value;
-                  console.log("rating change: score", ratingStringValue);
-                  if (ratingStringValue === "") return; // skip updates if nothing selected
-
-                  const newPoints = Number(ratingStringValue);
+                  const newPoints = Number(e.target.value);
 
                   if (!groupCriteriaMap.get(criterion.id)) {
                     updateScore(submissionId, criterion.id, newPoints);

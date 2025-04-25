@@ -13,23 +13,23 @@ export function ExistingIndividualFeedback({
 }: ExistingIndividualFeedbackProps) {
   if (!activeStudentId || activeStudentId !== submissionId || !existingFeedback)
     return null;
+
   return (
     <div className="w-full">
-      <>
-        {existingFeedback.length > 0 ? (
-          <>
-            <h2 className="text-lg font-bold">Existing Comments</h2>
-            <ul className="list-disc list-inside">
-              {existingFeedback.map((comment) => (
-                <li>{comment.comment}</li>
-              ))}
-            </ul>
-          </>
-        ) : (
-          <p>No existing comments for this student</p>
-        )}
-      </>
-      )
+      {existingFeedback.length > 0 ? (
+        <>
+          <h2 className="text-lg font-bold">Existing Comments</h2>
+          <ul className="list-disc list-inside">
+            {existingFeedback.map(
+              (comment: SubmissionComment, index: number) => (
+                <li key={index}>{comment.comment}</li>
+              ),
+            )}
+          </ul>
+        </>
+      ) : (
+        <p>No existing comments for this student</p>
+      )}
     </div>
   );
 }

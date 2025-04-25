@@ -11,7 +11,13 @@ import {
   PaletteBrush,
   PaletteEye,
 } from "@/components";
-import { useChoiceDialog, useGradingContext, useRubric } from "@/context";
+import {
+  useChoiceDialog,
+  useGradingContext,
+  useRubric,
+  useCourse,
+  useAssignment,
+} from "@/context";
 import { GroupFeedback } from "./GroupFeedback.tsx";
 import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
 import { GradingTable } from "./GradingTable.tsx";
@@ -35,6 +41,8 @@ export function ProjectGradingView({
   const { activeRubric } = useRubric();
 
   const { initializeGradingCache } = useGradingContext();
+  const { activeCourse } = useCourse();
+  const { activeAssignment } = useAssignment();
 
   if (!isOpen) {
     return null;
@@ -55,6 +63,7 @@ export function ProjectGradingView({
   // Text area states
   const [showGroupFeedbackTextArea, setShowGroupFeedbackTextArea] =
     useState<boolean>(false);
+  const { gradedSubmissionCache } = useGradingContext();
 
   // initialize project grading view based on cache state set above
   useEffect(() => {
@@ -72,6 +81,14 @@ export function ProjectGradingView({
       setExistingIndividualFeedback(existingFeedback || null);
     }
   }, [submissions, activeStudentId]);
+
+  useEffect(() => {
+    if (activeCourse && activeAssignment) {
+      const gradesKey = `offlineGradingCache_${activeCourse.id}_${activeAssignment.id}`;
+      localStorage.setItem(gradesKey, JSON.stringify(gradedSubmissionCache));
+      console.log("✅ Saved grades to localStorage key:", gradesKey);
+    }
+  }, [gradedSubmissionCache, activeCourse, activeAssignment]);
 
   const getExistingGroupFeedback = (submissions: Submission[]) => {
     const allSubmissionComments = [];
