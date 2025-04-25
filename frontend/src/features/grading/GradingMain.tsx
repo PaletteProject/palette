@@ -5,10 +5,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import {
-  GroupedSubmissions,
-  PaletteAPIResponse,
-} from "palette-types";
+import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@/hooks";
 import {
   GradingProvider,
@@ -16,7 +13,7 @@ import {
   useCourse,
   useRubric,
 } from "@/context";
-import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
+import { parseCSV } from "./csv/gradingCSV.ts";
 import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts";
 import { OfflineGradingView } from "./offlineGrading/offlineGradingView";
 import { transferToOfflineGrading } from "./offlineGrading/transferToOfflineGrading.ts";
@@ -90,7 +87,10 @@ export function GradingMain(): ReactElement {
 
   const handleExportAllGroups = () => {
     if (!activeAssignment || !activeCourse) return;
-    exportAllGroupsCSV(activeCourse.id.toString(), activeAssignment.id.toString());
+    exportAllGroupsCSV(
+      activeCourse.id.toString(),
+      activeAssignment.id.toString(),
+    );
   };
 
   const renderContent = () => {
@@ -106,11 +106,13 @@ export function GradingMain(): ReactElement {
                     <input
                       type="file"
                       accept=".csv"
-                      onChange={handleFileUpload}
+                      onChange={(e) => {
+                        void handleFileUpload(e);
+                      }}
                       className="hidden"
                     />
                   </label>
-  
+
                   <PaletteActionButton
                     color="GREEN"
                     onClick={handleExportAllGroups}
@@ -119,35 +121,44 @@ export function GradingMain(): ReactElement {
                 </>
               )}
             </div>
-  
+
             {/* Toggle + Transfer Button Row */}
             <div className="flex gap-4 items-center mt-2">
-            <PaletteActionButton
-              color={isOfflineMode ? "GRAY" : "BLUE"}
-              title={
-                isOfflineMode ? "Switch to Canvas Grading" : "Switch to Offline Grading"
-              }
-              onClick={() => setIsOfflineMode(!isOfflineMode)}
-            />
-
-            {!isOfflineMode && Object.keys(submissions).length > 0 && (
               <PaletteActionButton
-                color="YELLOW"
-                title={transferring ? "Transferring..." : "Transfer to Offline Grading"}
-                onClick={() => {
-                  if (!transferring) {
-                    setTransferring(true);
-                    transferToOfflineGrading(activeCourse, activeAssignment, activeRubric);
-                    setTimeout(() => setTransferring(false), 2000);
-                  }
-                }}
-                disabled={transferring}
+                color={isOfflineMode ? "GRAY" : "BLUE"}
+                title={
+                  isOfflineMode
+                    ? "Switch to Canvas Grading"
+                    : "Switch to Offline Grading"
+                }
+                onClick={() => setIsOfflineMode(!isOfflineMode)}
               />
-            )}
+
+              {!isOfflineMode && Object.keys(submissions).length > 0 && (
+                <PaletteActionButton
+                  color="YELLOW"
+                  title={
+                    transferring
+                      ? "Transferring..."
+                      : "Transfer to Offline Grading"
+                  }
+                  onClick={() => {
+                    if (!transferring) {
+                      setTransferring(true);
+                      transferToOfflineGrading(
+                        activeCourse,
+                        activeAssignment,
+                        activeRubric,
+                      );
+                      setTimeout(() => setTransferring(false), 2000);
+                    }
+                  }}
+                  disabled={transferring}
+                />
+              )}
+            </div>
           </div>
 
-          </div>
-  
           {isOfflineMode ? (
             <OfflineGradingView />
           ) : (
@@ -164,7 +175,7 @@ export function GradingMain(): ReactElement {
         </>
       );
     }
-  
+
     return (
       <div className="grid h-full">
         {loading && <LoadingDots />}
@@ -173,7 +184,6 @@ export function GradingMain(): ReactElement {
       </div>
     );
   };
-  
+
   return <MainPageTemplate>{renderContent()}</MainPageTemplate>;
-  
 }

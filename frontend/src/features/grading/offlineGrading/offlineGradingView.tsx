@@ -8,35 +8,44 @@ import { ProjectGradingView } from "../projectGradingComponents/ProjectGradingVi
 import { OfflineGradingSelection } from "./offlineGradingSelection";
 import { GradingProvider } from "../../../context/GradingContext.tsx";
 import { aggregateOfflineGrades } from "./aggregateOfflineGrades";
-import { useCourse, useAssignment } from "@/context";
 
 export function OfflineGradingView(): ReactElement {
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-  const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null);
-  const [offlineSubmissions, setOfflineSubmissions] = useState<GroupedSubmissions>({});
+  const [selectedAssignment, setSelectedAssignment] = useState<string | null>(
+    null,
+  );
+  const [offlineSubmissions, setOfflineSubmissions] =
+    useState<GroupedSubmissions>({});
   const [offlineRubric, setOfflineRubric] = useState<Rubric | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [gradedSubmissionCache, setGradedSubmissionCache] = useState<
     Record<number, PaletteGradedSubmission>
   >({});
 
-  const { activeCourse } = useCourse();
-  const { activeAssignment } = useAssignment();
-
   useEffect(() => {
     if (selectedCourse && selectedAssignment) {
-      const submissionsKey = `offlineSubmissions_${selectedCourse}_${selectedAssignment}`;
-      const rubricKey = `offlineRubric_${selectedCourse}_${selectedAssignment}`;
-      const gradesKey = `offlineGradingCache_${selectedCourse}_${selectedAssignment}`;
-
       try {
-        const submissionsRaw = localStorage.getItem(submissionsKey);
-        const rubricRaw = localStorage.getItem(rubricKey);
-        const gradedRaw = localStorage.getItem(gradesKey);
+        const submissionsRaw = localStorage.getItem(
+          `offlineSubmissions_${selectedCourse}_${selectedAssignment}`,
+        );
+        const rubricRaw = localStorage.getItem(
+          `offlineRubric_${selectedCourse}_${selectedAssignment}`,
+        );
+        const gradedRaw = localStorage.getItem(
+          `offlineGradingCache_${selectedCourse}_${selectedAssignment}`,
+        );
 
-        setOfflineSubmissions(submissionsRaw ? JSON.parse(submissionsRaw) : {});
-        setOfflineRubric(rubricRaw ? JSON.parse(rubricRaw) : null);
-        setGradedSubmissionCache(gradedRaw ? JSON.parse(gradedRaw) : {});
+        setOfflineSubmissions(
+          submissionsRaw
+            ? (JSON.parse(submissionsRaw) as GroupedSubmissions)
+            : {},
+        );
+        setOfflineRubric(rubricRaw ? (JSON.parse(rubricRaw) as Rubric) : null);
+        setGradedSubmissionCache(
+          gradedRaw
+            ? (JSON.parse(gradedRaw) as Record<number, PaletteGradedSubmission>)
+            : {},
+        );
       } catch (error) {
         console.error("Error loading offline grading data:", error);
       }
@@ -79,17 +88,17 @@ export function OfflineGradingView(): ReactElement {
     const BASE_URL = "http://localhost:3000/api";
 
     if (!selectedCourse || !selectedAssignment) {
-      alert("Missing course, or assignment context.");
+      alert("Missing course or assignment context.");
       return;
     }
 
     const grades = aggregateOfflineGrades(selectedCourse, selectedAssignment);
     const confirmed = window.confirm(
-      "Are you sure you want to submit all offline grades to Canvas?"
+      "Are you sure you want to submit all offline grades to Canvas?",
     );
-  
+
     if (!confirmed) return;
-  
+
     try {
       for (const submission of Object.values(grades)) {
         await fetch(
@@ -101,51 +110,62 @@ export function OfflineGradingView(): ReactElement {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(submission),
-          }
+          },
         );
       }
 
-      alert("Offline grades successfully submitted to Canvas!");
+      alert("✅ Offline grades successfully submitted to Canvas!");
     } catch (err) {
       console.error("Error submitting grades:", err);
-      alert("Failed to submit grades. See console.");
+      alert("❌ Failed to submit grades. See console.");
     }
   };
 
-  const renderGroupCards = () => {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {Object.entries(offlineSubmissions).map(([groupName, groupSubmissions]) => {
+  const renderGroupCards = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {Object.entries(offlineSubmissions).map(
+        ([groupName, groupSubmissions]) => {
           const gradedCount = groupSubmissions.reduce(
             (count, submission) => (submission.graded ? count + 1 : count),
             0,
           );
-          const progress = Math.floor((gradedCount / groupSubmissions.length) * 100);
+          const progress = Math.floor(
+            (gradedCount / groupSubmissions.length) * 100,
+          );
 
           const averageScore = (() => {
-            const scores = groupSubmissions.map((s) => {
-              const cached = gradedSubmissionCache[s.id];
-              if (cached && cached.rubric_assessment) {
-                return Object.values(cached.rubric_assessment)
-                  .map(entry => Number(entry.points) || 0)
+            const scores = groupSubmissions.map((submission) => {
+              const cache = gradedSubmissionCache[submission.id];
+              if (cache) {
+                const total = Object.values(cache.rubric_assessment ?? {})
+                  .map((entry) => Number(entry.points) || 0)
                   .reduce((a, b) => a + b, 0);
+                return total;
               }
-              return s.score ?? 0;
+              return 0;
             });
-          
-            return scores.length > 0
-              ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2)
-              : "N/A";
+
+            if (scores.length === 0) return "N/A";
+
+            const average = scores.reduce((a, b) => a + b, 0) / scores.length;
+            return average.toFixed(2);
           })();
-          
 
           return (
-            <div key={groupName} className="rounded-xl border border-blue-400 p-4 w-full max-w-xs shadow-lg bg-gray-800 text-white relative">
-              <span className="italic text-yellow-200 text-sm">In Progress</span>
+            <div
+              key={groupName}
+              className="rounded-xl border border-blue-400 p-4 w-full max-w-xs shadow-lg bg-gray-800 text-white relative"
+            >
+              <span className="italic text-yellow-200 text-sm">
+                In Progress
+              </span>
               <h2 className="text-lg font-semibold mt-1">{groupName}</h2>
 
               <div className="w-full bg-gray-600 h-2 rounded my-2">
-                <div className="bg-green-500 h-full rounded" style={{ width: `${progress}%` }}></div>
+                <div
+                  className="bg-green-500 h-full rounded"
+                  style={{ width: `${progress}%` }}
+                ></div>
               </div>
 
               <p className="text-sm">Average Score: {averageScore}</p>
@@ -158,10 +178,10 @@ export function OfflineGradingView(): ReactElement {
               </button>
             </div>
           );
-        })}
-      </div>
-    );
-  };
+        },
+      )}
+    </div>
+  );
 
   return (
     <div className="p-6">
@@ -187,28 +207,32 @@ export function OfflineGradingView(): ReactElement {
         </GradingProvider>
       )}
 
-      {selectedCourse && selectedAssignment && Object.keys(offlineSubmissions).length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Select a Group</h2>
-          {renderGroupCards()}
+      {selectedCourse &&
+        selectedAssignment &&
+        Object.keys(offlineSubmissions).length > 0 && (
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold text-white mb-4">
+              Select a Group
+            </h2>
+            {renderGroupCards()}
 
-          <div className="flex gap-4 mt-6">
-            <button
-              className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
-              onClick={() => void handleSubmitGrades()}
-            >
-              Submit Offline Grades to Canvas
-            </button>
+            <div className="flex gap-4 mt-6">
+              <button
+                className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
+                onClick={() => void handleSubmitGrades()}
+              >
+                Submit Offline Grades to Canvas
+              </button>
 
-            <button
-              className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"
-              onClick={handleClearOfflineStorage}
-            >
-              Clear Offline Storage
-            </button>
+              <button
+                className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"
+                onClick={handleClearOfflineStorage}
+              >
+                Clear Offline Storage
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }

@@ -38,5 +38,4 @@ export const SubmitOfflineGradesButton: React.FC<
       Submit to Canvas Through Offline Grading
     </button>
   );
-  
 };

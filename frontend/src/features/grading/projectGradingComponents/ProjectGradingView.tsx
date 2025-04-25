@@ -11,7 +11,13 @@ import {
   PaletteBrush,
   PaletteEye,
 } from "@/components";
-import { useChoiceDialog, useGradingContext, useRubric, useCourse, useAssignment } from "@/context";
+import {
+  useChoiceDialog,
+  useGradingContext,
+  useRubric,
+  useCourse,
+  useAssignment,
+} from "@/context";
 import { GroupFeedback } from "./GroupFeedback.tsx";
 import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
 import { GradingTable } from "./GradingTable.tsx";
@@ -37,7 +43,7 @@ export function ProjectGradingView({
   const { initializeGradingCache } = useGradingContext();
   const { activeCourse } = useCourse();
   const { activeAssignment } = useAssignment();
-  
+
   if (!isOpen) {
     return null;
   }
@@ -83,7 +89,7 @@ export function ProjectGradingView({
       console.log("✅ Saved grades to localStorage key:", gradesKey);
     }
   }, [gradedSubmissionCache, activeCourse, activeAssignment]);
-  
+
   const getExistingGroupFeedback = (submissions: Submission[]) => {
     const allSubmissionComments = [];
     const seenComments = new Set<string>();
@@ -169,7 +175,6 @@ export function ProjectGradingView({
             activeStudentId={activeStudentId}
             setActiveStudentId={setActiveStudentId}
             existingIndividualFeedback={existingIndividualFeedback}
-
           />
 
           <div className={"flex gap-4 justify-end"}>

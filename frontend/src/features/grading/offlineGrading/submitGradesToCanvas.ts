@@ -1,4 +1,4 @@
-import { PaletteGradedSubmission, CanvasGradedSubmission} from "palette-types";
+import { PaletteGradedSubmission, CanvasGradedSubmission } from "palette-types";
 
 function calculateScore(submission: CanvasGradedSubmission): number {
   if (!submission.rubric_assessment) return 0;
@@ -21,7 +21,7 @@ export async function submitGradesToCanvas(
   courseId: string,
   assignmentId: string,
   grades: Record<number, PaletteGradedSubmission>,
-  accessToken: string
+  accessToken: string,
 ): Promise<void> {
   const submissionPromises = Object.entries(grades).map(
     async ([userId, submission]) => {
@@ -33,7 +33,10 @@ export async function submitGradesToCanvas(
         },
       };
 
-      if (submission.individual_comment && typeof submission.individual_comment === "string") {
+      if (
+        submission.individual_comment &&
+        typeof submission.individual_comment === "string"
+      ) {
         payload.comment = {
           text_comment: submission.individual_comment,
         };
@@ -51,10 +54,10 @@ export async function submitGradesToCanvas(
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
-          `Failed to submit grade for user ${userId}: ${errorText}`
+          `Failed to submit grade for user ${userId}: ${errorText}`,
         );
       }
-    }
+    },
   );
 
   await Promise.all(submissionPromises);

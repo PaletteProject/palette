@@ -26,7 +26,6 @@ export function GradingTable({
   const { gradedSubmissionCache, updateScore } = useGradingContext();
   const { activeRubric } = useRubric();
 
-
   // locally track which criteria are group criterion
   const [groupCriteriaMap, setGroupCriteriaMap] = useState<
     Map<string, boolean>
@@ -124,10 +123,6 @@ export function GradingTable({
                   e: ChangeEvent<HTMLSelectElement>,
                 ) => {
                   const newPoints = Number(e.target.value);
-                  const storageKey = `criterion-${criterion.id}-isGroupCriterion`;
-                  const isGroupCriterion = JSON.parse(
-                    window.localStorage.getItem(storageKey) || "false",
-                  ) as boolean;
 
                   if (!groupCriteriaMap.get(criterion.id)) {
                     updateScore(submissionId, criterion.id, newPoints);

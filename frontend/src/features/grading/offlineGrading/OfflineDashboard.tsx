@@ -24,29 +24,29 @@ export function OfflineDashboard({
     Record<number, PaletteGradedSubmission>
   >({});
 
-const courseNameMap = (() => {
-  try {
-    return JSON.parse(
-      localStorage.getItem("courseNameMap") || "{}"
-    ) as Record<string, string>;
-  } catch {
-    return {} as Record<string, string>;
-  }
-})();
+  const courseNameMap = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("courseNameMap") || "{}",
+      ) as Record<string, string>;
+    } catch {
+      return {} as Record<string, string>;
+    }
+  })();
 
-const assignmentNameMap = (() => {
-  try {
-    return JSON.parse(
-      localStorage.getItem(`assignmentNameMap_${courseId}`) || "{}"
-    ) as Record<string, string>;
-  } catch {
-    return {} as Record<string, string>;
-  }
-})();
+  const assignmentNameMap = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem(`assignmentNameMap_${courseId}`) || "{}",
+      ) as Record<string, string>;
+    } catch {
+      return {} as Record<string, string>;
+    }
+  })();
 
-const courseName = courseNameMap[courseId] || `Course ${courseId}`;
-const assignmentName =
-  assignmentNameMap[assignmentId] || `Assignment ${assignmentId}`;
+  const courseName = courseNameMap[courseId] || `Course ${courseId}`;
+  const assignmentName =
+    assignmentNameMap[assignmentId] || `Assignment ${assignmentId}`;
 
   const handleSubmitGrades = async () => {
     const token = localStorage.getItem("accessToken") || "";
