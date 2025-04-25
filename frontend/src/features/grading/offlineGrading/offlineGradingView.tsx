@@ -51,7 +51,7 @@ export function OfflineGradingView(): ReactElement {
   }, [gradedSubmissionCache, selectedCourse, selectedAssignment]);
 
   const safeOfflineRubric: Rubric = offlineRubric ?? {
-    id: -1, // changed from string to number to satisfy Rubric type
+    id: -1,
     title: "Default Rubric",
     pointsPossible: 100,
     key: "default-rubric-key",
@@ -106,6 +106,47 @@ export function OfflineGradingView(): ReactElement {
     }
   };
 
+  const renderGroupCards = () => {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {Object.entries(offlineSubmissions).map(([groupName, groupSubmissions]) => {
+          const gradedCount = groupSubmissions.reduce(
+            (count, submission) => (submission.graded ? count + 1 : count),
+            0,
+          );
+          const progress = Math.floor((gradedCount / groupSubmissions.length) * 100);
+
+          const averageScore = (() => {
+            const scores = groupSubmissions.map((s) => s.score ?? 0);
+            return scores.length > 0
+              ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2)
+              : "N/A";
+          })();
+
+          return (
+            <div key={groupName} className="rounded-xl border border-blue-400 p-4 w-full max-w-xs shadow-lg bg-gray-800 text-white relative">
+              <span className="italic text-yellow-200 text-sm">In Progress</span>
+              <h2 className="text-lg font-semibold mt-1">{groupName}</h2>
+
+              <div className="w-full bg-gray-600 h-2 rounded my-2">
+                <div className="bg-green-500 h-full rounded" style={{ width: `${progress}%` }}></div>
+              </div>
+
+              <p className="text-sm">Average Score: {averageScore}</p>
+
+              <button
+                onClick={() => setSelectedGroup(groupName)}
+                className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded-lg font-semibold"
+              >
+                Grade
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold text-white">Offline Grading</h1>
@@ -124,27 +165,18 @@ export function OfflineGradingView(): ReactElement {
             submissions={offlineSubmissions[selectedGroup] || []}
             isOpen={Boolean(selectedGroup)}
             onClose={() => setSelectedGroup(null)}
-            savedGrades={gradedSubmissionCache}
-            setSavedGrades={setGradedSubmissionCache}
             rubric={safeOfflineRubric}
+            initMode="restore"
           />
         </GradingProvider>
       )}
 
       {selectedCourse && selectedAssignment && Object.keys(offlineSubmissions).length > 0 && (
-        <div className="mt-4">
-          <h2 className="text-xl font-semibold text-white">Select a Group</h2>
-          {Object.entries(offlineSubmissions).map(([groupName, submissions]) => (
-            <button
-              key={groupName}
-              className="block bg-gray-700 hover:bg-gray-800 text-white p-3 rounded mt-2 w-full text-left"
-              onClick={() => setSelectedGroup(groupName)}
-            >
-              {groupName} ({submissions.length} submissions)
-            </button>
-          ))}
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold text-white mb-4">Select a Group</h2>
+          {renderGroupCards()}
 
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-4 mt-6">
             <button
               className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
               onClick={() => void handleSubmitGrades()}
