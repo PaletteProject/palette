@@ -1,6 +1,6 @@
-import { useAssignment } from "@context";
+import { useAssignment } from "@/context";
 import { ReactElement } from "react";
-import { ActiveSelectionButton } from "@components";
+import { ActiveSelectionButton } from "@/components";
 
 export function ActiveAssignmentSelection({
   setDialogOpen,

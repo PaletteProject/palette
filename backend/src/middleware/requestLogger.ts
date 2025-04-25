@@ -19,9 +19,6 @@ export const requestLogger = (
   console.log(
     `\nIncoming Request [${req.hostname} on ${req.ip}]: ${req.method} ${req.url}`,
   );
-  console.log(
-    `Headers: ${util.inspect(req.headers, { depth: 10, colors: true })}`,
-  );
   console.log(`Body: ${util.inspect(req.body, { depth: 10, colors: true })}`);
   next(); // Continue to the next middleware or route handler
 };

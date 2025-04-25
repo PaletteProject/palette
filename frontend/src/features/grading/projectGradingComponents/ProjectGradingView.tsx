@@ -2,37 +2,26 @@
  * Primary project grading view. Opens as a modal over the grading dashboard.
  */
 
-import {
-  PaletteGradedSubmission,
-  Submission,
-  SubmissionComment,
-  Rubric,
-} from "palette-types";
+import { Submission, SubmissionComment } from "palette-types";
 import { createPortal } from "react-dom";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ChoiceDialog,
   PaletteActionButton,
   PaletteBrush,
   PaletteEye,
-} from "@components";
-import { useChoiceDialog } from "../../../context/DialogContext.tsx";
+} from "@/components";
+import { useChoiceDialog, useGradingContext, useRubric } from "@/context";
 import { GroupFeedback } from "./GroupFeedback.tsx";
 import { ExistingGroupFeedback } from "./ExistingGroupFeedback.tsx";
 import { GradingTable } from "./GradingTable.tsx";
-import { useGradingContext } from "../../../context/GradingContext.tsx";
-import { useRubric } from "@context";
 
 type ProjectGradingViewProps = {
   groupName: string;
+  initMode: "restore" | "canvas" | "none";
   submissions: Submission[];
-  savedGrades: Record<number, PaletteGradedSubmission>;
-  setSavedGrades: Dispatch<
-    SetStateAction<Record<number, PaletteGradedSubmission>>
-  >;
   isOpen: boolean;
-  onClose: (cache: Record<number, PaletteGradedSubmission>) => void; // event handler defined in GroupSubmissions.tsx
-  rubric?: Rubric;
+  onClose: () => void; // event handler defined in GroupSubmissions.tsx
 };
 
 export function ProjectGradingView({
@@ -40,10 +29,13 @@ export function ProjectGradingView({
   submissions,
   isOpen,
   onClose,
-  savedGrades,
-  setSavedGrades,
-  rubric,
+  initMode,
 }: ProjectGradingViewProps) {
+  const { closeDialog } = useChoiceDialog();
+  const { activeRubric } = useRubric();
+
+  const { initializeGradingCache } = useGradingContext();
+
   if (!isOpen) {
     return null;
   }
@@ -61,53 +53,15 @@ export function ProjectGradingView({
   const [activeStudentId, setActiveStudentId] = useState<number | null>(null);
 
   // Text area states
-
   const [showGroupFeedbackTextArea, setShowGroupFeedbackTextArea] =
     useState<boolean>(false);
 
-  const { closeDialog } = useChoiceDialog();
-  const { activeRubric } = useRubric();
-  const effectiveRubric = rubric ?? activeRubric;
-
-  const { setGradedSubmissionCache, gradedSubmissionCache } =
-    useGradingContext();
-
-  /**
-   * Initialize project grading view.
-   */
+  // initialize project grading view based on cache state set above
   useEffect(() => {
-    if (isOpen) {
-      const initialCache: Record<number, PaletteGradedSubmission> = {};
-      submissions.forEach((submission) => {
-        const saved = savedGrades[submission.id];
-        const rubric_assessment: PaletteGradedSubmission["rubric_assessment"] =
-          {};
-
-        effectiveRubric.criteria.forEach((criterion) => {
-          const savedCriterion = saved?.rubric_assessment?.[criterion.id];
-          const canvasData = submission.rubricAssessment?.[criterion.id];
-
-          rubric_assessment[criterion.id] = {
-            points: savedCriterion?.points ?? canvasData?.points ?? "",
-
-            rating_id: savedCriterion?.rating_id ?? canvasData?.rating_id ?? "",
-
-            comments: savedCriterion?.comments ?? "", // You could pull from Canvas too if needed
-          };
-        });
-
-        initialCache[submission.id] = {
-          submission_id: submission.id,
-          user: submission.user,
-          individual_comment: saved?.individual_comment ?? undefined,
-          group_comment: saved?.group_comment ?? undefined,
-          rubric_assessment,
-        };
-      });
-
-      setGradedSubmissionCache(initialCache);
+    if (initMode) {
+      initializeGradingCache(submissions, activeRubric, initMode);
     }
-  }, [isOpen, submissions, activeRubric]);
+  }, [submissions, activeRubric.criteria]);
 
   useEffect(() => {
     if (activeStudentId !== null) {
@@ -157,15 +111,18 @@ export function ProjectGradingView({
   };
 
   const handleClickCloseButton = () => {
-    onClose(gradedSubmissionCache);
+    onClose();
     closeDialog();
   };
 
   const renderGradingPopup = () => {
+    const portalRoot = document.getElementById("portal-root");
+    if (!portalRoot) return null;
+
     return createPortal(
       <div
         className={
-          "scroll-auto fixed z-80 inset-0 bg-black bg-opacity-85 flex justify-center items-center text-white"
+          "scroll-auto fixed z-10 inset-0 bg-black bg-opacity-85 flex justify-center items-center text-white"
         }
       >
         <div className="bg-gray-700 p-6 rounded-xl shadow-lg relative w-full grid gap-4 m-4">
@@ -201,8 +158,6 @@ export function ProjectGradingView({
             activeStudentId={activeStudentId}
             setActiveStudentId={setActiveStudentId}
             existingIndividualFeedback={existingIndividualFeedback}
-            setSavedGrades={setSavedGrades}
-            rubric={effectiveRubric}
           />
 
           <div className={"flex gap-4 justify-end"}>
@@ -214,7 +169,7 @@ export function ProjectGradingView({
           </div>
         </div>
       </div>,
-      document.getElementById("portal-root") as HTMLElement,
+      portalRoot,
     );
   };
 

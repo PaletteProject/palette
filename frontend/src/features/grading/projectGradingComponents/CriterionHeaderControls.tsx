@@ -1,4 +1,4 @@
-import { PaletteBrush, PaletteEye } from "@components";
+import { PaletteBrush, PaletteEye } from "@/components";
 import { Dispatch, SetStateAction } from "react";
 import { Criteria } from "palette-types";
 

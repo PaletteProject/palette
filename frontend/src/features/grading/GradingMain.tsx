@@ -1,18 +1,29 @@
-import { ReactElement, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
-import { useFetch } from "@hooks";
-import { useAssignment, useCourse, useRubric } from "@context";
-import { OfflineGradingView } from "./offlineGrading/offlineGradingView";
-import { transferToOfflineGrading } from "./offlineGrading/transferToOfflineGrading.ts";
-
+import { useFetch } from "@/hooks";
+import {
+  GradingProvider,
+  useAssignment,
+  useCourse,
+  useRubric,
+} from "@/context";
+import { parseCSV, ParsedStudent } from "./csv/gradingCSV.ts";
+import { exportAllGroupsCSV } from "./csv/exportAllGroups.ts";
 import {
   LoadingDots,
   MainPageTemplate,
   NoAssignmentSelected,
   NoCourseSelected,
-} from "@components";
+  PaletteActionButton,
+} from "@/components";
 
-import { SubmissionsDashboard } from "@features";
+import { SubmissionsDashboard } from "@/features";
 
 export function GradingMain(): ReactElement {
   // state
@@ -34,17 +45,65 @@ export function GradingMain(): ReactElement {
 
   const { fetchData: getSubmissions } = useFetch(fetchSubmissionsURL);
 
+  const [builderOpen, setBuilderOpen] = useState<boolean>(false);
+
   /**
    * Load students from local storage on component mount
    */
   useEffect(() => {
     if (activeCourse && activeAssignment) {
-      void fetchSubmissions();
+      const storageKey = `parsedStudents_${activeCourse.id}_${activeAssignment.id}`;
+      const storedStudentsString = localStorage.getItem(storageKey);
 
-      if (activeRubric) {
-        const rubricKey = `rubric_${activeRubric.id}`;
-        localStorage.setItem(rubricKey, JSON.stringify(activeRubric));
+      if (storedStudentsString) {
+        try {
+          const storedStudentsRaw = localStorage.getItem(storageKey);
+          const storedStudents: ParsedStudent[] = storedStudentsRaw
+            ? (JSON.parse(storedStudentsRaw) as ParsedStudent[])
+            : [];
+          console.log(
+            `Retrieved students for ${activeAssignment.id}:`,
+            storedStudents,
+          );
+        } catch (error) {
+          console.error(
+            "Error parsing stored students from localStorage:",
+            error,
+          );
+        }
       }
+    }
+  }, [activeCourse, activeAssignment]);
+
+  /**
+   * Handle CSV Upload for group data
+   */
+  const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file && activeCourse && activeAssignment) {
+      console.log("📂 Uploading file:", file.name);
+
+      parseCSV(file)
+        .then((parsedStudents) => {
+          console.log("Parsed Students:", parsedStudents);
+
+          if (parsedStudents.length > 0) {
+            const storageKey = `parsedStudents_${activeCourse.id}_${activeAssignment.id}`;
+            localStorage.setItem(storageKey, JSON.stringify(parsedStudents));
+
+            console.log(
+              "Saved parsedStudents to localStorage under key:",
+              storageKey,
+            );
+          } else {
+            console.warn("Parsed students list is empty, not saving.");
+          }
+        })
+        .catch((error) => {
+          console.error(" Error parsing CSV:", error);
+          alert("Failed to import CSV.");
+        });
     }
   }, [activeCourse, activeAssignment, activeRubric]);
 
@@ -54,11 +113,10 @@ export function GradingMain(): ReactElement {
       // prevent effect if either course or assignment is not selected
       return;
     }
-    setLoading(true);
     void fetchSubmissions();
   }, [activeCourse, activeAssignment]);
 
-  const fetchSubmissions = async () => {
+  const fetchSubmissions = useCallback(async () => {
     setLoading(true);
     try {
       const response =
@@ -72,71 +130,51 @@ export function GradingMain(): ReactElement {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getSubmissions]);
 
   const renderContent = () => {
+    if (!loading && activeCourse && activeAssignment) {
+      return (
+        <>
+          <div className="flex gap-4 items-center mt-2 p-2">
+            <label className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg cursor-pointer">
+              Upload Grades CSV
+              {/*todo: use a callback hook here instead w/ palette action button */}
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
+
+            <PaletteActionButton
+              color={"GREEN"}
+              onClick={handleExportAllGroups}
+              title={"Export Groups to CSV"}
+            />
+          </div>
+
+          <GradingProvider>
+            <SubmissionsDashboard
+              submissions={submissions}
+              fetchSubmissions={fetchSubmissions}
+              setLoading={setLoading}
+              builderOpen={builderOpen}
+              setBuilderOpen={setBuilderOpen}
+            />
+          </GradingProvider>
+        </>
+      );
+    }
+
     return (
       <>
-        <div className="flex gap-4 items-center mb-4">
-          {/* Toggle Button */}
-          <button
-            className={`py-2 px-4 rounded font-bold ${
-              isOfflineMode
-                ? "bg-gray-500 hover:bg-gray-600"
-                : "bg-blue-500 hover:bg-blue-600"
-            } text-white`}
-            onClick={() => setIsOfflineMode(!isOfflineMode)}
-          >
-            {isOfflineMode
-              ? "Switch to Canvas Grading"
-              : "Switch to Offline Grading"}
-          </button>
-
-          {/* Transfer + Submit Buttons */}
-          {!isOfflineMode &&
-            activeCourse &&
-            activeAssignment &&
-            Object.keys(submissions).length > 0 && (
-              <>
-                <button
-                  className="bg-yellow-500 text-white hover:bg-yellow-600 font-bold py-2 px-4 rounded"
-                  onClick={() => {
-                    if (!transferring) {
-                      setTransferring(true);
-                      transferToOfflineGrading(
-                        activeCourse,
-                        activeAssignment,
-                        activeRubric,
-                      );
-                      setTimeout(() => setTransferring(false), 2000);
-                    }
-                  }}
-                  disabled={transferring}
-                >
-                  {transferring
-                    ? "Transferring..."
-                    : "Transfer to Offline Grading"}
-                </button>
-              </>
-            )}
+        <div className={"grid h-full"}>
+          {loading && <LoadingDots />}
+          {!activeCourse && <NoCourseSelected />}
+          {activeCourse && !activeAssignment && <NoAssignmentSelected />}
         </div>
-
-        {/* Conditional Rendering */}
-        {isOfflineMode ? (
-          <OfflineGradingView />
-        ) : activeCourse && activeAssignment ? (
-          <SubmissionsDashboard
-            submissions={submissions}
-            fetchSubmissions={fetchSubmissions}
-            setLoading={setLoading}
-          />
-        ) : (
-          <div className="grid h-full">
-            {loading && <LoadingDots />}
-            {!activeCourse && <NoCourseSelected />}
-            {activeCourse && !activeAssignment && <NoAssignmentSelected />}
-          </div>
-        )}
       </>
     );
   };

@@ -5,9 +5,9 @@
  * they are authorized to grade.
  */
 import { MouseEvent, ReactElement, useEffect, useState } from "react";
-import { useFetch } from "@hooks";
+import { useFetch } from "@/hooks";
 import { Course, PaletteAPIResponse, Settings } from "palette-types";
-import { useCourse } from "../../context/CourseProvider.tsx";
+import { useCourse } from "@/context/CourseProvider.tsx";
 import { PaletteActionButton } from "../buttons/PaletteActionButton.tsx";
 import { PaletteTrash } from "../buttons/PaletteTrash.tsx";
 import { LoadingDots } from "../LoadingDots.tsx";
@@ -17,10 +17,11 @@ import {
   faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useChoiceDialog } from "@context";
+import { useChoiceDialog } from "@/context";
 import { PaletteTable } from "../buttons/PaletteTable.tsx";
 import { v4 as uuidv4 } from "uuid";
 import { ChoiceDialog } from "../modals/ChoiceDialog.tsx";
+
 export function CourseSelectionMenu({
   onSelect,
 }: {
@@ -148,7 +149,6 @@ export function CourseSelectionMenu({
       const response = (await getCourses()) as PaletteAPIResponse<Course[]>; // Trigger the GET request
 
       if (response.success) {
-        console.log("response.data:", response.data);
         setCourses(response.data!);
       } else {
         setErrorMessage(response.error || "Failed to get courses");
@@ -229,7 +229,13 @@ export function CourseSelectionMenu({
       param_code: filter.param_code,
     };
 
-    let newStagedFilters = [...stagedFilters];
+    let newStagedFilters: {
+      label: string;
+      value: string;
+      options?: string[];
+      selected_option?: string;
+      param_code?: string;
+    }[];
 
     // Return a new array with the updated staged filter
     if (filterIndex === -1) {

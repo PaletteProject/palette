@@ -24,3 +24,5 @@ export * from "./contextSelectors/ActiveCourseSelection.tsx";
 export * from "./contextSelectors/CourseSelectionMenu.tsx";
 export * from "./contextSelectors/AssignmentSelectionMenu.tsx";
 export * from "../features/templatesPage/TemplateBuilder.tsx";
+
+export * from "./ProgressBar.tsx";

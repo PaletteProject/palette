@@ -1,15 +1,29 @@
 services:
-  app:
+  frontend:
     build:
-      context: . # project root
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: Dockerfile.frontend
+    working_dir: /app/frontend
     ports:
-      - "5173:5173" # map the frontend port
-      - "3000:3000" # map the backend port
+      - "5173:5173"
     volumes:
-      - .:/app # mounts project files for live changes without needing to rebuild container
-      - /app/node_modules # isolate container's node_modules directory from the host
+      - .:/app
+      - /app/frontend/node_modules
+    command: npm run dev
     environment:
-      - DATABASE_URL=postgres://postgres:password@db:5432/palette-db
       - NODE_ENV=development
-    command: sh -c "npm run dev"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    working_dir: /app/backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/backend/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+

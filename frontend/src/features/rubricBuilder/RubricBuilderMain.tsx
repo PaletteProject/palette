@@ -4,25 +4,29 @@
 import { ReactElement, useEffect } from "react";
 import TemplateUpload from "./TemplateUpload.tsx";
 import {
-  ChoiceDialog,
   Dialog,
   Footer,
   Header,
   LoadingDots,
   NoAssignmentSelected,
   NoCourseSelected,
-} from "@components";
+} from "@/components";
 
 import { Rubric } from "palette-types";
 
-import { useChoiceDialog } from "../../context/DialogContext.tsx";
-import { useSettings } from "../../context/SettingsContext.tsx";
-import { createRubric } from "@utils";
-import { useRubricBuilder } from "../../hooks/useRubricBuilder.ts";
-import { useTemplate } from "../../hooks/useTemplate.ts";
+import { useChoiceDialog, useSettings } from "@/context";
+import { createRubric } from "@/utils";
+import { useRubricBuilder, useTemplate } from "@/hooks";
+
 import { RubricForm } from "./RubricForm.tsx";
 
-export function RubricBuilderMain(): ReactElement {
+interface RubricBuilderMainProps {
+  hotSwapActive?: boolean;
+}
+
+export function RubricBuilderMain({
+  hotSwapActive = false,
+}: RubricBuilderMainProps): ReactElement {
   const {
     activeRubric,
     setActiveRubric,
@@ -31,7 +35,6 @@ export function RubricBuilderMain(): ReactElement {
     getRubric,
     isOfflineMode,
     setIsOfflineMode,
-    hasExistingRubric,
     setHasExistingRubric,
     loading,
     setLoading,
@@ -43,10 +46,37 @@ export function RubricBuilderMain(): ReactElement {
   const { templateInputActive, setTemplateInputActive } = useTemplate();
 
   useEffect(() => {
-    if (!activeCourse || !activeAssignment) return;
-    if (hasExistingRubric) handleExistingRubric();
-    if (!hasExistingRubric) handleNewRubric();
-  }, [hasExistingRubric]);
+    if (!activeCourse || !activeAssignment || hotSwapActive) return;
+
+    setLoading(true);
+
+    const loadRubric = async () => {
+      if (!activeAssignment.rubricId) {
+        handleNewRubric();
+        return;
+      }
+
+      const response = await getRubric();
+      if (!response) {
+        setLoading(false);
+        return;
+      }
+
+      const exists = response.success || false;
+      setHasExistingRubric(exists);
+      setIsNewRubric(!exists);
+      setActiveRubric(response.data as Rubric);
+      setLoading(false);
+
+      if (exists) {
+        handleExistingRubric();
+      } else {
+        handleNewRubric();
+      }
+    };
+
+    void loadRubric();
+  }, [activeCourse, activeAssignment, hotSwapActive]);
 
   /**
    * Fires when user selects an assignment that doesn't have a rubric id associated with it.
@@ -66,33 +96,6 @@ export function RubricBuilderMain(): ReactElement {
     setHasExistingRubric(false);
     setIsNewRubric(true);
   };
-
-  useEffect(() => {
-    if (!activeCourse || !activeAssignment) return;
-
-    setLoading(true);
-
-    const checkRubricExists = async () => {
-      if (!activeAssignment.rubricId) {
-        handleNewRubric();
-        return;
-      }
-
-      const response = await getRubric();
-
-      if (!response) {
-        setLoading(false);
-        return;
-      }
-      setHasExistingRubric(response.success || false);
-      setIsNewRubric(false);
-      setActiveRubric(response.data as Rubric);
-      setLoading(false);
-    };
-
-    void checkRubricExists();
-  }, [activeCourse, activeAssignment]);
-
   /**
    * If user selects replace existing rubric, the program creates a new rubric for the user to edit.
    *
@@ -135,6 +138,7 @@ export function RubricBuilderMain(): ReactElement {
    * Effect to load a default rubric if canvas api is bypassed
    */
   useEffect(() => {
+    if (hotSwapActive) return;
     if (isOfflineMode && !activeRubric) {
       setActiveRubric(createRubric(settings));
     }
@@ -180,13 +184,10 @@ export function RubricBuilderMain(): ReactElement {
   };
 
   return (
-    <div className="min-h-screen justify-between flex flex-col w-screen  bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
+    <div className="min-h-screen justify-between flex flex-col w-full  bg-gradient-to-b from-gray-900 to-gray-700 text-white font-sans">
       <Header />
       <div className={"px-48 flex justify-center"}>{renderContent()}</div>
       {!isOfflineMode && renderOfflineToggleButton()}
-
-      {/*Used for modal notifications*/}
-      <ChoiceDialog />
 
       {/* Template Import Dialog */}
       <Dialog

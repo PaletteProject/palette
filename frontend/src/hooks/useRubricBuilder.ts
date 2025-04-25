@@ -1,4 +1,4 @@
-import { useAssignment, useCourse, useRubric } from "@context";
+import { useAssignment, useCourse, useRubric } from "@/context";
 import { useState } from "react";
 import { useFetch } from "./useFetch.ts";
 

@@ -46,7 +46,6 @@ export async function fetchAPI<T>(
 
     // build a request object to pass to fetch, then make the request and log it
     const request = new Request(url, requestInit);
-    logCanvasAPIRequest(request, options, true);
     const response = await fetch(request);
 
     // parse and log the JSON response
@@ -80,40 +79,6 @@ export async function fetchAPI<T>(
       console.error(`Canvas API Error: ${error.message}`);
     }
     throw error; // rethrow the error for the caller to handle
-  }
-}
-
-/**
- * Utility function to log API requests to the console.
- * @param request the request object
- * @param options the request options
- * @param verbose whether to log the full request object or just the method and URL
- */
-function logCanvasAPIRequest(
-  request: Request,
-  options: RequestInit,
-  verbose: boolean = false,
-) {
-  if (verbose) {
-    // log the entire request (up to 50 levels deep) for debugging
-    console.log(
-      "\nCanvas API Request:\n",
-      util.inspect(request, { depth: 50, colors: true }),
-    );
-  } else {
-    // log just the method and URL for debugging
-    console.log(`\nCanvas API Request: ${request.method} ${request.url}`);
-  }
-
-  // log the request body (up to 50 levels deep) for debugging
-  if (options.body) {
-    console.log(
-      `Canvas API Request Body (parsed JSON):\n 
-    ${util.inspect(JSON.parse(options.body as string), {
-      depth: 50,
-      colors: true,
-    })}`,
-    );
   }
 }
 

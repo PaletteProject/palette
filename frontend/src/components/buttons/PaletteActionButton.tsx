@@ -89,7 +89,7 @@ export const PaletteActionButton: React.FC<ActionButtonProps> = ({
         ${colorStyles.bg} ${colorStyles.hover} 
         text-nowrap
         text-white font-bold rounded-lg py-2 px-4 
-        hover:scale-105 focus:outline-none focus:ring-4 ${colorStyles.focus} focus:shadow-2xl
+        hover:scale-105 focus:outline-none focus:ring-4 ${colorStyles.focus} focus:shadow-2xl cursor-pointer
         ${disabled ? "cursor-not-allowed" : ""}
         `}
       onClick={onClick}
