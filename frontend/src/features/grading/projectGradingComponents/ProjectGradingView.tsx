@@ -67,7 +67,7 @@ export function ProjectGradingView({
 
   const { closeDialog } = useChoiceDialog();
   const { activeRubric } = useRubric();
-  const effectiveRubric = rubric ?? activeRubric; 
+  const effectiveRubric = rubric ?? activeRubric;
 
   const { setGradedSubmissionCache, gradedSubmissionCache } =
     useGradingContext();
@@ -216,7 +216,7 @@ export function ProjectGradingView({
       </div>,
       document.getElementById("portal-root") as HTMLElement,
     );
-  }
+  };
 
   return (
     <div className={"max-h-48 overflow-y-auto"}>

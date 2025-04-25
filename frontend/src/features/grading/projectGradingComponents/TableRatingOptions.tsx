@@ -13,7 +13,9 @@ export function TableRatingOptions({ criterion }: TableRatingOptionsProps) {
   const [isGroupSelected, setIsGroupSelected] = useState<boolean>(() => {
     try {
       const stored = localStorage.getItem(storageKey);
-      return stored !== null ? JSON.parse(stored) : criterion.isGroupCriterion ?? false;
+      return stored !== null
+        ? (JSON.parse(stored) as boolean)
+        : (criterion.isGroupCriterion ?? false);
     } catch (error) {
       console.error(`Error reading localStorage key "${storageKey}":`, error);
       return criterion.isGroupCriterion ?? false;
@@ -32,7 +34,7 @@ export function TableRatingOptions({ criterion }: TableRatingOptionsProps) {
     if (!activeRubric) return;
 
     const updatedCriteria = activeRubric.criteria.map((c) =>
-      c.id === criterion.id ? { ...c, isGroupCriterion: !isGroupSelected } : c
+      c.id === criterion.id ? { ...c, isGroupCriterion: !isGroupSelected } : c,
     );
 
     setActiveRubric({ ...activeRubric, criteria: updatedCriteria });

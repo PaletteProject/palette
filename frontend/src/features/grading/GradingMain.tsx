@@ -1,10 +1,9 @@
-import { ChangeEvent, ReactElement, useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { GroupedSubmissions, PaletteAPIResponse } from "palette-types";
 import { useFetch } from "@hooks";
 import { useAssignment, useCourse, useRubric } from "@context";
 import { OfflineGradingView } from "./offlineGrading/offlineGradingView";
 import { transferToOfflineGrading } from "./offlineGrading/transferToOfflineGrading.ts";
-import { SubmitOfflineGradesButton } from "./offlineGrading/SubmitOfflineGradesButton";
 
 import {
   LoadingDots,
@@ -48,7 +47,7 @@ export function GradingMain(): ReactElement {
       }
     }
   }, [activeCourse, activeAssignment, activeRubric]);
-  
+
   // fetch rubric and submissions when course or assignment change
   useEffect(() => {
     if (!activeCourse || !activeAssignment) {
@@ -75,54 +74,52 @@ export function GradingMain(): ReactElement {
     }
   };
 
-const renderContent = () => {
+  const renderContent = () => {
     return (
       <>
         <div className="flex gap-4 items-center mb-4">
           {/* Toggle Button */}
           <button
             className={`py-2 px-4 rounded font-bold ${
-              isOfflineMode ? "bg-gray-500" : "bg-blue-500"
+              isOfflineMode
+                ? "bg-gray-500 hover:bg-gray-600"
+                : "bg-blue-500 hover:bg-blue-600"
             } text-white`}
             onClick={() => setIsOfflineMode(!isOfflineMode)}
           >
-            {isOfflineMode ? "Switch to Canvas Grading" : "Switch to Offline Grading"}
+            {isOfflineMode
+              ? "Switch to Canvas Grading"
+              : "Switch to Offline Grading"}
           </button>
 
-              {/* Transfer + Submit Buttons */}
-              {!isOfflineMode &&
-              activeCourse &&
-              activeAssignment &&
-              Object.keys(submissions).length > 0 && (
-                <>
-                  <button
-                    className="bg-yellow-500 text-white font-bold py-2 px-4 rounded"
-                    onClick={() => {
-                      if (!transferring) {
-                        setTransferring(true);
-                        transferToOfflineGrading(
-                          activeCourse,
-                          activeAssignment,
-                          activeRubric,
-                        );
-                        setTimeout(() => setTransferring(false), 2000);
-                      }
-                    }}
-                    disabled={transferring}
-                  >
-                    {transferring ? "Transferring..." : "Transfer to Offline Grading"}
-                  </button>
-
-                  {/* Submit Offline Grades Button */}
-                  <SubmitOfflineGradesButton
-                    courseId={activeCourse.id.toString()}
-                    assignmentId={activeAssignment.id.toString()}
-                    accessToken={localStorage.getItem("accessToken") || ""}
-                  />
-                </>
-              )}
-          </div>
-
+          {/* Transfer + Submit Buttons */}
+          {!isOfflineMode &&
+            activeCourse &&
+            activeAssignment &&
+            Object.keys(submissions).length > 0 && (
+              <>
+                <button
+                  className="bg-yellow-500 text-white hover:bg-yellow-600 font-bold py-2 px-4 rounded"
+                  onClick={() => {
+                    if (!transferring) {
+                      setTransferring(true);
+                      transferToOfflineGrading(
+                        activeCourse,
+                        activeAssignment,
+                        activeRubric,
+                      );
+                      setTimeout(() => setTransferring(false), 2000);
+                    }
+                  }}
+                  disabled={transferring}
+                >
+                  {transferring
+                    ? "Transferring..."
+                    : "Transfer to Offline Grading"}
+                </button>
+              </>
+            )}
+        </div>
 
         {/* Conditional Rendering */}
         {isOfflineMode ? (

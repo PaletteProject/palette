@@ -1,17 +1,17 @@
-import { CanvasGradedSubmission } from 'palette-types';
+import { CanvasGradedSubmission } from "palette-types";
 
 function safeParse<T>(data: string | null, fallback: T): T {
   try {
     return data ? (JSON.parse(data) as T) : fallback;
   } catch (error) {
-    console.error('Error parsing JSON:', error);
+    console.error("Error parsing JSON:", error);
     return fallback;
   }
 }
 
 export function aggregateOfflineGrades(
   courseId: string,
-  assignmentId: string
+  assignmentId: string,
 ): Record<number, CanvasGradedSubmission> {
   const aggregatedGrades: Record<number, CanvasGradedSubmission> = {};
 
@@ -21,7 +21,7 @@ export function aggregateOfflineGrades(
   // Try scoped cache first
   const scopedGrades = safeParse<Record<number, CanvasGradedSubmission>>(
     localStorage.getItem(scopedKey),
-    {}
+    {},
   );
   Object.assign(aggregatedGrades, scopedGrades);
 
@@ -29,7 +29,7 @@ export function aggregateOfflineGrades(
   if (Object.keys(aggregatedGrades).length === 0) {
     const fallbackGrades = safeParse<Record<number, CanvasGradedSubmission>>(
       localStorage.getItem(fallbackKey),
-      {}
+      {},
     );
     Object.assign(aggregatedGrades, fallbackGrades);
   }
@@ -43,7 +43,7 @@ export function aggregateOfflineGrades(
     ) {
       const groupGrades = safeParse<Record<number, CanvasGradedSubmission>>(
         localStorage.getItem(key),
-        {}
+        {},
       );
       Object.assign(aggregatedGrades, groupGrades);
     }

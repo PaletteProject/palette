@@ -1,8 +1,5 @@
 import { useState } from "react";
-import {
-  GroupedSubmissions,
-  PaletteGradedSubmission,
-} from "palette-types";
+import { GroupedSubmissions, PaletteGradedSubmission } from "palette-types";
 import { GroupSubmissions } from "@features";
 import { ChoiceDialog, PaletteActionButton } from "@components";
 import { useChoiceDialog } from "../../../context/DialogContext.tsx";
@@ -27,20 +24,37 @@ export function OfflineDashboard({
     Record<number, PaletteGradedSubmission>
   >({});
 
-  const courseNameMap = JSON.parse(localStorage.getItem("courseNameMap") || "{}");
-  const assignmentNameMap = JSON.parse(
-    localStorage.getItem(`assignmentNameMap_${courseId}`) || "{}"
-  );
+  const courseNameMap = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("courseNameMap") || "{}"
+      ) as Record<string, string>;
+    } catch {
+      return {} as Record<string, string>;
+    }
+  })();
+  
+  const assignmentNameMap = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem(`assignmentNameMap_${courseId}`) || "{}"
+      ) as Record<string, string>;
+    } catch {
+      return {} as Record<string, string>;
+    }
+  })();
+  
   const courseName = courseNameMap[courseId] || `Course ${courseId}`;
-  const assignmentName = assignmentNameMap[assignmentId] || `Assignment ${assignmentId}`;
-
+  const assignmentName =
+    assignmentNameMap[assignmentId] || `Assignment ${assignmentId}`;
+  
   const handleSubmitGrades = async () => {
     const token = localStorage.getItem("accessToken") || "";
 
     const grades = aggregateOfflineGrades(courseId, assignmentId);
 
     if (Object.keys(grades).length === 0) {
-      alert("❌ No offline grades found to submit.");
+      alert(" No offline grades found to submit.");
       return;
     }
 
@@ -99,10 +113,10 @@ export function OfflineDashboard({
         {Object.entries(submissions).map(([groupName, groupSubmissions]) => {
           const gradedCount = groupSubmissions.reduce(
             (count, s) => (s.graded ? count + 1 : count),
-            0
+            0,
           );
           const progress = Math.floor(
-            (gradedCount / groupSubmissions.length) * 100
+            (gradedCount / groupSubmissions.length) * 100,
           );
 
           return (

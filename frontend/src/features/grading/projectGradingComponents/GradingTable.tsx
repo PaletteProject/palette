@@ -19,7 +19,6 @@ import { TableRatingOptions } from "./TableRatingOptions";
 import { useGradingContext } from "../../../context/GradingContext";
 import { useRubric } from "@context";
 
-
 interface GradingTableProps {
   submissions: Submission[];
   activeStudentId: number | null;
@@ -28,7 +27,7 @@ interface GradingTableProps {
   setSavedGrades: Dispatch<
     SetStateAction<Record<number, PaletteGradedSubmission>>
   >;
-  rubric: Rubric; 
+  rubric: Rubric;
 }
 
 export function GradingTable({
@@ -131,11 +130,15 @@ export function GradingTable({
                   ];
                 const currentValue = assessment?.points ?? "";
 
-                const handleRatingChange = (e: ChangeEvent<HTMLSelectElement>) => {
+                const handleRatingChange = (
+                  e: ChangeEvent<HTMLSelectElement>,
+                ) => {
                   const newPoints = Number(e.target.value);
                   const storageKey = `criterion-${criterion.id}-isGroupCriterion`;
-                  const isGroupCriterion = JSON.parse(window.localStorage.getItem(storageKey) || 'false');
-                
+                  const isGroupCriterion = JSON.parse(
+                    window.localStorage.getItem(storageKey) || "false",
+                  ) as boolean;
+
                   if (!isGroupCriterion) {
                     updateScore(submissionId, criterion.id, newPoints);
                   } else {
@@ -144,7 +147,6 @@ export function GradingTable({
                     });
                   }
                 };
-                
 
                 return (
                   <td

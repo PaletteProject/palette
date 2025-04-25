@@ -7,7 +7,6 @@ import {
 import { ProjectGradingView } from "../projectGradingComponents/ProjectGradingView";
 import { OfflineGradingSelection } from "./offlineGradingSelection";
 import { GradingProvider } from "../../../context/GradingContext.tsx";
-import { ChoiceDialog, PaletteActionButton } from "@components";
 import { aggregateOfflineGrades } from "./aggregateOfflineGrades";
 
 export function OfflineGradingView(): ReactElement {
@@ -25,20 +24,27 @@ export function OfflineGradingView(): ReactElement {
       const submissionsKey = `offlineSubmissions_${selectedCourse}_${selectedAssignment}`;
       const rubricKey = `offlineRubric_${selectedCourse}_${selectedAssignment}`;
       const gradesKey = `offlineGradingCache_${selectedCourse}_${selectedAssignment}`;
-
+  
       try {
         const submissionsRaw = localStorage.getItem(submissionsKey);
         const rubricRaw = localStorage.getItem(rubricKey);
         const gradedRaw = localStorage.getItem(gradesKey);
-
-        setOfflineSubmissions(submissionsRaw ? JSON.parse(submissionsRaw) : {});
-        setOfflineRubric(rubricRaw ? JSON.parse(rubricRaw) : null);
-        setGradedSubmissionCache(gradedRaw ? JSON.parse(gradedRaw) : {});
+  
+        setOfflineSubmissions(
+          submissionsRaw ? (JSON.parse(submissionsRaw) as GroupedSubmissions) : {}
+        );
+        setOfflineRubric(
+          rubricRaw ? (JSON.parse(rubricRaw) as Rubric) : null
+        );
+        setGradedSubmissionCache(
+          gradedRaw ? (JSON.parse(gradedRaw) as Record<number, PaletteGradedSubmission>) : {}
+        );
       } catch (error) {
         console.error("Error loading offline grading data:", error);
       }
     }
   }, [selectedCourse, selectedAssignment]);
+  
 
   useEffect(() => {
     if (selectedCourse && selectedAssignment) {
@@ -72,7 +78,6 @@ export function OfflineGradingView(): ReactElement {
   };
 
   const handleSubmitGrades = async () => {
-    const token = localStorage.getItem("accessToken") || "";
     const BASE_URL = "http://localhost:3000/api";
 
     if (!selectedCourse || !selectedAssignment) {
@@ -134,32 +139,36 @@ export function OfflineGradingView(): ReactElement {
       )}
 
       {selectedCourse && selectedAssignment && Object.keys(offlineSubmissions).length > 0 && (
-        <div className="mt-4">
+        <div className="mt-4  hover:bg-200">
           <h2 className="text-xl font-semibold text-white">Select a Group</h2>
           {Object.entries(offlineSubmissions).map(([groupName, submissions]) => (
             <button
               key={groupName}
-              className="block bg-gray-700 text-white p-3 rounded mt-2 w-full text-left"
+              className="block bg-gray-700 hover:bg-gray-800 text-white p-3 rounded mt-2 w-full text-left"
               onClick={() => setSelectedGroup(groupName)}
             >
               {groupName} ({submissions.length} submissions)
             </button>
           ))}
 
-          <PaletteActionButton
-            color="GREEN"
-            title="Submit Offline Grades to Canvas"
-            onClick={handleSubmitGrades}
-          />
-        </div>
-      )}
+        <button
+          className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
+          onClick={() => {
+            void handleSubmitGrades();
+          }}
+        >
+          Submit Offline Grades to Canvas
+        </button>
 
-      <button
-        className="bg-red-600 text-white py-2 px-4 mt-4 rounded"
+         <button
+        color="RED"
+        className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 mt-4 rounded"
         onClick={handleClearOfflineStorage}
       >
         Clear Offline Storage
       </button>
+        </div>
+      )}
     </div>
   );
 }
