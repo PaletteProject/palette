@@ -101,7 +101,7 @@ function logCanvasAPIRequest(request: Request, options: RequestInit) {
   };
 
   console.log(
-    `\nCanvas API Request: ${obfuscatedRequest.method} ${obfuscatedRequest.url} (fetchAPI)\n`
+    `\nCanvas API Request: ${obfuscatedRequest.method} ${obfuscatedRequest.url}\n`
   );
 
   // log the request body (up to 50 levels deep) for debugging
@@ -111,7 +111,7 @@ function logCanvasAPIRequest(request: Request, options: RequestInit) {
     ${util.inspect(JSON.parse(options.body as string), {
       depth: 50,
       colors: true,
-    })} (fetchAPI)`
+    })}`
     );
   }
 }
@@ -130,12 +130,12 @@ function logCanvasAPIResponse<T>(
   if (verbose) {
     // log the whole response (up to 50 levels deep) for debugging
     console.log(
-      "\nCanvas API Response: (fetchAPI)\n",
+      "\nCanvas API Response:\n",
       util.inspect(response, { depth: 50, colors: true })
     );
   } else {
     // log just the status code for debugging
-    console.log(`\nCanvas API Response Status: ${response.status} (fetchAPI)`);
+    console.log(`\nCanvas API Response Status: ${response.status}`);
   }
 
   // log the response body (up to 50 levels deep) for debugging
@@ -143,7 +143,7 @@ function logCanvasAPIResponse<T>(
   if (body) {
     console.log(
       `Canvas API Response Body (parsed JSON):\n
-    ${util.inspect(body, { depth: 50, colors: true })} (fetchAPI)`
+    ${util.inspect(body, { depth: 50, colors: true })}`
     );
   }
 }

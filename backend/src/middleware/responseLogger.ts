@@ -21,9 +21,7 @@ export const responseLogger = (
 
   // Override the `send` method
   res.send = function (body: unknown) {
-    console.log(
-      `\nTo Palette --> Response Status: ${res.statusCode} (responseLogger)`
-    );
+    console.log(`\nTo Palette --> Response Status: ${res.statusCode}`);
 
     if (typeof body === "string") {
       try {
@@ -41,26 +39,26 @@ export const responseLogger = (
             `To Palette --> Response Body: ${util.inspect(obfuscatedBody, {
               depth: 10,
               colors: true,
-            })} (responseLogger)`
+            })}`
           );
         } else {
           console.log(
             `To Palette --> Response Body: ${util.inspect(parsedBody, {
               depth: 10,
               colors: true,
-            })} (responseLogger)`
+            })}`
           );
         }
       } catch (e) {
         // If body is not JSON, log it as is
-        console.log(`To Palette --> Response Body: ${body} (responseLogger)`);
+        console.log(`To Palette --> Response Body: ${body}`);
       }
     } else if (body) {
       console.log(
         `To Palette --> Response Body: ${util.inspect(body, {
           depth: 10,
           colors: true,
-        })} (responseLogger)`
+        })}`
       );
     }
 
