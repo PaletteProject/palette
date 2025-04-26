@@ -17,7 +17,7 @@ export const requestLogger = (
   next: NextFunction
 ): void => {
   console.log(
-    `\nRequest [${req.hostname} on ${req.ip}]: ${req.method} ${req.url}`
+    `\nRequest [${req.hostname} on ${req.ip}]: ${req.method} ${req.url}(requestLogger)`
   );
   console.log(`Body: ${util.inspect(req.body, { depth: 10, colors: true })}`);
   next();
