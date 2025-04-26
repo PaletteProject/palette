@@ -31,7 +31,7 @@ const refreshToken = () => {
  */
 export async function fetchAPI<T>(
   endpoint: string,
-  options: RequestInit = {} // default options (none)
+  options: RequestInit = {}, // default options (none)
 ): Promise<T> {
   refreshToken();
   try {
@@ -67,7 +67,7 @@ export async function fetchAPI<T>(
       } else {
         throw new CanvasAPIUnexpectedError(
           "Canvas API returned an unexpected error response",
-          json
+          json,
         );
       }
     }
@@ -101,7 +101,7 @@ function logCanvasAPIRequest(request: Request, options: RequestInit) {
   };
 
   console.log(
-    `\nCanvas API Request: ${obfuscatedRequest.method} ${obfuscatedRequest.url}\n`
+    `\nCanvas API Request: ${obfuscatedRequest.method} ${obfuscatedRequest.url}\n`,
   );
 
   // log the request body (up to 50 levels deep) for debugging
@@ -111,7 +111,7 @@ function logCanvasAPIRequest(request: Request, options: RequestInit) {
     ${util.inspect(JSON.parse(options.body as string), {
       depth: 50,
       colors: true,
-    })}`
+    })}`,
     );
   }
 }
@@ -125,13 +125,13 @@ function logCanvasAPIRequest(request: Request, options: RequestInit) {
 function logCanvasAPIResponse<T>(
   response: Response,
   body: T,
-  verbose: boolean = false
+  verbose: boolean = false,
 ) {
   if (verbose) {
     // log the whole response (up to 50 levels deep) for debugging
     console.log(
       "\nCanvas API Response:\n",
-      util.inspect(response, { depth: 50, colors: true })
+      util.inspect(response, { depth: 50, colors: true }),
     );
   } else {
     // log just the status code for debugging
@@ -143,7 +143,7 @@ function logCanvasAPIResponse<T>(
   if (body) {
     console.log(
       `Canvas API Response Body (parsed JSON):\n
-    ${util.inspect(body, { depth: 50, colors: true })}`
+    ${util.inspect(body, { depth: 50, colors: true })}`,
     );
   }
 }

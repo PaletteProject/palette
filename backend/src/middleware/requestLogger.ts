@@ -14,10 +14,10 @@ import util from "util";
 export const requestLogger = (
   req: Request,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   console.log(
-    `\nRequest [${req.hostname} on ${req.ip}]: ${req.method} ${req.url}`
+    `\nRequest [${req.hostname} on ${req.ip}]: ${req.method} ${req.url}`,
   );
   console.log(`Body: ${util.inspect(req.body, { depth: 10, colors: true })}`);
   next();

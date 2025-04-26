@@ -1,6 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import util from "util";
 
+interface ResponseBody {
+  data?: {
+    token?: string;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
 /**
  * Middleware to log the outgoing response.
  *
@@ -14,7 +22,7 @@ import util from "util";
 export const responseLogger = (
   _req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   // Store the original `send` method
   const originalSend = res.send.bind(res);
@@ -25,10 +33,10 @@ export const responseLogger = (
 
     if (typeof body === "string") {
       try {
-        const parsedBody = JSON.parse(body);
+        const parsedBody = JSON.parse(body) as ResponseBody;
         if (parsedBody.data?.token) {
           // Create a copy of the body with obfuscated token
-          const obfuscatedBody = {
+          const obfuscatedBody: ResponseBody = {
             ...parsedBody,
             data: {
               ...parsedBody.data,
@@ -39,26 +47,27 @@ export const responseLogger = (
             `To Palette --> Response Body: ${util.inspect(obfuscatedBody, {
               depth: 10,
               colors: true,
-            })}`
+            })}`,
           );
         } else {
           console.log(
             `To Palette --> Response Body: ${util.inspect(parsedBody, {
               depth: 10,
               colors: true,
-            })}`
+            })}`,
           );
         }
-      } catch (e) {
-        // If body is not JSON, log it as is
-        console.log(`To Palette --> Response Body: ${body}`);
+      } catch (error: unknown) {
+        console.log(
+          `Error parsing response body: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     } else if (body) {
       console.log(
         `To Palette --> Response Body: ${util.inspect(body, {
           depth: 10,
           colors: true,
-        })}`
+        })}`,
       );
     }
 
