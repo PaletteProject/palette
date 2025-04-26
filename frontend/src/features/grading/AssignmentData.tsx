@@ -1,11 +1,14 @@
 import { useAssignment } from "../../context/AssignmentProvider.tsx";
 import { useNavigate } from "react-router-dom";
 import { MouseEvent, useEffect, useState } from "react";
-import { ChoiceDialog, PaletteActionButton } from "@components";
-import { useChoiceDialog } from "../../context/DialogContext.tsx";
-import { useRubric } from "@context";
+import { ChoiceDialog, PaletteActionButton } from "@/components";
+import { useRubric } from "@/context";
 
-export function AssignmentData() {
+interface AssignmentDataProps {
+  modifyRubric: () => void;
+}
+
+export function AssignmentData({ modifyRubric }: AssignmentDataProps) {
   const { activeAssignment } = useAssignment();
   const { activeRubric } = useRubric();
   const navigate = useNavigate();
@@ -19,11 +22,9 @@ export function AssignmentData() {
     messageOptions.missing,
   );
 
-  const { openDialog, closeDialog } = useChoiceDialog();
-
   useEffect(() => {
     // default rubric in palette will use empty string for id indicating Canvas does not have an active rubric
-    if (activeRubric && activeRubric.id !== "") {
+    if (activeRubric && activeRubric.id) {
       setRubricMessage(messageOptions.present);
     } else {
       setRubricMessage(messageOptions.missing);
@@ -32,29 +33,7 @@ export function AssignmentData() {
 
   function handleEditRubricSelection(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
-    openDialog({
-      title: "Warning: Partial Data Loss Possible",
-      message:
-        "When an assignment rubric changes, Canvas preserves the existing score but overwrites the rubric" +
-        " assessment entirely. The application will show accurate grading progress, however rating options will all" +
-        " be" +
-        " reset in the grading view.",
-      buttons: [
-        {
-          label: "I accept this risk",
-          autoFocus: false,
-          action: () => navigate("/rubric-builder"),
-          color: "RED",
-        },
-        {
-          label: "Back to safety",
-          autoFocus: true,
-          color: "BLUE",
-          action: () => closeDialog(),
-        },
-      ],
-      excludeCancel: true,
-    });
+    modifyRubric();
   }
 
   return (

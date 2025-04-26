@@ -1,10 +1,10 @@
-import { PaletteBrush, PaletteEye } from "@components";
+import { PaletteBrush, PaletteEye } from "@/components";
 import { ExistingIndividualFeedback } from "./ExistingIndividualFeedback.tsx";
 import { IndividualFeedbackTextArea } from "./IndividualFeedbackTextArea.tsx";
 import { Submission, SubmissionComment } from "palette-types";
 import { Dispatch, SetStateAction, useState } from "react";
-import { useGradingContext } from "../../../context/GradingContext.tsx";
-import { calculateSubmissionTotal } from "../../../utils/SubmissionUtils.ts";
+import { useGradingContext } from "@/context";
+import { calculateSubmissionTotal } from "@/utils";
 
 interface StudentHeaderControlsProps {
   submission: Submission;
@@ -20,46 +20,55 @@ export function StudentHeaderControls({
   existingIndividualFeedback,
 }: StudentHeaderControlsProps) {
   const [showExistingIndividualFeedback, setShowExistingIndividualFeedback] =
-    useState<boolean>(false);
+    useState(false);
 
   const [showIndividualFeedbackTextArea, setShowIndividualFeedbackTextArea] =
-    useState<boolean>(false);
+    useState(false);
 
   const { gradedSubmissionCache } = useGradingContext();
 
+  const isActive = activeStudentId === submission.id;
+
+  const handleBrushClick = () => {
+    setActiveStudentId(isActive ? null : submission.id);
+    setShowIndividualFeedbackTextArea(true);
+    setShowExistingIndividualFeedback(false);
+  };
+
+  const handleEyeClick = () => {
+    setActiveStudentId(isActive ? null : submission.id);
+    setShowExistingIndividualFeedback(true);
+    setShowIndividualFeedbackTextArea(false);
+  };
+
   return (
-    <div className="flex flex-col w-full items-center gap-2">
-      <div className="flex items-center justify-center gap-4 text-center">
-        <div className={"flex justify-between"}>
-          <p>{`${submission.user.name} (${submission.user.asurite})`}</p>
-          <p>{`Score ${calculateSubmissionTotal(gradedSubmissionCache[submission.id])}`}</p>
-        </div>
+    <div className="flex flex-col items-center text-sm gap-2 px-2 relative">
+      {/* Header: Name + Score */}
+      <div className="text-center leading-tight space-y-0.5 max-w-32">
+        <p className="font-semibold">{submission.user.name}</p>
+        <p className="text-xs text-gray-300 truncate overflow-hidden">
+          {submission.user.asurite}
+        </p>
+        <p className="text-xs text-gray-400">
+          Score:{" "}
+          {calculateSubmissionTotal(gradedSubmissionCache[submission.id])}
+        </p>
+      </div>
+
+      {/* Icons */}
+      <div className="flex gap-2 items-center absolute top-0 right-0">
         <PaletteBrush
-          onClick={() => {
-            setActiveStudentId(
-              activeStudentId === submission.id ? null : submission.id,
-            );
-            setShowIndividualFeedbackTextArea(true);
-            setShowExistingIndividualFeedback(false);
-          }}
+          onClick={handleBrushClick}
           title="Add Feedback"
-          focused={
-            showIndividualFeedbackTextArea && activeStudentId === submission.id
-          }
+          focused={showIndividualFeedbackTextArea && isActive}
         />
         <PaletteEye
-          onClick={() => {
-            setActiveStudentId((prev) =>
-              prev === submission.id ? null : submission.id,
-            );
-            setShowExistingIndividualFeedback(true);
-            setShowIndividualFeedbackTextArea(false);
-          }}
-          focused={
-            showExistingIndividualFeedback && activeStudentId === submission.id
-          }
+          onClick={handleEyeClick}
+          focused={showExistingIndividualFeedback && isActive}
         />
       </div>
+
+      {/* Feedback areas */}
       {showExistingIndividualFeedback && (
         <ExistingIndividualFeedback
           activeStudentId={activeStudentId}
@@ -67,7 +76,7 @@ export function StudentHeaderControls({
           existingFeedback={existingIndividualFeedback}
         />
       )}
-      {activeStudentId === submission.id && showIndividualFeedbackTextArea && (
+      {isActive && showIndividualFeedbackTextArea && (
         <IndividualFeedbackTextArea submissionId={submission.id} />
       )}
     </div>

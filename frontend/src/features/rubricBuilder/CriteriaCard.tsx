@@ -8,10 +8,10 @@ import {
 import { useSortable } from "@dnd-kit/sortable"; // Import useSortable
 import { CSS } from "@dnd-kit/utilities"; // Import CSS utilities
 import { Criteria, Rating } from "palette-types";
-import { createRating } from "@utils";
+import { createRating } from "@/utils";
 import { RatingCard } from "./RatingCard.tsx";
 import TemplateSetter from "./TemplateSetter.tsx";
-import { Dialog, PaletteActionButton } from "@components";
+import { Dialog, PaletteActionButton } from "@/components";
 import { motion } from "framer-motion";
 
 type CriteriaCardProps = {
@@ -125,7 +125,7 @@ export default function CriteriaCard({
     return ratings.map((rating: Rating, ratingIndex: number) => {
       return (
         <RatingCard
-          key={rating.key}
+          key={rating.id}
           ratingIndex={ratingIndex}
           rating={rating}
           handleRatingChange={handleRatingChange}

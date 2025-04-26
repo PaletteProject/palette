@@ -4,8 +4,9 @@ import { Template } from "palette-types";
 import TemplateManagementControls from "./TemplateManagementControls.tsx";
 import { useTemplatesContext } from "./TemplateContext.tsx";
 import TemplateSorter from "./TemplateSorter.tsx";
-import { ChoiceDialog } from "@components";
-import { useChoiceDialog } from "src/context/DialogContext";
+import { ChoiceDialog } from "@/components";
+import { useChoiceDialog } from "@/context/DialogContext";
+
 const TemplatesWindow = () => {
   const {
     templates,

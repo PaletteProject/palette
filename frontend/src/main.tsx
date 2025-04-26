@@ -2,26 +2,27 @@
 Entry point for the entire application.
  */
 
-import { StrictMode } from "react";
+import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
+import "@/index.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import React from "react";
 import {
   GradingMain,
   Home,
   NotFoundPage,
   RubricBuilderMain,
   SettingsMain,
-} from "@features";
+} from "@/features";
 import {
   AssignmentProvider,
   CourseProvider,
   DialogProvider,
   RubricProvider,
-} from "@context";
-import TemplatesMain from "./features/templatesPage/TempatesMain.tsx";
-import { SettingsProvider } from "./context/SettingsContext.tsx";
+} from "@/context";
+
+import { SettingsProvider } from "@/context/SettingsContext.tsx";
+import TemplatesMain from "@/features/templatesPage/TempatesMain.tsx";
+import { ChoiceDialog } from "@/components";
 
 // Defined a "root" div in index.html that we pull in here and then call the React render method.
 createRoot(document.getElementById("root")!).render(
@@ -45,6 +46,7 @@ createRoot(document.getElementById("root")!).render(
                   <Route path={"*"} element={<NotFoundPage />} />
                 </Routes>
               </Router>
+              <ChoiceDialog />
             </DialogProvider>
           </RubricProvider>
         </AssignmentProvider>

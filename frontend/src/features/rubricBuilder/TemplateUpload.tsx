@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Criteria, Template } from "palette-types";
-import { useFetch } from "@hooks";
-import { useTemplate } from "../../hooks/useTemplate.ts";
-import { useChoiceDialog, useRubric } from "@context";
+import { useFetch, useTemplate } from "@/hooks";
+import { useChoiceDialog, useRubric } from "@/context";
 
 interface TemplateUploadProps {
   closeImportCard: () => void; // callback to close the template import card

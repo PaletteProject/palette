@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Tag } from "palette-types";
-import { useFetch } from "@hooks";
-import { createTag } from "@utils";
+import { useFetch } from "@/hooks";
+import { createTag } from "@/utils";
 import { useTemplatesContext } from "./TemplateContext";
-import { Dialog } from "@components";
+import { Dialog } from "@/components";
 
 interface TemplateTagCreatorProps {
   isOpen: boolean;

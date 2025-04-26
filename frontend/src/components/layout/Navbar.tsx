@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import MenuItem from "@mui/material/MenuItem";
@@ -9,7 +8,8 @@ import {
   AssignmentSelectionMenu,
   CourseSelectionMenu,
   Dialog,
-} from "@components";
+} from "@/components";
+import clsx from "clsx";
 
 export function Navbar() {
   const [userAnchor, setUserAnchor] = useState<null | HTMLElement>(null);
@@ -37,17 +37,17 @@ export function Navbar() {
   const isActive = (path: string) => currentPath === path;
 
   const renderNavButtons = () => (
-    <div className={"flex justify-between items-center gap-6 mx-4"}>
+    <div className={"flex justify-between items-center gap-6 mx-4 "}>
       {Object.entries(navOptions).map(([path, label]) => (
         <button
           key={path}
           disabled={isActive(path)}
-          className={
+          className={clsx(
+            "cursor-pointer",
             isActive(path)
               ? "underline"
-              : "no-underline hover:opacity-80 transition duration-300 transform" +
-                " hover:scale-105"
-          }
+              : "no-underline hover:opacity-80 transition duration-300 transform hover:scale-105",
+          )}
           onClick={() => navigate(path)}
         >
           {label.toUpperCase()}
