@@ -117,14 +117,16 @@ export function GradingTable({
                   gradedSubmissionCache[submissionId]?.rubric_assessment?.[
                     criterion.id
                   ];
-                const currentValue: number | "" = assessment?.points ?? "";
+                const currentValue = assessment?.points;
+                const stringValue =
+                  currentValue == null ? "" : String(currentValue);
 
                 const handleRatingChange = (
                   e: ChangeEvent<HTMLSelectElement>,
                 ) => {
                   const ratingStringValue = e.target.value;
                   console.log("rating change: score", ratingStringValue);
-                  if (ratingStringValue === "") return; // skip updates if nothing selected
+                  if (ratingStringValue == "") return; // skip updates if nothing selected
 
                   const newPoints = Number(ratingStringValue);
 
@@ -137,9 +139,13 @@ export function GradingTable({
                   }
                 };
 
-                const points = Number(currentValue);
                 const bgColor =
-                  colorMap.get(criterion.id)?.[points] ?? "bg-gray-800";
+                  stringValue !== ""
+                    ? // user picked something → look up its color
+                      (colorMap.get(criterion.id)?.[Number(stringValue)] ??
+                      "bg-gray-800")
+                    : // still on placeholder
+                      "bg-gray-800";
 
                 return (
                   <td
