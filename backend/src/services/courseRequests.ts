@@ -397,4 +397,16 @@ export const CoursesAPI = {
       { method: "PUT", body: JSON.stringify(submissionBody) },
     );
   },
+
+  async deleteComment(
+    courseId: string,
+    assignmentId: string,
+    studentId: string,
+    commentId: string,
+  ) {
+    return await fetchAPI<null>(
+      `/courses/${courseId}/assignments/${assignmentId}/submissions/${studentId}/comments/${commentId}`,
+      { method: "DELETE" },
+    );
+  },
 };
