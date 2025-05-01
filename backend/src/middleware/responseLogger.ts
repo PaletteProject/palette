@@ -1,6 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import util from "util";
 
+interface ResponseBody {
+  data?: {
+    token?: string;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
 /**
  * Middleware to log the outgoing response.
  *
@@ -22,9 +30,46 @@ export const responseLogger = (
   // Override the `send` method
   res.send = function (body: unknown) {
     console.log(`\nTo Palette --> Response Status: ${res.statusCode}`);
-    console.log(
-      `To Palette --> Response Body: ${util.inspect(body, { depth: 10, colors: true })}`,
-    );
+
+    if (typeof body === "string") {
+      try {
+        const parsedBody = JSON.parse(body) as ResponseBody;
+        if (parsedBody.data?.token) {
+          // Create a copy of the body with obfuscated token
+          const obfuscatedBody: ResponseBody = {
+            ...parsedBody,
+            data: {
+              ...parsedBody.data,
+              token: "*****OBFUSCATED*****",
+            },
+          };
+          console.log(
+            `To Palette --> Response Body: ${util.inspect(obfuscatedBody, {
+              depth: 10,
+              colors: true,
+            })}`,
+          );
+        } else {
+          console.log(
+            `To Palette --> Response Body: ${util.inspect(parsedBody, {
+              depth: 10,
+              colors: true,
+            })}`,
+          );
+        }
+      } catch (error: unknown) {
+        console.log(
+          `Error parsing response body: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    } else if (body) {
+      console.log(
+        `To Palette --> Response Body: ${util.inspect(body, {
+          depth: 10,
+          colors: true,
+        })}`,
+      );
+    }
 
     // Call the original `send` method with the body
     return originalSend(body);

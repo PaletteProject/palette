@@ -17,7 +17,7 @@ import tagRouter from "./routes/tagRouter.js";
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
-const app = express();
+export const app = express();
 const PORT = process.env.SERVER_PORT || 3000;
 
 // CORS config
